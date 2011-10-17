@@ -1,0 +1,19 @@
+Los archivos de este directorio contienen la información relevante para crear
+una máquina virtual con las siguientes características:
+
+IP: 192.168.1.100 (estática)
+MAC: 52:54:00:00:00:01
+Interfaz: eth0
+
+Si se quisiera crear un conjunto de máquinas virtuales, para las demás habría
+que cambiar:
+
+IP: 192.168.1.1xx en el archivo "interfaces"
+MAC: 52:54:xx:xx:xx:xx en los archivos "karmic-6GB.xml" y "70-persistent-net.rules"
+
+Los archivos "interfaces" y "70-persistent-net.rules" siguen el formato:
+Path:
+/ruta/completa/del/archivo
+
+Contenido:
+contenido del archivo tal cual

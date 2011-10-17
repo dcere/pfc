@@ -1,0 +1,51 @@
+<domain type='kvm'>
+  <name>ubuntu-vm2</name>
+  <uuid>31e31af5-0b2d-db31-7a4b-a247b1ab1ceb</uuid>
+  <memory>1048576</memory>
+  <currentMemory>1048576</currentMemory>
+  <vcpu>2</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-0.12'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <pae/>
+  </features>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source file='/var/lib/libvirt/images/ubuntu-vm2.img'/>
+      <target dev='vda' bus='virtio'/>
+    </disk>
+    <disk type='block' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <target dev='hdc' bus='ide'/>
+      <readonly/>
+    </disk>
+    <interface type='network'>
+      <mac address='52:54:00:3c:13:b3'/>
+      <source network='default'/>
+      <target dev='vnet1'/>
+      <model type='virtio'/>
+    </interface>
+    <console type='pty'>
+      <target port='0'/>
+    </console>
+    <console type='pty'>
+      <target port='0'/>
+    </console>
+    <input type='mouse' bus='ps2'/>
+    <graphics type='vnc' port='-1' autoport='yes'/>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+    </video>
+  </devices>
+</domain>
+

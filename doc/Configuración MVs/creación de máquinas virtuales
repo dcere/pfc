@@ -1,0 +1,63 @@
+1) Take an existing xml file and copy it to new_virtual_machine.xml
+
+
+2) Open new_virtual_machine.xml and modify it
+
+2.1) Change name: use new_virtual_machine for instance
+
+2.2) Change uuid field: Use uuidgen to obtain a new one
+
+2.3) Check memory and currentMemory values and modify them if necessary
+
+2.4) Make sure os.arch and os.machine are the same than the virsh capabilities output says
+_$: sudo virsh capabilities
+
+2.5) Make sure devices.disk.driver is ok
+
+2.6) Change devices.disk.source
+
+2.7) Make sure devices.interface.type is ok
+
+2.8) Change devices.interface.mac
+
+If not sure about syntax, check http://libvirt.org/formatdomain.html
+
+
+3) Define the new virtual machine
+
+3.1) If you want to just define:
+_$: sudo virsh define new_virtual_machine.xml
+
+3.2) If you want to define and run:
+_$: sudo virsh create new_virtual_machine.xml
+
+
+4) Run the new virtual machine
+_$: sudo virsh start new_virtual_machine
+
+If errors, check /var/log/libvirt/qemu/new_virtual_machine.log
+
+
+5) Connect to the virtual machine
+_$: sudo virsh console new_virtual_machine
+Nt: To exit from console without halting the machine press Ctrl + Alt + ]
+
+6) Change IP and MAC addresses
+
+6.1) Open /etc/udev/rules.d/70-persistent-net.rules or similar
+
+6.2) Edit the file to make sure interface is eth0 and address is the MAC address
+you specified on the devices.interface.mac field on the XML file
+
+6.3) Open /etc/network/interfaces
+
+6.4) Change the IP
+
+6.5) Make sure the configuration is the one you want
+
+
+7) Reboot the virtual machine
+
+
+8) Check network connectivity
+ping host's IP address or other virtual machine's IP address

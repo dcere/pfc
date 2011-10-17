@@ -1,3 +1,2 @@
-#Ignore all dev and doc branches
+#Ignore all dev branch
 dev/
-doc/
