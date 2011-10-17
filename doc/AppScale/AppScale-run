@@ -1,0 +1,53 @@
+david@john-cleese:/usr/local/appscale-tools/templates$ appscale-add-keypair --ips ips.yaml
+
+
+Executing ssh-copy-id for host : 192.168.122.222
+------------------------------
+The authenticity of host '192.168.122.222 (192.168.122.222)' can't be established.
+RSA key fingerprint is 16:5a:01:a5:fd:8a:f0:91:63:99:dd:1a:ad:e5:9d:0f.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '192.168.122.222' (RSA) to the list of known hosts.
+root@192.168.122.222's password: 
+Now try logging into the machine, with "ssh 'root@192.168.122.222'", and check in:
+
+  .ssh/authorized_keys
+
+to make sure we haven't added extra keys that you weren't expecting.
+
+
+
+
+A new ssh key has been generated for you and placed at /home/david/.appscale/appscale. You can now use this key to log into any of the machines you specified without providing a password via the following command:
+	ssh root@XXX.XXX.XXX.XXX -i /home/david/.appscale/appscale
+
+--------------------------------------------------------------------------------
+david@john-cleese:/usr/local/appscale-tools$ appscale-run-instances --ips ./templates/ips.yaml --file ./sample_apps/python/guestbook/
+About to start AppScale over a non-cloud environment.
+Head node successfully created at 192.168.122.222. It is now starting up cassandra via the command line arguments given.
+Generating certificate and private key
+
+
+[scp -i /home/david/.appscale/appscale.key -o StrictHostkeyChecking=no 2>&1 /home/david/.appscale/appscale.key root@192.168.122.222:/etc/appscale/keys/cloud1/appscale.key; echo $? > /home/david/.appscale/retval-0.00020941880318881] returned 1 instead of 0 as expected. Will try to copy again momentarily...
+Starting server at 192.168.122.222
+Please wait for the controller to finish pre-processing tasks.
+
+This AppScale instance is linked to an e-mail address giving it administrator privileges.
+Enter your desired administrator e-mail address: davidzgz123@gmail.com
+
+The new administrator password must be at least six characters long and can include non-alphanumeric characters.
+Enter your new password: 
+Enter again to verify: 
+Please wait for AppScale to prepare your machines for use.
+Starting up XMPP server
+
+Your user account has been created successfully.
+
+Your user account has been created successfully.
+Uploading guestbook...
+We have reserved the name guestbook for your application.
+Please wait for your app to start up.
+
+Your app can be reached at the following URL: http://192.168.122.222/apps/guestbook
+The status of your AppScale instance is at the following URL: http://192.168.122.222/status
+Your XMPP username is davidzgz123@192.168.122.222
+
