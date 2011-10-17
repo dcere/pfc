@@ -1,0 +1,3 @@
+#Ignore all dev and doc branches
+dev/
+doc/
