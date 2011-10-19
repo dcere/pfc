@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune_cewssa_run_job (cewssa_helper.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File cewssa_helper.rb, line 14</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune_cewssa_run_job</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;cewssa - pre-run&quot;</span>)
+  <span class="ruby-keyword kw">return</span> <span class="ruby-constant">BAD_SECRET_MSG</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">valid_secret?</span>(<span class="ruby-identifier">secret</span>)
+
+  <span class="ruby-comment cmt">#message = validate_environment(job_data, secret)</span>
+  <span class="ruby-comment cmt">#return message unless message == &quot;no error&quot;</span>
+
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;cewssa - run&quot;</span>)
+
+  <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+
+    <span class="ruby-identifier">start_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+
+    <span class="ruby-identifier">keyname</span> = <span class="ruby-ivar">@creds</span>[<span class="ruby-value str">'keyname'</span>]
+    <span class="ruby-identifier">nodes</span> = <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">convert_location_array_to_class</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">keyname</span>)
+    <span class="ruby-identifier">sims</span> = <span class="ruby-identifier">neptune_get_ssa_num_simulations</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">threads</span> = []
+    <span class="ruby-identifier">at</span> = <span class="ruby-value">0</span>
+
+    <span class="ruby-identifier">random_numbers</span> = <span class="ruby-identifier">neptune_get_ssa_seed_vals</span>(<span class="ruby-identifier">nodes</span>.<span class="ruby-identifier">length</span>)
+
+    <span class="ruby-identifier">nodes</span>.<span class="ruby-identifier">each_with_index</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">node</span>, <span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">threads</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+        <span class="ruby-identifier">ip</span> = <span class="ruby-identifier">node</span>.<span class="ruby-identifier">private_ip</span>
+        <span class="ruby-identifier">ssh_key</span> = <span class="ruby-identifier">node</span>.<span class="ruby-identifier">ssh_key</span>
+        <span class="ruby-identifier">start</span> = <span class="ruby-identifier">at</span>
+        <span class="ruby-identifier">fin</span> = <span class="ruby-identifier">at</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">sims</span>[<span class="ruby-identifier">i</span>]
+        <span class="ruby-identifier">at</span> = <span class="ruby-identifier">fin</span>
+        <span class="ruby-identifier">remote_del_command</span> = <span class="ruby-node">&quot;rm -rf #{OUTPUT_HOME}/*&quot;</span>
+        <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;ssh -i #{ssh_key} -o StrictHostkeyChecking=no root@#{ip} '#{remote_del_command}'&quot;</span>)
+
+        <span class="ruby-identifier">iterations</span> = <span class="ruby-identifier">fin</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start</span> <span class="ruby-comment cmt"># don't need to add one here</span>
+        <span class="ruby-identifier">seed</span> = <span class="ruby-identifier">random_numbers</span>[<span class="ruby-identifier">i</span>]
+
+        <span class="ruby-identifier">output_file</span> = <span class="ruby-node">&quot;#{OUTPUT_HOME}/data#{i}.txt&quot;</span>
+        <span class="ruby-identifier">remote_run_command</span> = <span class="ruby-node">&quot;#{OUR_CEWSSA_CODE} #{BIRTH_DEATH} #{iterations} #{seed} 1.454 0.686 &gt; #{output_file}&quot;</span> 
+        <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;ssh -i #{ssh_key} -o StrictHostkeyChecking=no root@#{ip} '#{remote_run_command}'&quot;</span>)
+      }
+    }
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;cewssa - joining threads&quot;</span>)
+
+    <span class="ruby-identifier">threads</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> <span class="ruby-identifier">t</span>.<span class="ruby-identifier">join</span> }
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;cewssa - retrieving run data&quot;</span>)
+
+    <span class="ruby-identifier">nodes</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">ip</span> = <span class="ruby-identifier">node</span>.<span class="ruby-identifier">private_ip</span>
+      <span class="ruby-identifier">ssh_key</span> = <span class="ruby-identifier">node</span>.<span class="ruby-identifier">ssh_key</span>
+      <span class="ruby-identifier">remote_cp_command</span> = <span class="ruby-node">&quot;scp -i #{ssh_key} -o StrictHostkeyChecking=no root@#{ip}:#{OUTPUT_HOME}/data* #{OUTPUT_HOME}/&quot;</span>
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-identifier">remote_cp_command</span>)
+    }
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;cewssa - collecting stats&quot;</span>)
+
+    <span class="ruby-identifier">collect_stats</span> = <span class="ruby-node">&quot;#{MERGE_SCRIPT} #{OUTPUT_HOME}/data* &gt; #{OUTPUT_HOME}/finalresult.txt&quot;</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-identifier">collect_stats</span>)
+
+    <span class="ruby-identifier">fin_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+    <span class="ruby-identifier">total</span> = <span class="ruby-identifier">fin_time</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start_time</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;cewssa - done!&quot;</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;TIMING: Took #{total} seconds.&quot;</span>)
+
+    <span class="ruby-identifier">shadow</span> = <span class="ruby-identifier">get_shadow</span>
+    <span class="ruby-identifier">shadow_ip</span> = <span class="ruby-identifier">shadow</span>.<span class="ruby-identifier">private_ip</span>
+    <span class="ruby-identifier">shadow_key</span> = <span class="ruby-identifier">shadow</span>.<span class="ruby-identifier">ssh_key</span>
+
+    <span class="ruby-identifier">final_result</span> = <span class="ruby-node">&quot;#{OUTPUT_HOME}/finalresult.txt&quot;</span>
+    <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">final_result</span>, <span class="ruby-identifier">final_result</span>, <span class="ruby-identifier">shadow_ip</span>, <span class="ruby-identifier">shadow_key</span>)
+
+    <span class="ruby-identifier">neptune_write_job_output</span>(<span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">final_result</span>)
+
+    <span class="ruby-identifier">remove_lock_file</span>(<span class="ruby-identifier">job_data</span>)
+  }
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-value str">&quot;OK&quot;</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

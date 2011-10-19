@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune_mapreduce_run_job (mapreduce_helper.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File mapreduce_helper.rb, line 15</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune_mapreduce_run_job</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-keyword kw">return</span> <span class="ruby-constant">BAD_SECRET_MSG</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">valid_secret?</span>(<span class="ruby-identifier">secret</span>)
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;mapreduce - run&quot;</span>)
+
+  <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+    <span class="ruby-identifier">keyname</span> = <span class="ruby-ivar">@creds</span>[<span class="ruby-value str">'keyname'</span>]
+    <span class="ruby-identifier">nodes</span> = <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">convert_location_array_to_class</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">keyname</span>)
+
+    <span class="ruby-identifier">storage</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@storage&quot;</span>]
+    <span class="ruby-identifier">creds</span> = <span class="ruby-identifier">neptune_parse_creds</span>(<span class="ruby-identifier">storage</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">mapreducejar</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@mapreducejar&quot;</span>]
+    <span class="ruby-identifier">main</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@main&quot;</span>]
+
+    <span class="ruby-identifier">map</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@map&quot;</span>]
+    <span class="ruby-identifier">reduce</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@reduce&quot;</span>]
+
+    <span class="ruby-identifier">input</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@input&quot;</span>]
+    <span class="ruby-identifier">output</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@output&quot;</span>]
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;MR: Copying mapper and reducer to all boxes&quot;</span>)
+    <span class="ruby-comment cmt"># TODO: get files from shadow first if in cloud</span>
+
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">mapreducejar</span>
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;need to get mr jar located at #{mapreducejar}&quot;</span>)
+      <span class="ruby-identifier">mr_jar</span> = <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">get_output</span>(<span class="ruby-identifier">mapreducejar</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>)
+      <span class="ruby-identifier">mr_file</span> = <span class="ruby-identifier">mapreducejar</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">'/'</span>)[<span class="ruby-value">-1</span>]
+      <span class="ruby-identifier">my_mrjar</span> = <span class="ruby-node">&quot;/tmp/#{mr_file}&quot;</span>
+      <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">write_file</span>(<span class="ruby-identifier">my_mrjar</span>, <span class="ruby-identifier">mr_jar</span>)
+
+      <span class="ruby-identifier">nodes</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
+        <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">my_mrjar</span>, <span class="ruby-identifier">my_mrjar</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">private_ip</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">ssh_key</span>)
+      }
+
+      <span class="ruby-identifier">db_master</span> = <span class="ruby-identifier">get_db_master</span>
+      <span class="ruby-identifier">ip</span> = <span class="ruby-identifier">db_master</span>.<span class="ruby-identifier">private_ip</span>
+      <span class="ruby-identifier">ssh_key</span> = <span class="ruby-identifier">db_master</span>.<span class="ruby-identifier">ssh_key</span>
+      <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">my_mrjar</span>, <span class="ruby-identifier">my_mrjar</span>, <span class="ruby-identifier">ip</span>, <span class="ruby-identifier">ssh_key</span>)
+
+      <span class="ruby-identifier">run_mr_command</span> = <span class="ruby-node">&quot;#{HADOOP} jar #{my_mrjar} #{main} #{input} #{output}&quot;</span>
+    <span class="ruby-keyword kw">else</span>
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;need to get map code located at #{map}&quot;</span>) 
+      <span class="ruby-identifier">map_code</span> = <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">get_output</span>(<span class="ruby-identifier">map</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>)
+
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;need to get reduce code located at #{reduce}&quot;</span>)
+      <span class="ruby-identifier">red_code</span> = <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">get_output</span>(<span class="ruby-identifier">reduce</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>)
+
+      <span class="ruby-identifier">map_file</span> = <span class="ruby-identifier">map</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">'/'</span>)[<span class="ruby-value">-1</span>]
+      <span class="ruby-identifier">red_file</span> = <span class="ruby-identifier">reduce</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">'/'</span>)[<span class="ruby-value">-1</span>]
+
+      <span class="ruby-identifier">my_map</span> = <span class="ruby-node">&quot;/tmp/#{map_file}&quot;</span>
+      <span class="ruby-identifier">my_red</span> = <span class="ruby-node">&quot;/tmp/#{red_file}&quot;</span>
+
+      <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">write_file</span>(<span class="ruby-identifier">my_map</span>, <span class="ruby-identifier">map_code</span>)
+      <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">write_file</span>(<span class="ruby-identifier">my_red</span>, <span class="ruby-identifier">red_code</span>)
+
+      <span class="ruby-comment cmt"># since the db master is the initiator of the mapreduce job, it needs</span>
+      <span class="ruby-comment cmt"># to have both the mapper and reducer files handy</span>
+
+      <span class="ruby-identifier">db_master</span> = <span class="ruby-identifier">get_db_master</span>
+      <span class="ruby-identifier">ip</span> = <span class="ruby-identifier">db_master</span>.<span class="ruby-identifier">private_ip</span>
+      <span class="ruby-identifier">ssh_key</span> = <span class="ruby-identifier">db_master</span>.<span class="ruby-identifier">ssh_key</span>
+      <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">my_map</span>, <span class="ruby-identifier">my_map</span>, <span class="ruby-identifier">ip</span>, <span class="ruby-identifier">ssh_key</span>)
+      <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">my_red</span>, <span class="ruby-identifier">my_red</span>, <span class="ruby-identifier">ip</span>, <span class="ruby-identifier">ssh_key</span>)
+
+      <span class="ruby-identifier">nodes</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
+        <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">my_map</span>, <span class="ruby-identifier">my_map</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">private_ip</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">ssh_key</span>)
+        <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">my_red</span>, <span class="ruby-identifier">my_red</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">private_ip</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">ssh_key</span>)
+      }
+
+      <span class="ruby-identifier">map_cmd</span> = <span class="ruby-value str">&quot;\&quot;&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">get_language</span>(<span class="ruby-identifier">my_map</span>) <span class="ruby-operator">+</span> <span class="ruby-value str">&quot; &quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">my_map</span> <span class="ruby-operator">+</span> <span class="ruby-value str">&quot;\&quot;&quot;</span>
+      <span class="ruby-identifier">reduce_cmd</span> = <span class="ruby-value str">&quot;\&quot;&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">get_language</span>(<span class="ruby-identifier">my_red</span>) <span class="ruby-operator">+</span> <span class="ruby-value str">&quot; &quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">my_red</span> <span class="ruby-operator">+</span> <span class="ruby-value str">&quot;\&quot;&quot;</span>
+
+      <span class="ruby-identifier">run_mr_command</span> = <span class="ruby-node">&quot;#{HADOOP} jar #{STREAMING} -input #{input} &quot;</span> <span class="ruby-operator">+</span>
+        <span class="ruby-node">&quot;-output #{output} -mapper #{map_cmd} -reducer #{reduce_cmd}&quot;</span>
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;waiting for input file #{input} to exist in HDFS&quot;</span>)
+    <span class="ruby-identifier">wait_for_hdfs_file</span>(<span class="ruby-identifier">input</span>)
+
+    <span class="ruby-comment cmt"># run mr job</span>
+    <span class="ruby-identifier">start</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;MR: Running job&quot;</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;MR: Command is #{run_mr_command}&quot;</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-identifier">run_mr_command</span>)
+
+    <span class="ruby-identifier">wait_for_hdfs_file</span>(<span class="ruby-identifier">output</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;MR: Done running job!&quot;</span>)
+
+    <span class="ruby-identifier">fin</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;TIMING: Total time is #{fin - start} seconds&quot;</span>)
+
+    <span class="ruby-comment cmt"># TODO: check if no part-* files exist - if so, there's an error</span>
+    <span class="ruby-comment cmt"># that we should funnel to the user somehow</span>
+
+    <span class="ruby-identifier">output_cmd</span> = <span class="ruby-node">&quot;#{HADOOP} fs -cat #{output}/part-*&quot;</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;MR: Retrieving job output with command #{output_cmd}&quot;</span>)
+    <span class="ruby-identifier">output_str</span> = <span class="ruby-node">`#{output_cmd}`</span>
+
+    <span class="ruby-identifier">neptune_write_job_output_str</span>(<span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">output_str</span>)
+
+    <span class="ruby-identifier">remove_lock_file</span>(<span class="ruby-identifier">job_data</span>)
+  }
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-value str">&quot;OK&quot;</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

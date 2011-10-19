@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>get_from_yaml (CommonFunctions)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/common_functions.rb, line 73</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">get_from_yaml</span>(<span class="ruby-identifier">keyname</span>, <span class="ruby-identifier">tag</span>, <span class="ruby-identifier">required</span>=<span class="ruby-keyword kw">true</span>)
+    <span class="ruby-identifier">location_file</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-node">&quot;~/.appscale/locations-#{keyname}.yaml&quot;</span>)
+  
+    <span class="ruby-identifier">abort</span>(<span class="ruby-node">&quot;An AppScale instance is not currently running with the provided keyname, \&quot;#{keyname}\&quot;.&quot;</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span>(<span class="ruby-identifier">location_file</span>)  
+    
+    <span class="ruby-keyword kw">begin</span>
+      <span class="ruby-identifier">tree</span> = <span class="ruby-constant">YAML</span>.<span class="ruby-identifier">load_file</span>(<span class="ruby-identifier">location_file</span>)
+    <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">ArgumentError</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">required</span>
+        <span class="ruby-identifier">abort</span>(<span class="ruby-value str">&quot;The yaml file you provided was malformed. Please correct any errors in it and try again.&quot;</span>)
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">nil</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span>
+    
+    <span class="ruby-identifier">value</span> = <span class="ruby-identifier">tree</span>[<span class="ruby-identifier">tag</span>]
+    
+    <span class="ruby-identifier">bad_yaml_format_msg</span> = <span class="ruby-node">&quot;The file #{location_file} is in the wrong format and doesn't contain a #{tag} tag. Please make sure the file is in the correct format and try again&quot;</span>
+    <span class="ruby-identifier">abort</span>(<span class="ruby-identifier">bad_yaml_format_msg</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">value</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">required</span>
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">value</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

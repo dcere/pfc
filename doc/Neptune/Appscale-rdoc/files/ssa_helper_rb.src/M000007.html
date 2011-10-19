@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune_ssa_run_job (ssa_helper.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File ssa_helper.rb, line 15</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune_ssa_run_job</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-keyword kw">return</span> <span class="ruby-constant">BAD_SECRET_MSG</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">valid_secret?</span>(<span class="ruby-identifier">secret</span>)
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;ssa - run&quot;</span>)
+
+  <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+    <span class="ruby-identifier">start_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+    <span class="ruby-identifier">total_compute_time</span> = <span class="ruby-value">0</span>
+    <span class="ruby-identifier">total_storage_time</span> = <span class="ruby-value">0</span>
+    <span class="ruby-identifier">total_slowest_path</span> = <span class="ruby-value">0</span>
+    <span class="ruby-identifier">c_times</span> = []
+    <span class="ruby-identifier">s_times</span> = []
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;job data is #{job_data.inspect}&quot;</span>)
+    <span class="ruby-identifier">keyname</span> = <span class="ruby-ivar">@creds</span>[<span class="ruby-value str">'keyname'</span>]
+
+    <span class="ruby-identifier">nodes</span> = <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">convert_location_array_to_class</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">keyname</span>)
+
+    <span class="ruby-identifier">sims</span> = <span class="ruby-identifier">neptune_get_ssa_num_simulations</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">working_dir</span> = <span class="ruby-node">&quot;/tmp/ssa-#{rand(10000)}&quot;</span>
+    <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">working_dir</span>)
+
+    <span class="ruby-identifier">tar</span> = <span class="ruby-identifier">working_dir</span> <span class="ruby-operator">+</span> <span class="ruby-value str">&quot;/&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@tar'</span>])
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;tar is #{job_data['@tar']}&quot;</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;working dir is #{working_dir}&quot;</span>)
+
+    <span class="ruby-identifier">remote</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@tar'</span>]
+    <span class="ruby-identifier">storage</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@storage'</span>]
+    <span class="ruby-identifier">creds</span> = <span class="ruby-identifier">neptune_parse_creds</span>(<span class="ruby-identifier">storage</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">get_output</span>(<span class="ruby-identifier">remote</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-identifier">tar</span>)
+    <span class="ruby-identifier">neptune_uncompress_file</span>(<span class="ruby-identifier">tar</span>)
+
+    <span class="ruby-identifier">num_sims</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@trajectories&quot;</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@simulations&quot;</span>]
+    <span class="ruby-comment cmt">#seeds = neptune_get_ssa_seed_vals(num_sims)</span>
+    <span class="ruby-comment cmt">#Djinn.log_debug(&quot;seeds are #{seeds.join(', ')}&quot;)</span>
+
+    <span class="ruby-identifier">param_num</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@param_num'</span>]
+
+    <span class="ruby-identifier">threads</span> = []
+    <span class="ruby-identifier">node_times</span> = []
+    <span class="ruby-identifier">at</span> = <span class="ruby-value">0</span> 
+    <span class="ruby-identifier">nodes</span>.<span class="ruby-identifier">each_with_index</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">node</span>, <span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">threads</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+        <span class="ruby-identifier">node_times</span>[<span class="ruby-identifier">i</span>] = <span class="ruby-value">0</span>
+
+        <span class="ruby-identifier">ip</span> = <span class="ruby-identifier">node</span>.<span class="ruby-identifier">private_ip</span>
+        <span class="ruby-identifier">ssh_key</span> = <span class="ruby-identifier">node</span>.<span class="ruby-identifier">ssh_key</span>
+        <span class="ruby-identifier">start</span> = <span class="ruby-identifier">at</span>
+        <span class="ruby-identifier">fin</span> = <span class="ruby-identifier">at</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">sims</span>[<span class="ruby-identifier">i</span>]
+        <span class="ruby-identifier">at</span> = <span class="ruby-identifier">fin</span>
+        <span class="ruby-identifier">fin</span> <span class="ruby-operator">-=</span> <span class="ruby-value">1</span> 
+        <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;This node will run trajectories #{start} to #{fin}&quot;</span>)
+
+        <span class="ruby-identifier">code_path</span> = <span class="ruby-node">&quot;#{working_dir}/code/run.sh&quot;</span>
+        <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;chmod +x #{code_path}&quot;</span>)
+        <span class="ruby-identifier">exec</span> = <span class="ruby-node">&quot;bash #{code_path}&quot;</span>
+
+        <span class="ruby-identifier">input</span> = <span class="ruby-node">&quot;#{working_dir}/code/#{job_data['@input']}&quot;</span>
+
+        <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">ip</span> <span class="ruby-operator">==</span> <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">local_ip</span>
+          <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;scp -r -i #{ssh_key} -o StrictHostkeyChecking=no #{working_dir} root@#{ip}:#{working_dir}&quot;</span>)
+        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-identifier">trajectories</span> = <span class="ruby-identifier">fin</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span> 
+
+        <span class="ruby-keyword kw">if</span> <span class="ruby-constant">MULTICORE</span>
+          <span class="ruby-identifier">cores</span> = <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">get_num_cpus</span>()
+        <span class="ruby-keyword kw">else</span>
+          <span class="ruby-identifier">cores</span> = <span class="ruby-value">1</span>
+        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-identifier">done</span> = <span class="ruby-value">0</span>
+        <span class="ruby-identifier">loop</span> {
+          <span class="ruby-identifier">trajectories_left</span> = <span class="ruby-identifier">trajectories</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">done</span>
+          <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;Need to run #{trajectories_left} more trajectories on #{cores} cores&quot;</span>)
+          <span class="ruby-keyword kw">break</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">trajectories_left</span>.<span class="ruby-identifier">zero?</span>
+          <span class="ruby-identifier">need_to_run</span> = [<span class="ruby-identifier">trajectories_left</span>, <span class="ruby-identifier">cores</span>].<span class="ruby-identifier">min</span>
+
+          <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;Running #{need_to_run} trajectories&quot;</span>)
+          <span class="ruby-identifier">core_threads</span> = []
+          <span class="ruby-identifier">current_times</span> = []
+          <span class="ruby-identifier">need_to_run</span>.<span class="ruby-identifier">times</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">j</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">core_threads</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+              <span class="ruby-identifier">my_trajectory</span> = <span class="ruby-identifier">start</span><span class="ruby-operator">+</span><span class="ruby-identifier">done</span><span class="ruby-operator">+</span><span class="ruby-identifier">j</span>
+              <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;Thread #{j} is running trajectory #{my_trajectory}&quot;</span>)
+              <span class="ruby-identifier">output</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-node">&quot;#{working_dir}/output-#{my_trajectory}&quot;</span>)
+
+              <span class="ruby-comment cmt"># run the computation, remembering to place StochKit in the user's PATH</span>
+              <span class="ruby-identifier">path</span> = <span class="ruby-node">&quot;PATH=$PATH:#{SSA_HOME}&quot;</span>
+              <span class="ruby-identifier">run_command</span> = <span class="ruby-node">&quot;#{path} #{exec} #{input} #{output} #{my_trajectory} #{param_num}&quot;</span>
+
+              <span class="ruby-identifier">start_compute</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+              <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;ssh -i #{ssh_key} -o StrictHostkeyChecking=no root@#{ip} '#{run_command}'&quot;</span>)
+              <span class="ruby-identifier">end_compute</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+              <span class="ruby-identifier">c_time</span> = <span class="ruby-identifier">end_compute</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start_compute</span>
+              <span class="ruby-identifier">total_compute_time</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">c_time</span>
+              <span class="ruby-identifier">c_times</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">c_time</span>
+
+              <span class="ruby-comment cmt"># copy the output back to this box - in the future we can do merges here</span>
+              <span class="ruby-comment cmt"># or in the future we can just have the node upload to s3</span>
+              <span class="ruby-identifier">start_storage</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+              <span class="ruby-keyword kw">unless</span> <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">local_ip</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ip</span>
+                <span class="ruby-identifier">remote_cp_command</span> = <span class="ruby-node">&quot;scp -r -i #{ssh_key} -o StrictHostkeyChecking=no root@#{ip}:#{output} #{output}&quot;</span>
+                <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-identifier">remote_cp_command</span>)
+
+              <span class="ruby-keyword kw">end</span>
+
+              <span class="ruby-identifier">remote_location</span> = <span class="ruby-node">&quot;#{job_data['@output']}/output-#{my_trajectory}&quot;</span>
+              <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">set_output</span>(<span class="ruby-identifier">remote_location</span>, <span class="ruby-identifier">output</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-constant">IS_FILE</span>)
+              <span class="ruby-identifier">end_storage</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+              <span class="ruby-identifier">s_time</span> = <span class="ruby-identifier">end_storage</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start_storage</span>
+              <span class="ruby-identifier">total_storage_time</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">s_time</span>
+              <span class="ruby-identifier">s_times</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">s_time</span>
+
+              <span class="ruby-identifier">node_times</span>[<span class="ruby-identifier">i</span>] <span class="ruby-operator">+=</span> (<span class="ruby-identifier">c_time</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">s_time</span>)
+
+              <span class="ruby-comment cmt"># remove our output - we can't want the disk to fill up</span>
+              <span class="ruby-identifier">remove_cmd</span> = <span class="ruby-node">&quot;rm -rf #{output}&quot;</span>
+              <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;ssh -i #{ssh_key} -o StrictHostkeyChecking=no root@#{ip} '#{remove_cmd}'&quot;</span>)
+              <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-identifier">remove_cmd</span>)
+            }
+          }
+
+          <span class="ruby-identifier">core_threads</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span> <span class="ruby-identifier">c</span>.<span class="ruby-identifier">join</span> }
+
+          <span class="ruby-identifier">done</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">need_to_run</span>
+          <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;Done running #{need_to_run} trajectories, #{trajectories - done} to go&quot;</span>)
+        }
+      }
+    }
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;ssa - joining threads&quot;</span>)
+
+    <span class="ruby-identifier">threads</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> <span class="ruby-identifier">t</span>.<span class="ruby-identifier">join</span> }
+
+    <span class="ruby-comment cmt"># clean up after ourselves</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;rm -rf #{working_dir}&quot;</span>)
+
+    <span class="ruby-identifier">fin_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+    <span class="ruby-identifier">total</span> = <span class="ruby-identifier">fin_time</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start_time</span>
+    <span class="ruby-identifier">total_slowest_path</span> = <span class="ruby-identifier">node_times</span>.<span class="ruby-identifier">max</span>
+    <span class="ruby-identifier">total_overhead_time</span> = <span class="ruby-identifier">total</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">total_slowest_path</span>
+
+    <span class="ruby-identifier">timing_info</span> = <span class="ruby-value str">&quot;    TIMING: total execution time is \#{total} seconds.\n    TIMING: total compute time is \#{total_compute_time} seconds.\n    TIMING: total storage time is \#{total_storage_time} seconds.\n    TIMING: slowest path time is \#{total_slowest_path} seconds.\n    TIMING: overhead time is \#{total_overhead_time} seconds.\n    TIMING: average compute time is \#{average(c_times)} seconds.\n    TIMING: stddev compute time is \#{standard_deviation(c_times)} seconds.\n    TIMING: average storage time is \#{average(s_times)} seconds.\n    TIMING: stddev storage time is \#{standard_deviation(s_times)} seconds.\n    RAW_DATA: node times are: [\#{node_times.join(', ')}]\n    RAW_DATA: compute times are: [\#{c_times.join(', ')}]\n    RAW_DATA: storage times are: [\#{s_times.join(', ')}]\n&quot;</span>
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-identifier">timing_info</span>)
+
+    <span class="ruby-identifier">remote_location</span> = <span class="ruby-node">&quot;#{job_data['@output']}/timing_info.txt&quot;</span>
+    <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">set_output</span>(<span class="ruby-identifier">remote_location</span>, <span class="ruby-identifier">timing_info</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-constant">NOT_A_FILE</span>)
+
+    <span class="ruby-identifier">remove_lock_file</span>(<span class="ruby-identifier">job_data</span>)
+  }
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-value str">&quot;OK&quot;</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

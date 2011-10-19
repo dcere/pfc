@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>scp_to_shadow (CommonFunctions)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/common_functions.rb, line 24</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">scp_to_shadow</span>(<span class="ruby-identifier">local_file_loc</span>, <span class="ruby-identifier">remote_file_loc</span>, <span class="ruby-identifier">keyname</span>, <span class="ruby-identifier">is_dir</span>=<span class="ruby-keyword kw">false</span>)
+    <span class="ruby-identifier">shadow_ip</span> = <span class="ruby-constant">CommonFunctions</span>.<span class="ruby-identifier">get_from_yaml</span>(<span class="ruby-identifier">keyname</span>, <span class="ruby-identifier">:shadow</span>)
+    <span class="ruby-identifier">ssh_key</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-node">&quot;~/.appscale/#{keyname}.key&quot;</span>)
+
+    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">local_file_loc</span>, <span class="ruby-identifier">remote_file_loc</span>, <span class="ruby-identifier">shadow_ip</span>, <span class="ruby-identifier">ssh_key</span>, <span class="ruby-identifier">is_dir</span>)
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

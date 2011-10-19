@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>preprocess_compile (lib/neptune.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/neptune.rb, line 60</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">preprocess_compile</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-identifier">verbose</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@verbose&quot;</span>]
+  <span class="ruby-identifier">code</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@code&quot;</span>])
+  <span class="ruby-keyword kw">unless</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span>(<span class="ruby-identifier">code</span>)
+    <span class="ruby-identifier">abort</span>(<span class="ruby-node">&quot;The source file #{code} does not exist.&quot;</span>)
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-identifier">suffix</span> = <span class="ruby-identifier">code</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">'/'</span>)[<span class="ruby-value">-1</span>]
+  <span class="ruby-identifier">dest</span> = <span class="ruby-node">&quot;/tmp/#{suffix}&quot;</span>
+  <span class="ruby-identifier">keyname</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@keyname&quot;</span>]
+  <span class="ruby-identifier">shadow_ip</span> = <span class="ruby-constant">CommonFunctions</span>.<span class="ruby-identifier">get_from_yaml</span>(<span class="ruby-identifier">keyname</span>, <span class="ruby-identifier">:shadow</span>)
+
+  <span class="ruby-identifier">ssh_args</span> = <span class="ruby-node">&quot;-i ~/.appscale/#{keyname}.key -o StrictHostkeyChecking=no root@#{shadow_ip}&quot;</span>
+  <span class="ruby-identifier">remove_dir</span> = <span class="ruby-node">&quot;ssh #{ssh_args} 'rm -rf #{dest}' 2&gt;&amp;1&quot;</span>
+  <span class="ruby-identifier">puts</span> <span class="ruby-identifier">remove_dir</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+  <span class="ruby-node">`#{remove_dir}`</span>
+
+  <span class="ruby-constant">CommonFunctions</span>.<span class="ruby-identifier">scp_to_shadow</span>(<span class="ruby-identifier">code</span>, <span class="ruby-identifier">dest</span>, <span class="ruby-identifier">keyname</span>, <span class="ruby-identifier">is_dir</span>=<span class="ruby-keyword kw">true</span>)
+
+  <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@code&quot;</span>] = <span class="ruby-identifier">dest</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

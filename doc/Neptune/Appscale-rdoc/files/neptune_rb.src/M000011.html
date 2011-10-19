@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune_put_input (neptune.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File neptune.rb, line 82</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune_put_input</span>(<span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-identifier">message</span> = <span class="ruby-identifier">validate_environment</span>(<span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">message</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">message</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;no error&quot;</span>
+
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;requesting input&quot;</span>)
+
+  <span class="ruby-identifier">type</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@type&quot;</span>]
+  <span class="ruby-identifier">storage</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@storage&quot;</span>]
+
+  [<span class="ruby-value str">&quot;type&quot;</span>, <span class="ruby-value str">&quot;storage&quot;</span>, <span class="ruby-value str">&quot;local&quot;</span>, <span class="ruby-value str">&quot;remote&quot;</span>].<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">item</span><span class="ruby-operator">|</span>
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-node">&quot;@#{item}&quot;</span>].<span class="ruby-identifier">nil?</span>
+      <span class="ruby-keyword kw">return</span> <span class="ruby-node">&quot;error: #{item} not specified&quot;</span>
+    <span class="ruby-keyword kw">end</span>
+  }
+
+  <span class="ruby-identifier">creds</span> = <span class="ruby-identifier">neptune_parse_creds</span>(<span class="ruby-identifier">storage</span>, <span class="ruby-identifier">job_data</span>)
+
+  <span class="ruby-identifier">input_location</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@remote&quot;</span>]
+
+  <span class="ruby-identifier">local_fs_location</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@local&quot;</span>])
+
+  <span class="ruby-identifier">loop</span> {
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;waiting for file #{local_fs_location} to exist&quot;</span>)
+    <span class="ruby-keyword kw">break</span> <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span>(<span class="ruby-identifier">local_fs_location</span>)
+    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">1</span>)
+  }
+
+  <span class="ruby-identifier">msg</span> = <span class="ruby-node">&quot;storing local file #{local_fs_location} with size &quot;</span> <span class="ruby-operator">+</span> 
+    <span class="ruby-node">&quot;#{File.size(local_fs_location)}, storing to #{input_location}&quot;</span>
+
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-identifier">msg</span>)
+
+  <span class="ruby-identifier">ret_val</span> = <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">set_output</span>(<span class="ruby-identifier">input_location</span>, <span class="ruby-identifier">local_fs_location</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-identifier">is_file</span>=<span class="ruby-keyword kw">true</span>)
+
+  <span class="ruby-comment cmt"># also, if we're running on hbase or hypertable, put a copy of the data</span>
+  <span class="ruby-comment cmt"># into HDFS for later processing via mapreduce</span>
+
+  <span class="ruby-identifier">table</span> = <span class="ruby-ivar">@creds</span>[<span class="ruby-value str">&quot;table&quot;</span>]
+
+  <span class="ruby-keyword kw">if</span> [<span class="ruby-value str">&quot;hbase&quot;</span>, <span class="ruby-value str">&quot;hypertable&quot;</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">table</span>)
+    <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">my_node</span>.<span class="ruby-identifier">is_db_master?</span>
+      <span class="ruby-identifier">db_master</span> = <span class="ruby-identifier">get_db_master</span>
+      <span class="ruby-identifier">ip</span> = <span class="ruby-identifier">db_master</span>.<span class="ruby-identifier">private_ip</span>
+      <span class="ruby-identifier">ssh_key</span> = <span class="ruby-identifier">db_master</span>.<span class="ruby-identifier">ssh_key</span>
+      <span class="ruby-constant">HelperFunctions</span>.<span class="ruby-identifier">scp_file</span>(<span class="ruby-identifier">local_fs_location</span>, <span class="ruby-identifier">local_fs_location</span>, <span class="ruby-identifier">ip</span>, <span class="ruby-identifier">ssh_key</span>)
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-identifier">cmd</span> = <span class="ruby-node">&quot;#{HADOOP} fs -put #{local_fs_location} #{input_location}&quot;</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;putting input in hadoop with command [#{cmd}]&quot;</span>)
+    <span class="ruby-identifier">run_on_db_master</span>(<span class="ruby-identifier">cmd</span>)
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-comment cmt">#FileUtils.rm_rf(local_fs_location)</span>
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">ret_val</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

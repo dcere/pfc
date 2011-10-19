@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune_mpi_run_job (mpi_helper.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File mpi_helper.rb, line 12</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune_mpi_run_job</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-keyword kw">return</span> <span class="ruby-constant">BAD_SECRET_MSG</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">valid_secret?</span>(<span class="ruby-identifier">secret</span>)
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;mpi - run&quot;</span>)
+
+  <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+    <span class="ruby-identifier">keyname</span> = <span class="ruby-ivar">@creds</span>[<span class="ruby-value str">'keyname'</span>]
+    <span class="ruby-identifier">nodes</span> = <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">convert_location_array_to_class</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">keyname</span>)
+
+    <span class="ruby-constant">ENV</span>[<span class="ruby-value str">'LD_LIBRARY_PATH'</span>] = <span class="ruby-value str">&quot;/usr/lib&quot;</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;library path = #{ENV['LD_LIBRARY_PATH']}&quot;</span>)
+
+    <span class="ruby-identifier">start_nfs</span>(<span class="ruby-identifier">nodes</span>)
+
+    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">5</span>) <span class="ruby-comment cmt"># CGB</span>
+
+    <span class="ruby-identifier">shadow</span> = <span class="ruby-identifier">get_shadow</span>
+    <span class="ruby-identifier">shadow_ip</span> = <span class="ruby-identifier">shadow</span>.<span class="ruby-identifier">private_ip</span>
+    <span class="ruby-identifier">shadow_key</span> = <span class="ruby-identifier">shadow</span>.<span class="ruby-identifier">ssh_key</span>
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;rm -fv /mirrornfs/thempicode #{MPI_OUTPUT}&quot;</span>)
+
+    <span class="ruby-identifier">remote</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@code'</span>]
+    <span class="ruby-identifier">storage</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@storage'</span>]
+    <span class="ruby-identifier">creds</span> = <span class="ruby-identifier">neptune_parse_creds</span>(<span class="ruby-identifier">storage</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">my_node</span>.<span class="ruby-identifier">is_shadow?</span>
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-value str">&quot;rm -fv /tmp/thempicode&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">get_output</span>(<span class="ruby-identifier">remote</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-value str">&quot;/tmp/thempicode&quot;</span>)
+    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">5</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-value str">&quot;cp /tmp/thempicode /mirrornfs/&quot;</span>)
+    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">5</span>)
+
+    <span class="ruby-identifier">start_mpd</span>(<span class="ruby-identifier">nodes</span>)
+    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">5</span>)
+
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@procs_to_use&quot;</span>]
+      <span class="ruby-identifier">num_of_procs</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@procs_to_use&quot;</span>]
+    <span class="ruby-keyword kw">else</span>
+      <span class="ruby-identifier">num_of_procs</span> = <span class="ruby-identifier">nodes</span>.<span class="ruby-identifier">length</span>
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-identifier">start_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;mpiexec -env X10_NTHREADS 1 -n #{num_of_procs} /mirrornfs/thempicode &gt; #{MPI_OUTPUT}&quot;</span>)
+    <span class="ruby-identifier">end_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+ 
+    <span class="ruby-identifier">total</span> = <span class="ruby-identifier">end_time</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start_time</span>
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;MPI: Done running job!&quot;</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;TIMING: Took #{total} seconds&quot;</span>)
+
+    <span class="ruby-identifier">stop_mpd</span>()
+
+    <span class="ruby-identifier">stop_nfs</span>(<span class="ruby-identifier">nodes</span>)
+
+    <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">set_output</span>(<span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@output&quot;</span>], <span class="ruby-constant">MPI_OUTPUT</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-constant">IS_FILE</span>)
+    <span class="ruby-identifier">remove_lock_file</span>(<span class="ruby-identifier">job_data</span>)
+  }
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-value str">&quot;OK&quot;</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune_erlang_run_job (erlang_helper.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File erlang_helper.rb, line 11</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune_erlang_run_job</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-keyword kw">return</span> <span class="ruby-constant">BAD_SECRET_MSG</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">valid_secret?</span>(<span class="ruby-identifier">secret</span>)
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-value str">&quot;erlang - run&quot;</span>)
+
+  <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+    <span class="ruby-identifier">keyname</span> = <span class="ruby-ivar">@creds</span>[<span class="ruby-value str">'keyname'</span>]
+    <span class="ruby-identifier">nodes</span> = <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">convert_location_array_to_class</span>(<span class="ruby-identifier">nodes</span>, <span class="ruby-identifier">keyname</span>)
+
+    <span class="ruby-constant">ENV</span>[<span class="ruby-value str">'HOME'</span>] = <span class="ruby-value str">&quot;/root&quot;</span>
+
+    <span class="ruby-identifier">code</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@code'</span>].<span class="ruby-identifier">split</span>(<span class="ruby-regexp re">/\//</span>)[<span class="ruby-value">-1</span>]
+
+    <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">my_node</span>.<span class="ruby-identifier">is_shadow?</span>
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;rm -rfv /tmp/#{code}&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">1</span>)
+
+    <span class="ruby-identifier">remote</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@code'</span>]
+    <span class="ruby-identifier">storage</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@storage'</span>]
+    <span class="ruby-identifier">creds</span> = <span class="ruby-identifier">neptune_parse_creds</span>(<span class="ruby-identifier">storage</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">get_output</span>(<span class="ruby-identifier">remote</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-node">&quot;/tmp/#{code}&quot;</span>)
+
+    <span class="ruby-identifier">module_name</span> = <span class="ruby-identifier">code</span>.<span class="ruby-identifier">split</span>(<span class="ruby-regexp re">/\./</span>)[<span class="ruby-value">0</span>]
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;got code #{code}, trying to run module #{module_name}&quot;</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;chmod +x #{code}&quot;</span>)
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;cd /tmp; erl -noshell -run #{module_name} main &gt; #{ERLANG_OUTPUT}&quot;</span>)
+
+    <span class="ruby-constant">Repo</span>.<span class="ruby-identifier">set_output</span>(<span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@output&quot;</span>], <span class="ruby-constant">ERLANG_OUTPUT</span>, <span class="ruby-identifier">storage</span>, <span class="ruby-identifier">creds</span>, <span class="ruby-constant">IS_FILE</span>)
+
+    <span class="ruby-identifier">remove_lock_file</span>(<span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;rm -rfv /tmp/#{code}&quot;</span>)
+  }
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-value str">&quot;OK&quot;</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

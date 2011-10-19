@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>make_call (AppControllerClient)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/app_controller_client.rb, line 52</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">make_call</span>(<span class="ruby-identifier">time</span>, <span class="ruby-identifier">retry_on_except</span>)
+    <span class="ruby-keyword kw">begin</span>
+      <span class="ruby-constant">Timeout</span><span class="ruby-operator">::</span><span class="ruby-identifier">timeout</span>(<span class="ruby-identifier">time</span>) {
+        <span class="ruby-keyword kw">yield</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">block_given?</span>
+      }
+    <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">Errno</span><span class="ruby-operator">::</span><span class="ruby-constant">ECONNREFUSED</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">retry_on_except</span>
+        <span class="ruby-keyword kw">retry</span>
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-identifier">abort</span>(<span class="ruby-value str">&quot;Connection was refused. Is the AppController running?&quot;</span>)
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">OpenSSL</span><span class="ruby-operator">::</span><span class="ruby-constant">SSL</span><span class="ruby-operator">::</span><span class="ruby-constant">SSLError</span>, <span class="ruby-constant">NotImplementedError</span>, <span class="ruby-constant">Timeout</span><span class="ruby-operator">::</span><span class="ruby-constant">Error</span>
+      <span class="ruby-keyword kw">retry</span>
+    <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">Exception</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">except</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">retry_on_except</span>
+        <span class="ruby-keyword kw">retry</span>
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-identifier">abort</span>(<span class="ruby-node">&quot;We saw an unexpected error of the type #{except.class} with the following message:\n#{except}.&quot;</span>)
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

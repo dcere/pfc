@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune (lib/neptune.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/neptune.rb, line 141</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune</span>(<span class="ruby-identifier">params</span>)
+  <span class="ruby-identifier">verbose</span> = <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:verbose</span>]
+
+  <span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;Received a request to run a job.&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+  <span class="ruby-identifier">puts</span> <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:type</span>] <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+
+  <span class="ruby-identifier">keyname</span> = <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:keyname</span>] <span class="ruby-operator">||</span> <span class="ruby-value str">&quot;appscale&quot;</span>
+
+  <span class="ruby-identifier">shadow_ip</span> = <span class="ruby-constant">CommonFunctions</span>.<span class="ruby-identifier">get_from_yaml</span>(<span class="ruby-identifier">keyname</span>, <span class="ruby-identifier">:shadow</span>)
+  <span class="ruby-identifier">secret</span> = <span class="ruby-constant">CommonFunctions</span>.<span class="ruby-identifier">get_secret_key</span>(<span class="ruby-identifier">keyname</span>)
+  <span class="ruby-identifier">controller</span> = <span class="ruby-constant">AppControllerClient</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">shadow_ip</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-identifier">ssh_key</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-node">&quot;~/.appscale/#{keyname}.key&quot;</span>)
+
+  <span class="ruby-identifier">job_data</span> = {}
+  <span class="ruby-identifier">params</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">k</span>, <span class="ruby-identifier">v</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">key</span> = <span class="ruby-node">&quot;@#{k}&quot;</span>
+    <span class="ruby-identifier">job_data</span>[<span class="ruby-identifier">key</span>] = <span class="ruby-identifier">v</span>
+  }
+
+  <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@job&quot;</span>] = <span class="ruby-keyword kw">nil</span>
+  <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@keyname&quot;</span>] = <span class="ruby-identifier">keyname</span> <span class="ruby-operator">||</span> <span class="ruby-value str">&quot;appscale&quot;</span>
+
+  <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@type&quot;</span>] = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@type&quot;</span>].<span class="ruby-identifier">to_s</span>
+  <span class="ruby-identifier">type</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@type&quot;</span>]
+
+  <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;upc&quot;</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;x10&quot;</span>
+    <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@type&quot;</span>] = <span class="ruby-value str">&quot;mpi&quot;</span>
+    <span class="ruby-identifier">type</span> = <span class="ruby-value str">&quot;mpi&quot;</span>
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@nodes_to_use&quot;</span>].<span class="ruby-identifier">class</span> <span class="ruby-operator">==</span> <span class="ruby-constant">Hash</span>
+    <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@nodes_to_use&quot;</span>] = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@nodes_to_use&quot;</span>].<span class="ruby-identifier">to_a</span>.<span class="ruby-identifier">flatten</span>
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-constant">NO_OUTPUT_NEEDED</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">type</span>)
+    <span class="ruby-keyword kw">if</span> (<span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@output&quot;</span>].<span class="ruby-identifier">nil?</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@output&quot;</span>] <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;&quot;</span>)
+      <span class="ruby-identifier">abort</span>(<span class="ruby-value str">&quot;Job output must be specified&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@output&quot;</span>][<span class="ruby-value">0</span>].<span class="ruby-identifier">chr</span> <span class="ruby-operator">!=</span> <span class="ruby-value str">&quot;/&quot;</span>
+      <span class="ruby-identifier">abort</span>(<span class="ruby-value str">&quot;Job output must begin with a slash ('/')&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@storage&quot;</span>]
+    <span class="ruby-identifier">storage</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@storage&quot;</span>]
+    <span class="ruby-keyword kw">unless</span> <span class="ruby-constant">ALLOWED_STORAGE_TYPES</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">storage</span>)
+      <span class="ruby-identifier">msg</span> = <span class="ruby-node">&quot;Supported storage types are #{ALLOWED_STORAGE_TYPES.join(', ')}&quot;</span> <span class="ruby-operator">+</span>
+        <span class="ruby-node">&quot; - we do not support #{storage}.&quot;</span>
+      <span class="ruby-identifier">abort</span>(<span class="ruby-identifier">msg</span>)
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-comment cmt"># Our implementation for storing / retrieving via Google Storage</span>
+    <span class="ruby-comment cmt"># and Walrus uses</span>
+    <span class="ruby-comment cmt"># the same library as we do for S3 - so just tell it that it's S3</span>
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">storage</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;gstorage&quot;</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">storage</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;walrus&quot;</span>
+      <span class="ruby-identifier">storage</span> = <span class="ruby-value str">&quot;s3&quot;</span>
+      <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@storage&quot;</span>] = <span class="ruby-value str">&quot;s3&quot;</span>
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">storage</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;s3&quot;</span>
+      [<span class="ruby-value str">&quot;EC2_ACCESS_KEY&quot;</span>, <span class="ruby-value str">&quot;EC2_SECRET_KEY&quot;</span>, <span class="ruby-value str">&quot;S3_URL&quot;</span>].<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">item</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-node">&quot;@#{item}&quot;</span>]
+          <span class="ruby-keyword kw">if</span> <span class="ruby-constant">ENV</span>[<span class="ruby-identifier">item</span>]
+            <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Using #{item} from environment&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+            <span class="ruby-identifier">job_data</span>[<span class="ruby-node">&quot;@#{item}&quot;</span>] = <span class="ruby-constant">ENV</span>[<span class="ruby-identifier">item</span>]
+          <span class="ruby-keyword kw">else</span>
+            <span class="ruby-identifier">msg</span> = <span class="ruby-node">&quot;When storing data to S3, #{item} must be specified or be in &quot;</span> <span class="ruby-operator">+</span> 
+              <span class="ruby-value str">&quot;your environment. Please do so and try again.&quot;</span>
+            <span class="ruby-identifier">abort</span>(<span class="ruby-identifier">msg</span>)
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span>
+      }
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">else</span>
+    <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@storage&quot;</span>] = <span class="ruby-value str">&quot;appdb&quot;</span>
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-comment cmt">#if job_data[&quot;@can_run_on&quot;].class == Range</span>
+  <span class="ruby-comment cmt">#  job_data[&quot;@can_run_on&quot;] = job_data[&quot;@can_run_on&quot;].to_a</span>
+  <span class="ruby-comment cmt">#elsif job_data[&quot;@can_run_on&quot;].class == Fixnum</span>
+  <span class="ruby-comment cmt">#  job_data[&quot;@can_run_on&quot;] = [job_data[&quot;@can_run_on&quot;]]</span>
+  <span class="ruby-comment cmt">#end</span>
+
+  <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;job data = #{job_data.inspect}&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+
+  <span class="ruby-identifier">do_preprocessing</span>(<span class="ruby-identifier">job_data</span>) 
+
+  <span class="ruby-identifier">ssh_args</span> = <span class="ruby-node">&quot;-i ~/.appscale/#{keyname}.key -o StrictHostkeyChecking=no &quot;</span>
+
+  <span class="ruby-comment cmt"># TODO - right now the job is assumed to succeed in many cases</span>
+  <span class="ruby-comment cmt"># need to investigate the various failure scenarios</span>
+  <span class="ruby-identifier">result</span> = { <span class="ruby-identifier">:result</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">:success</span> }
+
+  <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;input&quot;</span>
+    <span class="ruby-comment cmt"># copy file to remote</span>
+    <span class="ruby-comment cmt"># set location</span>
+    <span class="ruby-identifier">local_file</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@local&quot;</span>])
+    <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span>(<span class="ruby-identifier">local_file</span>)
+      <span class="ruby-identifier">msg</span> = <span class="ruby-node">&quot;the file you specified to copy, #{local_file}, doesn't exist.&quot;</span> <span class="ruby-operator">+</span> 
+        <span class="ruby-value str">&quot; Please specify a file that exists and try again.&quot;</span>
+      <span class="ruby-identifier">abort</span>(<span class="ruby-identifier">msg</span>)
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-identifier">remote</span> = <span class="ruby-node">&quot;/tmp/neptune-input-#{rand(100000)}&quot;</span>
+    <span class="ruby-identifier">scp_cmd</span> = <span class="ruby-node">&quot;scp -r #{ssh_args} #{local_file} root@#{shadow_ip}:#{remote}&quot;</span>
+    <span class="ruby-identifier">puts</span> <span class="ruby-identifier">scp_cmd</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+    <span class="ruby-node">`#{scp_cmd}`</span>
+
+    <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@local&quot;</span>] = <span class="ruby-identifier">remote</span>
+    <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;job data = #{job_data.inspect}&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:input</span>] = <span class="ruby-identifier">controller</span>.<span class="ruby-identifier">put_input</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;output&quot;</span>
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:output</span>] = <span class="ruby-identifier">controller</span>.<span class="ruby-identifier">get_output</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;get-acl&quot;</span>
+    <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@type&quot;</span>] = <span class="ruby-value str">&quot;acl&quot;</span>
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:acl</span>] = <span class="ruby-identifier">controller</span>.<span class="ruby-identifier">get_acl</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;set-acl&quot;</span>
+    <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@type&quot;</span>] = <span class="ruby-value str">&quot;acl&quot;</span>
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:acl</span>] = <span class="ruby-identifier">controller</span>.<span class="ruby-identifier">set_acl</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;compile&quot;</span>
+    <span class="ruby-identifier">compiled_location</span> = <span class="ruby-identifier">controller</span>.<span class="ruby-identifier">compile_code</span>(<span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">copy_to</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@copy_to&quot;</span>]
+
+    <span class="ruby-identifier">loop</span> {
+      <span class="ruby-identifier">ssh_command</span> = <span class="ruby-node">&quot;ssh #{ssh_args} root@#{shadow_ip} 'ls #{compiled_location}' 2&gt;&amp;1&quot;</span>
+      <span class="ruby-identifier">puts</span> <span class="ruby-identifier">ssh_command</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+      <span class="ruby-identifier">result</span> = <span class="ruby-node">`#{ssh_command}`</span>
+      <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;result was [#{result}]&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">result</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/No such file or directory/</span>
+        <span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;Still waiting for code to be compiled...&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;compilation complete! Copying compiled code to #{copy_to}&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+        <span class="ruby-keyword kw">break</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-identifier">sleep</span>(<span class="ruby-value">5</span>)
+    }
+
+    <span class="ruby-identifier">rm_local</span> = <span class="ruby-node">&quot;rm -rf #{copy_to}&quot;</span>
+    <span class="ruby-identifier">puts</span> <span class="ruby-identifier">rm_local</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+    <span class="ruby-node">`#{rm_local}`</span>
+
+    <span class="ruby-identifier">scp_command</span> = <span class="ruby-node">&quot;scp -r #{ssh_args} root@#{shadow_ip}:#{compiled_location} #{copy_to} 2&gt;&amp;1&quot;</span>
+    <span class="ruby-identifier">puts</span> <span class="ruby-identifier">scp_command</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+    <span class="ruby-node">`#{scp_command}`</span>
+
+    <span class="ruby-identifier">code</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@code&quot;</span>]
+    <span class="ruby-identifier">dirs</span> = <span class="ruby-identifier">code</span>.<span class="ruby-identifier">split</span>(<span class="ruby-regexp re">/\//</span>)
+    <span class="ruby-identifier">remote_dir</span> = <span class="ruby-value str">&quot;/tmp/&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">dirs</span>[<span class="ruby-value">-1</span>] 
+
+    <span class="ruby-identifier">ssh_command</span> = <span class="ruby-node">&quot;ssh #{ssh_args} root@#{shadow_ip} 'rm -rf #{remote_dir}' 2&gt;&amp;1&quot;</span>
+    <span class="ruby-identifier">puts</span> <span class="ruby-identifier">ssh_command</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+    <span class="ruby-node">`#{ssh_command}`</span>
+
+    <span class="ruby-identifier">ssh_command</span> = <span class="ruby-node">&quot;ssh #{ssh_args} root@#{shadow_ip} 'rm -rf #{compiled_location}' 2&gt;&amp;1&quot;</span>
+    <span class="ruby-identifier">puts</span> <span class="ruby-identifier">ssh_command</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+    <span class="ruby-node">`#{ssh_command}`</span>
+
+    <span class="ruby-identifier">out</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-node">&quot;#{copy_to}/compile_out&quot;</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">read</span>.<span class="ruby-identifier">chomp!</span> }
+    <span class="ruby-identifier">err</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-node">&quot;#{copy_to}/compile_err&quot;</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">read</span>.<span class="ruby-identifier">chomp!</span> }
+    <span class="ruby-identifier">result</span> = {}
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:out</span>] = <span class="ruby-identifier">out</span>
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:err</span>] = <span class="ruby-identifier">err</span>
+
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:err</span>]
+      <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:result</span>] = <span class="ruby-identifier">:failure</span>
+    <span class="ruby-keyword kw">else</span>
+      <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:result</span>] = <span class="ruby-identifier">:success</span>
+    <span class="ruby-keyword kw">end</span>    
+  <span class="ruby-keyword kw">else</span>
+    <span class="ruby-identifier">msg</span> = <span class="ruby-identifier">controller</span>.<span class="ruby-identifier">start_neptune_job</span>(<span class="ruby-identifier">job_data</span>)
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:msg</span>] = <span class="ruby-identifier">msg</span>
+    <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:result</span>] = <span class="ruby-identifier">:failure</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">result</span>[<span class="ruby-identifier">:msg</span>] <span class="ruby-operator">!~</span> <span class="ruby-regexp re">/job is now running\Z/</span>
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">result</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

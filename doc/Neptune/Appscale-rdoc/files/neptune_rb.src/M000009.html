@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>neptune_start_job (neptune.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File neptune.rb, line 28</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">neptune_start_job</span>(<span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-identifier">message</span> = <span class="ruby-identifier">validate_environment</span>(<span class="ruby-identifier">job_data</span>, <span class="ruby-identifier">secret</span>)
+  <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">message</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">message</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;no error&quot;</span>
+
+  <span class="ruby-identifier">touch_lock_file</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;got run request - #{job_data.inspect}&quot;</span>)
+
+  <span class="ruby-identifier">prejob_status</span> = <span class="ruby-identifier">can_run_job</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;Pre-job status for job_data [#{job_data}] is [#{prejob_status}]&quot;</span>)
+  <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">prejob_status</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:ok</span>
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">prejob_status</span>
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-constant">Thread</span>.<span class="ruby-identifier">new</span> {
+    <span class="ruby-identifier">nodes_to_use</span> = <span class="ruby-identifier">neptune_acquire_nodes</span>(<span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">start_job</span>(<span class="ruby-identifier">nodes_to_use</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">start_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>()
+    <span class="ruby-identifier">master_node</span> = <span class="ruby-identifier">nodes_to_use</span>.<span class="ruby-identifier">first</span> 
+    <span class="ruby-identifier">run_job_on_master</span>(<span class="ruby-identifier">master_node</span>, <span class="ruby-identifier">nodes_to_use</span>, <span class="ruby-identifier">job_data</span>)
+    <span class="ruby-identifier">end_time</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>()
+
+    <span class="ruby-identifier">stop_job</span>(<span class="ruby-identifier">nodes_to_use</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">neptune_release_nodes</span>(<span class="ruby-identifier">nodes_to_use</span>, <span class="ruby-identifier">job_data</span>)
+
+    <span class="ruby-identifier">name</span> = <span class="ruby-identifier">get_job_name</span>(<span class="ruby-identifier">job_data</span>)
+    <span class="ruby-identifier">num_nodes</span> = <span class="ruby-identifier">nodes_to_use</span>.<span class="ruby-identifier">length</span>
+    <span class="ruby-identifier">this_job</span> = <span class="ruby-constant">NeptuneJobData</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">num_nodes</span>, <span class="ruby-identifier">start_time</span>, <span class="ruby-identifier">end_time</span>)
+    <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@neptune_jobs</span>[<span class="ruby-identifier">name</span>].<span class="ruby-identifier">nil?</span>
+      <span class="ruby-ivar">@neptune_jobs</span>[<span class="ruby-identifier">name</span>] = [<span class="ruby-identifier">this_job</span>]
+    <span class="ruby-keyword kw">else</span>
+      <span class="ruby-ivar">@neptune_jobs</span>[<span class="ruby-identifier">name</span>] <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">this_job</span>
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-identifier">code</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">'@code'</span>]
+    <span class="ruby-identifier">dirs</span> = <span class="ruby-identifier">code</span>.<span class="ruby-identifier">split</span>(<span class="ruby-regexp re">/\//</span>)
+    <span class="ruby-identifier">code_dir</span> = <span class="ruby-identifier">dirs</span>[<span class="ruby-value">0</span>, <span class="ruby-identifier">dirs</span>.<span class="ruby-identifier">length</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>].<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;/&quot;</span>)
+
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">code_dir</span> <span class="ruby-operator">!=</span> <span class="ruby-value str">&quot;/tmp&quot;</span>
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_debug</span>(<span class="ruby-node">&quot;code is located at #{code_dir}&quot;</span>)
+      <span class="ruby-constant">Djinn</span>.<span class="ruby-identifier">log_run</span>(<span class="ruby-node">&quot;rm -rf #{code_dir}&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+  }
+
+  <span class="ruby-keyword kw">return</span> <span class="ruby-node">&quot;#{job_data['@type']} job is now running&quot;</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

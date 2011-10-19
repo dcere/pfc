@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>preprocess_mpi (lib/neptune.rb)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/neptune.rb, line 98</span>
+<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">preprocess_mpi</span>(<span class="ruby-identifier">job_data</span>)
+  <span class="ruby-identifier">verbose</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@verbose&quot;</span>]
+  <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@procs_to_use&quot;</span>]
+    <span class="ruby-identifier">p</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@procs_to_use&quot;</span>]
+    <span class="ruby-identifier">n</span> = <span class="ruby-identifier">job_data</span>[<span class="ruby-value str">&quot;@nodes_to_use&quot;</span>]
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">p</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">n</span>
+      <span class="ruby-identifier">not_enough_procs</span> = <span class="ruby-value str">&quot;When specifying both :procs_to_use and :nodes_to_use&quot;</span> <span class="ruby-operator">+</span>
+        <span class="ruby-value str">&quot;, :procs_to_use must be at least as large as :nodes_to_use. Please &quot;</span> <span class="ruby-operator">+</span>
+        <span class="ruby-node">&quot;change this and try again. You specified :procs_to_use = #{p} and&quot;</span> <span class="ruby-operator">+</span>
+        <span class="ruby-node">&quot;:nodes_to_use = #{n}.&quot;</span>
+      <span class="ruby-identifier">abort</span>(<span class="ruby-identifier">not_enough_procs</span>)
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span>
+
+  <span class="ruby-comment cmt"># TODO: verify that source_code is in repo</span>
+<span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>
