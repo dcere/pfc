@@ -1,0 +1,18 @@
+AppEngine APIs supported by AppScale
+
+                Java  Go    Python
+Datastore:      Y     Y     Y       
+Transactions:   Y     Y     Y
+Images:         Y     Y     Y
+Memcache:       Y     Y     Y
+Blobstore:      N     Y     Y
+Channel:        N     N     Y
+Capabilities:   N     N     Y
+Outgoing Mail:  N     N     Y
+Multitenancy:   Y     Y     Y
+Users:          Y     Y     Y
+URL Fetch:      Y     Y     Y
+XMPP:           N     N     Y
+Task Queues:    Y     Y     Y
+OAuth:          N     N     N
+Backends:       N     N     N
