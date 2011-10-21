@@ -1,0 +1,19 @@
+Da soporte (archivos helper) para:
+
+activemq_helper.rb
+appscale_helper.rb
+average_probs.R
+cewssa_helper.rb
+dfsp_helper.rb
+erlang_helper.rb
+go_helper.rb
+mapreduce_helper.rb
+mpi_helper.rb
+neptune_job_data.rb
+neptune.rb
+nfs_helper.rb
+patch
+r_helper.rb
+run_dwSSA.R
+ssa_helper.rb
+x10_helper.rb
