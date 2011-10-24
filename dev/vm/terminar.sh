@@ -1,4 +1,10 @@
-sudo virsh shutdown karmic-6GB-1
-sudo virsh shutdown karmic-6GB-2
-sudo virsh shutdown karmic-6GB-3
-sudo virsh shutdown karmic-6GB-4
+if [ $# -eq 0 ]
+then
+  echo "$0 : Introduce la cantidad de máquinas que quieres terminar"
+  exit 1
+fi
+
+for ((  i = 1 ;  i <= $1;  i++  ))
+do
+  sudo virsh shutdown karmic-6GB-$i
+done
