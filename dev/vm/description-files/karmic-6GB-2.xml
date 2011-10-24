@@ -1,8 +1,8 @@
 <domain type='kvm'>
   <name>karmic-6GB-2</name>
   <uuid>3e664fc1-9629-4f5b-8474-299f6aa1cbc8</uuid>
-  <memory>2097152</memory>
-  <currentMemory>2097152</currentMemory>
+  <memory>1048576</memory>
+  <currentMemory>1048576</currentMemory>
   <vcpu>2</vcpu>
   <os>
     <type arch='x86_64' machine='pc-0.12'>hvm</type>
