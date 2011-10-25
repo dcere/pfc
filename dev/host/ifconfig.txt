@@ -1,0 +1,36 @@
+br0       Link encap:Ethernet  direcciónHW 6c:f0:49:0b:e8:38  
+          Direc. inet:192.168.1.33  Difus.:192.168.1.255  Másc:255.255.255.0
+          Dirección inet6: fe80::6ef0:49ff:fe0b:e838/64 Alcance:Enlace
+          ACTIVO DIFUSIÓN FUNCIONANDO MULTICAST  MTU:1500  Métrica:1
+          Paquetes RX:717503 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:757445 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:0 
+          Bytes RX:655798942 (655.7 MB)  TX bytes:219267021 (219.2 MB)
+
+eth0      Link encap:Ethernet  direcciónHW 6c:f0:49:0b:e8:38  
+          Dirección inet6: fe80::6ef0:49ff:fe0b:e838/64 Alcance:Enlace
+          ACTIVO DIFUSIÓN FUNCIONANDO MULTICAST  MTU:1500  Métrica:1
+          Paquetes RX:717531 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:765283 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:1000 
+          Bytes RX:665898314 (665.8 MB)  TX bytes:219674767 (219.6 MB)
+          Interrupción:25 Dirección base: 0xe000 
+
+lo        Link encap:Bucle local  
+          Direc. inet:127.0.0.1  Másc:255.0.0.0
+          Dirección inet6: ::1/128 Alcance:Anfitrión
+          ACTIVO BUCLE FUNCIONANDO  MTU:16436  Métrica:1
+          Paquetes RX:4362 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:4362 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:0 
+          Bytes RX:345328 (345.3 KB)  TX bytes:345328 (345.3 KB)
+
+virbr0    Link encap:Ethernet  direcciónHW 9e:db:3f:69:a1:48  
+          Direc. inet:192.168.122.1  Difus.:192.168.122.255  Másc:255.255.255.0
+          Dirección inet6: fe80::9cdb:3fff:fe69:a148/64 Alcance:Enlace
+          ACTIVO DIFUSIÓN FUNCIONANDO MULTICAST  MTU:1500  Métrica:1
+          Paquetes RX:0 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:26 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:0 
+          Bytes RX:0 (0.0 B)  TX bytes:4804 (4.8 KB)
+

@@ -1,6 +1,6 @@
 <domain type='kvm'>
   <name>karmic-6GB-2</name>
-  <uuid>3e664fc1-9629-4f5b-8474-299f6aa1cbc8</uuid>
+  <uuid>e950eb7c-1422-4d95-a538-57872b6b7341</uuid>
   <memory>1048576</memory>
   <currentMemory>1048576</currentMemory>
   <vcpu>2</vcpu>
