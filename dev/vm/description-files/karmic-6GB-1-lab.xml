@@ -1,0 +1,39 @@
+<domain type='kvm'>
+  <name>karmic-6GB-1-lab</name>
+  <uuid>f7afab76-71fb-434d-8759-4223aa366a57</uuid>
+  <memory>1048576</memory>
+  <currentMemory>1048576</currentMemory>
+  <vcpu>2</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-0.12'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <pae/>
+  </features>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='/home/dceresuela/PFC/pfc/dev/vm/img/karmic-6GB-1.img'/>
+      <target dev='vda' bus='virtio'/>
+    </disk>
+    <interface type='bridge'>
+      <source bridge='br0'/>
+      <target dev='vnet0'/>
+      <mac address="52:54:00:00:00:01"/>
+    </interface>
+    <console type='pty'>
+      <target port='0'/>
+    </console>
+    <console type='pty'>
+      <target port='0'/>
+    </console>
+  </devices>
+</domain>
