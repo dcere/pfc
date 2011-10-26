@@ -1,0 +1,21 @@
+Plan gratuito
+
+Resumen
+-------
+750 horas de uso para la ejecución de instancias Linux/Unix Micro en EC2
+750 horas de Elastic Load Balancing más 15 GB de procesamiento de datos
+10 GB de Amazon Elastic Block Storage (EBS) más 1 millón de E/S, 1 GB de almacenamiento de fotos, 10.000 solicitudes para Obtener fotos y 1.000 solicitudes para Poner fotos
+15 GB de banda ancha saliente sumadas por todos los servicios de AWS
+
+Detalle
+-------
+750 horas de uso de Microinstancia Linux de Amazon EC2 (613 MB de memoria y compatibilidad con plataformas de 32 y 64 bits), horas suficientes para ejecutarse de forma continua todos los meses*
+750 horas de Elastic Load Balancer más 15 GB de procesamiento de datos*
+10 GB de Amazon Elastic Block Storage, más 1 millón de E/S, 1 GB de almacenamiento de instantáneas, 10.000 solicitudes GET para instantáneas y 1.000 solicitudes PUT para instantáneas*
+5 GB de almacenamiento estándar de Amazon S3, 20.000 solicitudes de obtención y 2.000 solicitudes de colocación*
+15 GB de banda ancha saliente sumada por todos los servicios de AWS*
+25 horas de máquina de Amazon SimpleDB y 1 GB de almacenamiento**
+100.000 solicitudes de Amazon Simple Queue Service**
+100.000 solicitudes, 100.000 notificaciones HTTP y 1.000 notificaciones por correo electrónico para Amazon Simple Notification Service**
+10 indicadores de Amazon Cloudwatch, 10 alarmas y 1.000.000 de solicitudes de API**
+Además de estos servicios, tendrá a su servicio sin ningún cargo la AWS Management Console para ayudarle a crear y gestionar su aplicación en AWS.
