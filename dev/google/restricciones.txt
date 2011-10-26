@@ -1,12 +1,13 @@
-La zona de pruebas:
-Las aplicaciones se ejecutan en un entorno seguro que proporciona acceso limitado al sistema operativo subyacente. Estas limitaciones permiten a App Engine distribuir solicitudes web de la aplicaci√≥n en varios servidores e iniciar y detener los servidores seg√∫n las demandas del tr√°fico. La zona de pruebas a√≠sla la aplicaci√≥n en su propio entorno seguro de confianza, totalmente independiente del hardware, el sistema operativo y la ubicaci√≥n f√≠sica del servidor web.
+La zona de pruebas
 
+Las aplicaciones se ejecutan en un entorno seguro que proporciona acceso limitado al sistema operativo subyacente. Estas limitaciones permiten a App Engine distribuir solicitudes web de la aplicaciÛn en varios servidores e iniciar y detener los servidores seg˙n las demandas del tr·fico. La zona de pruebas aÌsla la aplicaciÛn en su propio entorno seguro de confianza, totalmente independiente del hardware, el sistema operativo y la ubicaciÛn fÌsica del servidor web.
 Algunos ejemplos de las limitaciones del entorno seguro de la zona de pruebas son:
 
-- Una aplicaci√≥n s√≥lo podr√° acceder a otros equipos de Internet a trav√©s de los servicios de correo electr√≥nico y extracci√≥n de URL proporcionados. Otros equipos s√≥lo se podr√°n conectar a la aplicaci√≥n mediante solicitudes HTTP (o HTTPS) en los puertos est√°ndar.
+- Una aplicaciÛn sÛlo podr· acceder a otros equipos de Internet a travÈs de los servicios de correo electrÛnico y extracciÛn de URL proporcionados. Otros equipos sÛlo se podr·n conectar a la aplicaciÛn mediante solicitudes HTTP (o HTTPS) en los puertos est·ndar.
 
-- Una aplicaci√≥n no podr√° escribir en el sistema de archivos. Una aplicaci√≥n podr√° leer archivos, pero s√≥lo aqu√©llos subidos con el c√≥digo de la aplicaci√≥n. La aplicaci√≥n deber√° utilizar el almac√©n de datos de App Engine, Memcache u otros servicios para todos los datos que permanezcan entre las solicitudes.
+- Una aplicaciÛn no podr· escribir en el sistema de archivos. Una aplicaciÛn podr· leer archivos, pero sÛlo aquÈllos subidos con el cÛdigo de la aplicaciÛn. La aplicaciÛn deber· utilizar el almacÈn de datos de App Engine, Memcache u otros servicios para todos los datos que permanezcan entre las solicitudes.
 
-- El c√≥digo de aplicaci√≥n s√≥lo se ejecuta en respuesta a una solicitud web o a una tarea cron y debe devolver datos de respuesta en un per√≠odo de 30 segundos en cualquier caso. 
+- El cÛdigo de aplicaciÛn sÛlo se ejecuta en respuesta a una solicitud web o a una tarea cron y debe devolver datos de respuesta en un perÌodo de 30 segundos en cualquier caso. Un controlador de solicitudes no podr· generar un subproceso ni ejecutar cÛdigo despuÈs de haber enviado la respuesta.
 
-- Un controlador de solicitudes no podr√° generar un subproceso ni ejecutar c√≥digo despu√©s de haber enviado la respuesta.
+Cuotas en detalle:
+http://code.google.com/intl/es-ES/appengine/docs/quotas.html
