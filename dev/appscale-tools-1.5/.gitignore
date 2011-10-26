@@ -1,0 +1,12 @@
+bin/
+CHANGELOG
+debian/
+lib/
+LICENSE
+package_app.rb
+Rakefile
+README
+sample_apps/
+templates/
+test/
+test_apps/
