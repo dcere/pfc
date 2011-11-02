@@ -19,3 +19,9 @@ Detalle
 100.000 solicitudes, 100.000 notificaciones HTTP y 1.000 notificaciones por correo electrónico para Amazon Simple Notification Service**
 10 indicadores de Amazon Cloudwatch, 10 alarmas y 1.000.000 de solicitudes de API**
 Además de estos servicios, tendrá a su servicio sin ningún cargo la AWS Management Console para ayudarle a crear y gestionar su aplicación en AWS.
+
+
+* Durante un año para nuevos usuarios
+** De forma indefinida
+
+

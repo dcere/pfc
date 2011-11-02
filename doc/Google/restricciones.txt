@@ -16,7 +16,7 @@ Recurso                             	      Cuota gratuita predeterminada (Límite
 -------                                     -----------------------------------------------------------------
 
 Almacén de blob:
-Datos almacenados del almacén de blob	      1 GB
+Datos almacenados del almacén de blob       1 GB
 Invocaciones al API del almacén de blob     -
 
 Almacén de datos:
