@@ -1,0 +1,77 @@
+La zona de pruebas
+
+Las aplicaciones se ejecutan en un entorno seguro que proporciona acceso limitado al sistema operativo subyacente. Estas limitaciones permiten a App Engine distribuir solicitudes web de la aplicación en varios servidores e iniciar y detener los servidores según las demandas del tráfico. La zona de pruebas aísla la aplicación en su propio entorno seguro de confianza, totalmente independiente del hardware, el sistema operativo y la ubicación física del servidor web.
+Algunos ejemplos de las limitaciones del entorno seguro de la zona de pruebas son:
+
+- Una aplicación sólo podrá acceder a otros equipos de Internet a través de los servicios de correo electrónico y extracción de URL proporcionados. Otros equipos sólo se podrán conectar a la aplicación mediante solicitudes HTTP (o HTTPS) en los puertos estándar.
+
+- Una aplicación no podrá escribir en el sistema de archivos. Una aplicación podrá leer archivos, pero sólo aquéllos subidos con el código de la aplicación. La aplicación deberá utilizar el almacén de datos de App Engine, Memcache u otros servicios para todos los datos que permanezcan entre las solicitudes.
+
+- El código de aplicación sólo se ejecuta en respuesta a una solicitud web o a una tarea cron y debe devolver datos de respuesta en un período de 30 segundos en cualquier caso. Un controlador de solicitudes no podrá generar un subproceso ni ejecutar código después de haber enviado la respuesta.
+
+Cuotas en detalle:
+http://code.google.com/intl/es-ES/appengine/docs/quotas.html
+
+Recurso                             	      Cuota gratuita predeterminada (Límite diario [Frecuencia máxima])
+-------                                     -----------------------------------------------------------------
+
+Almacén de blob:
+Datos almacenados del almacén de blob       1 GB
+Invocaciones al API del almacén de blob     -
+
+Almacén de datos:
+Datos almacenados                           1 GB
+Número de índices                           200
+
+Invocaciones al API del almacén de datos    -
+Consultas en el almacén de datos            -
+Datos enviados al API                       -
+Datos recibidos del API                     -
+Tiempo de CPU del almacén de datos          -
+
+Implementaciones:
+Número de veces que se sube la aplicación   1000
+
+Manipulación de imágenes:
+Invocaciones al API de manipulación de imágenes     -
+Datos enviados al API                               -
+Datos recibidos del API                             -
+Transformaciones ejecutadas                         -
+
+Correo:
+Invocaciones al API de correo                           100 invocaciones      32 invocaciones/minuto
+Destinatarios de mensajes de correo                     2000 destinatarios    8 destinatarios/minuto
+Administradores destinatarios de mensajes de correo     5000 correos          24 correos/minuto
+Datos del cuerpo del mensaje enviado                    60 MB                 340 KB/minuto
+Archivos adjuntos enviados                              2000 archivos         8 archivos/minuto
+Datos de archivo adjunto enviados                       100 MB                10 MB/minuto
+
+Memcache:
+Invocaciones al API de memcache             -
+Datos enviados al API                       -
+Datos recibidos del API                     -
+
+Solicitudes:
+Solicitudes                                 -          *1
+Ancho de banda de salida (HTTPS también)    -
+Ancho de banda de entrada(HTTPS también)    -
+Tiempo de CPU                               6.5 horas  *2
+
+*1: Las cuotas por minuto para las aplicaciones que tienen habilitada la facturación permiten hasta 500 solicitudes por segundo; más de mil millones de solicitudes al mes.
+*2: El tiempo de CPU se representa en segundos y es equivalente al número de ciclos de CPU que un procesador Intel x86 de 1,2 GHz puede ejecutar en dicho plazo de tiempo. El número real de ciclos de CPU empleados varía mucho en función de las condiciones internas de App Engine, de modo que este número se ajusta por motivos de notificación a través de dicho procesador como medida de referencia.
+
+Cola de tareas:
+Invocaciones al API de la cola de tareas    100.000
+Recurso de tareas almacenadas en la cola    1.000.000
+Bytes de tareas almacenadas en la cola      100 MB
+
+Obtención de URL:
+Invocaciones al API de obtención de URL     657.000                                3000 invocaciones/minuto
+Datos de obtención de UYRL enviados         Límite de ancho de banda de salida     22 MB/minuto
+Datos de obtención de URL recibidos         Límite de ancho de banda de entrada    22 MB/minuto
+
+XMPP:
+Invocaciones al API de XMPP                             46.000.000              257.280 invocaciones/minuto
+Datos de XMPP enviados                                  1 GB                    5.81 GB/minuto
+Destinatarios de XMPP que han recibido mensajes         46.000.000              257.280 destinatarios/minuto
+Invitaciones de XMPP enviadas                           100.000 invocaciones    2000 invocaciones/minuto
