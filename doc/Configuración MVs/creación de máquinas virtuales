@@ -12,23 +12,79 @@
 2.4) Make sure os.arch and os.machine are the same than the virsh capabilities output says
 _$: sudo virsh capabilities
 
-2.5) Make sure devices.disk.driver is ok
+...
+  <guest>
+    <os_type>hvm</os_type>
+    <arch name='x86_64'>        <-------------------------------- Should be os.arch
+      <wordsize>64</wordsize>
+      <emulator>/usr/local/bin/qemu-system-x86_64</emulator>
+      <machine>pc-0.14</machine>                <---------------- Should be os.machine
+      <machine canonical='pc-0.14'>pc</machine>
+      <machine>pc-0.13</machine>
+      <machine>pc-0.12</machine>
+      <machine>pc-0.11</machine>
+      <machine>pc-0.10</machine>
+      <machine>isapc</machine>
+      <domain type='qemu'>
+      </domain>
+      <domain type='kvm'>
+        <emulator>/usr/bin/kvm</emulator>
+        <machine>pc-0.14</machine>
+        <machine canonical='pc-0.14'>pc</machine>
+        <machine>pc-0.13</machine>
+        <machine>pc-0.12</machine>
+        <machine>pc-0.11</machine>
+        <machine>pc-0.10</machine>
+        <machine>isapc</machine>
+      </domain>
+    </arch>
+    <features>
+      <cpuselection/>
+      <deviceboot/>
+      <acpi default='on' toggle='yes'/>
+      <apic default='on' toggle='no'/>
+    </features>
+  </guest>
+... (Only valid if using kvm on a 64 bit Intel architecture)
 
-2.6) Change devices.disk.source
 
-2.7) Make sure devices.interface.type is ok
+2.5) Check hard disk
+2.5.1) Make sure devices.disk.driver is ok. Change it otherwise (use "file" command).
+2.5.2) Change devices.disk.source
 
-2.8) Change devices.interface.mac
+2.6) Check network
+2.6.1) Make sure devices.interface.type is ok. Change it otherwise.
+2.6.2) Change devices.interface.mac
+...
+    <interface type='network'>
+      <mac address='52:54:00:00:ab:cd'/>
+      <source network='default'/>
+      <target dev='vnet0'/>
+      <model type='virtio'/>
+    </interface>
+... (Only valid if using a NAT/Virtual network configuration)
+
+...
+    <interface type='bridge'>
+      <source bridge='br0'/>
+      <target dev='vnet0'/>
+      <mac address="52:54:00:5b:a7:89"/>
+      <model type='virtio'/>
+    </interface>
+... (Only valid if using a bridged network configuration)
 
 If not sure about syntax, check http://libvirt.org/formatdomain.html
 
 
 3) Define the new virtual machine
 
-3.1) If you want to just define:
+3.1) Connect to the system instance:
+_$: sudo virsh connect qemu:///system
+
+3.2.1) If you want to just define:
 _$: sudo virsh define new_virtual_machine.xml
 
-3.2) If you want to define and run:
+3.2.2) If you want to define and run:
 _$: sudo virsh create new_virtual_machine.xml
 
 
@@ -56,8 +112,12 @@ you specified on the devices.interface.mac field on the XML file
 6.5) Make sure the configuration is the one you want
 
 
-7) Reboot the virtual machine
+7) Reboot/Halt+Start the virtual machine.
 
 
-8) Check network connectivity
+8) Connect to the virtual machine
+_$: sudo virsh console new_virtual_machine
+
+
+9) Check network connectivity
 ping host's IP address or other virtual machine's IP address
