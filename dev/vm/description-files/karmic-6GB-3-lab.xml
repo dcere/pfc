@@ -1,6 +1,6 @@
 <domain type='kvm'>
-  <name>karmic-6GB-2-lab</name>
-  <uuid>e950eb7c-1422-4d95-a538-57872b6b7341</uuid>
+  <name>karmic-6GB-3-lab</name>
+  <uuid>88423aa1-799a-43f1-b367-f02199286d2e</uuid>
   <memory>1048576</memory>
   <currentMemory>1048576</currentMemory>
   <vcpu>2</vcpu>
@@ -21,13 +21,13 @@
     <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/home/dceresuela/PFC/pfc/dev/vm/img/karmic-6GB-2.img'/>
+      <source file='/home/dceresuela/PFC/pfc/dev/vm/img/karmic-6GB-3.img'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='bridge'>
       <source bridge='br0'/>
       <target dev='vnet0'/>
-      <mac address="52:54:00:5b:a7:90"/>
+      <mac address="52:54:00:5b:a7:91"/>
       <model type='virtio'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
     </interface>
