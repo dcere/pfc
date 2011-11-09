@@ -1,0 +1,11 @@
+1)  Descargar imagen del torrent.
+2)  Añadir para el usuario root la contraseña (appscale).
+3)  Cambiar la distribución de teclado a la española.
+4)  Comprobar que está instalado el demonio acpid.
+5)  Revisar los archivos "interfaces" y "persistent-rules".
+6)  Transformar el tipo de la image de "raw" a "qcow2".
+7)  Guardar esa imagen como imagen base: "karmic.img", "karmic-6GB.img" u otro nombre cualquiera.
+8)  Añadir archivos que puedan ser de ayuda: "interfaces" o "persistent-rules".
+9)  Revisar que no haya tildes en ninguna carpeta ni documento de los que se incluyen.
+10) Comprimir la carpeta en la que se encuentren tanto "karmic" como los ficheros de ayuda con gzip.
+11) Grabar DVD y guardarlo en caja fuerte de banco suizo.
