@@ -1,11 +1,51 @@
-1)  Descargar imagen del torrent.
-2)  Añadir para el usuario root la contraseña (appscale).
-3)  Cambiar la distribución de teclado a la española.
-4)  Comprobar que está instalado el demonio acpid.
-5)  Revisar los archivos "interfaces" y "persistent-rules".
-6)  Transformar el tipo de la image de "raw" a "qcow2".
-7)  Guardar esa imagen como imagen base: "karmic.img", "karmic-6GB.img" u otro nombre cualquiera.
-8)  Añadir archivos que puedan ser de ayuda: "interfaces" o "persistent-rules".
-9)  Revisar que no haya tildes en ninguna carpeta ni documento de los que se incluyen.
-10) Comprimir la carpeta en la que se encuentren tanto "karmic" como los ficheros de ayuda con gzip.
-11) Grabar DVD y guardarlo en caja fuerte de banco suizo.
+1) Descargar imagen del torrent.
+
+2) Descomprimir la imagen y montarla en un directorio
+2.1) _$: tar -xvf appscale-1.5-kvm.tar.gz
+2.2) _$: file root.img
+         //note the start sector value of partition 1 and multiply it by 512 (here ours is 63*512 = 32256)
+2.3) _$: mkdir -p tmpdir
+2.4) _$: sudo mount -o loop,offset=32256 root.img tmpdir
+
+Nota: Hasta que no se indique lo contrario las modificaciones se realizarán en
+  el directorio tmpdir recién creado.
+
+3) Añadir para el usuario root la contraseña (appscale).
+3.1) Ir a /etc/shadow
+3.2) Al usuario root ponerle como contraseña "$1$fIY.Kph/$BMsE4tyUwpXEziJGp7f9B."
+
+4) Cambiar la distribución de teclado a la española.
+4.1) Ir a /etc/default/console-setup
+4.2) Poner en el campo "xkblayout" el valor "es"
+
+5) Comprobar que está instalado el demonio acpid.
+5.1) Ir a /usr/sbin y comprobar que existe el ejecutable "acpid"
+5.2) Si no está instalado habrá que instalarlo desde internet.
+5.2.1) Bajo ningún concepto se puede usar esta máquina para probar appscale.
+5.2.2) Usa virsh para conectarte a la máquina: virsh console <máquina>
+5.2.3) _$: sudo apt-get install acpid
+5.2.4) Sal de la máquina virtual y sigue en el directorio donde está montada.
+
+6) Revisar los archivos "interfaces" y "persistent-rules".
+
+7) Comprobar que no haya nada raro (direcciones ips) en el directorio root
+7.1) Comprobar el directorio /root/appscale/.appscale de arriba a abajo
+7.2) Hacer un grep -nri "192.168" ./* en ese directorio
+7.3) Repetir los pasos para el directorio /root/.appscale
+7.4) Comprobar también el directorio .ssh. Eliminar todo lo de ese directorio.
+
+8) Desmonta el directorio tmpdir
+8.1) _$: sudo umount tmpdir
+
+9) Transformar el tipo de la image de "raw" a "qcow2".
+9.1) _$: qemu-img convert -f raw root.img -O qcow2 karmic.img
+
+10) Guardar esa imagen como imagen base: "karmic.img", "karmic-6GB.img" u otro nombre cualquiera.
+
+11) Añadir archivos que puedan ser de ayuda: "interfaces" o "persistent-rules".
+
+12) Revisar que no haya tildes en ninguna carpeta ni documento de los que se incluyen.
+
+13) Comprimir la carpeta en la que se encuentren tanto "karmic" como los ficheros de ayuda con gzip.
+
+14) Grabar DVD y guardarlo en caja fuerte de banco suizo.
