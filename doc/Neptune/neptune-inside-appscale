@@ -1,0 +1,242 @@
+grep -nri "neptune" ./*
+
+./AppController/lib/app_controller_client.rb:160:  def run_neptune_job(nodes, job_data)
+./AppController/lib/app_controller_client.rb:163:    if NEPTUNE_JOBS.include?(type)
+./AppController/lib/app_controller_client.rb:164:      method_to_call = "neptune_#{type}_run_job"
+./AppController/lib/app_controller_client.rb:166:      make_call(30, RETRY_ON_FAIL, "run_neptune_job") { @conn.send(method_to_call.to_sym, nodes, job_data, @secret) }
+./AppController/lib/app_controller_client.rb:169:       "not supported. Supported jobs are #{NEPTUNE_JOBS.join(', ')}."
+./AppController/terminate.rb:75:`rm -f #{APPSCALE_HOME}/.appscale/neptune_info.txt`
+./AppController/djinn.rb:42:require "#{APPSCALE_HOME}/Neptune/neptune"
+./AppController/djinn.rb:88:NEPTUNE_INFO = "/etc/appscale/neptune_info.txt"
+./AppController/djinn.rb:97:  attr_accessor :neptune_jobs, :neptune_nodes, :api_status
+./AppController/djinn.rb:393:      write_neptune_info 
+./AppController/djinn.rb:404:            @neptune_nodes.delete(node)
+./AppController/djinn.rb:412:        @neptune_nodes.each { |node|
+./AppController/djinn.rb:420:            @neptune_nodes.delete(node)
+./AppController/djinn.rb:596:    @neptune_jobs = {}
+./AppController/djinn.rb:597:    @neptune_nodes = []
+./AppController/djinn.rb:774:  # TODO: add neptune file, which will have this function
+./AppController/djinn.rb:775:  def run_neptune_in_cloud?(neptune_info)
+./AppController/djinn.rb:776:    Djinn.log_debug("activecloud_info = #{neptune_info}")
+./AppController/djinn.rb:777:    return true if is_cloud? && !neptune_info["nodes"].nil?
+./AppController/djinn.rb:778:    return true if !is_cloud? && !neptune_info["nodes"].nil? && !neptune_info["machine"].nil?
+./AppController/djinn.rb:811:  def write_neptune_info()
+./AppController/djinn.rb:813:    @neptune_jobs.each { |k, v|
+./AppController/djinn.rb:817:    HelperFunctions.write_file(NEPTUNE_INFO, info)
+./AppController/djinn.rb:820:  def load_neptune_info()
+./AppController/djinn.rb:821:    unless File.exists?(NEPTUNE_INFO)
+./AppController/djinn.rb:822:      Djinn.log_debug("no neptune data found - no need to restore")
+./AppController/djinn.rb:826:    Djinn.log_debug("restoring neptune data!")
+./AppController/djinn.rb:827:    jobs_info = (File.open(NEPTUNE_INFO) { |f| f.read }).chomp
+./AppController/djinn.rb:842:      this_job = NeptuneJobData.new(name, num_nodes, start_time, end_time)
+./AppController/djinn.rb:844:      if @neptune_jobs[name].nil?
+./AppController/djinn.rb:845:        @neptune_jobs[name] = [this_job]
+./AppController/djinn.rb:847:        @neptune_jobs[name] << this_job
+./AppController/djinn.rb:892:      elsif k == "@neptune_nodes"
+./AppController/djinn.rb:896:          new_v << NeptuneJobData.from_s(data)
+./AppController/djinn.rb:981:    load_neptune_info
+./AppController/djinn.rb:982:    write_neptune_info
+./AppController/djinn.rb:1174:   # for neptune jobs, start a place where they can save output to
+./AppController/djinn.rb:1428:    neptune = "#{APPSCALE_HOME}/Neptune"
+./AppController/djinn.rb:1438:    Djinn.log_run("rsync -e 'ssh -i #{ssh_key}' -arv #{neptune}/* root@#{ip}:#{neptune}")
+
+./AppController/djinnServer.rb:20:NEPTUNE_JOBS = %w{acl appscale compile erlang go input mpi mapreduce output ssa r}
+./AppController/djinnServer.rb:51:    add_method(@djinn, "neptune_start_job", 'job_data', 'secret')
+./AppController/djinnServer.rb:52:    add_method(@djinn, "neptune_is_job_running", "job_data", "secret")
+./AppController/djinnServer.rb:53:    add_method(@djinn, "neptune_put_input", "job_data", "secret")
+./AppController/djinnServer.rb:54:    add_method(@djinn, "neptune_get_output", "job_data", "secret")
+./AppController/djinnServer.rb:55:    add_method(@djinn, "neptune_get_acl", "job_data", "secret")
+./AppController/djinnServer.rb:56:    add_method(@djinn, "neptune_set_acl", "job_data", "secret")
+./AppController/djinnServer.rb:57:    add_method(@djinn, "neptune_compile_code", "job_data", "secret")
+./AppController/djinnServer.rb:59:    NEPTUNE_JOBS.each { |name|
+./AppController/djinnServer.rb:60:      add_method(@djinn, "neptune_#{name}_run_job", "nodes", "job_data", "secret")
+
+
+
+./AppLoadBalancer/app/views/authorize/cloud.html.erb:11:        <td align="center">Neptune API</td>
+./AppLoadBalancer/app/views/authorize/cloud.html.erb:20:          <td align="center"><%= check_box_tag "#{user}-neptune_api", "#{user}-neptune_api", user_has_ability?("neptune_api", caps) %></td>
+./AppLoadBalancer/app/helpers/status_helper.rb:4:SERVICE_NAMES = %w{ blobstore datastore datastore_write images memcache taskqueue urlfetch users xmpp mapreduce ec2 neptune}
+./AppLoadBalancer/app/helpers/authorize_helper.rb:3:ALL_CAPABILITIES = ["upload_app", "mr_api", "ec2_api", "neptune_api"]
+./AppLoadBalancer/app/helpers/authorize_helper.rb:12:    (head_node_ip != my_ip) && get_neptune_jobs.empty?
+./AppLoadBalancer/test/unit/helpers/neptune_helper_test.rb:3:class NeptuneHelperTest < ActionView::TestCase
+./AppLoadBalancer/test/functional/neptune_controller_test.rb:3:class NeptuneControllerTest < ActionController::TestCase
+
+
+
+./AppServer/demos/therepo/repo.py:4:# Provides a HTTP API to the underlying database for Neptune jobs
+./AppServer/demos/therepo/repo.py:30:from google.appengine.api.appscale.neptune import neptune
+./AppServer/demos/therepo/repo.py:314:    if capability == "all" or capability == "neptune":
+./AppServer/demos/therepo/repo.py:316:        if neptune.can_run_jobs():
+./AppServer/demos/therepo/repo.py:317:          health['neptune'] = RUNNING
+./AppServer/demos/therepo/repo.py:319:          health['neptune'] = FAILED
+./AppServer/demos/therepo/repo.py:321:        health['neptune'] = FAILED
+./AppServer/demos/therepo/repo.py:322:        logging.error("neptune API FAILED %s"%(str(e)))
+./AppServer/demos/therepo/app.yaml:1:application: neptune
+Coincidencia en el archivo binario ./AppServer/google/appengine/api/appscale/neptune/__init__.pyc
+Coincidencia en el archivo binario ./AppServer/google/appengine/api/appscale/neptune/neptune.pyc
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:12:  Neptune API: Enables users to submit Neptune jobs to run HPC apps
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:16:# like ec2 api, the neptune service is just called locally
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:21:def run_neptune_job(file_location):
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:22:  if users.is_current_user_capable("neptune_api") == False:
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:23:    return "this user cannot call the neptune api"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:32:    cmd = "neptune " + file_location
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:38:def write_neptune_job_params(params):
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:39:  if users.is_current_user_capable("neptune_api") == False:
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:40:    return "this user cannot call the neptune api"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:42:  neptune_code = "puts neptune(:boo => 2, \n"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:45:    neptune_code += "  " + str(k) + " => " + str(v) + ",\n"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:47:  neptune_code += "  :baz => 2).inspect"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:49:  return write_neptune_job_code(neptune_code)
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:51:def write_neptune_job_code(code):
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:52:  if users.is_current_user_capable("neptune_api") == False:
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:53:    return "this user cannot call the neptune api"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:55:  neptune_dir = "/tmp/neptune/"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:56:  mkdir_p = "mkdir -p " + neptune_dir
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:59:  file_location = neptune_dir + "job-" + str(random.randint(0,1000000)) + ".rb"
+./AppServer/google/appengine/api/appscale/neptune/neptune.py:64:  sys.stderr.write("Wrote Neptune code to " + file_location)
+Coincidencia en el archivo binario ./AppServer/google/appengine/tools/dev_appserver.pyc
+./AppServer/google/appengine/tools/dev_appserver.py:140:from google.appengine.api.appscale.neptune import neptune
+Coincidencia en el archivo binario ./AppServer/goroot/pkg/linux_amd64/appengine/neptune.a
+./AppServer/goroot/src/Makefile:25:	appengine/neptune\
+Coincidencia en el archivo binario ./AppServer/goroot/src/appengine/neptune/_obj/appengine/neptune.a
+./AppServer/goroot/src/appengine/neptune/Makefile:9:TARG=appengine/neptune
+./AppServer/goroot/src/appengine/neptune/Makefile:11:	neptune.go\
+Coincidencia en el archivo binario ./AppServer/goroot/src/appengine/neptune/_go_.6
+./AppServer/goroot/src/appengine/neptune/neptune.go:2:// The neptune package provides and interface to the Neptune programming
+./AppServer/goroot/src/appengine/neptune/neptune.go:6:// Learn more about Neptune at http://neptune-lang.org
+./AppServer/goroot/src/appengine/neptune/neptune.go:8:package neptune
+./AppServer/goroot/src/appengine/neptune/neptune.go:25:	NEPTUNE_API     = "neptune_api"
+./AppServer/goroot/src/appengine/neptune/neptune.go:26:	NOT_ENABLED_MSG = "this user cannot call the neptune api"
+./AppServer/goroot/src/appengine/neptune/neptune.go:29:// right now the neptune executable is located on all machines, so
+./AppServer/goroot/src/appengine/neptune/neptune.go:41:	if !user.IsCurrentUserCapable(c, NEPTUNE_API) {
+./AppServer/goroot/src/appengine/neptune/neptune.go:52:	// 'which neptune' returns with a newline on the end, so chop it off
+./AppServer/goroot/src/appengine/neptune/neptune.go:53:	neptuneCommand := strings.TrimSpace(runShellCommand([]string{"/usr/bin/which", "neptune"})["out"])
+./AppServer/goroot/src/appengine/neptune/neptune.go:54:	return runShellCommand([]string{neptuneCommand, fileLocation})
+./AppServer/goroot/src/appengine/neptune/neptune.go:91:	if !user.IsCurrentUserCapable(c, NEPTUNE_API) {
+./AppServer/goroot/src/appengine/neptune/neptune.go:95:	neptuneCode := fmt.Sprintf("puts neptune(:boo => 2,\n")
+./AppServer/goroot/src/appengine/neptune/neptune.go:98:		neptuneCode += fmt.Sprintf("  %v => %v,\n", key, val)
+./AppServer/goroot/src/appengine/neptune/neptune.go:101:	neptuneCode += fmt.Sprintf("  :baz => 2).inspect\n\n")
+./AppServer/goroot/src/appengine/neptune/neptune.go:102:	return WriteJobCode(c, neptuneCode)
+./AppServer/goroot/src/appengine/neptune/neptune.go:110:	if !user.IsCurrentUserCapable(c, NEPTUNE_API) {
+./AppServer/goroot/src/appengine/neptune/neptune.go:116:	neptuneDir := fmt.Sprintf("/tmp/neptune-%v", randNum)
+./AppServer/goroot/src/appengine/neptune/neptune.go:118:	if err := os.MkdirAll(neptuneDir, 0777); err != nil {
+./AppServer/goroot/src/appengine/neptune/neptune.go:119:		fmt.Printf("error seen creating directory %v: %v", neptuneDir, err)
+./AppServer/goroot/src/appengine/neptune/neptune.go:123:	fileLocation := fmt.Sprintf("%v/%v", neptuneDir, fileName)
+./AppServer/goroot/src/appengine/neptune/neptune.go:141:	fmt.Printf("Wrote Neptune code to %v\n", fileLocation)
+./AppServer/goroot/src/appengine/neptune/neptune.go:142:	return neptuneDir, fileName, ""
+
+
+
+./debian/appscale_install.sh:32:	installneptune
+./debian/appscale_install.sh:73:    neptune)
+./debian/appscale_install.sh:74:	installneptune
+./debian/appscale_install.sh:75:	postinstallneptune
+./debian/appscale_install.sh:126:	installneptune
+./debian/appscale_install.sh:127:	postinstallneptune
+./debian/control.core.lucid:45:# Neptune(nfs)
+./debian/control.core.lucid:47:# Neptune(mpi)
+./debian/control.core.lucid:49:# Neptune(cewssa)
+./debian/control.core.lucid:51:# Neptune(dfsp)
+./debian/rules.core:71:	cp -r Neptune $(APPSCALE)
+./debian/control.core.jaunty:43:# Neptune(nfs)
+./debian/control.core.jaunty:45:# Neptune(cewssa)
+./debian/control.core.jaunty:47:# Neptune(dfsp)
+./debian/control.core.karmic:43:# Neptune(nfs)
+./debian/control.core.karmic:45:# Neptune(mpi)
+./debian/control.core.karmic:47:# Neptune(cewssa)
+./debian/control.core.karmic:49:# Neptune(dfsp)
+./debian/changelog.karmic:3:  * Neptune support, Go support, various new API implementations
+./debian/appscale_install_functions.sh:463:    gem install zookeeper neptune right_aws ${GEMOPT} || exit 1
+./debian/appscale_install_functions.sh:494:    ln -sf /var/lib/gems/1.8/bin/neptune /usr/bin/neptune
+./debian/appscale_install_functions.sh:1207:installneptune()
+./debian/appscale_install_functions.sh:1217:postinstallneptune()
+./debian/appscale_install_functions.sh:1236:    patch -p0 -i ${APPSCALE_HOME}/Neptune/patch/mpi-install.patch || exit 1
+
+
+
+./Neptune/r_helper.rb:9:def neptune_r_run_job(nodes, job_data, secret)
+./Neptune/r_helper.rb:29:    creds = neptune_parse_creds(storage, job_data)
+./Neptune/cewssa_helper.rb:9:OUR_CEWSSA_CODE = "#{APPSCALE_HOME}/Neptune/run_dwSSA.R"
+./Neptune/cewssa_helper.rb:10:MERGE_SCRIPT = "#{APPSCALE_HOME}/Neptune/average_probs.R"
+./Neptune/cewssa_helper.rb:14:def neptune_cewssa_run_job(nodes, job_data, secret)
+./Neptune/cewssa_helper.rb:29:    sims = neptune_get_ssa_num_simulations(nodes, job_data)
+./Neptune/cewssa_helper.rb:34:    random_numbers = neptune_get_ssa_seed_vals(nodes.length)
+./Neptune/cewssa_helper.rb:85:    neptune_write_job_output(job_data, final_result)
+./Neptune/cewssa_helper.rb:95:def neptune_cewssa_get_output(job_data)
+./Neptune/go_helper.rb:9:def neptune_go_run_job(nodes, job_data, secret)
+./Neptune/go_helper.rb:29:    creds = neptune_parse_creds(storage, job_data)
+./Neptune/dfsp_helper.rb:11:def neptune_dfsp_run_job(nodes, job_data, secret)
+./Neptune/dfsp_helper.rb:20:    sims = neptune_get_ssa_num_simulations(nodes, job_data)
+./Neptune/dfsp_helper.rb:74:    neptune_write_job_output(job_data, out)
+./Neptune/dfsp_helper.rb:84:def neptune_dfsp_get_output(job_data)
+./Neptune/neptune_job_data.rb:7:class NeptuneJobData
+./Neptune/neptune_job_data.rb:38:    return NeptuneJobData.new(name, num_nodes, start_time, end_time)
+./Neptune/erlang_helper.rb:11:def neptune_erlang_run_job(nodes, job_data, secret)
+./Neptune/erlang_helper.rb:30:    creds = neptune_parse_creds(storage, job_data)
+./Neptune/mapreduce_helper.rb:15:def neptune_mapreduce_run_job(nodes, job_data, secret)
+./Neptune/mapreduce_helper.rb:24:    creds = neptune_parse_creds(storage, job_data)
+./Neptune/mapreduce_helper.rb:115:    neptune_write_job_output_str(job_data, output_str)
+./Neptune/mapreduce_helper.rb:125:def neptune_mapreduce_get_output(job_data)
+./Neptune/ssa_helper.rb:15:def neptune_ssa_run_job(nodes, job_data, secret)
+./Neptune/ssa_helper.rb:32:    sims = neptune_get_ssa_num_simulations(nodes, job_data)
+./Neptune/ssa_helper.rb:44:    creds = neptune_parse_creds(storage, job_data)
+./Neptune/ssa_helper.rb:47:    neptune_uncompress_file(tar)
+./Neptune/ssa_helper.rb:50:    #seeds = neptune_get_ssa_seed_vals(num_sims)
+./Neptune/ssa_helper.rb:188:def neptune_ssa_get_output(job_data)
+./Neptune/ssa_helper.rb:208:def neptune_get_ssa_seed_vals(num_vals)
+./Neptune/ssa_helper.rb:221:def neptune_get_ssa_num_simulations(nodes, job_data)
+./Neptune/mpi_helper.rb:12:def neptune_mpi_run_job(nodes, job_data, secret)
+./Neptune/mpi_helper.rb:35:    creds = neptune_parse_creds(storage, job_data)
+./Neptune/mpi_helper.rb:76:def neptune_mpi_get_output(job_data)
+
+./Neptune/neptune.rb:6:$:.unshift File.join(File.dirname(__FILE__), "..", "Neptune")
+./Neptune/neptune.rb:7:require "neptune_job_data"
+./Neptune/neptune.rb:28:def neptune_start_job(job_data, secret)
+./Neptune/neptune.rb:42:    nodes_to_use = neptune_acquire_nodes(job_data)
+./Neptune/neptune.rb:53:    neptune_release_nodes(nodes_to_use, job_data)
+./Neptune/neptune.rb:57:    this_job = NeptuneJobData.new(name, num_nodes, start_time, end_time)
+./Neptune/neptune.rb:58:    if @neptune_jobs[name].nil?
+./Neptune/neptune.rb:59:      @neptune_jobs[name] = [this_job]
+./Neptune/neptune.rb:61:      @neptune_jobs[name] << this_job
+./Neptune/neptune.rb:77:def neptune_is_job_running(job_data, secret)
+./Neptune/neptune.rb:82:def neptune_put_input(job_data, secret)
+./Neptune/neptune.rb:97:  creds = neptune_parse_creds(storage, job_data)
+./Neptune/neptune.rb:139:def neptune_get_output(job_data, secret)
+./Neptune/neptune.rb:147:  creds = neptune_parse_creds(storage, job_data)
+./Neptune/neptune.rb:163:def neptune_get_acl(job_data, secret)
+./Neptune/neptune.rb:171:  creds = neptune_parse_creds(storage, job_data)
+./Neptune/neptune.rb:185:def neptune_set_acl(job_data, secret)
+./Neptune/neptune.rb:193:  creds = neptune_parse_creds(storage, job_data)
+./Neptune/neptune.rb:213:def neptune_compile_code(job_data, secret)
+./Neptune/neptune.rb:251:  creds = neptune_parse_creds(storage, job_data)
+./Neptune/neptune.rb:372:  result = master_acc.run_neptune_job(converted_nodes, job_data)
+./Neptune/neptune.rb:415:  return BAD_TYPE_MSG unless NEPTUNE_JOBS.include?(job_data["@type"])
+./Neptune/neptune.rb:447:def spawn_nodes_for_neptune?(job_data)
+./Neptune/neptune.rb:448:  Djinn.log_debug("neptune_info = #{job_data}")
+./Neptune/neptune.rb:452:def neptune_acquire_nodes(job_data)
+./Neptune/neptune.rb:463:    Djinn.log_debug("acquiring nodes for hybrid cloud neptune job")
+./Neptune/neptune.rb:477:      nodes_for_cloud = neptune_find_open_nodes(cloud, nodes_to_acquire, job_data)
+./Neptune/neptune.rb:483:    nodes_to_use = neptune_find_open_nodes(cloud, nodes_needed, job_data)
+./Neptune/neptune.rb:489:def neptune_find_open_nodes(cloud, nodes_needed, job_data)
+./Neptune/neptune.rb:503:  @neptune_nodes = nodes_to_use
+./Neptune/neptune.rb:511:      Djinn.log_debug("spawning up #{new_nodes_needed} for neptune job in cloud 1")
+./Neptune/neptune.rb:512:      neptune_acquire_nodes_for_cloud(cloud_num, new_nodes_needed, job_data)
+./Neptune/neptune.rb:516:      Djinn.log_debug("non-cloud deployment and the neptune user has asked for too many nodes")
+./Neptune/neptune.rb:522:  @neptune_nodes.each { |node|
+./Neptune/neptune.rb:533:def neptune_acquire_nodes_for_cloud(cloud_num, new_vms_needed, job_data)
+./Neptune/neptune.rb:557:  @neptune_nodes.concat(new_nodes)
+./Neptune/neptune.rb:567:def neptune_release_nodes(nodes_to_use, job_data)
+./Neptune/neptune.rb:649:  current_data = @neptune_jobs[job_name]
+./Neptune/neptune.rb:651:    Djinn.log_debug("neptune - no job data yet for [#{job_name}]")
+./Neptune/neptune.rb:720:  relevant_jobs = @neptune_jobs[job_name]
+./Neptune/neptune.rb:728:def neptune_write_job_output(job_data, output_location)
+./Neptune/neptune.rb:729:  neptune_write_job_output_handler(job_data, output_location, is_file=true)
+./Neptune/neptune.rb:732:def neptune_write_job_output_str(job_data, string)
+./Neptune/neptune.rb:733:  neptune_write_job_output_handler(job_data, string, is_file=false)
+./Neptune/neptune.rb:736:def neptune_write_job_output_handler(job_data, output, is_file)
+./Neptune/neptune.rb:739:  creds = neptune_parse_creds(storage, job_data)
+./Neptune/neptune.rb:746:def neptune_parse_creds(storage, job_data)
+./Neptune/neptune.rb:758:def neptune_get_seed_vals(num_vals)
+./Neptune/neptune.rb:773:def neptune_uncompress_file(tar)
+./Neptune/appscale_helper.rb:9:def neptune_appscale_run_job(nodes, job_data, secret)
+
