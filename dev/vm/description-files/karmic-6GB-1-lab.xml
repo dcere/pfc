@@ -21,7 +21,7 @@
     <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/home/dceresuela/PFC/pfc/dev/vm/img/karmic-6GB-1.img'/>
+      <source file='/var/tmp/dceresuela/karmic-6GB-1.img'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='bridge'>
