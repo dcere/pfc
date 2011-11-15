@@ -34,8 +34,5 @@
     <console type='pty'>
       <target port='0'/>
     </console>
-    <console type='pty'>
-      <target port='0'/>
-    </console>
   </devices>
 </domain>
