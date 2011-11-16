@@ -42,10 +42,17 @@ Nota: Hasta que no se indique lo contrario las modificaciones se realizarán en
 
 10) Guardar esa imagen como imagen base: "karmic.img", "karmic-6GB.img" u otro nombre cualquiera.
 
-11) Añadir archivos que puedan ser de ayuda: "interfaces" o "persistent-rules".
+11) Dar los permisos necesarios a esa imagen para que pueda ser ejecutada en otras partes
+11.1) chmod +rw karmic-6GB.img
 
-12) Revisar que no haya tildes en ninguna carpeta ni documento de los que se incluyen.
+12) Añadir archivos que puedan ser de ayuda: "interfaces" o "persistent-rules".
+12.1) Revisar que los permisos de esos ficheros valen para cualquier parte (+rw)
 
-13) Comprimir la carpeta en la que se encuentren tanto "karmic" como los ficheros de ayuda con gzip.
+13) Revisar que no haya tildes en ninguna carpeta ni documento de los que se incluyen.
 
-14) Grabar DVD y guardarlo en caja fuerte de banco suizo.
+14) Comprimir la carpeta en la que se encuentren tanto "karmic" como los ficheros de ayuda con gzip.
+
+15) Guardar una copia
+a) Grabar DVD y guardarlo en caja fuerte de banco suizo.
+b) Grabar en disco duro. Asegurarse que los permisos del disco duro son ugo+rwx (0777) para que
+   la carpeta pueda ser leída desde cualquier ordenador.
