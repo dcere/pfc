@@ -11,7 +11,7 @@ que cambiar:
 IP: 155.210.155.xxx en el archivo "interfaces"
 MAC: 52:54:00:xx:xx:xx en los archivos "karmic-6GB.xml" y "70-persistent-net.rules"
 
-Los archivos "interfaces" y "70-persistent-net.rules" siguen el formato:
+Los archivos "interfaces", "70-persistent-net.rules" y "resolv.conf" siguen el formato:
 Path:
 /ruta/completa/del/archivo
 
