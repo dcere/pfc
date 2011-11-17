@@ -15,4 +15,4 @@ iface eth0 inet static
   address 155.210.155.74
   network 155.210.155.0
   netmask 255.255.255.0
-
+  gateway 155.210.155.254
