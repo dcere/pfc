@@ -18,37 +18,62 @@ Nota: Hasta que no se indique lo contrario las modificaciones se realizarán en
 4.1) Ir a /etc/default/console-setup
 4.2) Poner en el campo "xkblayout" el valor "es"
 
-5) Comprobar que está instalado el demonio acpid.
-5.1) Ir a /usr/sbin y comprobar que existe el ejecutable "acpid"
-5.2) Si no está instalado habrá que instalarlo desde internet.
-5.2.1) Bajo ningún concepto se puede usar esta máquina para probar appscale.
-5.2.2) Usa virsh para conectarte a la máquina: virsh console <máquina>
-5.2.3) _$: sudo apt-get install acpid
-5.2.4) Sal de la máquina virtual y sigue en el directorio donde está montada.
+5) Añadir al bashrc los alias más usados
+5.1) alias ll='ls -al'
 
-6) Revisar los archivos "interfaces" y "persistent-rules".
+6) Comprobar que está instalado el demonio acpid.
+6.1) Ir a /usr/sbin y comprobar que existe el ejecutable "acpid"
+6.2) Si no está instalado habrá que instalarlo desde internet.
+6.2.1) Bajo ningún concepto se puede usar esta máquina para probar appscale.
+6.2.2) Usa virsh para conectarte a la máquina: virsh console <máquina>
+6.2.3) Guarda (comenta en vi) la configuración de red que trae por defecto
+6.2.4) Ponle una configuración básica de red y reinicia la máquina
+Ejemplo:
 
-7) Comprobar que no haya nada raro (direcciones ips) en el directorio root
-7.1) Comprobar el directorio /root/appscale/.appscale de arriba a abajo
-7.2) Hacer un grep -nri "192.168" ./* en ese directorio
-7.3) Repetir los pasos para el directorio /root/.appscale
-7.4) Comprobar también el directorio .ssh. Eliminar todo lo de ese directorio.
+- /etc/udev/rules.d/70-persistent-net.rules
+# net device ()
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="52:54:00:00:00:01", ATTR{type}=="1", KERNEL=="eth*", NAME="eth0"
 
-8) Desmonta el directorio tmpdir
-8.1) _$: sudo umount tmpdir
+- etc/network/interfaces (PARA CASA)
+auto eth0
+iface eth0 inet static
+  address 192.168.1.100
+  network 192.168.1.0
+  netmask 255.255.255.0
+  gateway 192.168.1.1
 
-9) Transformar el tipo de la image de "raw" a "qcow2".
-9.1) _$: qemu-img convert -f raw root.img -O qcow2 karmic.img
+- etc/resolv.conf        (PARA CASA)
+nameserver 192.168.1.1
+nameserver 8.8.8.8
 
-10) Guardar esa imagen como imagen base: "karmic.img", "karmic-6GB.img" u otro nombre cualquiera.
 
-11) Dar los permisos necesarios a esa imagen para que pueda ser ejecutada en otras partes
-11.1) chmod +rw karmic-6GB.img
+6.2.5) _$: sudo apt-get install acpid
+6.2.6) Sal de la máquina virtual y sigue en el directorio donde está montada.
 
-12) Añadir archivos que puedan ser de ayuda: "interfaces" o "persistent-rules".
-12.1) Revisar que los permisos de esos ficheros valen para cualquier parte (+rw)
+7) Devolver los archivos "interfaces", "persistent-rules" y "resolv.conf" a su estado original lo mas fielmente posible.
 
-13) Revisar que no haya tildes en ninguna carpeta ni documento de los que se incluyen.
+8) Comprobar que no haya nada raro (direcciones ips) en el directorio root
+8.1) Comprobar el directorio /root/appscale/.appscale de arriba a abajo
+8.2) Hacer un grep -nri "192.168" ./* en ese directorio
+8.3) Repetir para el directorio /root/.appscale
+8.4) Repetir para el directorio /root/.ssh. Eliminar todo lo de ese directorio.
+8.5) Repetir para el directorio /etc
+
+9) Desmonta el directorio tmpdir
+9.1) _$: sudo umount tmpdir
+
+10) Transformar el tipo de la image de "raw" a "qcow2".
+10.1) _$: qemu-img convert -f raw root.img -O qcow2 karmic.img
+
+11) Guardar esa imagen como imagen base: "karmic.img", "karmic-6GB.img" u otro nombre cualquiera.
+
+12) Dar los permisos necesarios a esa imagen para que pueda ser ejecutada en otras partes
+12.1) chmod ugo+rwx karmic-6GB.img
+
+13) Añadir archivos que puedan ser de ayuda: "interfaces" o "persistent-rules".
+13.1) Revisar que los permisos de esos ficheros valen para cualquier parte (+rw)
+
+14) Revisar que no haya tildes en ninguna carpeta ni documento de los que se incluyen.
 
 14) Comprimir la carpeta en la que se encuentren tanto "karmic" como los ficheros de ayuda con gzip.
 
