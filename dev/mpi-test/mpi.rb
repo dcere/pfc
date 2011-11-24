@@ -6,6 +6,16 @@
 #end
 
 # MPI test for Neptune
+#
+# Syntax follows the one used on http://www.neptune-lang.org/
+#
+#                neptune (
+#                  :type => "mpi",
+#                  :output => "/mpi-output.txt",
+#                  :code => "powermethod",
+#                  :nodes_to_use => 16
+#                )
+
 
 neptune (
   :type => "mpi",
