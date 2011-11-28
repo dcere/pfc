@@ -1,0 +1,71 @@
+<div id="getting-started">
+  <%= display_flash_messages %>
+  <h3>API Status:</h3>
+  <table border="1">
+    <tr>
+      <td align="center">Service Name</td>
+      <td align="center">Health</td>
+    </tr>
+    <% service_info = get_service_info %>
+    <% SERVICE_NAMES.each do |service| %>
+      <tr>
+        <td align="center"><%= h(service) %></td>
+        <% if service_info[service] == 'running' %> 
+          <td align="center"><img src="images/status_running.gif"></td>
+        <% elsif service_info[service] == 'failed' %>
+          <td align="center"><img src="images/status_failed.gif"></td>
+        <% else %>
+          <td align="center"><img src="images/status_unknown.gif"></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+  <% if is_user_cloud_admin %>
+    <h3>CPU / Memory Usage:</h3>
+    <table border="1">
+      <tr>
+        <td align="center">IP Address</td>
+        <td align="center">CPU Usage</td>
+        <td align="center">Mem Usage</td>
+        <td align="center">Hard Disk Usage</td>
+        <td align="center">Cloud</td>
+        <td align="center">Role(s)</td>
+      </tr>
+      <% servers = get_status_information %>
+      <% servers.each do |server| %>
+        <tr>
+          <td align="center"><%= h(server[:ip]) %></td>
+          <td align="center"><%= h(server[:cpu]) %>%</td>
+          <td align="center"><%= h(server[:memory]) %>%</td>
+          <td align="center"><%= h(server[:disk]) %>%</td>
+        <td align="center"><%= h(server[:cloud]) %></td>
+         <td align="center"><%= h(server[:roles]) %></td>
+        </tr>
+      <% end %>
+    </table>
+  <br/><%= link_to "View More Monitoring Data", monitoring_url %>
+  <% end %>
+  <h3>Database Information:</h3>
+  <ul>
+    <% db = get_database_information %>
+    <li>Powered by <%= db[:database] %></li>
+    <li>Data is replicated <%= db[:replication] %> times</li>
+  </ul>
+  <h3>Applications Hosted in This Cloud:</h3>
+  <ul>
+    <% apps = get_application_information %>
+    <% if apps.empty? %>
+      <li>none</li>
+    <% else %>
+      <% apps.each do |app, is_running| %>
+        <li>
+          <% if is_running %>
+            <a href="/apps/<%= h(app) %>" target="_blank"><%= h(app) %></a>
+          <% else %>
+            <%= h(app) %> (loading)
+          <% end %>
+        </li>
+      <% end %>
+    <% end %>
+  </ul>
+</div>

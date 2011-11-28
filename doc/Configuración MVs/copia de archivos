@@ -14,3 +14,9 @@ Ejemplo: copia del directorio appscale a la carpeta /home/david.
 scp -r root@192.168.1.100:/root/appscale /home/david/
 
 Nota: Se creará un directorio appscale en /home/david: se creará /home/david/appscale
+
+
+Ejemplo: copia del directorio AppController a la carpeta /home/dceresuela/PFC/pfc/doc/AppScale/source-code
+scp -r root@155.210.155.73:/root/appscale/AppController ./AppController
+
+El resultado queda en /home/dceresuela/PFC/pfc/doc/AppScale/source-code/AppController
