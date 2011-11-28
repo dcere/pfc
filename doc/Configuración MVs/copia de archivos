@@ -1,10 +1,16 @@
-1) Desde la máquina virtual al host:
-scp usuario@guest:/ruta/del/fichero /ruta/en/host
+1) Copia de un archivo desde la máquina virtual al host:
+usuario@host_$: scp usuario@guest:/ruta/del/fichero /ruta/en/host
 
 
 Ejemplo: copia del fichero /etc/network/interfaces a la carpeta /home/david.
 (Se quedará en esa carpeta con el mismo nombre)
 scp root@192.168.1.100:/etc/network/interfaces /home/david/
 
+
+2) Copia de un directorio desde la máquina virtual al host:
+usuario@host_$: scp -r usuario@guest:/ruta/del/directorio /ruta/del/
+
 Ejemplo: copia del directorio appscale a la carpeta /home/david.
 scp -r root@192.168.1.100:/root/appscale /home/david/
+
+Nota: Se creará un directorio appscale en /home/david: se creará /home/david/appscale
