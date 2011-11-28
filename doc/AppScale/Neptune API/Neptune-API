@@ -1,0 +1,7 @@
+Obtenida de /appscale/AppServer/google/appengine/api/appscale/neptune/neptune.py
+
+
+can_run_jobs()
+run_neptune_job(file_location)
+write_neptune_job_params(params)
+write_neptune_job_code(code)
