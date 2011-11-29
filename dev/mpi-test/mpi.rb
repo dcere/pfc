@@ -17,9 +17,27 @@
 #                )
 
 
+# Input job
+neptune (
+  :type => "input"
+  :local => "/home/dceresuela/PFC/pfc/dev/mpi-test/mpi"
+  :remote => "/mpi"
+)
+
+
+# MPI job
 neptune (
   :type => "mpi",
-  :code => "/tmp/mpi-test",
+  :code => "/mpi",
   :nodes_to_use => 2,
-  :output => "/tmp/mpi-test-output"
+  :output => "/mpi-output.txt"
 )
+
+
+# Output job
+output = neptune (
+  :type => "output"
+  :output => "/mpi-output.txt"
+)
+puts "Output message: #{output[:msg]}"
+puts "Output result: #{output[:res]}"
