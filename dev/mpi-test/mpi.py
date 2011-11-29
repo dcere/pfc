@@ -9,7 +9,6 @@ input_job = """neptune (
   :remote => "/mpi"
 )"""
 
-
 # MPI job
 mpi_job = """neptune (
   :type => "mpi",
@@ -25,13 +24,20 @@ output_job = """output = neptune (
   :output => "/mpi-output.txt"
 )"""
 
+
+
+
 if can_run_jobs():
+  print "Creating files...'
   input_file = write_neptune_job_code(input_job)
   mpi_file = write_neptune_job_code(mpi_job)
   output_file = write_neptune_job_code(output_job)
-
+  print "Files created'
+  print "Running jobs...'
   run_neptune_job_code(input_file)
   run_neptune_job_code(mpi_file)
   run_neptune_job_code(output_file)
+  print "Jobs run"
+  
 else:
   print "You can't run jobs'
