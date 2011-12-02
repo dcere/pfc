@@ -1,0 +1,5 @@
+# Default queue with default values
+total_storage_limit: 100M
+queue:
+- name: default
+  rate: 5/s
