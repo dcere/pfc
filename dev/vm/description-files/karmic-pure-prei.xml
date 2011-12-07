@@ -1,5 +1,5 @@
 <domain type='kvm'>
-  <name>karmic-pure-prei</name>
+  <name>karmic-pure</name>
   <uuid>a5943f9d-30a5-42ff-8fdb-90f8c991e9c2</uuid>
   <memory>524288</memory>
   <currentMemory>524288</currentMemory>
