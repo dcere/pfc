@@ -6,7 +6,7 @@
   <vcpu>2</vcpu>
   <os>
     <type arch='x86_64' machine='pc-0.14'>hvm</type>
-    <boot dev='cdrom'/>
+    <boot dev='hd'/>
   </os>
   <features>
     <acpi/>
@@ -23,11 +23,6 @@
       <driver name='qemu' type='qcow2'/>
       <source file='/var/tmp/dceresuela/karmic-pure.img'/>
       <target dev='vda' bus='virtio'/>
-    </disk>
-    <disk type='file' device='cdrom'>
-      <source file='/var/tmp/dceresuela/iso/ubuntu-9.10-server-amd64.iso'/>
-      <target dev='hdb' bus='ide'/>
-      <readonly/>
     </disk>
     <interface type='bridge'>
       <source bridge='br0'/>
