@@ -11,7 +11,7 @@ Ubuntu requiere 2001'5 Mbytes en una de sus particiones => Disco de 2.5G
 
 2.1) _$: virsh -c qemu:///system define karmic-pure-prei.xml
 2.2) _$: virsh -c qemu:///system start karmic-pure
-2.3) Instalar desde virt-manager FIXME?
+2.3) Instalar desde virt-manager (Todavía no hay console que valga)
 2.3.1) Dejar la configuración de red para más adelante
 2.3.2) Nombre de la máquina: karmic-server
 2.3.3) Particionado guiado, todo el disco
@@ -28,7 +28,41 @@ Ubuntu requiere 2001'5 Mbytes en una de sus particiones => Disco de 2.5G
 3.1.2) _$: passwd  (Contraseña: root)
 ================================================================================
 
+================================================================================
+2) Instalación del sistema operativo (Ubuntu Server 10.04 Lucyd)
 
+2.1) _$: virsh -c qemu:///system define lucyd-pure-prei.xml
+2.2) _$: virsh -c qemu:///system start lucyd-pure
+2.3) Instalar desde virt-manager (Todavía no hay console que valga)
+2.3.1) Dejar la configuración de red para más adelante
+2.3.2) Nombre de la máquina: lucyd-server
+2.3.3) Particionado guiado, todo el disco
+2.3.4) Dos particiones: ext4 y swap. Comprobar que no se queje con los tamaños.
+2.3.5) Nombre: david, Usuario: david, Contraseña: david (aceptar como débil)
+2.3.6) Sin actualizaciones automáticas
+2.3.7) Instalacion: OpenSSH Server (Seleccionar con el ESPACIO. TAB y ENTER)
+2.3.8) Instalar GRUB
+
+2.3.9) Fallo de máquina porque no puede iniciar desde CD
+2.3.10) Forzar apagado
+2.3.11) _$: virsh -c qemu:///system undefine lucyd-pure
+2.3.12) _$: virsh -c qemu:///system define lucyd-pure-posti.xml
+2.3.13) _$: virsh -c qemu:///system start lucyd-pure
+
+
+3) Configuración del sistema operativo (vía VNC o ssh)
+
+3.1) Establecer contraseña "root" para el usuario root (VNC)
+3.1.1) _$: sudo -s (Contraseña: david)
+3.1.2) _$: passwd  (Contraseña: root)
+
+3.1) Establecer contraseña "root" para el usuario root (ssh)
+3.1.1) Borrar el fichero known_hosts
+3.1.2) _$: ssh david@IP-del-guest (si es posible)
+3.1.3) _$: sudo -s (Contraseña: david)
+3.1.4) _$: passwd  (Contraseña: root)
+3.1.5) (También se puede hacer _$: sudo -s passwd)
+================================================================================
 
 ================================================================================
 2) Instalación del sistema operativo (Ubuntu Desktop 9.04 Karmic)
@@ -71,3 +105,8 @@ respawn
 exec /sbin/getty -L 115200 ttyS0 xterm
 
 7.4) _$: sudo start ttyS0
+
+
+8) Instalación de acpid
+8.1) Login como root
+8.2) _$: apt-get install acpid
