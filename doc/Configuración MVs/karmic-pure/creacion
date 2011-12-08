@@ -1,9 +1,12 @@
 1) Creación del disco duro para la máquina
 
-1.1) _$: ./create-disk.sh karmic-pure.img 2.1G qcow2 /var/tmp/dceresuela/
+Ubuntu requiere 2.098.261.504 bytes en una de sus particiones
+Ubuntu requiere 2001'5 Mbytes en una de sus particiones => Disco de 2.5G
+
+1.1) _$: ./create-disk.sh karmic-pure.img 2.5G qcow2 /var/tmp/dceresuela/
 1.2) _$: chmod 0777 /var/tmp/dceresuela/karmic-pure.img
 
-
+================================================================================
 2) Instalación del sistema operativo (Ubuntu Server 9.04 Karmic)
 
 2.1) _$: virsh -c qemu:///system define karmic-pure-prei.xml
@@ -12,10 +15,10 @@
 2.3.1) Dejar la configuración de red para más adelante
 2.3.2) Nombre de la máquina: karmic-server
 2.3.3) Particionado guiado, todo el disco
-2.3.4) Dos particiones: swap y ext4
+2.3.4) Dos particiones: ext4 y swap. Comprobar que no se queje con los tamaños.
 2.3.5) Nombre: david, Usuario: david, Contraseña: david (aceptar como débil)
 2.3.6) Sin actualizaciones automáticas
-2.3.7) Innstalacion: Basic Ubuntu Server
+2.3.7) Instalacion: Basic Ubuntu Server
 
 
 3) Configuración del sistema operativo
@@ -23,3 +26,48 @@
 3.1) Establecer contraseña "root" para el usuario root
 3.1.1) _$: sudo -s (Contraseña: david)
 3.1.2) _$: passwd  (Contraseña: root)
+================================================================================
+
+
+
+================================================================================
+2) Instalación del sistema operativo (Ubuntu Desktop 9.04 Karmic)
+
+2.1) _$: virsh -c qemu:///system define karmic-pure-prei.xml
+2.2) _$: virsh -c qemu:///system start karmic-pure
+2.3) Instalar desde virt-manager FIXME?
+2.3.2) Nombre de la máquina: karmic-pure
+2.3.3) Particionado guiado, todo el disco
+2.3.4) Dos particiones: ext4 y swap. Comprobar que no se queje con los tamaños.
+2.3.5) Nombre: david, Usuario: david, Contraseña: david (aceptar como débil)
+
+3) _$: virsh -c qemu:///system destroy karmic-pure
+4) _$: virsh -c qemu:///system undefine karmic-pure
+5) _$: virsh -c qemu:///system define karmic-pure-posti.xml
+
+
+6) Configuración del sistema operativo
+
+6.1) Establecer contraseña "root" para el usuario root
+6.1.1) _$: sudo -s (Contraseña: david)
+6.1.2) _$: passwd  (Contraseña: root)
+================================================================================
+
+7) Establecimiento del acceso directo mediante console
+Ver: https://help.ubuntu.com/community/KVM/Access
+
+7.1) Conectarse a la máquina guest mediante VNC o similar
+7.2) _$: sudo vi /etc/init/ttyS0.conf
+7.3) Poner en el fichero:
+# ttyS0 - getty
+#
+# This service maintains a getty on ttyS0 from the point the system is
+# started until it is shut down again.
+
+start on stopped rc RUNLEVEL=[2345]
+stop on runlevel [!2345]
+
+respawn
+exec /sbin/getty -L 115200 ttyS0 xterm
+
+7.4) _$: sudo start ttyS0
