@@ -1,7 +1,17 @@
 1) Creación del disco duro para la máquina
 
+Ubuntu Desktop:
 Ubuntu requiere 2.098.261.504 bytes en una de sus particiones
 Ubuntu requiere 2001'5 Mbytes en una de sus particiones => Disco de 2.5G
+
+Ubuntu Lucyd Server:
+Configuración mínima:
+- RAM: 128 MB
+- Disco duro: 500 MB (base) 1 GB (todas las tareas)
+- Ver: https://help.ubuntu.com/10.04/serverguide/C/preparing-to-install.html#system-requirements
+Real:
+- RAM: 256 MB
+- Disco duro: 1.5 GB
 
 1.1) _$: ./create-disk.sh karmic-pure.img 2.5G qcow2 /var/tmp/dceresuela/
 1.2) _$: chmod 0777 /var/tmp/dceresuela/karmic-pure.img
@@ -29,25 +39,25 @@ Ubuntu requiere 2001'5 Mbytes en una de sus particiones => Disco de 2.5G
 ================================================================================
 
 ================================================================================
-2) Instalación del sistema operativo (Ubuntu Server 10.04 Lucyd)
+2) Instalación del sistema operativo (Ubuntu Server 10.04 Lucid)
 
-2.1) _$: virsh -c qemu:///system define lucyd-pure-prei.xml
-2.2) _$: virsh -c qemu:///system start lucyd-pure
+2.1) _$: virsh -c qemu:///system define lucid-pure-prei.xml
+2.2) _$: virsh -c qemu:///system start lucid-pure
 2.3) Instalar desde virt-manager (Todavía no hay console que valga)
 2.3.1) Dejar la configuración de red para más adelante
-2.3.2) Nombre de la máquina: lucyd-server
-2.3.3) Particionado guiado, todo el disco
-2.3.4) Dos particiones: ext4 y swap. Comprobar que no se queje con los tamaños.
+2.3.2) Nombre de la máquina: lucid-server
+2.3.3) Particionado manual Ver: http://code.google.com/p/appscale/wiki/ImageCreationLucid#Image_Creation_for_KVM
+2.3.4) Dos particiones: ext3 (1.4GB) y swap (Restante ~ 208 MB). Comprobar que no se queje con los tamaños.
 2.3.5) Nombre: david, Usuario: david, Contraseña: david (aceptar como débil)
 2.3.6) Sin actualizaciones automáticas
 2.3.7) Instalacion: OpenSSH Server (Seleccionar con el ESPACIO. TAB y ENTER)
-2.3.8) Instalar GRUB
+2.3.8) Instalar GRUB en el sector de arranque
 
 2.3.9) Fallo de máquina porque no puede iniciar desde CD
 2.3.10) Forzar apagado
-2.3.11) _$: virsh -c qemu:///system undefine lucyd-pure
-2.3.12) _$: virsh -c qemu:///system define lucyd-pure-posti.xml
-2.3.13) _$: virsh -c qemu:///system start lucyd-pure
+2.3.11) _$: virsh -c qemu:///system undefine lucid-pure
+2.3.12) _$: virsh -c qemu:///system define lucid-pure-posti.xml
+2.3.13) _$: virsh -c qemu:///system start lucid-pure
 
 
 3) Configuración del sistema operativo (vía VNC o ssh)

@@ -1,0 +1,14 @@
+1) Descargarse la última versión estable de http://www.ruby-lang.org/en/downloads/
+1.1) En nuestro caso será Ruby-1.9.3-p0
+
+2) Instalar gcc en la máquina virtual si no está instalado
+2.1) _$: apt-get install gcc
+
+3) Desempaquetar el archivo ruby-1.9.3-p0.tar.gz
+3.1) _$: tar -xvf ruby-1.9.3-p0.tar.gz
+
+4) Entrar en la carpeta recién desempaquetada
+4.1) _$: cd ruby-1.9.3-p0
+4.2) _$: ./configure
+4.3) _$: make
+4.4) _$: make install
