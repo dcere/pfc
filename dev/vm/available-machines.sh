@@ -21,7 +21,14 @@
 #155.210.155.180 io
 
 
-for i in 66 67 69 70 73 74 75 76 77 78 170 171 172 173 174 175 176 177 178 179 180
+#for i in 66 67 69 70 73 74 75 76 77 78 170 171 172 173 174 175 176 177 178 179 180
+for ((  i = 66 ;  i <= 78;  i++  ))
+do
+IP=155.210.155.$i
+ping -c 1 -W 1 $IP > /dev/null; test $? -eq 0 && echo -e "$IP\tUP: NOT AVAILABLE" || echo -e "$IP\tDOWN: AVAILABLE"
+done
+
+for ((  i = 170 ;  i <= 180;  i++  ))
 do
 IP=155.210.155.$i
 ping -c 1 -W 1 $IP > /dev/null; test $? -eq 0 && echo -e "$IP\tUP: NOT AVAILABLE" || echo -e "$IP\tDOWN: AVAILABLE"
