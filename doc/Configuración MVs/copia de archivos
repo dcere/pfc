@@ -30,3 +30,9 @@ usuario@host_$: scp /ruta/del/fichero usuario@guest:/ruta/en/guest
 Ejemplo: copia del fichero scp puppet-enterprise-2.0-ubuntu-10.04-amd64.tar.gz
 a la carpeta root con el mismo nombre:
 david@john-cleese: scp puppet-enterprise-2.0-ubuntu-10.04-amd64.tar.gz root@192.168.1.34:/root/.
+
+Ejemplo: copia de las fuentes de la última version estable de ruby
+david@john-cleese: scp ruby-1.9.3-p0.tar.gz root@192.168.1.34:/root/.
+
+Nota: Si se queja el ssh de que la identificación del host remoto ha cambiado
+eliminar el fichero .ssh/known_hosts en el host
