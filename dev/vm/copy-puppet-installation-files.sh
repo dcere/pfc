@@ -1,3 +1,10 @@
+if [ $# -eq 0 ]
+then
+  echo "You must supply a valid IP:"
+  echo "  $0 <@IP> "
+  exit 1
+fi
+
 echo "IP received: $1"
 
 RUBY_STABLE="ruby-1.9.3-p0.tar.gz"
