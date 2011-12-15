@@ -1,0 +1,5 @@
+Se puede encontrar el ejecutable de neptune en:
+ - $HOME/.gem/ruby/1.8/gems/neptune-0.1.1/bin
+ - $HOME/.gem/ruby/1.8/bin
+ - /var/lib/gems/1.8/bin/neptune
+ - /var/lib/gems/1.8/gems/neptune-0.1.1/bin/neptune
