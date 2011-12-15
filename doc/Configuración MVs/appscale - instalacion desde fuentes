@@ -1,0 +1,24 @@
+1) Ir a la máquina recién creada y añadir los repositorios
+1.1) root@guest_$: echo "deb http://archive.ubuntu.com/ubuntu lucid main restricted universe multiverse" /etc/apt/sources.list
+1.2) root@guest_$: echo "deb http://archive.ubuntu.com/ubuntu lucid-updates main restricted universe" /etc/apt/sources.list
+1.3) root@guest_$: echo "deb http://security.ubuntu.com/ubuntu lucid-security main restricted universe" /etc/apt/sources.list
+
+2) Copiar appscale y appscale-tools
+2.1) usuario@host_$: ./copy-appscale-installation-files.sh 192.168.1.34 $HOME $HOME
+
+3) Modificar el fichero appscale_install.sh
+3.1) root@guest_$: vi /appscale-1.5.1/debian/appscale_install.sh
+3.2) Comentar las líneas en la cláusula "all)" de la instalación de:
+      - Voldemort    (2 lineas)
+      - MySQL        (2 lineas)
+      - MongoDB      (2 lineas)
+      - RedisDB      (2 lineas)
+      - memcacheDB   (2 lineas)
+      
+4) Construir appscale
+4.1) root@guest_$: cd /appscale-1.5.1/debian
+4.2) root@guest_$: ./appscale_build.sh
+
+5) Construir appscale-tools
+4.1) root@guest_$: cd /appscale-tools/debian
+4.2) root@guest_$: ./appscale_build.sh

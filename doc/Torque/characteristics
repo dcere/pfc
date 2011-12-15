@@ -1,34 +1,98 @@
 2.0 Submitting and Managing Jobs
    2.1 Job Submission
+      Request a particular node, a particular node attribute,
+      a number of nodes with an attribute ...
+      Submit multiple jobs
+      Request resources
+      Export batch environment variables
    2.2 Monitoring Jobs
+      Job id, job name, user, node, job state, queue
+      Admin: all jobs. Normal user: their jobs.
    2.3 Canceling Jobs
+      Cancel submitted jobs
    2.4 Job Preemption
+      Allows authorized users to suspend and resume jobs
    2.5 Keeping Completed Jobs
+      Keep completed jobs in the queue => Track failures and improve
+      system performance
    2.6 Job Checkpoint and Restart
+      Not tied to machine architecture. BLCR is a kernel package.
    2.7 Job Exit Status
+      Result code returned by the job script
    2.8 Service Jobs
+      Special kind of job that is treated differently.
+      Must support start, stop and status command-line arguments
+
 3.0 Managing Nodes
    3.1 Adding Node
+      Add and remove nodes dynamically
    3.2 Configuring Node Properties
+      Associate properties with nodes to identify groups of them.
    3.3 Changing Node State
+      Change to offline to prevent jobs from running on a node.
    3.4 Host Security
+      PAM
    3.5 Linux Cpuset Support
    3.6 Scheduling Cores
+      Users can request specific cores on a node
    3.7 Scheduling GPUs
+      Users can request GPUs on a node
+
 4.0 Setting Server Policies
    4.1 Queue Configuration
+      Minimum: Started and enabled
+      Type: Execution or Routing
+      ACL policies
+      Jobs: types allowed, max queued, max running, priority ...
+      Resources: Available, min, max, default ...
+      Quite vast.
    4.2 Server High Availability
+      Multiple instances of the server running and waiting to take over
+      if currently running server fails
+
 5.0 Interfacing with a Scheduler
    5.1 Integrating Schedulers for TORQUE
+      Since Torque scheduler is very basic it allows you to use other schedulers
+
 6.0 Configuring Data Management
    6.1 SCP/RCP Setup
+      Configure ssh keys on nodes
    6.2 NFS and Other Networked Filesystems
    6.3 File Stage-In/Stage-Out
+      Remove files from the execution system
+
 7.0 Interfacing with Message Passing
    7.1 MPI (Message Passing Interface) Support
+      MPICH
+         Use mpiexec for launching MPI applications
+      MPICH-VMI
+      OpenMPI
+
 8.0 Managing Resources
    8.1 Monitoring Resources
+      Monitor the state, health, configuration and utilization of resources
+      Specially compute nodes in a batch environment
+      Major categories: configuration, utilization and state.
+         Configuration: Hardware configuration and batch attributes
+         Utilization: Node resources in use and who or what is consuming it
+         States: Administrative status, general node health, general usage status
+
 9.0 Accounting
    9.1 Accounting Records
+      Accounting records for batch jobs.
+      Events: delete, exit, queue, start
+         delete: job has been deleted
+         exit: job has exited (succesfully or not)
+         queue: job has been queued
+         start: an attempt to start the job
+      Variables: ctime, etime, qtime, start
+         ctime: time job was created
+         etime: time job became eligible to run
+         qtime: time job was queued
+         start: time job started to run
+
 10.0 Logging
    10.1 Job Logging
+      Log job information for completed jobs
+      Stored in XML. Similar to qstat -f.
+      Utility to extract the jobs: showjobs
