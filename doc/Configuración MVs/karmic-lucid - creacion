@@ -11,7 +11,7 @@ Configuración mínima:
 - Ver: https://help.ubuntu.com/10.04/serverguide/C/preparing-to-install.html#system-requirements
 Real:
 - RAM: 256 MB
-- Disco duro: 1.5 GB
+- Disco duro: 2 GB (por tema inodos y ext4 es recomendable poner 2G mejor que 1.5)
 
 1.1) _$: ./create-disk.sh karmic-pure.img 2.5G qcow2 /var/tmp/dceresuela/
 1.2) _$: chmod 0777 /var/tmp/dceresuela/karmic-pure.img

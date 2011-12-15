@@ -1,0 +1,20 @@
+# Cuidado con las versiones
+# Ruby 1.8.7 y Puppet 2.6.* son compatibles
+# El ruby del repositorio de lucid es el 1.8.7, por eso no hay problema
+
+1) Instalar ruby
+1.1) _$: apt-get install ruby
+
+2) Instalar libopenssl-ruby
+2.1) _$: apt-get install libopenssl-ruby
+
+3) Crear el entorno adecuado
+3.1) _$: . ./puppet-installation-environment.sh
+
+4) Instalar facter
+4.1) _$: cd /root/facter-1.6.4
+4.2) _$: ruby install.rb
+
+5) Instalar puppet
+5.1) _$: cd /root/puppet-2.7.9
+5.2) _$: ruby install.rb

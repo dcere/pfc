@@ -10,7 +10,7 @@ DESTINATION_PATH="root@$1:/root/."
 
 # Check if they already exist?
 # if test -f ...
-scp ../ruby-installation/$RUBY_STABLE        $DESTINATION_PATH
+#scp ../ruby-installation/$RUBY_STABLE        $DESTINATION_PATH
 scp ../puppet-installation/$PUPPET_STABLE    $DESTINATION_PATH
 scp ../puppet-installation/$FACTER_STABLE    $DESTINATION_PATH
 scp ./$PUPPET_ENVIRONMENT                    $DESTINATION_PATH

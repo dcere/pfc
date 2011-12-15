@@ -24,14 +24,17 @@ fi
 if [ $# -eq 2 ]
 then
 qemu-img create $1 $2
+chmod 0777 $1 # To avoid home vs lab problems give permissions to everybody
 fi
 
 if [ $# -eq 3 ]
 then
 qemu-img create -f $3 $1 $2
+chmod 0777 $1
 fi
 
 if [ $# -eq 4 ]
 then
 qemu-img create -f $3 $4/$1 $2
+chmod 0777 $4/$1
 fi

@@ -1,8 +1,13 @@
 # Run as . ./puppet-installation-environment.sh
 
-if [ $1 = "--help" ]
+if [ $# -eq 1 ]
 then
-  echo "Run as: . $0"
+  if [ $1 = "--help" ]
+  then
+    echo "Run as: . $0"
+  else
+    echo "Invalid arg"
+  fi
 fi
 
 
@@ -18,3 +23,5 @@ PATH=$PATH:$FACTER_DIR/bin:$PUPPET_DIR/puppet/bin
 RUBYLIB=$FACTER_DIR/lib:$PUPPET_DIR/lib
 
 export PATH RUBYLIB
+
+echo "Variables exported propperly"
