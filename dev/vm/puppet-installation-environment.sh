@@ -1,6 +1,14 @@
+# Run as . ./puppet-installation-environment.sh
+
+if [ $1 = "--help" ]
+then
+  echo "Run as: . $0"
+fi
+
+
 # Stable releases!!
-FACTER_DIR=/root/facter-1.6.4
-PUPPET_DIR=/root/puppet-2.7.9
+FACTER_DIR="/root/facter-1.6.4"
+PUPPET_DIR="/root/puppet-2.7.9"
 
 # Values from http://docs.puppetlabs.com/guides/from_source.html
 # PATH=$PATH:$SETUP_DIR/facter/bin:$SETUP_DIR/puppet/bin
