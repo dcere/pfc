@@ -1,11 +1,11 @@
 <domain type='kvm'>
-  <name>karmic-pure</name>
-  <uuid>a5943f9d-30a5-42ff-8fdb-90f8c991e9c2</uuid>
-  <memory>524288</memory>
-  <currentMemory>524288</currentMemory>
+  <name>lucid-pure</name>
+  <uuid>d5a840a4-ceb5-46a0-9474-8470d8e82a3d</uuid>
+  <memory>4194304</memory>
+  <currentMemory>4194304</currentMemory>
   <vcpu>2</vcpu>
   <os>
-    <type arch='x86_64' machine='pc-0.12'>hvm</type>
+    <type arch='x86_64' machine='pc-0.14'>hvm</type>
     <boot dev='cdrom'/>
   </os>
   <features>
@@ -20,12 +20,12 @@
   <devices>
     <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
-      <driver name='qemu' type='raw'/>
-      <source file='/home/david/Escritorio/PFC/dev/vm/img/karmic-pure2.img'/>
+      <driver name='qemu' type='qcow2'/>
+      <source file='/var/tmp/dceresuela/lucid-pure.img'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <disk type='file' device='cdrom'>
-      <source file='/home/david/Escritorio/PFC/dev/vm/iso/ubuntu-9.10-desktop-amd64.iso'/>
+      <source file='/home/david/Escritorio/PFC/dev/vm/iso/ubuntu-10.04.3-server-amd64.iso'/>
       <target dev='hdb' bus='ide'/>
       <readonly/>
     </disk>

@@ -5,7 +5,7 @@
   <currentMemory>524288</currentMemory>
   <vcpu>2</vcpu>
   <os>
-    <type arch='x86_64' machine='pc-0.12'>hvm</type>
+    <type arch='x86_64' machine='pc-0.14'>hvm</type>
     <boot dev='hd'/>
   </os>
   <features>
@@ -20,8 +20,8 @@
   <devices>
     <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
-      <driver name='qemu' type='raw'/>
-      <source file='/home/david/Escritorio/PFC/dev/vm/img/karmic-pure2.img'/>
+      <driver name='qemu' type='qcow2'/>
+      <source file='/var/tmp/dceresuela/karmic-pure.img'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='bridge'>
