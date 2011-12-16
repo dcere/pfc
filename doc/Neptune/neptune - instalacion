@@ -1,0 +1,5 @@
+1) Isntalar rubygems
+
+2) Instalar neptune
+2.1) _$: gem1.8 install neptune (Dependiendo de qué version de rubygems hayamos
+instalado variará el número de después de gem)

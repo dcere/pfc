@@ -1,0 +1,10 @@
+Pasos obtenidos de: http://docs.rubygems.org/read/chapter/3
+
+1) Descargar rubygems de rubyforge: http://rubyforge.org/frs/?group_id=126
+
+2) Desempaquetar rubygems
+2.1) _$: tar xvf rubygems-1.8.10.tgz
+
+3) Instalar rubygems
+3.1) _$: cd rubygems-1.8.10
+3.2) _$: ruby setup.rb
