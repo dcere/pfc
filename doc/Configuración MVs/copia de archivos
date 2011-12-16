@@ -34,5 +34,24 @@ david@john-cleese: scp puppet-enterprise-2.0-ubuntu-10.04-amd64.tar.gz root@192.
 Ejemplo: copia de las fuentes de la última version estable de ruby
 david@john-cleese: scp ruby-1.9.3-p0.tar.gz root@192.168.1.34:/root/.
 
+Ejemplo: copia del archivo README del PFC:
+root@lucid-server: scp dceresuela@155.210.155.70:/home/dceresuela/PFC/pfc/README ./
+
+
+================================================================================
+4) Copia de un directorio desde el host a la máquina virtual:
+
+Ejemplo: Copia de appscale
+root@lucid-server: scp -r dceresuela@155.210.155.70:/home/dceresuela/PFC/pfc/dev/appscale-installation/appscale-1.5.1 ./
+
+Ejemplo: Copia de appscale tools
+root@lucid-server: scp -r dceresuela@155.210.155.70:/home/dceresuela/PFC/pfc/dev/appscale-installation/appscale-tools ./
+
+
+
 Nota: Si se queja el ssh de que la identificación del host remoto ha cambiado
 eliminar el fichero .ssh/known_hosts en el host
+
+Nota: Si desde el ordenador del laboratorio es imposible conectarse a la MV
+porque hay una "offending key" la solución es conectarse desde la MV al
+ordenador del laboratorio, y hacer la copia en ese sentido.
