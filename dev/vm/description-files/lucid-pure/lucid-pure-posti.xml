@@ -1,8 +1,8 @@
 <domain type='kvm'>
   <name>lucid-pure</name>
   <uuid>d5a840a4-ceb5-46a0-9474-8470d8e82a3d</uuid>
-  <memory>262144</memory>
-  <currentMemory>262144</currentMemory>
+  <memory>4194304</memory>
+  <currentMemory>4194304</currentMemory>
   <vcpu>2</vcpu>
   <os>
     <type arch='x86_64' machine='pc-0.12'>hvm</type>
