@@ -1,5 +1,20 @@
-# Run as . ./puppet-installation-environment.sh
+# Description:
+#   Creates the proper environment before installing puppet
+#
+# Synopsis:
+#   puppet-installation-environment.sh
+#
+# Arguments:
+#   - None
+#
+# Examples:
+#   _$: . ./puppet-installation-environment.sh
+#
+#
+# Author:
+#   David Ceresuela
 
+# Check arguments
 if [ $# -eq 1 ]
 then
   if [ $1 = "--help" ]

@@ -1,9 +1,22 @@
-################################################################################
-# Name: create-disk.sh
-# Description: Creates a disk image
-# Use: create-disk.sh <disk-name> <disk-size> [<format> <path>]
-# Author: David Ceresuela
-################################################################################
+# Description:
+#   Creates a disk image
+#
+# Synopsis:
+#   create-disk.sh <disk-name> <disk-size> [<format> <path>]
+#
+# Arguments:
+#   - Disk name: The name the disk image will have.
+#   - Disk size: The maximum size of the disk.
+#   - Format [optional]: The image format: qcow2, raw, etc. Defaults to raw.
+#   - Path [optional]: The pathe where the disk will be created. Defaults to ./
+#
+# Examples:
+#   _$: create-disk.sh disk-2G 2G
+#   _$: create-disk.sh disk-2G 2M qcow2
+#
+#
+# Author:
+#   David Ceresuela
 
 if [ $# -lt 2 ]
 then
@@ -23,18 +36,18 @@ fi
 
 if [ $# -eq 2 ]
 then
-qemu-img create $1 $2
-chmod 0777 $1 # To avoid home vs lab problems give permissions to everybody
+  qemu-img create $1 $2
+  chmod 0777 $1 # To avoid home vs lab problems give permissions to everybody
 fi
 
 if [ $# -eq 3 ]
 then
-qemu-img create -f $3 $1 $2
-chmod 0777 $1
+  qemu-img create -f $3 $1 $2
+  chmod 0777 $1
 fi
 
 if [ $# -eq 4 ]
 then
-qemu-img create -f $3 $4/$1 $2
-chmod 0777 $4/$1
+  qemu-img create -f $3 $4/$1 $2
+  chmod 0777 $4/$1
 fi
