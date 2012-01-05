@@ -30,22 +30,36 @@ PUPPET_PATH="/usr/local/lib/site_ruby/1.8/puppet"
 
 if [ $# -eq 1 ]
 then
-  echo "Copying faces..."
-  scp ./face/*.rb root@$1:$PUPPET_PATH/face/.
-
-  echo "Copying applications..."
-  scp ./application/*.rb root@$1:$PUPPET_PATH/application/.
-  
-  echo "Finished"
+  if [ $1 = "localhost" ]
+  then
+    echo "Copying faces to localhost..."
+    sudo cp ./face/*.rb $PUPPET_PATH/face/.
+    echo "Copying applications to localhost..."
+    sudo cp ./application/*.rb $PUPPET_PATH/application/.
+    echo "Finished"
+  else
+    echo "Copying faces to $1..."
+    scp ./face/*.rb root@$1:$PUPPET_PATH/face/.
+    echo "Copying applications to $1..."
+    scp ./application/*.rb root@$1:$PUPPET_PATH/application/.
+    echo "Finished"
+  fi
 fi
 
 if [ $# -eq 2 ]
 then
-  echo "Copying face $2..."
-  scp ./face/*.rb root@$1:$PUPPET_PATH/face/.
-
-  echo "Copying application $2..."
-  scp ./application/*.rb root@$1:$PUPPET_PATH/application/.
-  
-  echo "Finished"
+  if [ $1 = "localhost" ]
+  then
+    echo "Copying face $2 to localhost..."
+    sudo cp ./face/*.rb $PUPPET_PATH/face/.
+    echo "Copying applications to localhost..."
+    sudo cp ./application/*.rb $PUPPET_PATH/application/.
+    echo "Finished"
+  else
+    echo "Copying face $2 to $1..."
+    scp ./face/$2.rb root@$1:$PUPPET_PATH/face/.
+    echo "Copying application $2 to $1..."
+    scp ./application/$2.rb root@$1:$PUPPET_PATH/application/.
+    echo "Finished"
+  fi
 fi
