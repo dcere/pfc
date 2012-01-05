@@ -24,6 +24,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   end
 
 
+  ##############################################################################
   action :test do
     when_invoked do |options|
       puts "Testing vmanager face. It responds."
@@ -51,9 +52,10 @@ Puppet::Face.define(:vmanager,'0.1.0') do
     EX
     
     when_invoked do |options|
+      config(options)
       puts "== Listing virtual machines"
       puts "Hypervisor: #{options[:hypervisor]}"
-      conn = connect_with_hypervisor(options[:hypervisor])
+      conn = connect_with_hypervisor()
       if conn
         list = conn.list_defined_domains()
         puts "Defined virtual machines:"
@@ -68,9 +70,20 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   end
   
   
-  def connect_with_hypervisor(hypervisor)
-    if check_hypervisor(hypervisor)
-      Libvirt::open(hypervisor)
+  ##############################################################################
+  def config(options)
+    if options.has_key?(:hypervisor)
+      @hypervisor = options[:hypervisor]
+    else
+      # Default hypervisor
+      @hypervisor = "qemu:///system"
+    end
+  end
+  
+  
+  def connect_with_hypervisor()
+    if check_hypervisor(@hypervisor)
+      Libvirt::open(@hypervisor)
     else
       # Try to open a connection with a default hypervisor
       Libvirt::open("qemu:///system")
