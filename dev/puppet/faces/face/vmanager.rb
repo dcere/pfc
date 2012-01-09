@@ -25,6 +25,8 @@ Puppet::Face.define(:vmanager,'0.1.0') do
 
 
   ##############################################################################
+  # Actions
+  ##############################################################################
   action :test do
     when_invoked do |options|
       puts "Testing vmanager face. It responds."
@@ -33,17 +35,165 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
 
   action :define do
-    summary "Defines a new virtual machine from a XML file"
+    summary "Define a new virtual machine from a XML file"
+    
+    examples <<-EX
+    Define a virtual machine from a XML file:
+  
+    $ puppet vmanager define --file <XML-file>
+    $ puppet vmanager define --file <XML-file> --hypervisor <hypervisor>
+    EX
     
     when_invoked do |options|
+      config(options)
       puts "== Defining a new virtual machine"
-      define_from_XML(options[:file])
+      conn = connect_with_hypervisor()
+      if conn
+        conn.define_domain_xml(@file)
+        puts "New domain defined"
+        conn.close
+      end
+    end
+  end
+  
+  
+  action :undefine do
+    summary "Undefine virtual machine"
+    
+    examples <<-EX
+    Undefine a virtual machine:
+  
+    $ puppet vmanager undefine --name <virtual-machine-name>
+    $ puppet vmanager undefine --name <virtual-machine-name> --hypervisor <hypervisor>
+    EX
+    
+    when_invoked do |options|
+      config(options)
+      puts "== Defining a new virtual machine"
+      conn = connect_with_hypervisor()
+      if conn
+        conn.define_domain_xml(@file)
+        puts "New domain defined"
+        conn.close
+      end
+    end
+  end
+  
+  
+  action :start do
+    summary "Start an already defined virtual machine"
+    
+    examples <<-EX
+    Start an already defined virtual machine:
+  
+    $ puppet vmanager start --name <virtual-machine-name>
+    $ puppet vmanager start --name <virtual-machine-name> --hypervisor <hypervisor>
+    EX
+    
+    when_invoked do |options|
+      config(options)
+      puts "== Starting virtual machine"
+      conn = connect_with_hypervisor()
+      if conn
+        dom = conn.lookup_domain_by_name(@name)
+        if dom != nil
+          dom.create()
+          puts "Virtual machine started"
+        else
+          puts "Undefined domain"
+        end
+        conn.close
+      end
     end
   end
   
 
+  action :shutdown do
+    summary "Shut down a running virtual machine"
+    
+    examples <<-EX
+    Shut down a running virtual machine:
+  
+    $ puppet vmanager shutdown --name <virtual-machine-name>
+    $ puppet vmanager shutdown --name <virtual-machine-name> --hypervisor <hypervisor>
+    EX
+    
+    when_invoked do |options|
+      config(options)
+      puts "== Shuting down virtual machine"
+      conn = connect_with_hypervisor()
+      if conn
+        dom = conn.lookup_domain_by_name(@name)
+        if dom != nil
+          dom.shutdown()
+          puts "Virtual machine is being shut down"
+        else
+          puts "Undefined domain"
+        end
+        conn.close
+      end
+    end
+  end
+  
+  
+  action :reboot do
+    summary "Reboot a running virtual machine (might be ignored by OS)"
+    
+    examples <<-EX
+    Reboot a running virtual machine:
+  
+    $ puppet vmanager reboot --name <virtual-machine-name>
+    $ puppet vmanager reboot --name <virtual-machine-name> --hypervisor <hypervisor>
+    EX
+    
+    when_invoked do |options|
+      config(options)
+      puts "== Rebooting virtual machine"
+      conn = connect_with_hypervisor()
+      if conn
+        dom = conn.lookup_domain_by_name(@name)
+        if dom != nil
+          dom.reboot()
+          puts "Rebooting virtual machine"
+        else
+          puts "Undefined domain"
+        end
+        conn.close
+      end
+    end
+  end
+  
+  
+  action :destroy do
+    summary "Destroy a running virtual machine. Hard power-off of the domain"
+    
+    examples <<-EX
+    Destroy a running virtual machine:
+  
+    $ puppet vmanager destroy --name <virtual-machine-name>
+    $ puppet vmanager destroy --name <virtual-machine-name> --hypervisor <hypervisor>
+    EX
+    
+    when_invoked do |options|
+      config(options)
+      puts "== Destroying virtual machine"
+      conn = connect_with_hypervisor()
+      if conn
+        dom = conn.lookup_domain_by_name(@name)
+        if dom != nil
+          dom.destroy()
+          puts "Virtual machine destroyed"
+        else
+          puts "Undefined domain"
+        end
+        conn.close
+      end
+    end
+  end
+  
+  
   action :list do
-    summary "Lists all the defined virtual machines"
+    summary "List all the defined virtual machines"
     
     examples <<-EX
     List all the available virtual machines:
@@ -54,13 +204,16 @@ Puppet::Face.define(:vmanager,'0.1.0') do
     when_invoked do |options|
       config(options)
       puts "== Listing virtual machines"
-      puts "Hypervisor: #{options[:hypervisor]}"
       conn = connect_with_hypervisor()
       if conn
-        list = conn.list_defined_domains()
+        list_inactive = conn.list_defined_domains()
+        list_active = conn.list_domains()
         puts "Defined virtual machines:"
-        list.each do |vm|
-          puts "#{vm}"
+        list_active.each do |vm|
+          puts "#{vm}\t\tActive"
+        end
+        list_inactive.each do |vm|
+          puts "#{vm}\t\tInactive"
         end
         conn.close
       else
@@ -71,6 +224,8 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
   
   ##############################################################################
+  # Auxiliar functions
+  ##############################################################################
   def config(options)
     if options.has_key?(:hypervisor)
       @hypervisor = options[:hypervisor]
@@ -78,6 +233,8 @@ Puppet::Face.define(:vmanager,'0.1.0') do
       # Default hypervisor
       @hypervisor = "qemu:///system"
     end
+    @name = options[:name]
+    @file = options[:file]
   end
   
   
@@ -105,10 +262,4 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   end
   
   
-  def define_from_XML(file)
-    puts "Not developed"
-  end
-  
-  
 end
-
