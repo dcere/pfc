@@ -72,13 +72,45 @@ Puppet::Face.define(:vmanager,'0.1.0') do
       puts "== Defining a new virtual machine"
       conn = connect_with_hypervisor()
       if conn
-        conn.define_domain_xml(@file)
-        puts "New domain defined"
+        dom = conn.lookup_domain_by_name(@name)
+        if dom != nil
+          dom.undefine()
+          puts "Domain undefined"
+        else
+          puts "Domain not found"
+        end
         conn.close
       end
     end
   end
   
+  
+  action :describe do
+    summary "XML description of a virtual machine"
+    
+    examples <<-EX
+    Describe a virtual machine:
+  
+    $ puppet vmanager describe --name <virtual-machine-name>
+    $ puppet vmanager describe --name <virtual-machine-name> --hypervisor <hypervisor>
+    EX
+    
+    when_invoked do |options|
+      config(options)
+      puts "== Describing a virtual machine"
+      conn = connect_with_hypervisor()
+      if conn
+        dom = conn.lookup_domain_by_name(@name)
+        if dom != nil
+          puts "XML description:"
+          puts dom.xml_desc()
+        else
+          puts "Undefined domain"
+        end
+        conn.close
+      end
+    end
+  end
   
   action :start do
     summary "Start an already defined virtual machine"
@@ -120,7 +152,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
     
     when_invoked do |options|
       config(options)
-      puts "== Shuting down virtual machine"
+      puts "== Shutting down virtual machine"
       conn = connect_with_hypervisor()
       if conn
         dom = conn.lookup_domain_by_name(@name)
