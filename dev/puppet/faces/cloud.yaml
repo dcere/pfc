@@ -1,3 +1,4 @@
 ---
-instances: 1
-path: /my/path
+instances: 4
+path: /home/david/Escritorio/PFC/dev/puppet/faces
+img: image.img
