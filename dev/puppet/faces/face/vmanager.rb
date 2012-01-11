@@ -27,13 +27,17 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   ##############################################################################
   # Actions
   ##############################################################################
+  
+  # Simple test
+  ##############################################################################
   action :test do
     when_invoked do |options|
       puts "Testing vmanager face. It responds."
     end
   end
   
-
+  # Domain definitions and description
+  ##############################################################################
   action :define do
     summary "Define a new virtual machine from a XML file"
     
@@ -112,6 +116,14 @@ Puppet::Face.define(:vmanager,'0.1.0') do
     end
   end
   
+  
+  # Disk management
+  ##############################################################################
+  #action :copy_disk
+  
+  
+  # Virtual machine: start, stop
+  ##############################################################################
   action :start do
     summary "Start an already defined virtual machine"
     
