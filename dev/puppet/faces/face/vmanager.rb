@@ -12,15 +12,15 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   DESC
 
   option "--name NAME" do
-    summary "The VM name"
+    summary "The VM name."
   end
   
   option "--hypervisor HYPERVISOR" do
-    summary "The hypervisor to connect to"
+    summary "The hypervisor to connect to."
   end
   
   option "--file FILE" do
-    summary "The XML containing the vm definition"
+    summary "The XML containing the vm definition."
   end
 
 
@@ -39,7 +39,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   # Domain definitions and description
   ##############################################################################
   action :define do
-    summary "Define a new virtual machine from a XML file"
+    summary "Define a new virtual machine from a XML file."
     
     examples <<-EX
     Define a virtual machine from a XML file:
@@ -62,7 +62,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
   
   action :undefine do
-    summary "Undefine virtual machine"
+    summary "Undefine virtual machine."
     
     examples <<-EX
     Undefine a virtual machine:
@@ -90,7 +90,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
   
   action :describe do
-    summary "XML description of a virtual machine"
+    summary "XML description of a virtual machine."
     
     examples <<-EX
     Describe a virtual machine:
@@ -125,7 +125,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   # Virtual machine: start, stop
   ##############################################################################
   action :start do
-    summary "Start an already defined virtual machine"
+    summary "Start an already defined virtual machine."
     
     examples <<-EX
     Start an already defined virtual machine:
@@ -153,7 +153,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
 
   action :shutdown do
-    summary "Shut down a running virtual machine"
+    summary "Shut down a running virtual machine."
     
     examples <<-EX
     Shut down a running virtual machine:
@@ -181,7 +181,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
   
   action :reboot do
-    summary "Reboot a running virtual machine (might be ignored by OS)"
+    summary "Reboot a running virtual machine (might be ignored by OS)."
     
     examples <<-EX
     Reboot a running virtual machine:
@@ -209,7 +209,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
   
   action :destroy do
-    summary "Destroy a running virtual machine. Hard power-off of the domain"
+    summary "Destroy a running virtual machine. Hard power-off of the domain."
     
     examples <<-EX
     Destroy a running virtual machine:
@@ -237,7 +237,7 @@ Puppet::Face.define(:vmanager,'0.1.0') do
   
   
   action :list do
-    summary "List all the defined virtual machines"
+    summary "List all the defined virtual machines."
     
     examples <<-EX
     List all the available virtual machines:

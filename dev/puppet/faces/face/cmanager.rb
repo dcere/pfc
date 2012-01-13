@@ -50,14 +50,16 @@ Puppet::Face.define(:cmanager,'0.1.0') do
       cloud = YAML::parse( File.open( @file ) )
       if cloud != nil
         cloud = cloud.transform
-        instances = cloud['instances']
+        number_instances = cloud['instances']
+        node = cloud['node']
         path = cloud['path']
         img = cloud['img']
-        puts "Number of instances: #{instances}"
+        puts "Number of instances: #{number_instances}"
+        puts "Node base name: #{node}"
         puts "Image path: #{path}"
-        puts "Base image: #{img}"
-        create_instances(instances, path, img)
-        start_instances()
+        puts "Image base name: #{img}"
+        instances = create_instances(number_instances, node, path, img)
+        start_instances(instances)
       else
         puts "File error"
       end
@@ -74,21 +76,37 @@ Puppet::Face.define(:cmanager,'0.1.0') do
   
   
   ##############################################################################
-  def create_instances(instances, path, img)
-    identifiers = generate_identifiers(img, instances.to_s.length)
-    create_images(path, img, instances, identifiers)
+  def create_instances(instances, node, path, img)
+    puts "== Creating node identifiers"
+    node_identifiers = generate_node_identifiers(node, instances)
+    puts "== Creating image identifiers"
+    image_identifiers = generate_image_identifiers(img, instances)
+    puts "== Creating images"
+    create_images(path, img, instances, image_identifiers)
+    puts "== Defining instances"
+    define_instances(node_identifiers, image_identifiers)
   end
   
   
-  def generate_identifiers(name, length)
+  def generate_node_identifiers(name, max)
+    identifiers = []
+    for i in (1..max)
+      id = name.to_s + "-" + i.to_s
+      identifiers.push(id)
+    end
+    return identifiers
+  end
+  
+  
+  def generate_image_identifiers(name, max)
     regex = /^(\S+)(\.\S+)$/
     identifiers = []
     if regex =~ name
       match = regex.match(name)
       base_name = match[1]
       extension = match[2]
-      for i in (1..(10**length))
-        id = base_name.to_s + i.to_s + extension.to_s
+      for i in (1..max)
+        id = base_name.to_s + "-" + i.to_s + extension.to_s
         identifiers.push(id)
       end
     else
@@ -98,21 +116,67 @@ Puppet::Face.define(:cmanager,'0.1.0') do
   end
   
   
-  def create_images(path, base_name, number, names)
-    images = []
+  def create_images(path, base_name, max, names)
     source = path + "/" + base_name
-    for i in (1..number)
+    for i in (1..max)
       destination = path + "/" + names[i - 1]
       command = "cp " + source + " " + destination
       system(command)
-      images.push(names[i - 1])
     end
-    return images
+  end
+  
+  
+  class VM
+    attr_accessor :vm
+    def initialize()
+      @vm = {
+        :name => "#",
+        :uuid => "#",
+        :memory => "#",
+        :img_path => "#",
+        :img_path_lab => "#",
+        :mac => "#"}
+    end
+    def get_binding
+      binding()
+    end
+  end
+  
+  def define_instances(nodes, images)
+  require 'erb'
+    
+    template_path = "/home/david/Escritorio/PFC/dev/puppet/faces/templates/template-lab_xml.erb"
+    template = File.open(template_path, 'r').read()
+    #for i in (1..nodes.count)
+      i = 1
+      xmlfilename = nodes[i - 1].to_s + ".xml"
+      puts "XML file name is: %s" % [xmlfilename]
+      xmlfile = File.open(xmlfilename, 'w')
+      erb = ERB.new(template)
+      puts "erb created"
+      myvm = VM.new()
+      xmlfile.write(erb.result(myvm.get_binding))
+      xmlfile.close
+      puts "XML file closed"
+      system("puppet vmanager define --file " + xmlfilename)
+    #end
   end
   
   
   ##############################################################################
   def start_instances()
-  
+    system("puppet vmanager test")
   end
+  
+  
+  def define_instance()
+  end
+  
+  
+  def start_instance()
+  end
+  
+  
+  
+  
 end
