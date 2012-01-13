@@ -59,7 +59,7 @@ Puppet::Face.define(:cmanager,'0.1.0') do
         puts "Image path: #{path}"
         puts "Image base name: #{img}"
         instances = create_instances(number_instances, node, path, img)
-        start_instances(instances)
+        #start_instances(instances)
       else
         puts "File error"
       end
@@ -130,12 +130,12 @@ Puppet::Face.define(:cmanager,'0.1.0') do
     attr_accessor :vm
     def initialize()
       @vm = {
-        :name => "#",
-        :uuid => "#",
-        :memory => "#",
-        :img_path => "#",
-        :img_path_lab => "#",
-        :mac => "#"}
+        :name => "virtual",
+        :uuid => "99589efb-bd79-4835-b489-002f893c7300",
+        :memory => "4",
+        :img_path => "/home/david",
+        :img_path_lab => "/home/david",
+        :mac => "52:54:00:00:de:ad"}
     end
     def get_binding
       binding()

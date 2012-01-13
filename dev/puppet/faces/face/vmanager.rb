@@ -53,7 +53,9 @@ Puppet::Face.define(:vmanager,'0.1.0') do
       puts "== Defining a new virtual machine"
       conn = connect_with_hypervisor()
       if conn
-        conn.define_domain_xml(@file)
+        xmlfile = File.open(@file, 'r')
+        xmldescription = xmlfile.read
+        conn.define_domain_xml(xmldescription)
         puts "New domain defined"
         conn.close
       end
