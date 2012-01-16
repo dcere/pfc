@@ -1,0 +1,16 @@
+INFO     2012-01-16 14:06:23,108 rdbms_sqlite.py:58] Connecting to SQLite database '' with file ''
+INFO     2012-01-16 14:06:23,146 dev_appserver_main.py:545] Running application neptune on port 19999: http://155.210.155.73:19999
+DS_STAT  2012-01-16 14:06:56,747 apiproxy_stub.py:89] qtype GetIndices time 0.00203394889832
+DS_STAT  2012-01-16 14:06:56,842 apiproxy_stub.py:89] qtype Get time 0.00469303131104
+DS_STAT  2012-01-16 14:06:56,934 apiproxy_stub.py:89] qtype Put time 0.0895569324493
+DS_STAT  2012-01-16 14:06:57,009 apiproxy_stub.py:89] qtype Put time 0.0713920593262
+DS_STAT  2012-01-16 14:06:57,015 apiproxy_stub.py:89] qtype Get time 0.0036289691925
+DS_STAT  2012-01-16 14:06:57,083 apiproxy_stub.py:89] qtype Put time 0.0666179656982
+APP_STAT 2012-01-16 14:06:57,296 urlfetch_stub.py:292] Stripped prohibited headers from URLFetch request: ['Host', 'Content-length']
+INFO     2012-01-16 14:06:59,024 dev_appserver.py:3983] "GET /health/all HTTP/1.0" 200 -
+DS_STAT  2012-01-16 14:06:59,035 apiproxy_stub.py:89] qtype GetIndices time 0.00183320045471
+INFO     2012-01-16 14:06:59,043 dev_appserver.py:3983] "POST / HTTP/1.1" 200 -
+DS_STAT  2012-01-16 14:07:26,402 apiproxy_stub.py:89] qtype GetIndices time 0.00222778320312
+INFO     2012-01-16 14:07:26,410 dev_appserver.py:3983] "POST /get HTTP/1.0" 200 -
+DS_STAT  2012-01-16 14:08:09,615 apiproxy_stub.py:89] qtype GetIndices time 0.00220918655396
+INFO     2012-01-16 14:08:09,623 dev_appserver.py:3983] "POST /doesexist HTTP/1.0" 200 -

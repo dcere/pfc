@@ -1,0 +1,26 @@
+INFO     2012-01-16 14:06:12,162 rdbms_sqlite.py:58] Connecting to SQLite database '' with file ''
+INFO     2012-01-16 14:06:12,213 dev_appserver_main.py:545] Running application neptune on port 19997: http://155.210.155.73:19997
+DS_STAT  2012-01-16 14:06:29,346 apiproxy_stub.py:89] qtype GetIndices time 0.00554203987122
+DS_STAT  2012-01-16 14:06:29,471 apiproxy_stub.py:89] qtype Get time 0.0397431850433
+DS_STAT  2012-01-16 14:06:29,602 apiproxy_stub.py:89] qtype Put time 0.0907008647919
+DS_STAT  2012-01-16 14:06:29,689 apiproxy_stub.py:89] qtype Put time 0.0847129821777
+DS_STAT  2012-01-16 14:06:29,695 apiproxy_stub.py:89] qtype Get time 0.00323677062988
+DS_STAT  2012-01-16 14:06:29,757 apiproxy_stub.py:89] qtype Put time 0.0614809989929
+APP_STAT 2012-01-16 14:06:29,947 urlfetch_stub.py:292] Stripped prohibited headers from URLFetch request: ['Host', 'Content-length']
+INFO     2012-01-16 14:06:31,568 dev_appserver.py:3983] "GET /health/all HTTP/1.0" 200 -
+DS_STAT  2012-01-16 14:06:31,585 apiproxy_stub.py:89] qtype GetIndices time 0.00246906280518
+INFO     2012-01-16 14:06:31,593 dev_appserver.py:3983] "POST / HTTP/1.1" 200 -
+DS_STAT  2012-01-16 14:07:00,652 apiproxy_stub.py:89] qtype GetIndices time 0.00173115730286
+INFO     2012-01-16 14:07:00,660 dev_appserver.py:3983] "POST /doesexist HTTP/1.0" 200 -
+DS_STAT  2012-01-16 14:07:43,524 apiproxy_stub.py:89] qtype GetIndices time 0.00213289260864
+INFO     2012-01-16 14:07:43,531 dev_appserver.py:3983] "POST /set HTTP/1.0" 200 -
+DS_STAT  2012-01-16 14:08:19,307 apiproxy_stub.py:89] qtype GetIndices time 0.003741979599
+DS_STAT  2012-01-16 14:08:19,317 apiproxy_stub.py:89] qtype Get time 0.00451588630676
+DS_STAT  2012-01-16 14:08:19,382 apiproxy_stub.py:89] qtype Put time 0.0633869171143
+DS_STAT  2012-01-16 14:08:19,450 apiproxy_stub.py:89] qtype Put time 0.0659391880035
+DS_STAT  2012-01-16 14:08:19,455 apiproxy_stub.py:89] qtype Get time 0.00360798835754
+DS_STAT  2012-01-16 14:08:19,524 apiproxy_stub.py:89] qtype Put time 0.0678341388702
+APP_STAT 2012-01-16 14:08:19,640 urlfetch_stub.py:292] Stripped prohibited headers from URLFetch request: ['Host', 'Content-length']
+INFO     2012-01-16 14:08:21,408 dev_appserver.py:3983] "GET /health/all HTTP/1.0" 200 -
+DS_STAT  2012-01-16 14:08:21,422 apiproxy_stub.py:89] qtype GetIndices time 0.00229907035828
+INFO     2012-01-16 14:08:21,429 dev_appserver.py:3983] "POST / HTTP/1.1" 200 -

@@ -1,0 +1,390 @@
+/usr/lib/ruby/1.8/webrick/ssl.rb:86: warning: method redefined; discarding old listen
+/root/appscale-1.5.1/AppController/lib/../djinn.rb:47: warning: `*' interpreted as argument prefix
+/root/appscale-1.5.1/AppController/lib/../djinn.rb:65: warning: `*' interpreted as argument prefix
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:50: warning: method redefined; discarding old rbuf_fill
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:81: warning: method redefined; discarding old exec
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:93: warning: method redefined; discarding old send_request_with_body
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:101: warning: method redefined; discarding old send_request_with_body_stream
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:127: warning: method redefined; discarding old request
+/usr/lib/ruby/gems/1.8/gems/right_aws-3.0.0/lib/awsbase/benchmark_fix.rb:29: warning: method redefined; discarding old add!
+/usr/lib/ruby/gems/1.8/gems/right_aws-3.0.0/lib/awsbase/right_awsbase.rb:576: warning: method redefined; discarding old last_request_id
+the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+configfile: stat (/etc/collectd/sites-enabled/*.conf) failed: No such file or directory[ALERT] 015/150437 (16642) : config : no <listen> line. Nothing to do !
+[ALERT] 015/150437 (16642) : Fatal errors found in configuration.
+no crontab for root
+[Mon Jan 16 15:04:42 +0100 2012] oi! about to restore!
+[Mon Jan 16 15:04:42 +0100 2012] oi! no recovery data found - skipping recovery process
+[Mon Jan 16 15:04:42 +0100 2012] Waiting for data from the load balancer or cmdline tools
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:04:42 +0100 2012] Djinn locations class: Array
+[Mon Jan 16 15:04:42 +0100 2012] DB Credentials class: Array
+[Mon Jan 16 15:04:42 +0100 2012] Apps to load class: Array
+[Mon Jan 16 15:04:42 +0100 2012] parameters were valid
+[Mon Jan 16 15:04:42 +0100 2012] keyname is of class String
+[Mon Jan 16 15:04:42 +0100 2012] keyname is appscale
+[Mon Jan 16 15:04:42 +0100 2012] adding data Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 15:04:42 +0100 2012] adding data Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 15:04:42 +0100 2012] Djinn locations: Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row., Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 15:04:42 +0100 2012] DB Credentials: {"group"=>"appscale", "ips"=>"155.210.155.177--open", "keyname"=>"appscale", "replication"=>"1", "table"=>"cassandra", "appengine"=>"3", "hostname"=>"155.210.155.73", "keypath"=>"appscale.key"}
+[Mon Jan 16 15:04:42 +0100 2012] Apps to load: none
+[Mon Jan 16 15:04:42 +0100 2012] Searching for node index for 155.210.155.177
+[Mon Jan 16 15:04:42 +0100 2012] Am I 155.210.155.73?
+[Mon Jan 16 15:04:42 +0100 2012] no...
+[Mon Jan 16 15:04:42 +0100 2012] Am I 155.210.155.177?
+[Mon Jan 16 15:04:42 +0100 2012] Yes!
+[Mon Jan 16 15:04:42 +0100 2012] My index = 1
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:04:47 +0100 2012] Got data from another node! DLoc = Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row., Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row., {"group"=>"appscale", "keyname"=>"appscale", "ips"=>"155.210.155.177--open", "replication"=>"1", "table"=>"cassandra", "appengine"=>"3", "keypath"=>"appscale.key", "hostname"=>"155.210.155.73"}, AppsToLoad = none
+[Mon Jan 16 15:04:47 +0100 2012] keypath is appscale.key, keyname is appscale
+[Mon Jan 16 15:04:47 +0100 2012] Creating directory /etc/appscale/keys/cloud1 for my ssh key /etc/appscale/keys/cloud1/appscale.key
+cp: no se puede efectuar `stat' sobre «/etc/appscale/ssh.key»: No existe el fichero o el directorio
+File exists - /etc/appscale/keys/cloud1
+[Mon Jan 16 15:04:47 +0100 2012] no neptune data found - no need to restore
+[Mon Jan 16 15:04:47 +0100 2012] pre-loop: Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.\nNode in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+WARNING: 'require 'rake/rdoctask'' is deprecated.  Please use 'require 'rdoc/task' (in RDoc 2.4.2+)' instead.
+    at /usr/lib/ruby/gems/1.8/gems/rake-0.9.2.2/lib/rake/rdoctask.rb
+WARNING: 'require 'rake/rdoctask'' is deprecated.  Please use 'require 'rdoc/task' (in RDoc 2.4.2+)' instead.
+    at /usr/lib/ruby/gems/1.8/gems/rake-0.9.2.2/lib/rake/rdoctask.rb
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:04:49 +0100 2012] memcache servers will be at 155.210.155.73
+File exists - /root/appscale-1.5.1/AppDB/logs
+[Mon Jan 16 15:04:49 +0100 2012] Master is at 155.210.155.73, slaves are at 
+[Mon Jan 16 15:04:49 +0100 2012] db ips are [155.210.155.73]
+[Mon Jan 16 15:04:49 +0100 2012] 
+
+UAServer is at [155.210.155.73]
+
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:04:59 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:04:59 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:04:59 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:04:59 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:04:59 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:04:59 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:04:59 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:04:59 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:04:59 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:04:59 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:04:59 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:04:59 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:04:59 +0100 2012] need to restore
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+Connection refused - connect(2)
+[Mon Jan 16 15:05:59 +0100 2012] all apps are [____]
+[Mon Jan 16 15:05:59 +0100 2012] decided to restore these apps: [none]
+[Mon Jan 16 15:05:59 +0100 2012] 0 apps loaded
+[Mon Jan 16 15:06:19 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:06:19 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:19 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:19 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:19 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:19 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:19 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:19 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:06:19 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:06:19 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:06:19 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:06:19 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:06:19 +0100 2012] don't need to restore
+[Mon Jan 16 15:06:19 +0100 2012] 0 apps loaded
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:06:39 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:06:39 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:39 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:39 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:39 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:39 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:39 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:39 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:06:39 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:06:39 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:06:39 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:06:39 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:06:39 +0100 2012] don't need to restore
+[Mon Jan 16 15:06:39 +0100 2012] 0 apps loaded
+[Mon Jan 16 15:06:59 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:06:59 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:59 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:59 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:59 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:59 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:59 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:06:59 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:06:59 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:06:59 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:06:59 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:06:59 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:06:59 +0100 2012] don't need to restore
+[Mon Jan 16 15:06:59 +0100 2012] 0 apps loaded
+[Mon Jan 16 15:07:00 +0100 2012] 155.210.155.177 is starting mpi master
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:07:00 +0100 2012] mpi - run
+[Mon Jan 16 15:07:00 +0100 2012] keyname is of class String
+[Mon Jan 16 15:07:00 +0100 2012] keyname is appscale
+[Mon Jan 16 15:07:00 +0100 2012] adding data Node in cloud cloud1 with instance id cloud1 responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently . It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 15:07:00 +0100 2012] library path = /usr/lib
+[Mon Jan 16 15:07:00 +0100 2012] /etc/init.d/nfs-kernel-server start
+exportfs: /etc/exports [1]: Neither 'subtree_check' or 'no_subtree_check' specified for export "*:/mirrornfs".
+  Assuming default behaviour ('no_subtree_check').
+  NOTE: this default has changed since nfs-utils version 1.0.x
+
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:07:01 +0100 2012]  * Exporting directories for NFS kernel daemon...
+   ...done.
+ * Starting NFS kernel daemon
+   ...done.
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:07:11 +0100 2012] [nfs master] node at 155.210.155.177 is currently doing 
+[Mon Jan 16 15:07:19 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:07:19 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:19 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:19 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:19 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:19 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:19 +0100 2012] serializing data 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:19 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:07:19 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:07:19 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:07:19 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:07:19 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:07:19 +0100 2012] don't need to restore
+[Mon Jan 16 15:07:19 +0100 2012] 0 apps loaded
+[Mon Jan 16 15:07:26 +0100 2012] rm -fv /mirrornfs/thempicode /tmp/thempioutput
+[Mon Jan 16 15:07:26 +0100 2012] «/tmp/thempioutput» borrado
+[Mon Jan 16 15:07:26 +0100 2012] rm -fv /tmp/thempicode
+[Mon Jan 16 15:07:26 +0100 2012] 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0    64      0  53556 --:--:-- --:--:-- --:--:-- 53556  0    25    0    25    0    64   1139   2918 --:--:-- --:--:-- --:--:--     0
+[Mon Jan 16 15:07:26 +0100 2012] get key=/tmp/mpi type=output
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:07:31 +0100 2012] cp /tmp/thempicode /mirrornfs/
+cp: no se puede efectuar `stat' sobre «/tmp/thempicode»: No existe el fichero o el directorio
+[Mon Jan 16 15:07:31 +0100 2012] 
+[Mon Jan 16 15:07:36 +0100 2012] MPD Hosts are: 155.210.155.177
+[Mon Jan 16 15:07:36 +0100 2012] mpdboot -r 'ssh -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key' -f /tmp/mpd.hosts -n 1
+[Mon Jan 16 15:07:36 +0100 2012] 
+[Mon Jan 16 15:07:39 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:07:39 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:39 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:39 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:39 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:39 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:39 +0100 2012] serializing data 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:07:39 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:07:39 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:07:39 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:07:39 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:07:39 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:07:39 +0100 2012] don't need to restore
+[Mon Jan 16 15:07:39 +0100 2012] 0 apps loaded
+[Mon Jan 16 15:07:41 +0100 2012] mpiexec -env X10_NTHREADS 1 -n 1 /mirrornfs/thempicode > /tmp/thempioutput
+[Mon Jan 16 15:07:42 +0100 2012] 
+[Mon Jan 16 15:07:42 +0100 2012] MPI: Done running job!
+[Mon Jan 16 15:07:42 +0100 2012] TIMING: Took 0.212291 seconds
+[Mon Jan 16 15:07:42 +0100 2012] mpdallexit
+[Mon Jan 16 15:07:42 +0100 2012] 
+[Mon Jan 16 15:07:42 +0100 2012] /etc/init.d/nfs-kernel-server stop
+[Mon Jan 16 15:07:42 +0100 2012]  * Stopping NFS kernel daemon
+   ...done.
+ * Unexporting directories for NFS kernel daemon...
+   ...done.
+[Mon Jan 16 15:07:42 +0100 2012] ssh 155.210.155.177 'ps ax | grep nfs'
+Host key verification failed.
+[Mon Jan 16 15:07:42 +0100 2012] 
+[Mon Jan 16 15:07:43 +0100 2012] attempting to put local file /tmp/thempioutput into file /tmp/mpi-output.txt
+[Mon Jan 16 15:07:43 +0100 2012] set key=/tmp/mpi-output.txt type=output returned you provided a bad secret
+[Mon Jan 16 15:07:43 +0100 2012] set operation returned false
+[Mon Jan 16 15:07:43 +0100 2012] ip is [155.210.155.73], command is [rm /tmp/mpi-261627-started], public key is [/root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key], want output? [false]
+[Mon Jan 16 15:07:43 +0100 2012] Running [ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key -o StrictHostkeyChecking=no root@155.210.155.73 'rm /tmp/mpi-261627-started > /dev/null &' &]
+Warning: Permanently added '155.210.155.73' (RSA) to the list of known hosts.
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:08:00 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:08:00 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:00 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:00 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:00 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:00 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:00 +0100 2012] serializing data 155.210.155.177:155.210.155.177:mpi_master:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:00 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:08:00 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:08:00 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:08:00 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:08:00 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:08:00 +0100 2012] don't need to restore
+[Mon Jan 16 15:08:00 +0100 2012] 0 apps loaded
+[Mon Jan 16 15:08:04 +0100 2012] 155.210.155.177 is stopping mpi master
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:08:20 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:08:20 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:20 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:20 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:20 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:20 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:20 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:20 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:08:20 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:08:20 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:08:20 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:08:20 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:08:20 +0100 2012] don't need to restore
+[Mon Jan 16 15:08:20 +0100 2012] 0 apps loaded
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:08:40 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:08:40 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:40 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:40 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:40 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:40 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:40 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:08:40 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:08:40 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:08:40 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:08:40 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:08:40 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:08:40 +0100 2012] don't need to restore
+[Mon Jan 16 15:08:40 +0100 2012] 0 apps loaded
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:09:00 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:09:00 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:00 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:00 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:00 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:00 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:00 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:00 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:09:00 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:09:00 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:09:00 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:09:00 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:09:00 +0100 2012] don't need to restore
+[Mon Jan 16 15:09:00 +0100 2012] 0 apps loaded
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 15:09:20 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:09:20 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:20 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:20 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:20 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:20 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:20 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:20 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:09:20 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:09:20 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:09:20 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:09:20 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:09:20 +0100 2012] don't need to restore
+[Mon Jan 16 15:09:20 +0100 2012] 0 apps loaded
+[Mon Jan 16 15:09:41 +0100 2012] oi! about to backup!
+[Mon Jan 16 15:09:41 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:41 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:41 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:41 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:41 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:41 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:cloud1:cloud1:appscale.key
+[Mon Jan 16 15:09:41 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Connection refused - connect(2)
+[Mon Jan 16 15:09:41 +0100 2012] oi! saw exception Errno::ECONNREFUSED
+[Mon Jan 16 15:09:41 +0100 2012] oi! data received is {}
+[Mon Jan 16 15:09:41 +0100 2012] No need to heartbeat, we aren't the shadow
+[Mon Jan 16 15:09:41 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 15:09:41 +0100 2012] don't need to restore
+[Mon Jan 16 15:09:41 +0100 2012] 0 apps loaded
