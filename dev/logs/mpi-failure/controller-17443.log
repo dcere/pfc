@@ -1,0 +1,789 @@
+/usr/lib/ruby/1.8/webrick/ssl.rb:86: warning: method redefined; discarding old listen
+/root/appscale-1.5.1/AppController/lib/../djinn.rb:47: warning: `*' interpreted as argument prefix
+/root/appscale-1.5.1/AppController/lib/../djinn.rb:65: warning: `*' interpreted as argument prefix
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:50: warning: method redefined; discarding old rbuf_fill
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:81: warning: method redefined; discarding old exec
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:93: warning: method redefined; discarding old send_request_with_body
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:101: warning: method redefined; discarding old send_request_with_body_stream
+/usr/lib/ruby/gems/1.8/gems/right_http_connection-1.3.0/lib/net_fix.rb:127: warning: method redefined; discarding old request
+/usr/lib/ruby/gems/1.8/gems/right_aws-3.0.0/lib/awsbase/benchmark_fix.rb:29: warning: method redefined; discarding old add!
+/usr/lib/ruby/gems/1.8/gems/right_aws-3.0.0/lib/awsbase/right_awsbase.rb:576: warning: method redefined; discarding old last_request_id
+the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+configfile: stat (/etc/collectd/sites-enabled/*.conf) failed: No such file or directorykill: No such process
+[ALERT] 015/125938 (10944) : config : no <listen> line. Nothing to do !
+[ALERT] 015/125938 (10944) : Fatal errors found in configuration.
+no crontab for root
+[Mon Jan 16 12:59:43 +0100 2012] oi! about to restore!
+[Mon Jan 16 12:59:43 +0100 2012] oi! no recovery data found - skipping recovery process
+[Mon Jan 16 12:59:43 +0100 2012] Waiting for data from the load balancer or cmdline tools
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 12:59:44 +0100 2012] Djinn locations class: Array
+[Mon Jan 16 12:59:44 +0100 2012] DB Credentials class: Array
+[Mon Jan 16 12:59:44 +0100 2012] Apps to load class: Array
+[Mon Jan 16 12:59:44 +0100 2012] parameters were valid
+[Mon Jan 16 12:59:44 +0100 2012] keyname is of class String
+[Mon Jan 16 12:59:44 +0100 2012] keyname is appscale
+[Mon Jan 16 12:59:44 +0100 2012] adding data Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 12:59:44 +0100 2012] Djinn locations: Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 12:59:44 +0100 2012] DB Credentials: {"group"=>"appscale", "ips"=>"155.210.155.177--open", "keyname"=>"appscale", "replication"=>"1", "table"=>"cassandra", "appengine"=>"3", "hostname"=>"155.210.155.73", "keypath"=>"appscale.key"}
+[Mon Jan 16 12:59:44 +0100 2012] Apps to load: none
+[Mon Jan 16 12:59:44 +0100 2012] Searching for node index for 155.210.155.73
+[Mon Jan 16 12:59:44 +0100 2012] Am I 155.210.155.73?
+[Mon Jan 16 12:59:44 +0100 2012] Yes!
+[Mon Jan 16 12:59:44 +0100 2012] My index = 0
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 12:59:48 +0100 2012] Got data from another node! DLoc = Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row., {"group"=>"appscale", "keyname"=>"appscale", "ips"=>"155.210.155.177--open", "replication"=>"1", "table"=>"cassandra", "appengine"=>"3", "keypath"=>"appscale.key", "hostname"=>"155.210.155.73"}, AppsToLoad = none
+[Mon Jan 16 12:59:48 +0100 2012] keypath is appscale.key, keyname is appscale
+[Mon Jan 16 12:59:48 +0100 2012] Creating directory /etc/appscale/keys/cloud1 for my ssh key /etc/appscale/keys/cloud1/appscale.key
+File exists - /etc/appscale/keys/cloud1
+[Mon Jan 16 12:59:49 +0100 2012] no neptune data found - no need to restore
+[Mon Jan 16 12:59:49 +0100 2012] pre-loop: Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 12:59:49 +0100 2012] Received appengine info: 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1
+[Mon Jan 16 12:59:49 +0100 2012] keyname is of class String
+[Mon Jan 16 12:59:49 +0100 2012] keyname is appscale
+[Mon Jan 16 12:59:49 +0100 2012] adding data Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 12:59:49 +0100 2012] Djinn locations: Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row., Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 12:59:49 +0100 2012] DB Credentials: {"group"=>"appscale", "keyname"=>"appscale", "ips"=>"155.210.155.177--open", "replication"=>"1", "table"=>"cassandra", "appengine"=>"3", "keypath"=>"appscale.key", "hostname"=>"155.210.155.73"}
+[Mon Jan 16 12:59:49 +0100 2012] Apps to load: none
+[Mon Jan 16 12:59:49 +0100 2012] Appengine info: Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 12:59:55 +0100 2012] ip is [155.210.155.177], command is [mkdir -p /etc/appscale/keys/cloud1], public key is [/root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key], want output? [false]
+[Mon Jan 16 12:59:55 +0100 2012] Running [ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key -o StrictHostkeyChecking=no root@155.210.155.177 'mkdir -p /etc/appscale/keys/cloud1 > /dev/null &' &]
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 12:59:59 +0100 2012] Image at 155.210.155.177 is an AppScale image.
+[Mon Jan 16 13:00:00 +0100 2012] Image at 155.210.155.177 supports cassandra.
+[Mon Jan 16 13:00:00 +0100 2012] rsync -e 'ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key' -arv /root/appscale-1.5.1/AppController/* root@155.210.155.177:/root/appscale-1.5.1/AppController
+[Mon Jan 16 13:00:01 +0100 2012] sending incremental file list
+
+sent 898 bytes  received 20 bytes  612.00 bytes/sec
+total size is 202894  speedup is 221.02
+[Mon Jan 16 13:00:01 +0100 2012] rsync -e 'ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key' -arv --filter '- *.pyc' /root/appscale-1.5.1/AppServer/* root@155.210.155.177:/root/appscale-1.5.1/AppServer
+[Mon Jan 16 13:00:03 +0100 2012] sending incremental file list
+google/
+google/appengine/
+google/appengine/api/
+google/appengine/api/SOAPpy/
+google/appengine/api/SOAPpy/wstools/
+google/appengine/api/blobstore/
+google/appengine/api/capabilities/
+google/appengine/api/namespace_manager/
+google/appengine/api/taskqueue/
+google/appengine/base/
+google/appengine/datastore/
+google/appengine/ext/
+google/appengine/ext/blobstore/
+google/appengine/ext/db/
+google/appengine/ext/remote_api/
+google/appengine/runtime/
+google/appengine/tools/
+google/net/
+google/net/proto/
+google/pyglib/
+
+sent 95230 bytes  received 1097 bytes  64218.00 bytes/sec
+total size is 93582121  speedup is 971.50
+[Mon Jan 16 13:00:03 +0100 2012] rsync -e 'ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key' -arv /root/appscale-1.5.1/AppLoadBalancer/* root@155.210.155.177:/root/appscale-1.5.1/AppLoadBalancer
+[Mon Jan 16 13:00:04 +0100 2012] sending incremental file list
+log/production.log
+
+sent 391004 bytes  received 5593 bytes  264398.00 bytes/sec
+total size is 12440751  speedup is 31.37
+[Mon Jan 16 13:00:04 +0100 2012] rsync -e 'ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key' -arv --exclude='logs/*' --exclude='hadoop-*' --exclude='hbase/hbase-*' --exclude='voldemort/voldemort/*' --exclude='cassandra/cassandra/*' /root/appscale-1.5.1/AppDB/* root@155.210.155.177:/root/appscale-1.5.1/AppDB
+[Mon Jan 16 13:00:05 +0100 2012] sending incremental file list
+
+sent 4350 bytes  received 42 bytes  2928.00 bytes/sec
+total size is 1711381  speedup is 389.66
+[Mon Jan 16 13:00:05 +0100 2012] rsync -e 'ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key' -arv /root/appscale-1.5.1/Neptune/* root@155.210.155.177:/root/appscale-1.5.1/Neptune
+[Mon Jan 16 13:00:06 +0100 2012] sending incremental file list
+
+sent 344 bytes  received 13 bytes  238.00 bytes/sec
+total size is 54098  speedup is 151.54
+[Mon Jan 16 13:00:06 +0100 2012] rsync -e 'ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key' -arv /root/appscale-1.5.1/Loki/* root@155.210.155.177:/root/appscale-1.5.1/Loki
+[Mon Jan 16 13:00:07 +0100 2012] sending incremental file list
+
+sent 32 bytes  received 12 bytes  29.33 bytes/sec
+total size is 1462  speedup is 33.23
+[Mon Jan 16 13:00:08 +0100 2012] ip is [155.210.155.177], command is [rm -rf /etc/appscale/appcontroller-state.json], public key is [/root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key], want output? [false]
+[Mon Jan 16 13:00:08 +0100 2012] Running [ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key -o StrictHostkeyChecking=no root@155.210.155.177 'rm -rf /etc/appscale/appcontroller-state.json > /dev/null &' &]
+[Mon Jan 16 13:00:08 +0100 2012] ip is [155.210.155.177], command is [god], public key is [/root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key], want output? [true]
+[Mon Jan 16 13:00:08 +0100 2012] Running [ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key -o StrictHostkeyChecking=no root@155.210.155.177 'god 2>&1 > /tmp/155.210.155.177.log &' &]
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:00:09 +0100 2012] running command god on ip 155.210.155.177 returned 
+[Mon Jan 16 13:00:11 +0100 2012] ip is [155.210.155.177], command is [god load /tmp/god-9016.god], public key is [/root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key], want output? [true]
+[Mon Jan 16 13:00:11 +0100 2012] Running [ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key -o StrictHostkeyChecking=no root@155.210.155.177 'god load /tmp/god-9016.god 2>&1 > /tmp/155.210.155.177.log &' &]
+[Mon Jan 16 13:00:12 +0100 2012] running command god load /tmp/god-9016.god on ip 155.210.155.177 returned 
+[Mon Jan 16 13:00:17 +0100 2012] ip is [155.210.155.177], command is [rm -rf /tmp/god-9016.god], public key is [/root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key], want output? [false]
+[Mon Jan 16 13:00:17 +0100 2012] Running [ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key -o StrictHostkeyChecking=no root@155.210.155.177 'rm -rf /tmp/god-9016.god > /dev/null &' &]
+[Mon Jan 16 13:00:17 +0100 2012] Starting controller on ip 155.210.155.177, port 17443 with start command [ruby /root/appscale-1.5.1/AppController/djinnServer.rb] and stop command [ruby /root/appscale-1.5.1/AppController/terminate.rb]
+[Mon Jan 16 13:00:17 +0100 2012] ip is [155.210.155.177], command is [god start controller], public key is [/root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key], want output? [true]
+[Mon Jan 16 13:00:17 +0100 2012] Running [ssh -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key -o StrictHostkeyChecking=no root@155.210.155.177 'god start controller 2>&1 > /tmp/155.210.155.177.log &' &]
+[Mon Jan 16 13:00:18 +0100 2012] running command god start controller on ip 155.210.155.177 returned 
+Connection refused - connect(2)
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:00:19 +0100 2012] Waiting on 155.210.155.177:17443 to be open (currently closed).
+[Mon Jan 16 13:00:19 +0100 2012] Sending data to 155.210.155.177
+[Mon Jan 16 13:00:19 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:00:19 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:00:19 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:00:19 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:00:19 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:00:19 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:00:20 +0100 2012] 155.210.155.177 responded with 
+[Mon Jan 16 13:00:20 +0100 2012] looping: Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.\nNode in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 13:00:20 +0100 2012] 155.210.155.177 returned false (FalseClass)
+[Mon Jan 16 13:00:20 +0100 2012] Waiting on other nodes to come online
+[Mon Jan 16 13:00:25 +0100 2012] looping: Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.\nNode in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 13:00:25 +0100 2012] 155.210.155.177 returned false (FalseClass)
+[Mon Jan 16 13:00:25 +0100 2012] Waiting on other nodes to come online
+[Mon Jan 16 13:00:30 +0100 2012] looping: Node in cloud cloud1 with instance id i-ZFOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.73, priv IP 155.210.155.73, and is currently load_balancer, shadow, db_master, zookeeper, login, memcache, appengine. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.\nNode in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.
+[Mon Jan 16 13:00:30 +0100 2012] 155.210.155.177 returned true (TrueClass)
+WARNING: 'require 'rake/rdoctask'' is deprecated.  Please use 'require 'rdoc/task' (in RDoc 2.4.2+)' instead.
+    at /usr/lib/ruby/gems/1.8/gems/rake-0.9.2.2/lib/rake/rdoctask.rb
+WARNING: 'require 'rake/rdoctask'' is deprecated.  Please use 'require 'rdoc/task' (in RDoc 2.4.2+)' instead.
+    at /usr/lib/ruby/gems/1.8/gems/rake-0.9.2.2/lib/rake/rdoctask.rb
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:00:32 +0100 2012] memcache servers will be at 155.210.155.73
+File exists - /root/appscale-1.5.1/AppDB/logs
+[Mon Jan 16 13:00:32 +0100 2012] Master is at 155.210.155.73, slaves are at 
+[Mon Jan 16 13:00:32 +0100 2012] db ips are [155.210.155.73]
+[Mon Jan 16 13:00:32 +0100 2012] 
+
+UAServer is at [155.210.155.73]
+
+[Mon Jan 16 13:00:32 +0100 2012] god stop ejabberd
+[Mon Jan 16 13:00:32 +0100 2012] Sending 'stop' command
+
+No matching task or group
+[Mon Jan 16 13:00:32 +0100 2012] rm -f /var/lib/ejabberd/*
+[Mon Jan 16 13:00:32 +0100 2012] 
+[Mon Jan 16 13:00:33 +0100 2012] god load /tmp/god-7465.god
+[Mon Jan 16 13:00:33 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-ejabberd-4369
+[Mon Jan 16 13:00:38 +0100 2012] Starting ejabberd on ip 155.210.155.73, port 4369 with start command [/etc/init.d/ejabberd start] and stop command [/etc/init.d/ejabberd stop]
+[Mon Jan 16 13:00:38 +0100 2012] god start ejabberd
+[Mon Jan 16 13:00:38 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-ejabberd-4369
+[Mon Jan 16 13:00:38 +0100 2012] zookeeper configuration=tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/var/appscale/zookeeper
+clientPort=2181
+leaderServes=yes
+[Mon Jan 16 13:00:38 +0100 2012] zookeeper myid=
+[Mon Jan 16 13:00:38 +0100 2012] 
+[Mon Jan 16 13:00:38 +0100 2012] starting ZooKeeper
+[Mon Jan 16 13:00:38 +0100 2012] 
+[Mon Jan 16 13:00:38 +0100 2012] directorio borrado: «/var/appscale/zookeeper»
+[Mon Jan 16 13:00:39 +0100 2012] mkdir: se ha creado el directorio «/var/appscale/zookeeper»
+[Mon Jan 16 13:00:39 +0100 2012] cambiado el propietario de «/var/appscale/zookeeper» a zookeeper:zookeeper
+[Mon Jan 16 13:00:39 +0100 2012] «/var/appscale/zookeeper/myid» -> «/etc/zookeeper/conf/myid»
+[Mon Jan 16 13:00:39 +0100 2012] 
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:00:42 +0100 2012] About to run [start_load_balancer]
+[Mon Jan 16 13:00:42 +0100 2012] Starting up Load Balancer
+kill: No such process
+[Mon Jan 16 13:00:42 +0100 2012] god load /tmp/god-6232.god
+[Mon Jan 16 13:00:43 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-loadbalancer-8000
+[Mon Jan 16 13:00:48 +0100 2012] Starting loadbalancer on ip 155.210.155.73, port 8000 with start command [/usr/bin/mongrel_rails start -c /root/appscale-1.5.1/AppLoadBalancer -e production -p 8000 -P /root/appscale-1.5.1/AppLoadBalancer/log/mongrel.8000.pid] and stop command [/usr/bin/mongrel_rails stop -P /root/appscale-1.5.1/AppLoadBalancer/log/mongrel.8000.pid]
+[Mon Jan 16 13:00:48 +0100 2012] god start loadbalancer
+[Mon Jan 16 13:00:48 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-loadbalancer-8000
+[Mon Jan 16 13:00:48 +0100 2012] god load /tmp/god-2814.god
+[Mon Jan 16 13:00:48 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-loadbalancer-8001
+[Mon Jan 16 13:00:53 +0100 2012] Starting loadbalancer on ip 155.210.155.73, port 8001 with start command [/usr/bin/mongrel_rails start -c /root/appscale-1.5.1/AppLoadBalancer -e production -p 8001 -P /root/appscale-1.5.1/AppLoadBalancer/log/mongrel.8001.pid] and stop command [/usr/bin/mongrel_rails stop -P /root/appscale-1.5.1/AppLoadBalancer/log/mongrel.8001.pid]
+[Mon Jan 16 13:00:53 +0100 2012] god start loadbalancer
+[Mon Jan 16 13:00:54 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-loadbalancer-8000
+  appscale-loadbalancer-8001
+[Mon Jan 16 13:00:54 +0100 2012] god load /tmp/god-4469.god
+[Mon Jan 16 13:00:54 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-loadbalancer-8002
+[Mon Jan 16 13:00:59 +0100 2012] Starting loadbalancer on ip 155.210.155.73, port 8002 with start command [/usr/bin/mongrel_rails start -c /root/appscale-1.5.1/AppLoadBalancer -e production -p 8002 -P /root/appscale-1.5.1/AppLoadBalancer/log/mongrel.8002.pid] and stop command [/usr/bin/mongrel_rails stop -P /root/appscale-1.5.1/AppLoadBalancer/log/mongrel.8002.pid]
+[Mon Jan 16 13:00:59 +0100 2012] god start loadbalancer
+[Mon Jan 16 13:00:59 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-loadbalancer-8000
+  appscale-loadbalancer-8001
+  appscale-loadbalancer-8002
+the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+configfile: stat (/etc/collectd/sites-enabled/*.conf) failed: No such file or directorythe configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+[Mon Jan 16 13:01:01 +0100 2012] god load /tmp/god-566.god
+[Mon Jan 16 13:01:01 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-monitr-8003
+[Mon Jan 16 13:01:06 +0100 2012] Starting monitr on ip 155.210.155.73, port 8003 with start command [/usr/bin/mongrel_rails start -c /root/appscale-1.5.1/AppMonitoring -e production -p 8003 -P /root/appscale-1.5.1/AppMonitoring/log/mongrel.8003.pid] and stop command [/usr/bin/mongrel_rails stop -P /root/appscale-1.5.1/AppMonitoring/log/mongrel.8003.pid]
+[Mon Jan 16 13:01:06 +0100 2012] god start monitr
+[Mon Jan 16 13:01:06 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-monitr-8003
+getaddrinfo: Name or service not known
+getaddrinfo: Name or service not known
+getaddrinfo: Name or service not known
+[Mon Jan 16 13:01:07 +0100 2012] About to run [start_db_master]
+[Mon Jan 16 13:01:07 +0100 2012] Starting up Cassandra as master
+[Mon Jan 16 13:01:07 +0100 2012] 
+[Mon Jan 16 13:01:08 +0100 2012]  INFO 13:01:07,627 Logging initialized
+ INFO 13:01:07,659 Heap size: 510263296/511311872
+ INFO 13:01:07,661 JNA not found. Native methods will be disabled.
+ INFO 13:01:07,674 Loading settings from file:/root/appscale-1.5.1/AppDB/cassandra/cassandra/conf/cassandra.yaml
+ INFO 13:01:07,847 DiskAccessMode 'auto' determined to be mmap, indexAccessMode is mmap
+ INFO 13:01:08,043 Creating new commitlog segment /var/appscale/cassandra/commitlog/CommitLog-1326715268043.log
+ INFO 13:01:08,059 Couldn't detect any schema definitions in local storage.
+ INFO 13:01:08,060 Found table data in data directories. Consider using JMX to call org.apache.cassandra.service.StorageService.loadSchemaFromYaml().
+ INFO 13:01:08,070 No commitlog files found; skipping replay
+ INFO 13:01:08,096 Upgrading to 0.7. Purging hints if there are any. Old hints will be snapshotted.
+ INFO 13:01:08,115 Cassandra version: 0.7.6-2
+ INFO 13:01:08,115 Thrift API version: 19.4.0
+ INFO 13:01:08,115 Loading persisted ring state
+ INFO 13:01:08,117 Starting up server gossip
+ INFO 13:01:08,129 Enqueuing flush of Memtable-LocationInfo@1656942101(232 bytes, 4 operations)
+ INFO 13:01:08,130 Writing Memtable-LocationInfo@1656942101(232 bytes, 4 operations)
+ INFO 13:01:08,210 Completed flushing /var/appscale/cassandra/data/system/LocationInfo-f-1-Data.db (340 bytes)
+ WARN 13:01:08,312 Generated random token Token(bytes[87ed30112bddb460df274cea8c611a0e]). Random tokens will result in an unbalanced ring; see http://wiki.apache.org/cassandra/Operations
+ INFO 13:01:08,313 Enqueuing flush of Memtable-LocationInfo@1252749669(53 bytes, 2 operations)
+ INFO 13:01:08,314 Writing Memtable-LocationInfo@1252749669(53 bytes, 2 operations)
+ INFO 13:01:08,353 Completed flushing /var/appscale/cassandra/data/system/LocationInfo-f-2-Data.db (163 bytes)
+ INFO 13:01:08,358 Will not load MX4J, mx4j-tools.jar is not in the classpath
+Connection refused - connect(2)
+[Mon Jan 16 13:01:09 +0100 2012] Waiting on 155.210.155.73:9160 to be open (currently closed).
+[Mon Jan 16 13:01:09 +0100 2012] About to run [start_memcached]
+[Mon Jan 16 13:01:09 +0100 2012] Starting up memcached
+[Mon Jan 16 13:01:09 +0100 2012] god load /tmp/god-8994.god
+[Mon Jan 16 13:01:09 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-memcached-11211
+[Mon Jan 16 13:01:14 +0100 2012] Starting memcached on ip 155.210.155.73, port 11211 with start command [/usr/bin/memcached -d -m 32 -p 11211 -u root] and stop command [pkill memcached]
+[Mon Jan 16 13:01:14 +0100 2012] god start memcached
+[Mon Jan 16 13:01:15 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-memcached-11211
+[Mon Jan 16 13:01:16 +0100 2012] Creating Key Spaces
+SUCCESS
+prime cassandra database
+CREATE TABLE SUCCESS FOR USER AND APPS
+['DB_ERROR:', 'email', 'pw', 'date_creation', 'date_change', 'date_last_login', 'applications', 'appdrop_rem_token', 'appdrop_rem_token_exp', 'visit_cnt', 'cookie', 'cookie_ip', 'cookie_exp', 'cksum', 'enabled', 'type', 'is_cloud_admin', 'capabilities']
+['DB_ERROR:', 'name', 'language', 'version', 'owner', 'admins_list', 'host', 'port', 'creation_date', 'last_time_updated_date', 'yaml_file', 'cksum', 'num_entries', 'tar_ball', 'enabled', 'classes', 'indexes']
+[Mon Jan 16 13:01:16 +0100 2012] god load /tmp/god-8920.god
+[Mon Jan 16 13:01:16 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-pbserver-4000
+[Mon Jan 16 13:01:21 +0100 2012] Starting pbserver on ip 155.210.155.73, port 4000 with start command [/usr/bin/python2.6 /root/appscale-1.5.1/AppDB/appscale_server.py -p 4000 --no_encryption --type cassandra -z '155.210.155.73:2181' -s tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA -a 155.210.155.73 --key] and stop command [pkill -9 appscale_server]
+[Mon Jan 16 13:01:21 +0100 2012] god start pbserver
+[Mon Jan 16 13:01:22 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-pbserver-4000
+[Mon Jan 16 13:01:22 +0100 2012] god load /tmp/god-7087.god
+[Mon Jan 16 13:01:22 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-pbserver-4001
+[Mon Jan 16 13:01:27 +0100 2012] Starting pbserver on ip 155.210.155.73, port 4001 with start command [/usr/bin/python2.6 /root/appscale-1.5.1/AppDB/appscale_server.py -p 4001 --no_encryption --type cassandra -z '155.210.155.73:2181' -s tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA -a 155.210.155.73 --key] and stop command [pkill -9 appscale_server]
+[Mon Jan 16 13:01:27 +0100 2012] god start pbserver
+[Mon Jan 16 13:01:27 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-pbserver-4000
+  appscale-pbserver-4001
+[Mon Jan 16 13:01:27 +0100 2012] god load /tmp/god-2509.god
+[Mon Jan 16 13:01:28 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-pbserver-4002
+[Mon Jan 16 13:01:33 +0100 2012] Starting pbserver on ip 155.210.155.73, port 4002 with start command [/usr/bin/python2.6 /root/appscale-1.5.1/AppDB/appscale_server.py -p 4002 --no_encryption --type cassandra -z '155.210.155.73:2181' -s tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA -a 155.210.155.73 --key] and stop command [pkill -9 appscale_server]
+[Mon Jan 16 13:01:33 +0100 2012] god start pbserver
+[Mon Jan 16 13:01:33 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-pbserver-4000
+  appscale-pbserver-4001
+  appscale-pbserver-4002
+the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     2    0     2    0     0    796      0 --:--:-- --:--:-- --:--:--  2000
+[Mon Jan 16 13:01:33 +0100 2012] god load /tmp/god-5085.god
+[Mon Jan 16 13:01:34 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-uaserver-4343
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:01:39 +0100 2012] Starting uaserver on ip 155.210.155.73, port 4343 with start command [/usr/bin/python2.6 /root/appscale-1.5.1/AppDB/soap_server.py -t cassandra -s tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA] and stop command [pkill -9 soap_server]
+[Mon Jan 16 13:01:39 +0100 2012] god start uaserver
+[Mon Jan 16 13:01:39 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-uaserver-4343
+[Mon Jan 16 13:01:39 +0100 2012] god load /tmp/god-1720.god
+[Mon Jan 16 13:01:39 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-blobstore-6106
+[Mon Jan 16 13:01:44 +0100 2012] Starting blobstore on ip 155.210.155.73, port 6106 with start command [/usr/bin/python2.6 /root/appscale-1.5.1/AppDB/blobstore/blobstore_server.py -d 155.210.155.73:8888 -p 6106 -u 155.210.155.73 -r 155.210.155.73] and stop command [pkill -9 blobstore_server]
+[Mon Jan 16 13:01:44 +0100 2012] god start blobstore
+[Mon Jan 16 13:01:45 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-blobstore-6106
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     5    0     5    0     0   1763      0 --:--:-- --:--:-- --:--:--  2500
+[Mon Jan 16 13:01:45 +0100 2012] mkdir -p /var/apps/therepo/app
+[Mon Jan 16 13:01:45 +0100 2012] 
+[Mon Jan 16 13:01:45 +0100 2012] cp -r /root/appscale-1.5.1/AppServer/demos/therepo/* /var/apps/therepo/app
+[Mon Jan 16 13:01:45 +0100 2012] 
+[Mon Jan 16 13:01:45 +0100 2012] mkdir -p /var/apps/therepo/app/
+[Mon Jan 16 13:01:45 +0100 2012] 
+[Mon Jan 16 13:01:45 +0100 2012] mkdir -p /var/apps/therepo/log
+[Mon Jan 16 13:01:45 +0100 2012] 
+[Mon Jan 16 13:01:45 +0100 2012] cp /root/appscale-1.5.1/AppLoadBalancer/public/404.html /var/apps/therepo
+[Mon Jan 16 13:01:45 +0100 2012] 
+[Mon Jan 16 13:01:45 +0100 2012] touch /var/apps/therepo/log/server.log
+[Mon Jan 16 13:01:45 +0100 2012] 
+the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+No such file or directory - /var/apps/therepo/cache/stylesheets/all.css
+No such file or directory - /var/apps/therepo/cache/images/cloud.png
+No such file or directory - /var/apps/therepo/cache/favicon.ico
+[Mon Jan 16 13:01:45 +0100 2012] 
+the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+[Mon Jan 16 13:01:47 +0100 2012] Starting python app therepo on 155.210.155.73:19997
+[Mon Jan 16 13:01:47 +0100 2012] saw a python app coming through
+[Mon Jan 16 13:01:47 +0100 2012] god load /tmp/god-1534.god
+[Mon Jan 16 13:01:47 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-therepo-19997
+[Mon Jan 16 13:01:52 +0100 2012] Starting therepo on ip 155.210.155.73, port 19997 with start command [python2.5  /root/appscale-1.5.1/AppServer/dev_appserver.py -p 19997 --cookie_secret tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73] and stop command [ps ax | grep python2.5  /root/appscale-1.5.1/AppServer/dev_appserver.py -p 19997 --cookie_secret tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73 | grep -v grep | awk '{ print $1 }' | xargs -d '
+' kill -9]
+[Mon Jan 16 13:01:52 +0100 2012] god start therepo
+[Mon Jan 16 13:01:52 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-therepo-19997
+[Mon Jan 16 13:01:52 +0100 2012] Started app therepo with pid 12303
+[Mon Jan 16 13:01:52 +0100 2012] Starting python app therepo on 155.210.155.73:19998
+[Mon Jan 16 13:01:52 +0100 2012] saw a python app coming through
+[Mon Jan 16 13:01:52 +0100 2012] god load /tmp/god-5703.god
+[Mon Jan 16 13:01:53 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-therepo-19998
+[Mon Jan 16 13:01:58 +0100 2012] Starting therepo on ip 155.210.155.73, port 19998 with start command [python2.5  /root/appscale-1.5.1/AppServer/dev_appserver.py -p 19998 --cookie_secret tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73] and stop command [ps ax | grep python2.5  /root/appscale-1.5.1/AppServer/dev_appserver.py -p 19998 --cookie_secret tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73 | grep -v grep | awk '{ print $1 }' | xargs -d '
+' kill -9]
+[Mon Jan 16 13:01:58 +0100 2012] god start therepo
+[Mon Jan 16 13:01:58 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-therepo-19997
+  appscale-therepo-19998
+[Mon Jan 16 13:01:58 +0100 2012] Started app therepo with pid 12335
+[Mon Jan 16 13:01:58 +0100 2012] Starting python app therepo on 155.210.155.73:19999
+[Mon Jan 16 13:01:58 +0100 2012] saw a python app coming through
+[Mon Jan 16 13:01:58 +0100 2012] god load /tmp/god-7976.god
+[Mon Jan 16 13:01:59 +0100 2012] Sending 'load' command
+
+The following tasks were affected:
+  appscale-therepo-19999
+[Mon Jan 16 13:02:04 +0100 2012] Starting therepo on ip 155.210.155.73, port 19999 with start command [python2.5  /root/appscale-1.5.1/AppServer/dev_appserver.py -p 19999 --cookie_secret tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73] and stop command [ps ax | grep python2.5  /root/appscale-1.5.1/AppServer/dev_appserver.py -p 19999 --cookie_secret tn5iSUDQjwHTN9CaL5GITjXXE3z1h7eA --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73 | grep -v grep | awk '{ print $1 }' | xargs -d '
+' kill -9]
+[Mon Jan 16 13:02:04 +0100 2012] god start therepo
+[Mon Jan 16 13:02:04 +0100 2012] Sending 'start' command
+
+The following watches were affected:
+  appscale-therepo-19997
+  appscale-therepo-19998
+  appscale-therepo-19999
+[Mon Jan 16 13:02:04 +0100 2012] Started app therepo with pid 12393
+the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful
+[Mon Jan 16 13:02:05 +0100 2012] oi! about to backup!
+[Mon Jan 16 13:02:05 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:05 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:05 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:05 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:05 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:05 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:05 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+Warning: Permanently added '155.210.155.73' (RSA) to the list of known hosts.
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:02:08 +0100 2012] oi! data received is {"taskqueue"=>"running", "datastore_write"=>"running", "memcache"=>"running", "urlfetch"=>"running", "mapreduce"=>"failed", "images"=>"running", "datastore"=>"running", "blobstore"=>"running", "users"=>"running", "ec2"=>"running", "neptune"=>"running", "xmpp"=>"running"}
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:02:09 +0100 2012] 155.210.155.73's returned [    Currently using 9.1 Percent CPU and  Percent Memory
+    Hard disk is 53 Percent full
+    Is currently: load_balancer, shadow, db_master, zookeeper, login, memcache, appengine
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Done starting up AppScale, now in heartbeat mode
+    Hosting the following apps: none] - class is String
+[Mon Jan 16 13:02:09 +0100 2012] 155.210.155.73 responded to the heartbeat - it is alive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:02:10 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.73:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.73.log
+[Mon Jan 16 13:02:11 +0100 2012] 
+[Mon Jan 16 13:02:11 +0100 2012] 155.210.155.177's returned [    Currently using 2.9 Percent CPU and  Percent Memory
+    Hard disk is 52 Percent full
+    Is currently: open
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Preparing to run AppEngine apps if needed
+] - class is String
+[Mon Jan 16 13:02:11 +0100 2012] 155.210.155.177 responded to the heartbeat - it is alive
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:02:12 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.177:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.177.log
+[Mon Jan 16 13:02:13 +0100 2012] 
+[Mon Jan 16 13:02:13 +0100 2012] Finished contacting all other nodes
+[Mon Jan 16 13:02:13 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 13:02:13 +0100 2012] need to restore
+[Mon Jan 16 13:02:13 +0100 2012] all apps are [____]
+[Mon Jan 16 13:02:13 +0100 2012] decided to restore these apps: [none]
+[Mon Jan 16 13:02:13 +0100 2012] 0 apps loaded
+[Mon Jan 16 13:02:30 +0100 2012] requesting input
+[Mon Jan 16 13:02:30 +0100 2012] waiting for file /tmp/neptune-input-62136 to exist
+[Mon Jan 16 13:02:30 +0100 2012] storing local file /tmp/neptune-input-62136 with size 9374, storing to /tmp
+[Mon Jan 16 13:02:30 +0100 2012] attempting to put local file /tmp/neptune-input-62136 into file /tmp
+[Mon Jan 16 13:02:30 +0100 2012] set key=/tmp type=output returned you provided a bad secret
+[Mon Jan 16 13:02:30 +0100 2012] set operation returned false
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:02:33 +0100 2012] oi! about to backup!
+[Mon Jan 16 13:02:33 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:33 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:33 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:33 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:33 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:33 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:33 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:02:36 +0100 2012] oi! data received is {"taskqueue"=>"running", "datastore_write"=>"running", "memcache"=>"running", "urlfetch"=>"running", "mapreduce"=>"failed", "images"=>"running", "datastore"=>"running", "blobstore"=>"running", "users"=>"running", "ec2"=>"running", "neptune"=>"running", "xmpp"=>"running"}
+[Mon Jan 16 13:02:36 +0100 2012] 155.210.155.73's returned [    Currently using 9.1 Percent CPU and  Percent Memory
+    Hard disk is 53 Percent full
+    Is currently: load_balancer, shadow, db_master, zookeeper, login, memcache, appengine
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Done starting up AppScale, now in heartbeat mode
+    Hosting the following apps: none] - class is String
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:02:36 +0100 2012] 155.210.155.73 responded to the heartbeat - it is alive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:02:37 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.73:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.73.log
+[Mon Jan 16 13:02:38 +0100 2012] 
+[Mon Jan 16 13:02:39 +0100 2012] 155.210.155.177's returned [    Currently using 2.9 Percent CPU and  Percent Memory
+    Hard disk is 52 Percent full
+    Is currently: open
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Preparing to run AppEngine apps if needed
+] - class is String
+[Mon Jan 16 13:02:39 +0100 2012] 155.210.155.177 responded to the heartbeat - it is alive
+[Mon Jan 16 13:02:39 +0100 2012] touch /tmp/mpi-120410-started
+[Mon Jan 16 13:02:39 +0100 2012] 
+[Mon Jan 16 13:02:39 +0100 2012] got run request - {"@keyname"=>"appscale", "@code"=>"/tmp/mpi", "@type"=>"mpi", "@job_id"=>120410, "@storage"=>"appdb", "@nodes_to_use"=>1, "@procs_to_use"=>1, "@output"=>"/tmp/mpi-output.txt"}
+[Mon Jan 16 13:02:39 +0100 2012] did user provide valid storage creds? true
+[Mon Jan 16 13:02:39 +0100 2012] input not specified - moving on
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0    63      0   129k --:--:-- --:--:-- --:--:--  129k  0    25    0    25    0    63   1334   3362 --:--:-- --:--:-- --:--:--     0
+[Mon Jan 16 13:02:39 +0100 2012] does key=/tmp/mpi-output.txt exist? you provided a bad secret
+[Mon Jan 16 13:02:39 +0100 2012] output specified - did /tmp/mpi-output.txt exist? false
+[Mon Jan 16 13:02:39 +0100 2012] job type is [mpi]
+[Mon Jan 16 13:02:39 +0100 2012] not in cloud
+[Mon Jan 16 13:02:39 +0100 2012] Pre-job status for job_data [@keynameappscale@code/tmp/mpi@typempi@job_id120410@storageappdb@nodes_to_use1@procs_to_use1@output/tmp/mpi-output.txt] is [ok]
+[Mon Jan 16 13:02:39 +0100 2012] need 1 total, currently have 1 to spare
+[Mon Jan 16 13:02:39 +0100 2012] will use node [Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.] for computation
+[Mon Jan 16 13:02:39 +0100 2012] job - start
+time interval must be positive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:02:39 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.177:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.177.log
+[Mon Jan 16 13:02:39 +0100 2012] run job on master
+[Mon Jan 16 13:02:39 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:39 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:39 +0100 2012] serializing data 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:02:40 +0100 2012] run job result was OK
+[Mon Jan 16 13:02:40 +0100 2012] shadow's ssh key is /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key
+[Mon Jan 16 13:02:41 +0100 2012] 
+[Mon Jan 16 13:02:41 +0100 2012] Finished contacting all other nodes
+[Mon Jan 16 13:02:41 +0100 2012] Currently examining node [Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently mpi_master. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.]
+[Mon Jan 16 13:02:41 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 13:02:41 +0100 2012] don't need to restore
+[Mon Jan 16 13:02:41 +0100 2012] 0 apps loaded
+[Mon Jan 16 13:02:41 +0100 2012] is job running? [/tmp/mpi-120410-started
+0
+]
+[Mon Jan 16 13:02:41 +0100 2012] return val for file /tmp/mpi-120410-started is 0
+[Mon Jan 16 13:03:01 +0100 2012] oi! about to backup!
+[Mon Jan 16 13:03:01 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:01 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:01 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:01 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:01 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:01 +0100 2012] serializing data 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:01 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:03:03 +0100 2012] oi! data received is {"taskqueue"=>"running", "datastore_write"=>"running", "memcache"=>"running", "urlfetch"=>"running", "mapreduce"=>"failed", "images"=>"running", "datastore"=>"running", "blobstore"=>"running", "users"=>"running", "ec2"=>"running", "neptune"=>"running", "xmpp"=>"running"}
+[Mon Jan 16 13:03:04 +0100 2012] 155.210.155.73's returned [    Currently using 9.1 Percent CPU and  Percent Memory
+    Hard disk is 53 Percent full
+    Is currently: load_balancer, shadow, db_master, zookeeper, login, memcache, appengine
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Done starting up AppScale, now in heartbeat mode
+    Hosting the following apps: none] - class is String
+[Mon Jan 16 13:03:04 +0100 2012] 155.210.155.73 responded to the heartbeat - it is alive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:03:05 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.73:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.73.log
+[Mon Jan 16 13:03:06 +0100 2012] 
+[Mon Jan 16 13:03:06 +0100 2012] 155.210.155.177's returned [    Currently using 2.9 Percent CPU and  Percent Memory
+    Hard disk is 52 Percent full
+    Is currently: mpi_master
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Preparing to run AppEngine apps if needed
+] - class is String
+[Mon Jan 16 13:03:06 +0100 2012] 155.210.155.177 responded to the heartbeat - it is alive
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:03:07 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.177:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.177.log
+[Mon Jan 16 13:03:08 +0100 2012] 
+[Mon Jan 16 13:03:08 +0100 2012] Finished contacting all other nodes
+[Mon Jan 16 13:03:08 +0100 2012] Currently examining node [Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently mpi_master. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.]
+[Mon Jan 16 13:03:08 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 13:03:08 +0100 2012] don't need to restore
+[Mon Jan 16 13:03:08 +0100 2012] 0 apps loaded
+[Mon Jan 16 13:03:11 +0100 2012] shadow's ssh key is /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key
+[Mon Jan 16 13:03:12 +0100 2012] is job running? [/tmp/mpi-120410-started
+0
+]
+[Mon Jan 16 13:03:12 +0100 2012] return val for file /tmp/mpi-120410-started is 0
+[Mon Jan 16 13:03:28 +0100 2012] oi! about to backup!
+[Mon Jan 16 13:03:28 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:28 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:28 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:28 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:28 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:28 +0100 2012] serializing data 155.210.155.177:155.210.155.177:mpi_master:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:28 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+end of file reached
+[Mon Jan 16 13:03:30 +0100 2012] oi! data received is {"taskqueue"=>"running", "datastore_write"=>"running", "memcache"=>"running", "urlfetch"=>"running", "mapreduce"=>"failed", "images"=>"running", "datastore"=>"running", "blobstore"=>"running", "users"=>"running", "ec2"=>"running", "neptune"=>"running", "xmpp"=>"running"}
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:03:31 +0100 2012] 155.210.155.73's returned [    Currently using 9.2 Percent CPU and  Percent Memory
+    Hard disk is 53 Percent full
+    Is currently: load_balancer, shadow, db_master, zookeeper, login, memcache, appengine
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Done starting up AppScale, now in heartbeat mode
+    Hosting the following apps: none] - class is String
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:03:31 +0100 2012] 155.210.155.73 responded to the heartbeat - it is alive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:03:32 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.73:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.73.log
+[Mon Jan 16 13:03:33 +0100 2012] 
+[Mon Jan 16 13:03:33 +0100 2012] 155.210.155.177's returned [    Currently using 2.9 Percent CPU and  Percent Memory
+    Hard disk is 52 Percent full
+    Is currently: mpi_master
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Preparing to run AppEngine apps if needed
+] - class is String
+[Mon Jan 16 13:03:34 +0100 2012] 155.210.155.177 responded to the heartbeat - it is alive
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:03:34 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.177:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.177.log
+[Mon Jan 16 13:03:35 +0100 2012] 
+[Mon Jan 16 13:03:35 +0100 2012] Finished contacting all other nodes
+[Mon Jan 16 13:03:35 +0100 2012] Currently examining node [Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently mpi_master. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.]
+[Mon Jan 16 13:03:35 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 13:03:35 +0100 2012] don't need to restore
+[Mon Jan 16 13:03:35 +0100 2012] 0 apps loaded
+[Mon Jan 16 13:03:42 +0100 2012] shadow's ssh key is /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key
+ls: no se puede acceder a /tmp/mpi-120410-started: No existe el fichero o el directorio
+[Mon Jan 16 13:03:43 +0100 2012] is job running? [2
+]
+[Mon Jan 16 13:03:43 +0100 2012] return val for file /tmp/mpi-120410-started is 2
+[Mon Jan 16 13:03:43 +0100 2012] job - stop
+time interval must be positive
+[Mon Jan 16 13:03:55 +0100 2012] oi! about to backup!
+[Mon Jan 16 13:03:55 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:55 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:55 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:55 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:55 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:55 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:03:55 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+end of file reached
+[Mon Jan 16 13:03:58 +0100 2012] oi! data received is {"taskqueue"=>"running", "datastore_write"=>"running", "memcache"=>"running", "urlfetch"=>"running", "mapreduce"=>"failed", "images"=>"running", "datastore"=>"running", "blobstore"=>"running", "users"=>"running", "ec2"=>"running", "neptune"=>"running", "xmpp"=>"running"}
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:03:58 +0100 2012] requesting output
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0    63      0    98k --:--:-- --:--:-- --:--:--   98k  0    25    0    25    0    63   1295   3264 --:--:-- --:--:-- --:--:--     0
+[Mon Jan 16 13:03:58 +0100 2012] does key=/tmp/mpi-output.txt exist? you provided a bad secret
+end of file reached
+WEBrick::HTTPStatus::EOFError
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:03:58 +0100 2012] 155.210.155.73's returned [    Currently using 9.2 Percent CPU and  Percent Memory
+    Hard disk is 53 Percent full
+    Is currently: load_balancer, shadow, db_master, zookeeper, login, memcache, appengine
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Done starting up AppScale, now in heartbeat mode
+    Hosting the following apps: none] - class is String
+[Mon Jan 16 13:03:58 +0100 2012] 155.210.155.73 responded to the heartbeat - it is alive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:03:59 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.73:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.73.log
+[Mon Jan 16 13:04:00 +0100 2012] 
+[Mon Jan 16 13:04:01 +0100 2012] 155.210.155.177's returned [    Currently using 2.9 Percent CPU and  Percent Memory
+    Hard disk is 52 Percent full
+    Is currently: open
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Preparing to run AppEngine apps if needed
+] - class is String
+[Mon Jan 16 13:04:01 +0100 2012] 155.210.155.177 responded to the heartbeat - it is alive
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:04:02 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.177:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.177.log
+[Mon Jan 16 13:04:02 +0100 2012] 
+[Mon Jan 16 13:04:02 +0100 2012] Finished contacting all other nodes
+[Mon Jan 16 13:04:02 +0100 2012] Currently examining node [Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.]
+[Mon Jan 16 13:04:02 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 13:04:02 +0100 2012] don't need to restore
+[Mon Jan 16 13:04:03 +0100 2012] 0 apps loaded
+[Mon Jan 16 13:04:23 +0100 2012] oi! about to backup!
+[Mon Jan 16 13:04:23 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:23 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:23 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:23 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:23 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:23 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:23 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:04:25 +0100 2012] oi! data received is {"taskqueue"=>"running", "datastore_write"=>"running", "memcache"=>"running", "urlfetch"=>"running", "mapreduce"=>"failed", "images"=>"running", "datastore"=>"running", "blobstore"=>"running", "users"=>"running", "ec2"=>"running", "neptune"=>"running", "xmpp"=>"running"}
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:04:25 +0100 2012] 155.210.155.73's returned [    Currently using 9.2 Percent CPU and  Percent Memory
+    Hard disk is 53 Percent full
+    Is currently: load_balancer, shadow, db_master, zookeeper, login, memcache, appengine
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Done starting up AppScale, now in heartbeat mode
+    Hosting the following apps: none] - class is String
+[Mon Jan 16 13:04:25 +0100 2012] 155.210.155.73 responded to the heartbeat - it is alive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:04:26 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.73:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.73.log
+[Mon Jan 16 13:04:27 +0100 2012] 
+[Mon Jan 16 13:04:28 +0100 2012] 155.210.155.177's returned [    Currently using 2.9 Percent CPU and  Percent Memory
+    Hard disk is 52 Percent full
+    Is currently: open
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Preparing to run AppEngine apps if needed
+] - class is String
+[Mon Jan 16 13:04:28 +0100 2012] 155.210.155.177 responded to the heartbeat - it is alive
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:04:29 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.177:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.177.log
+[Mon Jan 16 13:04:29 +0100 2012] 
+[Mon Jan 16 13:04:29 +0100 2012] Finished contacting all other nodes
+[Mon Jan 16 13:04:29 +0100 2012] Currently examining node [Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.]
+[Mon Jan 16 13:04:29 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 13:04:29 +0100 2012] don't need to restore
+[Mon Jan 16 13:04:29 +0100 2012] 0 apps loaded
+[Mon Jan 16 13:04:50 +0100 2012] oi! about to backup!
+[Mon Jan 16 13:04:50 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:50 +0100 2012] serialized myself to 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:50 +0100 2012] serializing data 155.210.155.73:155.210.155.73:load_balancer:shadow:db_master:zookeeper:login:memcache:appengine:i-ZFOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:50 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:50 +0100 2012] serialized myself to 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:50 +0100 2012] serializing data 155.210.155.177:155.210.155.177:open:i-SGOOBARZ:cloud1:appscale.key
+[Mon Jan 16 13:04:50 +0100 2012] backed up appcontroller state to /etc/appscale/appcontroller-state.json
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:04:52 +0100 2012] oi! data received is {"taskqueue"=>"running", "datastore_write"=>"running", "memcache"=>"running", "urlfetch"=>"running", "mapreduce"=>"failed", "images"=>"running", "datastore"=>"running", "blobstore"=>"running", "users"=>"running", "ec2"=>"running", "neptune"=>"running", "xmpp"=>"running"}
+end of file reached
+WEBrick::HTTPStatus::EOFError
+[Mon Jan 16 13:04:52 +0100 2012] 155.210.155.73's returned [    Currently using 9.2 Percent CPU and  Percent Memory
+    Hard disk is 53 Percent full
+    Is currently: load_balancer, shadow, db_master, zookeeper, login, memcache, appengine
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Done starting up AppScale, now in heartbeat mode
+    Hosting the following apps: none] - class is String
+[Mon Jan 16 13:04:52 +0100 2012] 155.210.155.73 responded to the heartbeat - it is alive
+end of file reached
+WEBrick::HTTPStatus::EOFError
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:04:53 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.73:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.73.log
+[Mon Jan 16 13:04:54 +0100 2012] 
+[Mon Jan 16 13:04:55 +0100 2012] 155.210.155.177's returned [    Currently using 2.9 Percent CPU and  Percent Memory
+    Hard disk is 52 Percent full
+    Is currently: open
+    Database is at 155.210.155.73
+    Is in cloud: cloud1
+    Current State: Preparing to run AppEngine apps if needed
+] - class is String
+[Mon Jan 16 13:04:55 +0100 2012] 155.210.155.177 responded to the heartbeat - it is alive
+File exists - /root/appscale-1.5.1/.appscale/logs
+[Mon Jan 16 13:04:55 +0100 2012] scp -o StrictHostkeyChecking=no -i /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key 155.210.155.177:/tmp/*.log /root/appscale-1.5.1/.appscale/logs/155.210.155.177.log
+[Mon Jan 16 13:04:56 +0100 2012] 
+[Mon Jan 16 13:04:56 +0100 2012] Finished contacting all other nodes
+[Mon Jan 16 13:04:56 +0100 2012] Currently examining node [Node in cloud cloud1 with instance id i-SGOOBARZ responds to ssh key /root/appscale-1.5.1/.appscale/keys/cloud1/appscale.key, has pub IP 155.210.155.177, priv IP 155.210.155.177, and is currently open. It was created at  and should be destroyed at . It has failed to respond to 0 in a row.]
+[Mon Jan 16 13:04:56 +0100 2012] starting appengine - pbserver is at [155.210.155.73]
+[Mon Jan 16 13:04:56 +0100 2012] don't need to restore
+[Mon Jan 16 13:04:56 +0100 2012] 0 apps loaded

@@ -1,0 +1,13 @@
+/root/appscale-1.5.1/AppDB/appscale_server.py:20: DeprecationWarning: the md5 module is deprecated; use hashlib instead
+  import md5
+2012-01-16 13:01:22,932:12049(0x7fc419bf7700):ZOO_INFO@log_env@658: Client environment:zookeeper.version=zookeeper C client 3.4.0
+2012-01-16 13:01:22,932:12049(0x7fc419bf7700):ZOO_INFO@log_env@662: Client environment:host.name=appscale-image0
+2012-01-16 13:01:22,932:12049(0x7fc419bf7700):ZOO_INFO@log_env@669: Client environment:os.name=Linux
+2012-01-16 13:01:22,932:12049(0x7fc419bf7700):ZOO_INFO@log_env@670: Client environment:os.arch=2.6.32-33-server
+2012-01-16 13:01:22,932:12049(0x7fc419bf7700):ZOO_INFO@log_env@671: Client environment:os.version=#70-Ubuntu SMP Thu Jul 7 22:28:30 UTC 2011
+2012-01-16 13:01:22,932:12049(0x7fc419bf7700):ZOO_INFO@log_env@679: Client environment:user.name=(null)
+2012-01-16 13:01:22,933:12049(0x7fc419bf7700):ZOO_INFO@log_env@687: Client environment:user.home=/root
+2012-01-16 13:01:22,933:12049(0x7fc419bf7700):ZOO_INFO@log_env@699: Client environment:user.dir=/
+2012-01-16 13:01:22,933:12049(0x7fc419bf7700):ZOO_INFO@zookeeper_init@727: Initiating client connection, host=155.210.155.73:2181 sessionTimeout=10000 watcher=0x7fc416c74390 sessionId=0 sessionPasswd=<null> context=0x29a5cf0 flags=0
+2012-01-16 13:01:22,934:12049(0x7fc416015700):ZOO_INFO@check_events@1585: initiated connection to server [155.210.155.73:2181]
+2012-01-16 13:01:22,937:12049(0x7fc416015700):ZOO_INFO@check_events@1632: session establishment complete on server [155.210.155.73:2181], sessionId=0x134e663fd930002, negotiated timeout=10000

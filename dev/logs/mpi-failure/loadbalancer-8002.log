@@ -1,0 +1,14 @@
+** Starting Mongrel listening at 0.0.0.0:8002
+** Starting Rails with production environment...
+/root/appscale-1.5.1/AppLoadBalancer/lib/dbfrontend.rb:4: warning: already initialized constant APPSCALE_HOME
+/root/appscale-1.5.1/AppLoadBalancer/lib/usertools.rb:4: warning: already initialized constant APPSCALE_HOME
+/root/appscale-1.5.1/AppLoadBalancer/vendor/rails/railties/lib/rails/gem_dependency.rb:119:Warning: Gem::Dependency#version_requirements is deprecated and will be removed on or after August 2010.  Use #requirement
+/root/appscale-1.5.1/AppLoadBalancer/app/helpers/application_helper.rb:8: warning: already initialized constant APPSCALE_HOME
+** Rails loaded.
+** Loading any Rails specific GemPlugins
+** Signals ready.  TERM => stop.  USR2 => restart.  INT => stop (no restart).
+** Rails signals registered.  HUP => reload (without restart).  It might not work well.
+** Mongrel 1.1.5 available at 0.0.0.0:8002
+** Use CTRL-C to stop.
+warning: peer certificate won't be verified in this SSL session
+warning: peer certificate won't be verified in this SSL session
