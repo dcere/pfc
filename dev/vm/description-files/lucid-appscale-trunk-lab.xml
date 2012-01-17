@@ -1,6 +1,6 @@
 <domain type='kvm'>
-  <name>lucid-app2</name>
-  <uuid>2058f6df-e714-4f21-bbdc-6528e23e91d7</uuid>
+  <name>lucid-app-tr</name>
+  <uuid>bb94473b-6728-44e4-9252-06b8d89b1f79</uuid>
   <memory>1048576</memory>
   <currentMemory>1048576</currentMemory>
   <vcpu>2</vcpu>
@@ -21,13 +21,13 @@
     <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/tmp/dceresuela/lucid-appscale-tr2.img'/>
+      <source file='/var/tmp/dceresuela/lucid-appscale-trunk.img'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='bridge'>
       <source bridge='br0'/>
       <target dev='vnet0'/>
-      <mac address="52:54:00:00:aa:ac"/>
+      <mac address="52:54:00:00:aa:ae"/>
       <model type='virtio'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
     </interface>

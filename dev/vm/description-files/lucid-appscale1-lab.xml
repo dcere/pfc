@@ -21,7 +21,7 @@
     <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/tmp/dceresuela/lucid-appscale1.img'/>
+      <source file='/var/tmp/dceresuela/lucid-appscale-tr1.img'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='bridge'>
