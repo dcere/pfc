@@ -1,6 +1,9 @@
-neptune (
+output = neptune (
   :type => "mpi",
   :nodes_to_use => 1,
   :procs_to_use => 1,
-  :output => "/tmp/output.txt",
-  :code => "/tmp/neptune-input-90435" )
+  :output => "/tmp/mpi-output.txt",
+  :code => "/tmp/mpi" )
+
+puts "job started? #{output[:result]}"
+puts "message: #{output[:msg]}"

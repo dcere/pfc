@@ -1,3 +1,3 @@
 neptune (
   :type => "output",
-  :output => "/tmp/output.txt" )
+  :output => "/tmp/mpi-output.txt" )
