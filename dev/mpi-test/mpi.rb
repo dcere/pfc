@@ -3,7 +3,7 @@ output = neptune (
   :nodes_to_use => 1,
   :procs_to_use => 1,
   :output => "/tmp/mpi-output.txt",
-  :code => "/tmp/mpi" )
+  :code => "/tmp" )
 
 puts "job started? #{output[:result]}"
 puts "message: #{output[:msg]}"
