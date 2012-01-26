@@ -1,0 +1,3 @@
+Para ser capaces desde puppet de manejar las máquinas virtuales debemos instalar
+la librería
+- libvirt-ruby
