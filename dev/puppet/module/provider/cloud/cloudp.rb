@@ -38,12 +38,12 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
    # Ensure methods
    def create
-      return true
+      #return true
    end
    
 
    def destroy
-      return true
+      #return true
    end
 
 
