@@ -16,6 +16,6 @@
 
 NAME="cloud"
 
-mkdir –p /etc/puppet/modules/$NAME/{files,templates,manifests}
-cp ./manifests/init.pp /etc/puppet/modules/$NAME/manifests/init.pp
+sudo mkdir -p /etc/puppet/modules/$NAME/{files,templates,manifests}
+sudo cp ./manifests/init.pp /etc/puppet/modules/$NAME/manifests/init.pp
 
