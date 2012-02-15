@@ -42,11 +42,11 @@ Puppet::Type.newtype(:cloud) do
    `stopped`:
    The cloud is stopped."
       newvalue(:stopped) do
-         #provider.stop
+         provider.stop
       end
 
       newvalue(:running) do
-         #provider.start
+         provider.start
       end
 
    end
@@ -59,5 +59,4 @@ Puppet::Type.newtype(:cloud) do
       desc "The number of instances"
    end
 
-   end
 end
