@@ -1,0 +1,3 @@
+cloud {'mycloud':
+   ensure => stopped,
+}

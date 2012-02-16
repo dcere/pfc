@@ -36,7 +36,7 @@ Puppet::Type.newtype(:cloud) do
    end
 
    ensurable do
-      desc "The guest's ensure field can assume one of the following values:
+      desc "The cloud's ensure field can assume one of the following values:
    `running`:
    The cloud is running.
    `stopped`:
