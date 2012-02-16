@@ -32,14 +32,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Check hosts are alive
-         running = false
-         while !running
+         alive = {"127.0.0.1" => 0, "192.168.1.101" => 0}
+         while alive.has_value?(0)
             sleep(5)
-            ["192.168.1.101"].each do |server|
+            alive.keys.each do |server|
                result = `ping -q -c 1 #{server}`
                if ($?.exitstatus == 0)
                   debug "[DBG] #{server} is up"
-                  running = true
+                  alive[server] = 1
                else
                   debug "[DBG] #{server} is down"
                end
@@ -77,7 +77,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
 
    def status
-      return :running
+      return :stopped
    end
 
 
