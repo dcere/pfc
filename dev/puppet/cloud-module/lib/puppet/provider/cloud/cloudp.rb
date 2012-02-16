@@ -17,8 +17,22 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       debug "[DBG] Starting cloud %s" % [resource[:name]]
 
       if exists? && status != :running
+
          # Start hosts
-      
+         virsh_connect = "virsh -c qemu:///system"
+         images = resource[:images]
+         images.each do |image|
+            result = `#{virsh_connect} start #{image}`
+            if ($?.exitstatus == 0)
+               debug "[DBG] #{image} started"
+            else
+               debug "[DBG] #{image} impossible to start"
+            end
+         end
+         
+         # Wait for hosts to be running
+         sleep(60)
+         
          # Check hosts are alive
          ["localhost","useless"].each do |server|
             result = `ping -q -c 1 #{server}`
@@ -30,7 +44,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
 
       end
-
    end
 
 
@@ -40,14 +53,24 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       debug "[DBG] Stopping cloud %s" % [resource[:name]]
 
       if exists? && status == :running
-         # Stop cloud
+         # Stop hosts
+         virsh_connect = "virsh -c qemu:///system"
+         images = resource[:images]
+         images.each do |image|
+            result = `#{virsh_connect} shutdown #{image}`
+            if ($?.exitstatus == 0)
+               debug "[DBG] #{image} was shut down"
+            else
+               debug "[DBG] #{image} impossible to shut down"
+            end
+         end
       end
 
    end
 
 
    def status
-      return :stopped
+      return :running
    end
 
 

@@ -58,5 +58,9 @@ Puppet::Type.newtype(:cloud) do
    newparam(:instances) do
       desc "The number of instances"
    end
+   
+   newparam(:images) do
+      desc "The images names"
+   end
 
 end
