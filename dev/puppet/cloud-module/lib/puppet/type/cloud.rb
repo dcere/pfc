@@ -60,7 +60,7 @@ Puppet::Type.newtype(:cloud) do
    end
    
    newparam(:images) do
-      desc "The images names"
+      desc "The qemu image names"
    end
 
 end

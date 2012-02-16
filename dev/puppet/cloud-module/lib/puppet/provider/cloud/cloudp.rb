@@ -31,10 +31,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Wait for hosts to be running
-         sleep(60)
+         sleep(30)
          
          # Check hosts are alive
-         ["localhost","useless"].each do |server|
+         ["192.168.1.101"].each do |server|
             result = `ping -q -c 1 #{server}`
             if ($?.exitstatus == 0)
                debug "[DBG] #{server} is up"
@@ -70,7 +70,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
 
    def status
-      return :running
+      return :stopped
    end
 
 
