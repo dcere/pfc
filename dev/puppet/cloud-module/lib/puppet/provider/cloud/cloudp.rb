@@ -11,6 +11,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    # Operating system restrictions
    confine :osfamily => "Debian"
 
+
    # Makes sure the cloud is running.
    def start
 
@@ -30,20 +31,25 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end
          
-         # Wait for hosts to be running
-         sleep(30)
-         
          # Check hosts are alive
-         ["192.168.1.101"].each do |server|
-            result = `ping -q -c 1 #{server}`
-            if ($?.exitstatus == 0)
-               debug "[DBG] #{server} is up"
-            else
-               debug "[DBG] #{server} is down"
+         running = false
+         while !running
+            sleep(5)
+            ["192.168.1.101"].each do |server|
+               result = `ping -q -c 1 #{server}`
+               if ($?.exitstatus == 0)
+                  debug "[DBG] #{server} is up"
+                  running = true
+               else
+                  debug "[DBG] #{server} is down"
+               end
             end
          end
-
+         
+      else
+         debug "[DBG] Cloud already started"
       end
+      
    end
 
 
@@ -64,13 +70,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                debug "[DBG] #{image} impossible to shut down"
             end
          end
+         
       end
 
    end
 
 
    def status
-      return :stopped
+      return :running
    end
 
 
