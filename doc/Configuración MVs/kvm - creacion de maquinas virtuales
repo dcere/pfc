@@ -112,12 +112,22 @@ you specified on the devices.interface.mac field on the XML file
 6.5) Make sure the configuration is the one you want
 
 
-7) Reboot/Halt+Start the virtual machine.
+7) Change the DNS
+
+7.1) Open /etc/resolv.conf
+
+7.2) Edit the file to make sure there is an appropriate DNS server
 
 
-8) Connect to the virtual machine
+8) Reboot/Halt+Start the virtual machine.
+
+
+9) Connect to the virtual machine
 _$: sudo virsh console new_virtual_machine
 
 
-9) Check network connectivity
-ping host's IP address or other virtual machine's IP address
+10) Check network connectivity
+
+10.1) ping host's IP address or other virtual machine's IP address
+
+10.2) ping www.google.com to check outside connectivity (if needed)
