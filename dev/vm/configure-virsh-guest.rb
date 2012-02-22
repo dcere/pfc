@@ -6,7 +6,6 @@ class ConfigureGuest
     @mac = mac
     @uuid = `uuidgen`
     @memory = "1048576"
-    #@guest_template = "./configuration-templates/virsh-guest.erb"
   end
   
   def get_binding

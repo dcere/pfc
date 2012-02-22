@@ -8,7 +8,7 @@
 #   - Disk name: The name the disk image will have.
 #   - Disk size: The maximum size of the disk.
 #   - Format [optional]: The image format: qcow2, raw, etc. Defaults to raw.
-#   - Path [optional]: The pathe where the disk will be created. Defaults to ./
+#   - Path [optional]: The path where the disk will be created. Defaults to ./
 #
 # Examples:
 #   _$: create-disk.sh disk-2G 2G
