@@ -62,5 +62,9 @@ Puppet::Type.newtype(:cloud) do
    newparam(:images) do
       desc "The qemu image names"
    end
+   
+   newparam(:pool) do
+      desc "The pool of physical machines"
+   end
 
 end

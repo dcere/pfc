@@ -17,6 +17,12 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
       debug "[DBG] Starting cloud %s" % [resource[:name]]
 
+      # Check pool of physical machines
+      if !check_pool
+         debug "[DBG] Some physical machine is down"
+      end
+      
+      # Check virtual machines
       if exists? && status != :running
 
          # Start hosts
@@ -95,6 +101,30 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def exists?
       return true
    end
+   
+
+   #############################################################################
+   # Auxiliar functions
+   #############################################################################
+   def check_pool
+   
+      all_up = true
+      machines = resource[:pool]
+      machines.each do |machine|
+         result = `ping -q -c 1 #{machine}`
+         if ($?.exitstatus == 0)
+            debug "[DBG] #{machine} (PM) is up"
+         else
+            debug "[DBG] #{machine} (PM) is down"
+            all_up = false
+         end
+      end
+      return all_up
+   end
+   
+   
+   
+   
    
    
 end

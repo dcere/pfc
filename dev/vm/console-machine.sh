@@ -1,1 +1,1 @@
-sudo virsh -c qemu:///system console karmic-6GB-$1
+sudo virsh -c qemu:///system console $1
