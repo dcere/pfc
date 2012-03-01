@@ -7,6 +7,6 @@
 cloud {'mycloud':
    instances => "1",
    images    => "karmic-6GB-1",
-   pool      => ["155.210.155.70", "155.210.155.77"],
+   pool      => ["192.168.1.33", "192.168.1.35"],
    ensure    => running,
 }

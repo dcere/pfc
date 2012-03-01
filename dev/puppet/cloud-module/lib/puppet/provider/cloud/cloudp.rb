@@ -16,15 +16,38 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def start
 
       debug "[DBG] Starting cloud %s" % [resource[:name]]
-
-      # Check pool of physical machines
-      if !check_pool
-         debug "[DBG] Some physical machine is down"
-      end
+      puts "Starting cloud %s" % [resource[:name]]
       
-      # Check virtual machines
-      if exists? && status != :running
+      # Check existence
+      if !exists?
 
+         # Check pool of physical machines
+         pm_all_up, pm_up, pm_down = check_pool()
+         if !pm_all_up
+            debug "[DBG] Some physical machines are down"
+            pm_down.each do |pm|
+               debug "[DBG] - #{pm}"
+            end
+            puts "Some physical machines are down"
+         end
+         
+         # Distribute virtual machines among physical machines
+         instances = resource[:instances].to_i
+         vm_per_pm = instances / pm_up.length
+         distribution = {}
+         pm_up.each do |pm|
+            if pm == pm_up[-1]
+               distribution[pm] = vm_per_pm + instances % pm_up.length
+               puts "#{pm} hosts #{distribution[pm]} virtual machines"
+            else
+               distribution[pm] = vm_per_pm
+               puts "#{pm} hosts #{distribution[pm]} virtual machines"
+            end
+         end
+         
+         # Check if it is reasonable to host that many virtual machines
+         # ...
+         
          # Start hosts
          virsh_connect = "virsh -c qemu:///system"
          images = resource[:images]
@@ -51,6 +74,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
             end
          end
+         
+         puts "Cloud started"
          
       else
          debug "[DBG] Cloud already started"
@@ -99,7 +124,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
 
    def exists?
-      return true
+      return false
    end
    
 
@@ -109,17 +134,21 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def check_pool
    
       all_up = true
+      machines_up = []
+      machines_down = []
       machines = resource[:pool]
       machines.each do |machine|
          result = `ping -q -c 1 #{machine}`
          if ($?.exitstatus == 0)
             debug "[DBG] #{machine} (PM) is up"
+            machines_up << machine
          else
             debug "[DBG] #{machine} (PM) is down"
             all_up = false
+            machines_down << machine
          end
       end
-      return all_up
+      return all_up, machines_up, machines_down
    end
    
    
