@@ -1,0 +1,36 @@
+Estructura
++ Resumen
+   - 1 pag               || 0 pag (según normativa)
+   - Énfasis del trabajo realizado más que de la descripción de cloud
+   
++ Introducción
+   - 8 / 10 pag          || 2 / 5 pag (según normativa)
+   - Modelos, herramientas y metodología
+   - Estado de la técnica (state of the art), trabajos en los que nos hemos apoyado...
+   - Explicación de ejemplos de infraestructura distribuida
+   - Enfatizar que no hay nada de administración de infraestructuras
+   - Con el cloud la gestión de nodos es gestión software de MV
+   - La administración de MV de forma automática es algo deseable
+   - En el contexto de administración de forma automática Puppet (CFEngine?) está tomando relevancia
+   - Lo que hemos hecho ha sido extender Puppet para la administración de infraestructuras distribuidas
+      - Infraestructuras distribuidas clásicas: Torque, Condor
+      - Infraestructuras compatibles con AppEngine de Google como AppScale
+      - Infraestructuras clásicas de servicios web con arquitectura de 3 niveles
+      
++ Trabajo desarrollado
+   - 15 / 16 pag         || 20 / 2X pag (según normativa. 400 horas => 20 pag)
+   - Es una extensión de Puppet
+   - Explicación del tipo definido
+      - Ejemplo sencillo de la gramática para demostrar cómo funciona
+      - La sintaxis en detalle va en los anexos
+   - Explicación del proveedor
+   - Explicación de cómo funciona: AppScale, Condor, Servicios Web
+   
++ Conclusiones
+   - 1 / 2 pag
+   
++ Bibliografía
+   - Referencias AppScale (papers)
+   - Libros Puppet
+   - Manuales Condor / Torque
+   - Documentación de Puppet
