@@ -2,8 +2,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    desc "Manages clouds formed by KVM virtual machines"
 
    # Commands needed to make the provider suitable
-   commands :virtinstall => "/usr/bin/virt-install"
-   commands :virsh => "/usr/bin/virsh"
    #commands :grep => "/bin/grep"
    #commands :ip => "/sbin/ip"
    commands :ping => "/bin/ping"
@@ -19,7 +17,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       puts "Starting cloud %s" % [resource[:name]]
       
       # Check existence
-      if !exists?
+      #if !exists?
+      if true
 
          # Check pool of physical machines
          pm_all_up, pm_up, pm_down = check_pool()
@@ -31,8 +30,26 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             puts "Some physical machines are down"
          end
          
+         # Obtain the virtual machines' IPs
+         vm_ips = []
+         if resource[:type] == "appscale"
+            debug "[DBG] It is an appscale cloud"
+            #require './appscale_yaml.rb'
+            debug "[DBG] Files required"
+            vm_ips = appscale_yaml_parser(resource[:file])
+            debug "[DBG] File parsed"
+            debug "[DBG] #{vm_ips}"
+         elsif resource[:type] == "web"
+            debug "[DBG] It is a web cloud"
+            vm_ips = []
+         elsif resource[:type] == "jobs"
+            debug "[DBG] It is a jobs cloud"
+            vm_ips = []            
+         end
+         
+         
          # Distribute virtual machines among physical machines
-         instances = resource[:instances].to_i
+         instances = vm_ips.count
          vm_per_pm = instances / pm_up.length
          distribution = {}
          pm_up.each do |pm|

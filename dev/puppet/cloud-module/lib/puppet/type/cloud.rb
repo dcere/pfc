@@ -37,10 +37,8 @@ Puppet::Type.newtype(:cloud) do
 
    ensurable do
       desc "The cloud's ensure field can assume one of the following values:
-   `running`:
-   The cloud is running.
-   `stopped`:
-   The cloud is stopped."
+   `running`: The cloud is running.
+   `stopped`: The cloud is stopped.\n"
       newvalue(:stopped) do
          provider.stop
       end
@@ -54,9 +52,17 @@ Puppet::Type.newtype(:cloud) do
    newparam(:name) do
       desc "The cloud name"
    end
-
-   newparam(:instances) do
-      desc "The number of instances"
+   
+   newparam(:type) do
+      desc "The type of cloud:
+   `appscale`: An AppScale cloud.
+   `web`:      A classic web cloud.
+   `jobs`:     A jobs cloud.\n"
+      newvalues("appscale", "web", "jobs")
+   end 
+   
+   newparam(:file) do
+      desc "The file with the cloud description in YAML format"
    end
    
    newparam(:images) do

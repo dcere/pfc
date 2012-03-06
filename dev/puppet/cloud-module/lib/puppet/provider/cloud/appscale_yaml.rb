@@ -40,10 +40,6 @@ def appscale_yaml_parser(file)
       
       ips = ips.uniq
       
-      puts "All IPs are:"
-      ips.each do |ip|
-         puts "IP: #{ip}"
-      end
       return ips
    end
    
