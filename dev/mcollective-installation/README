@@ -1,0 +1,2 @@
+puppetlab-mcollective plugins: downloaded just in case; some plugins already come in new versions of mcollective
+rabbitmq-server: downloaded just in case; usual installation is with apt-get
