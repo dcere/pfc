@@ -48,7 +48,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Check if it is reasonable to host that many virtual machines
          # ...
          
-         # Start hosts
+         # Start virtual machines
          virsh_connect = "virsh -c qemu:///system"
          images = resource[:images]
          images.each do |image|
@@ -60,17 +60,17 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end
          
-         # Check hosts are alive
+         # Check virtual machines are alive
          alive = {"127.0.0.1" => 0, "192.168.1.101" => 0}
          while alive.has_value?(0)
             sleep(5)
-            alive.keys.each do |server|
-               result = `ping -q -c 1 #{server}`
+            alive.keys.each do |vm|
+               result = `ping -q -c 1 #{vm}`
                if ($?.exitstatus == 0)
-                  debug "[DBG] #{server} is up"
+                  debug "[DBG] #{vm} is up"
                   alive[server] = 1
                else
-                  debug "[DBG] #{server} is down"
+                  debug "[DBG] #{vm} is down"
                end
             end
          end
