@@ -1,0 +1,219 @@
+\documentclass[11pt, twoside]{book}
+%\documentclass[11pt]{book}
+\ifx\pdfoutput\undefined
+% we are running LaTeX, not pdflatex
+\usepackage{graphicx}
+\else
+% we are running pdflatex, so convert .eps files to .pdf
+\usepackage[pdftex]{graphicx}
+\usepackage{epstopdf}
+\fi
+
+%\usepackage[cp1252]{inputenc} % soportes para acentos 
+\usepackage[spanish,activeacute,english]{babel}  % texto autogenerado en espaol
+%\usepackage[latin1]{inputenc}
+\usepackage{ucs}
+\usepackage[utf8]{inputenc} % Para linux, utf8
+\usepackage{fontenc} 
+%\usepackage[T2A]{fontenc} 
+\usepackage[T1]{fontenc} 
+\usepackage{geometry} % figuras
+
+\usepackage{titlesec} % Soporte para modificar apariencia de los titulos 
+%\usepackage{fancyhdr}       % Soporte para los encabezados de pagina 
+\usepackage{anysize}        % Soporte para el comando \marginsize 
+\usepackage{url}
+\usepackage{multirow}
+\usepackage{subfig}
+%\usepackage{fancyvrb}
+%\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{color}
+
+%\usepackage[nottoc]{tocbibind} 
+\usepackage{hyperref} 
+\usepackage{listings} 
+\usepackage{float} 
+\usepackage{amsmath} 
+
+\usepackage{enumerate}
+
+
+% CAPTIONS
+%\usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
+\usepackage{caption}
+\captionsetup{font=footnotesize,labelfont=bf}
+
+% HEADERS
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+ \fancyhead{}
+ \fancyhead[RE]{\footnotesize{ \leftmark}}
+ \fancyhead[LO]{\footnotesize{ \rightmark}}
+\fancyfoot{}
+\fancyfoot[LE]{\thepage}
+\fancyfoot[RO]{\thepage}
+
+% Code for creating empty pages
+% No headers on empty pages before new chapter
+\makeatletter
+\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
+    \hbox{}
+    \thispagestyle{plain}
+    \newpage
+    \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+\makeatother \clearpage{\pagestyle{plain}\cleardoublepage}
+
+\makeatletter
+\def\cleardoublepageempty{\clearpage\if@twoside \ifodd\c@page\else
+    \hbox{}
+    \thispagestyle{empty}
+    \newpage
+    \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+\makeatother \clearpage{\pagestyle{plain}\cleardoublepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Modificamos el aspecto de los titulos 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newcommand{\bigrule}{\titlerule[0.5mm]} 
+
+%\usepackage[Lenny]{fncychap}
+
+\titleformat{\chapter}[display] 
+{\bfseries\Huge} 
+{%\titlerule 
+\filright 
+\Huge\chaptertitlename\ 
+\Huge\thechapter 
+} 
+{1mm} 
+{\filright} 
+[\vspace{0.5mm} \bigrule] 
+
+\bibliographystyle{plain}
+
+
+% So the code looks nice
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+ 
+\usepackage{listings}
+\lstset{ frame=Ltb,
+     framerule=0pt,
+     aboveskip=0.5cm,
+     framextopmargin=3pt,
+     framexbottommargin=3pt,
+     framexleftmargin=0.4cm,
+     framesep=0pt,
+     rulesep=.4pt,
+     backgroundcolor=\color{gray97},
+     rulesepcolor=\color{black},
+     %
+     stringstyle=\ttfamily,
+     showstringspaces = false,
+     basicstyle=\small\ttfamily,
+     commentstyle=\color{gray45},
+     keywordstyle=\bfseries,
+     %
+     numbers=left,
+     numbersep=15pt,
+     numberstyle=\tiny,
+     numberfirstline = false,
+     breaklines=true,
+   }
+ 
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+   {\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+ 
+\lstdefinestyle{consola}
+   {basicstyle=\scriptsize\bf\ttfamily,
+    backgroundcolor=\color{gray75},
+   }
+ 
+% Till here for code (lang=?)
+
+
+% Numeramos hasta 3 niveles y los incluimos en la tabla de contenidos
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Para que ponga 'tabla' en vez de 'cuadro'
+% y la bibliografía se llame 'Bibliografía'
+\addto\captionsspanish{%
+\def\bibname{Bibliografía}
+\def\tablename{Tabla}%
+\def\listtablename{Índice de tablas}
+}
+
+
+\begin{document}
+
+\selectlanguage{spanish}
+
+\renewcommand{\listtablename}{Índice de tablas}
+\renewcommand{\bibname}{Bibliografía}
+
+\begin{titlepage} 
+\begin{center} 
+ 
+\includegraphics*[height=3.5cm]{imagenes/unizar.jpg}\\ 
+
+\vspace*{1.5cm} 
+{\large Proyecto Fin de Carrera}\\ 
+\vspace*{0.2cm} 
+{\large Ingeniería en Informática}\\ 
+\vspace*{1.5cm} 
+{\huge \textbf{Diseño e implementación de un sistema de ejecución de trabajos distribuidos\\}}
+\vspace*{2cm} 
+{\Large \textbf{David Ceresuela Palomera\\}}
+\vspace*{2cm} 
+{\normalsize Director: Javier Celaya}\\ 
+\vspace*{1.5cm} 
+{\normalsize Departamento de Informática e Ingeniería de Sistemas}\\ 
+{Centro Politécnico Superior}\\ 
+{Universidad de Zaragoza}\\ 
+\vspace*{3.5cm} 
+{\normalsize Curso 2011/2012}\\ 
+{\normalsize Junio 2012}\\ 
+\end{center} 
+\end{titlepage} 
+
+\cleardoublepageempty
+
+\selectlanguage{spanish}
+
+\frontmatter % numeración romana, capítulos aparecen en la tabla de contenidos
+
+\include{capitulos/introduccion}
+
+\tableofcontents
+\listoftables
+\listoffigures
+
+%chapters
+\mainmatter % numeración arábiga
+
+%\include{capitulos/cap1}
+%\include{capitulos/cap2}
+%\include{capitulos/cap3}
+
+\addcontentsline{toc}{chapter}{Bibliografía}
+\nocite{*}
+\bibliographystyle{abbrv}
+\bibliography{bib/references}
+
+% apendices
+\appendix
+
+%\include{capitulos/apendice_a}
+%\include{capitulos/apendice_b}
+%\include{capitulos/apendice_c}
+
+
+\cleardoublepageempty
+
+
+
+\end{document}
