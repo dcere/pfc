@@ -65,8 +65,8 @@ Puppet::Type.newtype(:cloud) do
       desc "The file with the cloud description in YAML format"
    end
    
-   newparam(:images) do
-      desc "The qemu image names"
+   newparam(:image) do
+      desc "The qemu image name"
    end
    
    newparam(:pool) do

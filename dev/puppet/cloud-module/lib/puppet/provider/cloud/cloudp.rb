@@ -34,6 +34,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          vm_ips = []
          if resource[:type].to_s == "appscale"
             debug "[DBG] It is an appscale cloud"
+            info "It is an appscale cloud"
             #require './appscale_yaml.rb'
             #debug "[DBG] Files required"
             vm_ips = appscale_yaml_parser(resource[:file])
@@ -41,59 +42,79 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             debug "[DBG] #{vm_ips}"
          elsif resource[:type].to_s == "web"
             debug "[DBG] It is a web cloud"
+            info "It is a web cloud"
             vm_ips = []
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] It is a jobs cloud"
+            info "It is a jobs cloud"
             vm_ips = []
          else
             debug "[DBG] Cloud type undefined: #{resource[:type]}"
             debug "[DBG] Cloud type class: #{resource[:type].class}"
+            err "Cloud type undefined: #{resource[:type]}"
+            err "Cloud type class: #{resource[:type].class}"
          end
          
          
          # Distribute virtual machines among physical machines
          instances = vm_ips.count
          vm_per_pm = instances / pm_up.length
-         distribution = {}
+         quantity = {}
          pm_up.each do |pm|
             if pm == pm_up[-1]
-               distribution[pm] = vm_per_pm + instances % pm_up.length
-               puts "#{pm} will host #{distribution[pm]} virtual machines"
+               quantity[pm] = vm_per_pm + instances % pm_up.length
+               puts "#{pm} will host #{quantity[pm]} virtual machines"
             else
-               distribution[pm] = vm_per_pm
-               puts "#{pm} will host #{distribution[pm]} virtual machines"
+               quantity[pm] = vm_per_pm
+               puts "#{pm} will host #{quantity[pm]} virtual machines"
             end
          end
          
          # Check if it is reasonable to host that many virtual machines
-         distribution.each do |pm, vm|
+         quantity.each do |pm, vm|
             if vm > 3
                debug "[DBG] #{pm} is hosting more than 3 virtual machines"
-               puts "#{pm} is hosting more than 3 virtual machines"
+               warning "#{pm} is hosting more than 3 virtual machines"
             end
+         end
+         
+         # Prepare virtual machines
+         distribution = {}
+         pm_up.each do |pm|
+            distribution[pm] = vm_ips.shift(quantity[pm])
          end
          
          # Start virtual machines
          virsh_connect = "virsh -c qemu:///system"
-         images = resource[:images]
-         images.each do |image|
-            result = `#{virsh_connect} start #{image}`
+         image = resource[:image]
+         distribution.each do |pm, vms|
+            ssh_connect = "ssh dceresuela@#{pm}"
+            #vms.each do |vm|  #TODO Make it general enough
+            result = `ssh_connect '#{virsh_connect} start #{image}'`
             if ($?.exitstatus == 0)
                debug "[DBG] #{image} started"
+               info "#{image} started"
             else
                debug "[DBG] #{image} impossible to start"
+               err "#{image} impossible to start"
             end
          end
          
          # Check virtual machines are alive
-         alive = {"127.0.0.1" => 0, "192.168.1.101" => 0}
+         alive = {}
+         distribution.each do |pm, vms|
+            vms.each do |vm|
+               alive[vm] = 0
+            end
+         end
+         
          while alive.has_value?(0)
             sleep(5)
             alive.keys.each do |vm|
                result = `ping -q -c 1 #{vm}`
                if ($?.exitstatus == 0)
                   debug "[DBG] #{vm} is up"
-                  alive[server] = 1
+                  alive[vm] = 1
                else
                   debug "[DBG] #{vm} is down"
                end
