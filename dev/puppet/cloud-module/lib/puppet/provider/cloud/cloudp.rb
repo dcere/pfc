@@ -32,19 +32,22 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Obtain the virtual machines' IPs
          vm_ips = []
-         if resource[:type] == "appscale"
+         if resource[:type].to_s == "appscale"
             debug "[DBG] It is an appscale cloud"
             #require './appscale_yaml.rb'
-            debug "[DBG] Files required"
+            #debug "[DBG] Files required"
             vm_ips = appscale_yaml_parser(resource[:file])
             debug "[DBG] File parsed"
             debug "[DBG] #{vm_ips}"
-         elsif resource[:type] == "web"
+         elsif resource[:type].to_s == "web"
             debug "[DBG] It is a web cloud"
             vm_ips = []
-         elsif resource[:type] == "jobs"
+         elsif resource[:type].to_s == "jobs"
             debug "[DBG] It is a jobs cloud"
-            vm_ips = []            
+            vm_ips = []
+         else
+            debug "[DBG] Cloud type undefined: #{resource[:type]}"
+            debug "[DBG] Cloud type class: #{resource[:type].class}"
          end
          
          
