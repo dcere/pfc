@@ -58,15 +58,20 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          pm_up.each do |pm|
             if pm == pm_up[-1]
                distribution[pm] = vm_per_pm + instances % pm_up.length
-               puts "#{pm} hosts #{distribution[pm]} virtual machines"
+               puts "#{pm} will host #{distribution[pm]} virtual machines"
             else
                distribution[pm] = vm_per_pm
-               puts "#{pm} hosts #{distribution[pm]} virtual machines"
+               puts "#{pm} will host #{distribution[pm]} virtual machines"
             end
          end
          
          # Check if it is reasonable to host that many virtual machines
-         # ...
+         distribution.each do |pm, vm|
+            if vm > 3
+               debug "[DBG] #{pm} is hosting more than 3 virtual machines"
+               puts "#{pm} is hosting more than 3 virtual machines"
+            end
+         end
          
          # Start virtual machines
          virsh_connect = "virsh -c qemu:///system"
