@@ -6,7 +6,7 @@ require 'yaml'
 
 def appscale_yaml_parser(file)
 
-   ips = {}
+   ips = []
 
    tree = YAML::parse(File.open(file))
    
@@ -18,18 +18,9 @@ def appscale_yaml_parser(file)
       controller = tree[:controller]
       servers = tree[:servers]
 
-      if controller != nil
-         puts "Controller at #{controller}"
-         ips[controller] = 1
-      end
-
-      if servers != nil
-         servers.each do |ip|
-            puts "Server at #{ip}"
-            ips[ip] = 1
-         end
-      end
-
+      ips = ips + get_ips(controller)
+      ips = ips + get_ips(servers)
+      
       # Custom deployment (from appscale-tools/lib/node_layout.rb)
       master = tree[:master]
       appengine = tree[:appengine]
@@ -39,58 +30,31 @@ def appscale_yaml_parser(file)
       zookeper = tree[:zookeper]
       memcache = tree[:memcache]
       
-      if master != nil
-         puts "Master at #{master}"
-         ips[master] = 1
-      end
+      ips = ips + get_ips(master)
+      ips = ips + get_ips(appengine)
+      ips = ips + get_ips(database)
+      ips = ips + get_ips(login)
+      ips = ips + get_ips(open)
+      ips = ips + get_ips(zookeper)
+      ips = ips + get_ips(memcache)
       
-      if appengine != nil
-         appengine.each do |ip|
-            puts "Appengine at #{ip}"
-            ips[ip] = 1
-         end
-      end
-      
-      if database != nil
-         database.each do |ip|
-            puts "Database at #{ip}"
-            ips[ip] = 1
-         end
-      end
-      
-      if login != nil
-         login.each do |ip|
-            puts "Login at #{ip}"
-            ips[ip] = 1
-         end
-      end
-      
-      if open != nil
-         open.each do |ip|
-            puts "Open at #{ip}"
-            ips[ip] = 1
-         end
-      end
-      
-      if zookeper != nil
-         zookeper.each do |ip|
-            puts "Zookeper at #{ip}"
-            ips[ip] = 1
-         end
-      end
-      
-      if memcache != nil
-         memcache.each do |ip|
-            puts "Memcache at #{ip}"
-            ips[ip] = 1
-         end
-      end
+      ips = ips.uniq
       
       puts "All IPs are:"
-      ips.each do |ip,v|
+      ips.each do |ip|
          puts "IP: #{ip}"
       end
       return ips
    end
    
+end
+
+def get_ips(array)
+
+   ips = []
+   if array != nil
+      ips = array.to_a
+   end
+   return ips
+
 end
