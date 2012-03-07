@@ -154,22 +154,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
             
             # Define the domain in the physical machine
-            result = `#{ssh_connect} '#{VIRSH_CONNECT} define /tmp/mycloud-1.xml'`
-            if ($?.exitstatus == 0)
-               debug "[DBG] #{vm_name} domain defined"
-            else
-               debug "[DBG] #impossible to define #{vm_name} domain"
-               err   "#impossible to define #{vm_name} domain"
-            end
+            define_domain(ssh_connect, vm_name)
             
             # Start the domain
-            result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
-            if ($?.exitstatus == 0)
-               debug "[DBG] #{vm_name} started"
-            else
-               debug "[DBG] #{vm_name} impossible to start"
-               err   "#{vm_name} impossible to start"
-            end
+            start_domain(ssh_connect, vm_name)
+            
          end
          
          # Check virtual machines are alive
@@ -192,6 +181,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
             end
          end
+         
+         # Pick up a physical machine to controll the cloud
+         
          
          puts "Cloud started"
          
@@ -271,5 +263,29 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
+   def define_domain(ssh_connect, vm_name)
+      result = `#{ssh_connect} '#{VIRSH_CONNECT} define /tmp/mycloud-1.xml'`
+      if ($?.exitstatus == 0)
+         debug "[DBG] #{vm_name} domain defined"
+         return true
+      else
+         debug "[DBG] #impossible to define #{vm_name} domain"
+         err   "#impossible to define #{vm_name} domain"
+         return false
+      end
+   end
+   
+   
+   def start_domain(ssh_connect, vm_name)
+      result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
+      if ($?.exitstatus == 0)
+         debug "[DBG] #{vm_name} started"
+         return true
+      else
+         debug "[DBG] #{vm_name} impossible to start"
+         err   "#{vm_name} impossible to start"
+         return false
+      end
+   end
    
 end
