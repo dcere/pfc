@@ -182,7 +182,27 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end
          
-         # Pick up a physical machine to controll the cloud
+         # Start the cloud
+         ssh_connect = "ssh root@155.210.155.170"
+         if resource[:type].to_s == "appscale"
+            debug "[DBG] Starting an appscale cloud"
+            puts  "Starting an appscale cloud"
+            result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
+            ips_yaml = File.basename(resource[:file])
+            ips_yaml = "/tmp/" + ips_yaml
+            appscale_cloud_start(ssh_connect,ips_yaml)
+         elsif resource[:type].to_s == "web"
+            debug "[DBG] Starting a web cloud"
+            puts  "Starting a web cloud"
+            web_cloud_start
+         elsif resource[:type].to_s == "jobs"
+            debug "[DBG] Starting a jobs cloud"
+            puts  "Starting a jobs cloud"
+            jobs_cloud_start
+         else
+            debug "[DBG] Cloud type undefined: #{resource[:type]}"
+            err   "Cloud type undefined: #{resource[:type]}"
+         end
          
          
          puts "Cloud started"
@@ -264,6 +284,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    
    def define_domain(ssh_connect, vm_name)
+   
       result = `#{ssh_connect} '#{VIRSH_CONNECT} define /tmp/mycloud-1.xml'`
       if ($?.exitstatus == 0)
          debug "[DBG] #{vm_name} domain defined"
@@ -277,6 +298,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    
    def start_domain(ssh_connect, vm_name)
+   
       result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
       if ($?.exitstatus == 0)
          debug "[DBG] #{vm_name} started"
@@ -287,5 +309,36 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          return false
       end
    end
+   
+   
+   def appscale_cloud_start(ssh_connect, ips_yaml)
+
+      result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-add-keypair --ips #{ips_yaml}'`
+      if ($?.exitstatus == 0)
+         debug "[DBG] Key pairs added"
+      else
+         debug "[DBG] Impossible to add key pairs"
+         err   "Impossible to add key pairs"
+      end
+      
+      result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-run-instances --ips #{ips_yaml}'`
+      if ($?.exitstatus == 0)
+         debug "[DBG] Instances running"
+         puts  "Instances running"
+      else
+         debug "[DBG] Impossible to run appscale instances"
+         err   "Impossible to run appscale instances"
+      end
+      
+   end
+   
+   
+   def web_cloud_start
+   end
+   
+   
+   def jobs_cloud_start
+   end
+   
    
 end
