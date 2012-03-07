@@ -69,12 +69,12 @@ Puppet::Type.newtype(:cloud) do
       desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
    end
    
-   newparam(:images) do
+   newproperty(:images, :array_matching => :all) do
       desc "The qemu image(s). You must either provide one image from which" +
          " copies shall be made or provide an image for every instance"
    end
    
-   newparam(:pool) do
+   newproperty(:pool, :array_matching => :all) do
       desc "The pool of physical machines"
    end
 

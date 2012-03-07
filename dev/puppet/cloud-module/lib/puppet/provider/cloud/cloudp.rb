@@ -110,7 +110,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Start virtual machines
          images = resource[:images]
-         images = images.to_a    # FIXME Puppet problem with 1 element arrays ?
          if images.count == 1
             # One image to rule them all
          elsif images.count == instances
@@ -125,12 +124,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          distribution.each do |pm, vms|
             # Get ERB template
             require 'erb'
-            debug "[DBG] resource[:domain] class: #{resource[:domain].class}"
             template = File.open(resource[:domain], 'r').read()
             
             # Write vm domain file
             domain_file = File.open("/etc/puppet/modules/cloud/files/mycloud-1.xml", 'w')
-            info "Domain file created"
+            debug "[DBG] Domain file created"
             erb = ERB.new(template)
             
             vm_name = "myvm1"
@@ -257,7 +255,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       machines_up = []
       machines_down = []
       machines = resource[:pool]
-      machines.to_a     # FIXME Puppet problem with 1 element arrays ?
       debug "[DBG] Machines class: #{resource[:pool].class}"
       machines.each do |machine|
          result = `ping -q -c 1 #{machine}`
@@ -272,9 +269,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       end
       return all_up, machines_up, machines_down
    end
-   
-   
-   
    
    
    
