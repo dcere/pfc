@@ -34,9 +34,11 @@ $SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME'
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
 then
-   scp ./manifests/init.pp     root@$1:$PUPPET_DST/$NAME/manifests/init.pp
-   scp ./manifests/term.pp     root@$1:$PUPPET_DST/$NAME/manifests/term.pp
-   scp ./files/appscale.yaml   root@$1:$PUPPET_DST/$NAME/files/appscale.yaml
+   scp ./manifests/init.pp           root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/term.pp           root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./files/appscale.yaml         root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/appscale-1-node.yaml  root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/mycloud-template.xml  root@$1:$PUPPET_DST/$NAME/files/
 fi
 
 if [ $2 = "test" -o $2 = "all" ]

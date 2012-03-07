@@ -5,9 +5,31 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    #commands :grep => "/bin/grep"
    #commands :ip => "/sbin/ip"
    commands :ping => "/bin/ping"
+   # erb??
 
    # Operating system restrictions
    confine :osfamily => "Debian"
+
+   # Some constants
+   VIRSH_CONNECT = "virsh -c qemu:///system"
+
+   # Virtual machine class
+   class VM
+      attr_accessor :vm
+      
+      def initialize(name,uuid,disk,mac)
+      @vm = {
+         :name => "#{name}",
+         :uuid => "#{uuid}",
+         :disk => "#{disk}",
+         :mac  => "#{mac}"}
+      end
+      
+      def get_binding
+         binding()
+      end
+   end
+
 
 
    # Makes sure the cloud is running.
@@ -34,7 +56,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          vm_ips = []
          if resource[:type].to_s == "appscale"
             debug "[DBG] It is an appscale cloud"
-            info "It is an appscale cloud"
+            puts "It is an appscale cloud"
             #require './appscale_yaml.rb'
             #debug "[DBG] Files required"
             vm_ips = appscale_yaml_parser(resource[:file])
@@ -42,11 +64,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             debug "[DBG] #{vm_ips}"
          elsif resource[:type].to_s == "web"
             debug "[DBG] It is a web cloud"
-            info "It is a web cloud"
+            puts "It is a web cloud"
             vm_ips = []
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] It is a jobs cloud"
-            info "It is a jobs cloud"
+            puts "It is a jobs cloud"
             vm_ips = []
          else
             debug "[DBG] Cloud type undefined: #{resource[:type]}"
@@ -83,10 +105,12 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          pm_up.each do |pm|
             distribution[pm] = vm_ips.shift(quantity[pm])
          end
+         debug "[DBG] Virtual machines distribution completed"
+         puts "Virtual machines distribution completed"
          
          # Start virtual machines
-         virsh_connect = "virsh -c qemu:///system"
          images = resource[:images]
+         images = images.to_a    # FIXME Puppet problem with 1 element arrays ?
          if images.count == 1
             # One image to rule them all
          elsif images.count == instances
@@ -95,16 +119,58 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             # Error
          end
          
+         debug "[DBG] Creating domain files"
+         puts "Creating domain files"
+         # Suppose 1 physical machine and 1 virtual machine
          distribution.each do |pm, vms|
+            # Get ERB template
+            require 'erb'
+            debug "[DBG] resource[:domain] class: #{resource[:domain].class}"
+            template = File.open(resource[:domain], 'r').read()
+            
+            # Write vm domain file
+            domain_file = File.open("/etc/puppet/modules/cloud/files/mycloud-1.xml", 'w')
+            info "Domain file created"
+            erb = ERB.new(template)
+            
+            vm_name = "myvm1"
+            vm_uuid = `uuidgen`
+            vm_disk = resource[:images]
+            vm_mac  = "52:54:00:00:aa:ab"
+            myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
+            
+            domain_file.write(erb.result(myvm.get_binding))
+            domain_file.close
+            info "Domain file written"
+            
             ssh_connect = "ssh dceresuela@#{pm}"
             #vms.each do |vm|  #TODO Make it general enough
-            result = `ssh_connect '#{virsh_connect} start #{image}'`
+            
+            # Copy the domain definition file to the physical machine
+            result = `scp /etc/puppet/modules/cloud/files/mycloud-1.xml dceresuela@#{pm}:/tmp`
             if ($?.exitstatus == 0)
-               debug "[DBG] #{image} started"
-               info "#{image} started"
+               debug "[DBG] #domain definition file copied"
             else
-               debug "[DBG] #{image} impossible to start"
-               err "#{image} impossible to start"
+               debug "[DBG] #{vm_name} impossible to copy domain definition file"
+               err   "#impossible to copy domain definition file"
+            end
+            
+            # Define the domain in the physical machine
+            result = `#{ssh_connect} '#{VIRSH_CONNECT} define /tmp/mycloud-1.xml'`
+            if ($?.exitstatus == 0)
+               debug "[DBG] #{vm_name} domain defined"
+            else
+               debug "[DBG] #impossible to define #{vm_name} domain"
+               err   "#impossible to define #{vm_name} domain"
+            end
+            
+            # Start the domain
+            result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
+            if ($?.exitstatus == 0)
+               debug "[DBG] #{vm_name} started"
+            else
+               debug "[DBG] #{vm_name} impossible to start"
+               err   "#{vm_name} impossible to start"
             end
          end
          
@@ -191,6 +257,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       machines_up = []
       machines_down = []
       machines = resource[:pool]
+      machines.to_a     # FIXME Puppet problem with 1 element arrays ?
+      debug "[DBG] Machines class: #{resource[:pool].class}"
       machines.each do |machine|
          result = `ping -q -c 1 #{machine}`
          if ($?.exitstatus == 0)
