@@ -71,8 +71,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Check if it is reasonable to host that many virtual machines
-         quantity.each do |pm, vm|
-            if vm > 3
+         quantity.each do |pm, vms|
+            if vms > 3
                debug "[DBG] #{pm} is hosting more than 3 virtual machines"
                warning "#{pm} is hosting more than 3 virtual machines"
             end
@@ -86,7 +86,15 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Start virtual machines
          virsh_connect = "virsh -c qemu:///system"
-         image = resource[:image]
+         images = resource[:images]
+         if images.count == 1
+            # One image to rule them all
+         elsif images.count == instances
+            # N images to the N virtual machines in the kingdom of cloud
+         else
+            # Error
+         end
+         
          distribution.each do |pm, vms|
             ssh_connect = "ssh dceresuela@#{pm}"
             #vms.each do |vm|  #TODO Make it general enough

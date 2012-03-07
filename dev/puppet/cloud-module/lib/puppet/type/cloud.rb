@@ -65,8 +65,13 @@ Puppet::Type.newtype(:cloud) do
       desc "The file with the cloud description in YAML format"
    end
    
-   newparam(:image) do
-      desc "The qemu image name"
+   newparam(:domain) do
+      desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
+   end
+   
+   newparam(:images) do
+      desc "The qemu image(s). You must either provide one image from which" +
+         " copies shall be made or provide an image for every instance"
    end
    
    newparam(:pool) do
