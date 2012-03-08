@@ -5,8 +5,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    #commands :grep => "/bin/grep"
    #commands :ip => "/sbin/ip"
    commands :ping => "/bin/ping"
-   # erb??
-
+   
    # Operating system restrictions
    confine :osfamily => "Debian"
 
@@ -120,7 +119,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          debug "[DBG] Creating domain files"
          puts "Creating domain files"
-         # Suppose 1 physical machine and 1 virtual machine
+         # Suppose 1 physical machine and 1 virtual machine by now
          distribution.each do |pm, vms|
             # Get ERB template
             require 'erb'
@@ -183,7 +182,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Start the cloud
-         ssh_connect = "ssh root@155.210.155.170"
+         ssh_connect = "ssh -tt root@155.210.155.170"
          if resource[:type].to_s == "appscale"
             debug "[DBG] Starting an appscale cloud"
             puts  "Starting an appscale cloud"
@@ -267,7 +266,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       machines_up = []
       machines_down = []
       machines = resource[:pool]
-      debug "[DBG] Machines class: #{resource[:pool].class}"
+      #debug "[DBG] Machines class: #{resource[:pool].class}"
       machines.each do |machine|
          result = `ping -q -c 1 #{machine}`
          if ($?.exitstatus == 0)
@@ -313,22 +312,27 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    def appscale_cloud_start(ssh_connect, ips_yaml)
 
-      result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-add-keypair --ips #{ips_yaml}'`
-      if ($?.exitstatus == 0)
-         debug "[DBG] Key pairs added"
-      else
-         debug "[DBG] Impossible to add key pairs"
-         err   "Impossible to add key pairs"
-      end
+      debug "[DBG] About to add key pairs"
+      debug "[DBG] ips.yaml file: #{ips_yaml}"
+      result = `#{ssh_connect}`
+#       result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-add-keypair --ips #{ips_yaml}'`
+#       if ($?.exitstatus == 0)
+#          debug "[DBG] Key pairs added"
+#       else
+#          debug "[DBG] Impossible to add key pairs"
+#          err   "Impossible to add key pairs"
+#       end
       
-      result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-run-instances --ips #{ips_yaml}'`
-      if ($?.exitstatus == 0)
-         debug "[DBG] Instances running"
-         puts  "Instances running"
-      else
-         debug "[DBG] Impossible to run appscale instances"
-         err   "Impossible to run appscale instances"
-      end
+      debug "[DBG] About to run instances"
+      result = `#{ssh_connect}`
+#       result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-run-instances --ips #{ips_yaml}'`
+#       if ($?.exitstatus == 0)
+#          debug "[DBG] Instances running"
+#          puts  "Instances running"
+#       else
+#          debug "[DBG] Impossible to run appscale instances"
+#          err   "Impossible to run appscale instances"
+#       end
       
    end
    
