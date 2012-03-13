@@ -12,10 +12,11 @@
 -   Control de errores al iniciar MV
 - Inicio de un cloud AppScale con la configuración por defecto ( 1 + 3 ) => Control de las copias de la imagen
 - Probar Neptune para coger salidas de trabajos
-- Envío de archivos con MCollective => ¿Como array?
+- Envío de archivos con MCollective => ¿Como array? ¿Como cadena?
 - Asignación de IP concreta a la máquina virtual "por defecto" / Servidor DNS / Configurar mediante Puppet?
-- Escribir como deisminuir el tamaño de las imágenes de Ubuntu: caché apt, etc
+- (X) Escribir como disminuir el tamaño de las imágenes de Ubuntu: caché apt, etc
 - Comprobar uso de Custom facts para obtener información de AppScale
 - Comprobar uso de Puppet nodes para los nodos de AppScale
 - Comprobar ejecución de Puppet (nivel 2) desde MCollective
 - Comprobar estado de la propuesta
+- Uso de MCollective para ejecutar comandos de shell
