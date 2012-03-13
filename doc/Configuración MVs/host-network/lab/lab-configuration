@@ -1,0 +1,86 @@
+dceresuela@venus2:~$ ifconfig 
+br0       Link encap:Ethernet  HWaddr 00:1d:60:52:92:a8  
+          inet addr:155.210.155.70  Bcast:155.210.155.255  Mask:255.255.255.0
+          inet6 addr: fe80::21d:60ff:fe52:92a8/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:2551909 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1435628 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:812654698 (775.0 MiB)  TX bytes:1005749472 (959.1 MiB)
+
+eth0      Link encap:Ethernet  HWaddr 00:1d:60:52:92:a8  
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:2820421 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1856011 errors:0 dropped:0 overruns:0 carrier:4
+          collisions:0 txqueuelen:1000 
+          RX bytes:856876645 (817.1 MiB)  TX bytes:1026349298 (978.8 MiB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:1267 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1267 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:157712 (154.0 KiB)  TX bytes:157712 (154.0 KiB)
+
+virbr0    Link encap:Ethernet  HWaddr 26:1f:7c:9f:ae:cd  
+          inet addr:192.168.122.1  Bcast:192.168.122.255  Mask:255.255.255.0
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+################################################################################
+dceresuela@venus2:~$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         155.210.155.254 0.0.0.0         UG    0      0        0 br0
+155.210.155.0   0.0.0.0         255.255.255.0   U     0      0        0 br0
+192.168.122.0   0.0.0.0         255.255.255.0   U     0      0        0 virbr0
+
+################################################################################ 
+dceresuela@venus2:~$ cat /etc/nsswitch.conf 
+# /etc/nsswitch.conf
+#
+# Example configuration of GNU Name Service Switch functionality.
+# If you have the `glibc-doc-reference' and `info' packages installed, try:
+# `info libc "Name Service Switch"' for information about this file.
+
+passwd:         compat ldap
+group:          compat ldap
+shadow:         compat ldap
+
+hosts:          files dns
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis
+
+################################################################################
+dceresuela@venus2:~$ cat /etc/resolv.conf 
+domain cps.unizar.es
+search cps.unizar.es
+nameserver 155.210.155.176
+
+################################################################################
+dceresuela@venus2:~$ cat /etc/hostname 
+venus2
+
+################################################################################
+dceresuela@venus2:~$ cat /etc/hosts
+127.0.0.1	localhost
+155.210.155.70	venus2.cps.unizar.es	venus2
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
