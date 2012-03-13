@@ -21,6 +21,16 @@
 # Author:
 #   David Ceresuela
 
+if [ $# -ne 2 ]
+then
+   echo "Use: $0 <IP address> <set of files>"
+   echo "Examples
+$0 155.210.155.170 all
+$0 155.210.155.177 tp
+"
+   exit 1
+fi 
+
 NAME="cloud"
 PUPPET_DST="/etc/puppet/modules"
 
