@@ -1,5 +1,5 @@
 127.0.0.1 localhost.localdomain localhost
-127.0.1.1 appscale-image1.kvmcloud.net appscale-image1
+127.0.1.1 appscale-image1.cps.cloud appscale-image1
 ::1     ip6-localhost ip6-loopback
 fe00::0 ip6-localnet
 ff00::0 ip6-mcastprefix
