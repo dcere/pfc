@@ -3,7 +3,7 @@
 - (X) Actualización del script de instalación del tipo cloud (Debe instalarse en la MV neptune)
 - (X) Actualización del script de validación de manifiesto para el tipo cloud (Debe instalarse en la MV neptune)
 - (X) SSH
-- (X) Verificación del parser de AppScale
+- (X) Verificación de mi parser de AppScale
 - (X) Instalación de MCollective con plugin para facter
 - (X) Ver dónde tiene que ir el servidor Stomp => En una máquina del cloud o en la máquina gestora. Prefiero en el cloud.
 - (X) Comprobar que el proveedor cloudp puede usar archivos auxiliares (i.e. appscale-yaml-checker.rb)
@@ -15,6 +15,9 @@
 - Envío de archivos (sin usar ssh o scp)
   - (X) MCollective => Como cadena, con Agente y Cliente RPC
   - Puppet => Uso del atributo source (http://docs.puppetlabs.com/module_cheat_sheet.html)
+- Configuración de Puppet
+  - Maestro en lucid-nep
+  - Agentes en lucid-app1 y lucid-app2
 - Asignación de IP concreta a la máquina virtual "por defecto"
   - Servidor DNS  => BIND
   - Servidor DHCP
