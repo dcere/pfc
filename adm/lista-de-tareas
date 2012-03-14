@@ -18,9 +18,8 @@
 - Configuración de Puppet
   - Maestro en lucid-nep
   - Agentes en lucid-app1 y lucid-app2
+- (X) Servidor DNS  => DNSmasq
 - Asignación de IP concreta a la máquina virtual "por defecto"
-  - Servidor DNS  => BIND
-  - Servidor DHCP
   - Servidor DNS + DHCP => DNSmasq
     - http://tecnoloxiaxa.blogspot.com/2008/10/instalar-y-configurar-un-servidor-dns.html
     - http://www.guia-ubuntu.org/index.php?title=Dnsmasq%2C_servidor_DNS_y_DHCP
