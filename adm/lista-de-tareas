@@ -22,6 +22,9 @@
   - Servidor DNS  => BIND
   - Servidor DHCP
   - Servidor DNS + DHCP => DNSmasq
+    - http://tecnoloxiaxa.blogspot.com/2008/10/instalar-y-configurar-un-servidor-dns.html
+    - http://www.guia-ubuntu.org/index.php?title=Dnsmasq%2C_servidor_DNS_y_DHCP
+    - https://help.ubuntu.com/community/Dnsmasq
   - Configurar mediante Puppet => Especificar el contenido del fichero /etc/network/interfaces para cada máquina
 - (X) Escribir como disminuir el tamaño de las imágenes de Ubuntu: caché apt, etc
 - Comprobar uso de Custom facts para obtener información de AppScale
@@ -29,4 +32,5 @@
 - Comprobar ejecución de Puppet (nivel 2) desde MCollective
 - Comprobar estado de la propuesta
 - (X) Uso de MCollective para ejecutar comandos de shell => Comandos sencillos como 'whoami', 'ls'
+- Uso de invoke-rc.d mcollecive stop en vez de service mcollecive stop en Debian / Ubuntu
 - Estudiar los ejemplos de Agentes y Clientes de RPC que proporciona MCollective

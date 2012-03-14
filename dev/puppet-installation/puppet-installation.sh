@@ -1,14 +1,14 @@
 # Description:
-#   Creates the proper environment before installing puppet
+#   Installs puppet
 #
 # Synopsis:
-#   puppet-installation-environment.sh
+#   puppet-installation.sh
 #
 # Arguments:
 #   - None
 #
 # Examples:
-#   _$: . ./puppet-installation-environment.sh
+#   _$: ./puppet-installation.sh
 #
 #
 # Author:
