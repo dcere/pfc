@@ -21,6 +21,7 @@
 - (X) Servidor DNS  => DNSmasq
   - Estudiar el uso de nombres acortados (app1) en fichero dnsmasq.hosts frente a forzar el dominio en el fichero
     resolv.conf del cliente (domain cps.cloud)
+  - Comprobar resolucinoes de dominio inversas
 - Asignación de IP concreta a la máquina virtual "por defecto"
   - Servidor DNS + DHCP => DNSmasq
     - http://tecnoloxiaxa.blogspot.com/2008/10/instalar-y-configurar-un-servidor-dns.html
