@@ -15,13 +15,15 @@
 - Envío de archivos (sin usar ssh o scp)
   - (X) MCollective => Como cadena, con Agente y Cliente RPC
   - Puppet => Uso del atributo source (http://docs.puppetlabs.com/module_cheat_sheet.html)
-- Configuración de Puppet
-  - Maestro en lucid-nep
-  - Agentes en lucid-app1 y lucid-app2
+- (X) Configuración de Puppet
+  - (X) Maestro en lucid-nep
+    - http://www.puppetlogs.com/puppet/%23puppet-2010-11-06.log.html
+  - (X) Agentes en lucid-app1 y lucid-app2
 - (X) Servidor DNS  => DNSmasq
   - Estudiar el uso de nombres acortados (app1) en fichero dnsmasq.hosts frente a forzar el dominio en el fichero
     resolv.conf del cliente (domain cps.cloud)
-  - Comprobar resolucinoes de dominio inversas
+  - (X) Comprobar resoluciones de dominio inversas
+  - (X) Comprobar que AppScale sigue funcionando: master + open OK
 - Asignación de IP concreta a la máquina virtual "por defecto"
   - Servidor DNS + DHCP => DNSmasq
     - http://tecnoloxiaxa.blogspot.com/2008/10/instalar-y-configurar-un-servidor-dns.html
@@ -36,3 +38,4 @@
 - (X) Uso de MCollective para ejecutar comandos de shell => Comandos sencillos como 'whoami', 'ls'
 - Uso de invoke-rc.d mcollecive stop en vez de service mcollecive stop en Debian / Ubuntu
 - Estudiar los ejemplos de Agentes y Clientes de RPC que proporciona MCollective
+- SSH de Puppet vs SSH de AppScale: ¿compatibles?
