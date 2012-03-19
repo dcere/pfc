@@ -49,6 +49,7 @@ then
    scp ./files/appscale.yaml         root@$1:$PUPPET_DST/$NAME/files/
    scp ./files/appscale-1-node.yaml  root@$1:$PUPPET_DST/$NAME/files/
    scp ./files/mycloud-template.xml  root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/helloworld-client.rb  root@$1:$PUPPET_DST/$NAME/files/
 fi
 
 if [ $2 = "test" -o $2 = "all" ]
@@ -64,9 +65,9 @@ PROVIDER_DST="$PUPPET_DST/$NAME/lib/puppet/provider/$NAME"
 
 if [ $2 = "tp" -o $2 = "all" ]
 then
-   scp $TYPE_SRC/cloud.rb                   root@$1:$TYPE_DST/cloud.rb
-   scp $PROVIDER_SRC/$NAME/cloudp.rb        root@$1:$PROVIDER_DST/cloudp.rb
-   scp $PROVIDER_SRC/$NAME/appscale_yaml.rb root@$1:$PROVIDER_DST/appscale-yaml.rb
+   scp $TYPE_SRC/cloud.rb                     root@$1:$TYPE_DST/cloud.rb
+   scp $PROVIDER_SRC/$NAME/cloudp.rb          root@$1:$PROVIDER_DST/cloudp.rb
+   scp $PROVIDER_SRC/$NAME/appscale_yaml.rb   root@$1:$PROVIDER_DST/appscale-yaml.rb
 fi
 
 # Copy test

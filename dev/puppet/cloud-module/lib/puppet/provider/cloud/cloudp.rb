@@ -182,14 +182,19 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Start the cloud
-         ssh_connect = "ssh -tt root@155.210.155.170"
+         ssh_connect = "ssh root@155.210.155.170"
          if resource[:type].to_s == "appscale"
             debug "[DBG] Starting an appscale cloud"
             puts  "Starting an appscale cloud"
-            result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
-            ips_yaml = File.basename(resource[:file])
-            ips_yaml = "/tmp/" + ips_yaml
-            appscale_cloud_start(ssh_connect,ips_yaml)
+            rpc_agent = "/etc/puppet/modules/cloud/files/helloworld-client.rb"
+            result = `ruby #{rpc_agent} --verbose`
+            puts "The output of #{rpc_agent} is:"
+            puts result
+            
+            #result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
+            #ips_yaml = File.basename(resource[:file])
+            #ips_yaml = "/tmp/" + ips_yaml
+            #appscale_cloud_start(ssh_connect,ips_yaml)
          elsif resource[:type].to_s == "web"
             debug "[DBG] Starting a web cloud"
             puts  "Starting a web cloud"
