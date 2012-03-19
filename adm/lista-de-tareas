@@ -18,6 +18,7 @@
 - (X) Configuración de Puppet
   - (X) Maestro en lucid-nep
     - http://www.puppetlogs.com/puppet/%23puppet-2010-11-06.log.html
+    - http://comments.gmane.org/gmane.comp.sysutils.puppet.user/36578 (solución del bug)
   - (X) Agentes en lucid-app1 y lucid-app2
 - (X) Servidor DNS  => DNSmasq
   - Estudiar el uso de nombres acortados (app1) en fichero dnsmasq.hosts frente a forzar el dominio en el fichero
