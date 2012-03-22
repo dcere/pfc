@@ -26,7 +26,7 @@ then
    echo "Use: $0 <IP address> <set of files>"
    echo "Examples
 $0 155.210.155.170 all
-$0 155.210.155.177 tp
+$0 155.210.155.170 tp
 "
    exit 1
 fi 
@@ -37,9 +37,12 @@ PUPPET_DST="/etc/puppet/modules"
 SSH="ssh root@$1"
 
 # Create directories
-$SSH 'mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}'
-$SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/type'
-$SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME'
+if [ $2 != "app" ]
+then
+   $SSH 'mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}'
+   $SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/type'
+   $SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME'
+fi
 
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
@@ -80,4 +83,10 @@ fi
 if [ $2 = "test" -o $2 = "all" ]
 then
    scp ./validate.sh root@$1:$PUPPET_DST/$NAME
+fi
+
+# Copy AppScale manifests
+if [ $2 = "app" -o $2 = "all" ]
+then
+   scp ./files/appscale-manifests/basic.pp root@$1:/root/
 fi
