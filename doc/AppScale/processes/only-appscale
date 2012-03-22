@@ -1,0 +1,63 @@
+root      3133  1.9  2.1  84984 22308 ?        Sl   11:53   0:02 /usr/bin/ruby1.8 /usr/bin/god
+
+root      3184  0.0  0.0      0     0 ?        S    11:53   0:00 [cqueue]
+
+root      3324  1.3  3.2 134556 33224 ?        Ssl  11:53   0:01 ruby /root/appscale/AppController/djinnServer.rb
+
+root      3587  0.0  0.0  16928   684 ?        S<   11:53   0:00 udevd --daemon
+
+ejabberd  3680  0.0  0.0  10712   388 ?        S    11:53   0:00 /usr/lib/erlang/erts-5.7.4/bin/epmd -daemon
+
+ejabberd  3718  1.4  5.2 104456 53612 ?        S    11:53   0:01 /usr/lib/erlang/erts-5.7.4/bin/beam -K false -P 250000 -- -root /usr/lib/erlang -progname erl -- -home /var/lib/ejabberd -- -sname ejabberd -pa /usr/lib/ejabberd/ebin -s ejabberd -kernel inetrc "/etc/ejabberd/inetrc" -ejabberd config "/etc/ejabberd/ejabberd.cfg" log_path "/var/log/ejabberd/ejabberd.log" -sasl sasl_error_logger {file,"/var/log/ejabberd/erlang.log"} -mnesia dir "/var/lib/ejabberd" -smp disable -noshell -noshell -noinput
+
+ejabberd  3759  0.2  1.1  39360 12104 ?        Ss   11:53   0:00 /usr/bin/python /etc/ejabberd/ejabberd_auth.py
+
+115       3895  1.0  2.9 1322312 30040 ?       Sl   11:53   0:00 /usr/bin/java -cp /etc/zookeeper/conf:/usr/share/java/jline.jar:/usr/share/java/log4j-1.2.jar:/usr/share/java/xercesImpl.jar:/usr/share/java/xmlParserAPIs.jar:/usr/share/java/zookeeper.jar -Xmx1024m -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=false -Dzookeeper.log.dir=/var/log/zookeeper -Dzookeeper.root.logger=INFO,ROLLINGFILE org.apache.zookeeper.server.quorum.QuorumPeerMain /etc/zookeeper/conf/zoo.cfg
+
+root      3936  1.5  3.7 109236 38396 ?        Ssl  11:53   0:01 /usr/bin/ruby1.8 /usr/bin/mongrel_rails start -c /root/appscale/AppLoadBalancer -e production -p 8000 -P /root/appscale/AppLoadBalancer/log/mongrel.8000.pid
+
+root      3952  1.7  3.7 109244 38396 ?        Ssl  11:53   0:01 /usr/bin/ruby1.8 /usr/bin/mongrel_rails start -c /root/appscale/AppLoadBalancer -e production -p 8001 -P /root/appscale/AppLoadBalancer/log/mongrel.8001.pid
+
+root      3968  1.7  3.7 109236 38392 ?        Ssl  11:53   0:01 /usr/bin/ruby1.8 /usr/bin/mongrel_rails start -c /root/appscale/AppLoadBalancer -e production -p 8002 -P /root/appscale/AppLoadBalancer/log/mongrel.8002.pid
+
+root      4075  6.1  5.2 128596 53584 ?        Ssl  11:53   0:03 /usr/bin/ruby1.8 /usr/bin/mongrel_rails start -c /root/appscale/AppMonitoring -e production -p 8003 -P /root/appscale/AppMonitoring/log/mongrel.8003.pid
+
+root      4161  5.7 15.1 846512 154936 ?       Sl   11:53   0:02 /usr/bin/java -ea -Xms128M -Xmx1G -XX:TargetSurvivorRatio=90 -XX:+AggressiveOpts -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+HeapDumpOnOutOfMemoryError -XX:SurvivorRatio=128 -XX:MaxTenuringThreshold=0 -Dcom.sun.management.jmxremote.port=APPSCALE-JMX-PORT -Dcom.sun.management.jmxremote.port=6666 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -ea -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms499M -Xmx499M -Xmn124M -XX:+HeapDumpOnOutOfMemoryError -Xss128k -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -Djava.net.preferIPv4Stack=true -Dcom.sun.management.jmxremote.port=7070 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dlog4j.configuration=log4j-server.properties -Dlog4j.defaultInitOverride=true -Dcassandra-pidfile=/var/appscale/appscale-cassandra.pid -cp /root/appscale/AppDB/cassandra/cassandra/bin/../conf:/root/appscale/AppDB/cassandra/cassandra/bin/../build/classes:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/antlr-3.1.3.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/apache-cassandra-0.7.6-2.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/avro-1.4.0-fixes.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/avro-1.4.0-sources-fixes.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/commons-cli-1.1.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/commons-codec-1.2.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/commons-collections-3.2.1.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/commons-lang-2.4.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/concurrentlinkedhashmap-lru-1.1.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/guava-r05.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/high-scale-lib.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/jackson-core-asl-1.4.0.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/jackson-mapper-asl-1.4.0.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/jetty-6.1.21.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/jetty-util-6.1.21.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/jline-0.9.94.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/json-simple-1.1.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/jug-2.0.0.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/libthrift-0.5.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/log4j-1.2.16.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/servlet-api-2.5-20081211.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/slf4j-api-1.6.1.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/slf4j-log4j12-1.6.1.jar:/root/appscale/AppDB/cassandra/cassandra/bin/../lib/snakeyaml-1.6.jar org.apache.cassandra.thrift.CassandraDaemon
+
+root      4282  0.0  0.1 193952  1092 ?        Ssl  11:53   0:00 /usr/bin/memcached -d -m 32 -p 11211 -u root
+
+root      4354  0.0  0.0   4096   588 ?        Ss   11:54   0:00 sh -c /usr/bin/python2.6 /root/appscale/AppDB/appscale_server.py -p 4000 --no_encryption --type cassandra -z '155.210.155.73:2181' -s k0nLRgp6vAniwIdt9jIU1SECuNyF59dv -a 155.210.155.73 --key
+
+root      4357  2.1  2.8 175160 29468 ?        Sl   11:54   0:00 /usr/bin/python2.6 /root/appscale/AppDB/appscale_server.py -p 4000 --no_encryption --type cassandra -z 155.210.155.73:2181 -s k0nLRgp6vAniwIdt9jIU1SECuNyF59dv -a 155.210.155.73 --key
+
+root      4385  0.0  0.0   4096   584 ?        Ss   11:54   0:00 sh -c /usr/bin/python2.6 /root/appscale/AppDB/appscale_server.py -p 4001 --no_encryption --type cassandra -z '155.210.155.73:2181' -s k0nLRgp6vAniwIdt9jIU1SECuNyF59dv -a 155.210.155.73 --key
+
+root      4388  1.1  2.3 104900 24440 ?        Sl   11:54   0:00 /usr/bin/python2.6 /root/appscale/AppDB/appscale_server.py -p 4001 --no_encryption --type cassandra -z 155.210.155.73:2181 -s k0nLRgp6vAniwIdt9jIU1SECuNyF59dv -a 155.210.155.73 --key
+
+root      4416  0.1  0.0   4096   588 ?        Ss   11:54   0:00 sh -c /usr/bin/python2.6 /root/appscale/AppDB/appscale_server.py -p 4002 --no_encryption --type cassandra -z '155.210.155.73:2181' -s k0nLRgp6vAniwIdt9jIU1SECuNyF59dv -a 155.210.155.73 --key
+
+root      4419  1.3  2.3 104892 24412 ?        Sl   11:54   0:00 /usr/bin/python2.6 /root/appscale/AppDB/appscale_server.py -p 4002 --no_encryption --type cassandra -z 155.210.155.73:2181 -s k0nLRgp6vAniwIdt9jIU1SECuNyF59dv -a 155.210.155.73 --key
+
+root      4485  1.5  1.6  48908 16448 ?        Ss   11:54   0:00 /usr/bin/python2.6 /root/appscale/AppDB/soap_server.py -t cassandra -s k0nLRgp6vAniwIdt9jIU1SECuNyF59dv
+
+root      4552  3.5  3.3  79452 33876 ?        Ss   11:54   0:00 /usr/bin/python2.6 /root/appscale/AppDB/blobstore/blobstore_server.py -d 155.210.155.73:8888 -p 6106 -u 155.210.155.73 -r 155.210.155.73
+
+root      4594  0.1  0.1  28124  1052 ?        Ss   11:54   0:00 nginx: master process /usr/sbin/nginx
+
+www-data  4595  0.5  1.3  39756 13696 ?        S    11:54   0:00 nginx: worker process
+
+root      4604  0.1  0.7  18896  7736 ?        Ss   11:54   0:00 /usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -D -p /var/run/haproxy.pid
+
+root      4615  0.4  0.0   6060   348 ?        Ss   11:54   0:00 /usr/sbin/collectdmon -P /var/run/collectdmon.pid -- -C /etc/collectd/collectd.conf
+
+root      4616  2.8  0.5 271688  6036 ?        SLl  11:54   0:00 collectd -C /etc/collectd/collectd.conf -f
+
+root      4639  0.3  0.0   4096   584 ?        Ss   11:54   0:00 sh -c python2.5  /root/appscale/AppServer/dev_appserver.py -p 19997 --cookie_secret k0nLRgp6vAniwIdt9jIU1SECuNyF59dv --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73
+
+root      4642 13.3  3.5 122948 36780 ?        S    11:54   0:01 python2.5 /root/appscale/AppServer/dev_appserver.py -p 19997 --cookie_secret k0nLRgp6vAniwIdt9jIU1SECuNyF59dv --login_server 155.210.155.73 --admin_console_server  --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73
+
+root      4672  1.3  0.0   4096   588 ?        Ss   11:54   0:00 sh -c python2.5  /root/appscale/AppServer/dev_appserver.py -p 19998 --cookie_secret k0nLRgp6vAniwIdt9jIU1SECuNyF59dv --login_server 155.210.155.73 --admin_console_server '' --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73
+
+root      4675 18.3  3.3 120464 34196 ?        S    11:54   0:00 python2.5 /root/appscale/AppServer/dev_appserver.py -p 19998 --cookie_secret k0nLRgp6vAniwIdt9jIU1SECuNyF59dv --login_server 155.210.155.73 --admin_console_server  --nginx_port 8079 --nginx_host 155.210.155.73 --require_indexes --enable_sendmail --xmpp_path 155.210.155.73 --uaserver_path 155.210.155.73:4343 --datastore_path 155.210.155.73:8888 --history_path /var/apps/therepo/data/app.datastore.history /var/apps/therepo/app -a 155.210.155.73
+
+root      4676  0.0  0.1  15256  1180 ttyS0    R+   11:54   0:00 ps aux
