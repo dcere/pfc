@@ -186,10 +186,16 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          if resource[:type].to_s == "appscale"
             debug "[DBG] Starting an appscale cloud"
             puts  "Starting an appscale cloud"
-            rpc_agent = "/etc/puppet/modules/cloud/files/helloworld-client.rb"
-            result = `ruby #{rpc_agent} --verbose`
-            puts "The output of #{rpc_agent} is:"
-            puts result
+            #rpc_agent = "/etc/puppet/modules/cloud/files/helloworld-client.rb"
+            #result = `ruby #{rpc_agent} --verbose`
+            #puts "The output of #{rpc_agent} is:"
+            #puts result
+            
+            puts "Creating tmp/test files"
+            mcollective_create_files("/tmp/test1","I am test1")
+            #mcollective_create_files("/tmp/test2","I am test2")
+            #mcollective_create_files("/tmp/test3","I am test3")
+            puts "tmp/test files created"
             
             #result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
             #ips_yaml = File.basename(resource[:file])

@@ -71,7 +71,8 @@ if [ $2 = "tp" -o $2 = "all" ]
 then
    scp $TYPE_SRC/cloud.rb                     root@$1:$TYPE_DST/cloud.rb
    scp $PROVIDER_SRC/$NAME/cloudp.rb          root@$1:$PROVIDER_DST/cloudp.rb
-   scp $PROVIDER_SRC/$NAME/appscale_yaml.rb   root@$1:$PROVIDER_DST/appscale-yaml.rb
+   scp $PROVIDER_SRC/$NAME/appscale_yaml.rb   root@$1:$PROVIDER_DST/appscale_yaml.rb
+   scp $PROVIDER_SRC/$NAME/mcollective_files.rb    root@$1:$PROVIDER_DST/mcollective_files.rb
 fi
 
 # Copy test
