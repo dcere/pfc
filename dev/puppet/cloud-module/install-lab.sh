@@ -11,6 +11,7 @@
 #     - man:  only manifests
 #     - tp:   only type and provider
 #     - test: only test files
+#     - app:  AppScale local manifests
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
@@ -37,7 +38,7 @@ PUPPET_DST="/etc/puppet/modules"
 SSH="ssh root@$1"
 
 # Create directories
-if [ $2 != "app" ]
+if [ $2 != "app" -o $2 != "web" -o $2 != "jobs" ]
 then
    $SSH 'mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}'
    $SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/type'
@@ -85,8 +86,14 @@ then
    scp ./validate.sh root@$1:$PUPPET_DST/$NAME
 fi
 
-# Copy AppScale manifests
+# Copy AppScale local manifests
 if [ $2 = "app" -o $2 = "all" ]
 then
    scp ./files/appscale-manifests/basic.pp root@$1:/root/
 fi
+
+# Copy web local manifests
+# ...
+
+# Copy jobs local manifests
+# ...
