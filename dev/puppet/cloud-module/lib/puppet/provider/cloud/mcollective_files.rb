@@ -7,6 +7,7 @@ def mcollective_create_files(path, content)
    mc = rpcclient("files")
    puts "Sending path and content"
    printrpc mc.create(:path => path, :content => content)
+   printrpcstats
    puts "Disconnecting"
    mc.disconnect
 
