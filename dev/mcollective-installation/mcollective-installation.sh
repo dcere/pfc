@@ -26,7 +26,7 @@ $0 server
    exit 1
 fi 
 
-MCOLL_VERSION="1.2.1-2"
+MCOLL_VERSION="1.2.1-1"
 
 # Install rubygems
 sudo apt-get install rubygems
