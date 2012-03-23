@@ -18,6 +18,7 @@
 # Author:
 #   David Ceresuela
 
+# Check arguments
 if [ $# -ne 2 ]
 then
    echo "Use: $0 <IP address> <set of agents>"

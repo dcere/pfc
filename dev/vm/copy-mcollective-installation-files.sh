@@ -33,6 +33,7 @@ MCOLLECTIVE_CLIENT="mcollective-client_1.2.1-1_all.deb"
 DESTINATION_PATH="root@$1:/root/."
 
 
-scp ../mcollective-installation/$MCOLLECTIVE_COMMON    $DESTINATION_PATH
-scp ../mcollective-installation/$MCOLLECTIVE           $DESTINATION_PATH
-scp ../mcollective-installation/$MCOLLECTIVE_CLIENT    $DESTINATION_PATH
+scp ../mcollective-installation/$MCOLLECTIVE_COMMON            $DESTINATION_PATH
+scp ../mcollective-installation/$MCOLLECTIVE                   $DESTINATION_PATH
+scp ../mcollective-installation/$MCOLLECTIVE_CLIENT            $DESTINATION_PATH
+scp ../mcollective-installation/mcollective-installation.sh    $DESTINATION_PATH
