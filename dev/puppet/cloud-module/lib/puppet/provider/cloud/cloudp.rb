@@ -184,6 +184,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Start the cloud
          ssh_connect = "ssh root@155.210.155.170"
          if resource[:type].to_s == "appscale"
+            if (resource[:app_email] == nil) || (resource[:app_password] == nil)
+               err "Need an AppScale user and password"
+               exit
+            end
             debug "[DBG] Starting an appscale cloud"
             puts  "Starting an appscale cloud"
             #rpc_agent = "/etc/puppet/modules/cloud/files/helloworld-client.rb"

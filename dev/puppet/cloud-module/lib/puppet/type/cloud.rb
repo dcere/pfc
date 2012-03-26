@@ -35,6 +35,9 @@ Puppet::Type.newtype(:cloud) do
 
    end
 
+
+   # General parameters
+   
    ensurable do
       desc "The cloud's ensure field can assume one of the following values:
    `running`: The cloud is running.
@@ -78,4 +81,18 @@ Puppet::Type.newtype(:cloud) do
       desc "The pool of physical machines"
    end
 
+   
+   # AppScale parameters
+   
+   newproperty(:app_email) do
+      desc "AppScale administrator e-mail"
+      defaultto "david@gmail.com"
+   end
+   
+   newproperty(:app_password) do
+      desc "AppScale administrator password"
+      defaultto "appscale"
+   end
+
+   # Jobs and webs parameters ...
 end

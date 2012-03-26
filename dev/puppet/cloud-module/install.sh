@@ -23,8 +23,8 @@ sudo mkdir -p $PUPPET_DST/$NAME/lib/puppet/type
 sudo mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME
 
 # Copy manifests
-sudo cp ./manifests/init.pp $PUPPET_DST/$NAME/manifests/init.pp
-sudo cp ./manifests/term.pp $PUPPET_DST/$NAME/manifests/term.pp
+sudo cp ./manifests/init.pp      $PUPPET_DST/$NAME/manifests/init.pp
+sudo cp ./manifests/term.pp      $PUPPET_DST/$NAME/manifests/term.pp
 
 # Copy type and provider
 TYPE_SRC="./lib/puppet/type"
@@ -32,8 +32,11 @@ TYPE_DST="$PUPPET_DST/$NAME/lib/puppet/type"
 PROVIDER_SRC="./lib/puppet/provider"
 PROVIDER_DST="$PUPPET_DST/$NAME/lib/puppet/provider/$NAME"
 
-sudo cp $TYPE_SRC/cloud.rb $TYPE_DST/cloud.rb
-sudo cp $PROVIDER_SRC/$NAME/cloudp.rb $PROVIDER_DST/cloudp.rb
+sudo cp $TYPE_SRC/cloud.rb       $TYPE_DST/cloud.rb
+sudo cp $PROVIDER_SRC/$NAME/*    $PROVIDER_DST/
+
+# Copy files
+sudo cp -r ./files/*     $PUPPET_DST/$NAME/files/
 
 # Copy test
-sudo cp ./test.rb $PUPPET_DST/$NAME
+sudo cp ./test.rb    $PUPPET_DST/$NAME
