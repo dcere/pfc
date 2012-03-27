@@ -13,7 +13,7 @@ action "create", :description => "Create a file" do
          :prompt      => "The file path",
          :description => "The file path",
          :type        => :string,
-         :validation  => '^[\w\/]+$',
+         :validation  => '^.+$',
          :optional    => false,
          :maxlength   => 300
 
