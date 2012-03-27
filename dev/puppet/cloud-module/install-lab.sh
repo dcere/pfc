@@ -40,9 +40,9 @@ SSH="ssh root@$1"
 # Create directories
 if [ $2 != "app" -o $2 != "web" -o $2 != "jobs" ]
 then
-   $SSH 'mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}'
-   $SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/type'
-   $SSH 'mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME'
+   $SSH mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}
+   $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/type
+   $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME
 fi
 
 # Copy manifests
@@ -90,7 +90,8 @@ fi
 # Copy AppScale local manifests
 if [ $2 = "app" -o $2 = "all" ]
 then
-   scp ./files/appscale-manifests/basic.pp root@$1:/root/
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/appscale-manifests
+   scp ./files/appscale-manifests/basic.pp      root@$1:$PUPPET_DST/$NAME/files/appscale-manifests/basic.pp
 fi
 
 # Copy web local manifests

@@ -2,55 +2,67 @@
 # AppScale root directory
 
 file { '/root/appscale':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/root/appscale/.appscale':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 ###############################################################################
 # AppScale basic roles
 
 file { '/root/appscale/AppController':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/root/appscale/AppDB':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/root/appscale/AppLoadBalancer':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/root/appscale/AppMonitoring':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/root/appscale/AppServer':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/root/appscale/AppServer_Java':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/root/appscale/Neptune':
-   ensure => directory,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 ###############################################################################
 # AppScale programs
 
 file { '/usr/bin/god':
-   ensure => present,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/usr/bin/mongrel_rails':
-   ensure => present,
+   ensure => 'present',
+   audit  => 'all',
 }
 
 file { '/usr/sbin/nginx':
-   ensure => present,
+   ensure => 'present',
+   audit  => 'all',
 }

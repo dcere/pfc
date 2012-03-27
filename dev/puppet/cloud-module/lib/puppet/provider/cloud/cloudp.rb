@@ -187,19 +187,20 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             if (resource[:app_email] == nil) || (resource[:app_password] == nil)
                err "Need an AppScale user and password"
                exit
+            else
+               puts "app_email = #{resource[:app_email]}"
+               puts "app_password = #{resource[:app_password]}"
             end
             debug "[DBG] Starting an appscale cloud"
             puts  "Starting an appscale cloud"
-            #rpc_agent = "/etc/puppet/modules/cloud/files/helloworld-client.rb"
-            #result = `ruby #{rpc_agent} --verbose`
-            #puts "The output of #{rpc_agent} is:"
-            #puts result
             
-            puts "Creating tmp/test files"
-            mcollective_create_files("/tmp/test1","I am test1")
+            puppet_path = "/etc/puppet/"
+            appscale_manifest_path = puppet_path + "appscale_basic.pp"
+            appscale_manifest = File.open("/etc/puppet/modules/cloud/files/appscale-manifests/basic.pp", 'r').read()
+            puts "Creating manifest files on agent nodes"
+            mcollective_create_files(appscale_manifest_path, appscale_manifest)
             #mcollective_create_files("/tmp/test2","I am test2")
-            #mcollective_create_files("/tmp/test3","I am test3")
-            puts "tmp/test files created"
+            puts "Manifest files created"
             
             #result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
             #ips_yaml = File.basename(resource[:file])

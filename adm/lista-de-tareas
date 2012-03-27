@@ -41,3 +41,6 @@
   - (X) Si se inicia con /usr/sbin/service mcollecive start, se apaga con /usr/sbin/service mcollecive stop
 - Estudiar los ejemplos de Agentes y Clientes de RPC que proporciona MCollective
 - SSH de Puppet vs SSH de AppScale: ¿compatibles?
+- Plantillas ERB
+  - erb -x -T '-' mycloud-template.xml | ruby -c
+  - carla
