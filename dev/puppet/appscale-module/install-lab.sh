@@ -48,12 +48,9 @@ SSH="ssh root@$1"
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
 then
-   scp ./manifests/init.pp           root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/term.pp           root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./files/appscale.yaml         root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/appscale-1-node.yaml  root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/mycloud-template.xml  root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/helloworld-client.rb  root@$1:$PUPPET_DST/$NAME/files/
+   scp ./manifests/init.pp    root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/term.pp    root@$1:$PUPPET_DST/$NAME/manifests/
+   #scp ./files/...              root@$1:$PUPPET_DST/$NAME/files/
 fi
 
 if [ $2 = "test" -o $2 = "all" ]
