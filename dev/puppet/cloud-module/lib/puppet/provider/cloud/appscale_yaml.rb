@@ -3,6 +3,8 @@ require 'yaml'
 ##
 # Obtains the ips from the appscale.yaml file. It does NOT check whether
 # the file has the proper format.
+# Different roles obtained from AppScale wiki:
+#    http://code.google.com/p/appscale/wiki/Placement_Support
 
 def appscale_yaml_parser(file)
 
@@ -27,7 +29,7 @@ def appscale_yaml_parser(file)
       database = tree[:database]
       login = tree[:login]
       open = tree[:open]
-      zookeper = tree[:zookeper]
+      zookeeper = tree[:zookeeper]
       memcache = tree[:memcache]
       
       ips = ips + get_ips(master)
@@ -35,7 +37,7 @@ def appscale_yaml_parser(file)
       ips = ips + get_ips(database)
       ips = ips + get_ips(login)
       ips = ips + get_ips(open)
-      ips = ips + get_ips(zookeper)
+      ips = ips + get_ips(zookeeper)
       ips = ips + get_ips(memcache)
       
       ips = ips.uniq
