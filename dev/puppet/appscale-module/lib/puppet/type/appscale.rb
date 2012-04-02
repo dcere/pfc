@@ -57,9 +57,11 @@ Puppet::Type.newtype(:appscale) do
    end
    
    newparam(:type) do
+   # Default and custom AppScale deployment options
+   # (from appscale-tools/lib/node_layout.rb)
       desc "The type of node:
    `controller`: An AppScale controller node.
-   `server`:     An AppScale server node.
+   `servers`:    A list of AppScale server nodes.
    `master`:     An AppScale master node.
    `appengine`:  An AppScale appengine node.
    `database`:   An AppScale database node.
@@ -67,7 +69,7 @@ Puppet::Type.newtype(:appscale) do
    `open`:       An AppScale open node.
    `zookeeper`:  An AppScale zookeeper node.
    `memcache`:   An AppScale memcache node.\n"
-      newvalues("controller", "server", "master", "appengine", "database",
+      newvalues("controller", "servers", "master", "appengine", "database",
          "login", "open", "zookeeper", "memcache")
    end 
 
