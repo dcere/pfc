@@ -201,10 +201,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             #mcollective_create_files("/tmp/test2","I am test2")
             puts "Manifest files created"
             
-            #result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
-            #ips_yaml = File.basename(resource[:file])
-            #ips_yaml = "/tmp/" + ips_yaml
-            #appscale_cloud_start(ssh_connect,ips_yaml)
+            result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
+            ips_yaml = File.basename(resource[:file])
+            ips_yaml = "/tmp/" + ips_yaml
+            appscale_cloud_start(ssh_connect,ips_yaml)
          elsif resource[:type].to_s == "web"
             debug "[DBG] Starting a web cloud"
             puts  "Starting a web cloud"
@@ -327,9 +327,29 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    def appscale_cloud_start(ssh_connect, ips_yaml)
 
+      require 'pty'
+      require 'expect'
+      
+      # Sample dialog
+      # -------------
+      # Enter your desired administrator e-mail address: david@mail.com
+      # 
+      # The new administrator password must be at least six characters long and can include non-alphanumeric characters.
+      # Enter your new password: 
+      # Enter again to verify: 
+      # Please wait for AppScale to prepare your machines for use.
+      # Starting up XMPP server
+      # 
+      # Your user account has been created successfully.
+      # 
+      # Your user account has been created successfully.
+      # No app uploaded. Use appscale-upload-app to upload an app later.
+      # The status of your AppScale instance is at the following URL: http://155.210.155.73/status
+      # Your XMPP username is david@155.210.155.73
+
       debug "[DBG] About to add key pairs"
       debug "[DBG] ips.yaml file: #{ips_yaml}"
-      result = `#{ssh_connect}`
+#      result = `#{ssh_connect}`
 #       result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-add-keypair --ips #{ips_yaml}'`
 #       if ($?.exitstatus == 0)
 #          debug "[DBG] Key pairs added"
@@ -339,15 +359,48 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 #       end
       
       debug "[DBG] About to run instances"
-      result = `#{ssh_connect}`
-#       result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-run-instances --ips #{ips_yaml}'`
-#       if ($?.exitstatus == 0)
-#          debug "[DBG] Instances running"
-#          puts  "Instances running"
-#       else
-#          debug "[DBG] Impossible to run appscale instances"
-#          err   "Impossible to run appscale instances"
-#       end
+      command = "#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-run-instances --ips #{ips_yaml}'"
+      PTY.spawn(command) do |reader, writer, pid|
+
+         writer.sync = true
+
+         reader.expect(/e-mail address:/,60) do |output|
+            writer.puts(resource[:app_email])
+         end
+         puts "e-mail address sent"
+         
+         reader.expect(/your new password:/,10) do |output|
+            writer.puts(resource[:app_password])
+         end
+         puts "password sent 1/2"
+         
+         reader.expect(/again to verify:/,10) do |output|
+            writer.puts(resource[:app_password])
+         end
+         puts "password sent 2/2"
+         
+         # Print status location
+         reader.expect(/The status of your AppScale instance/,300) do |output|
+            puts "#{output}"
+         end
+         
+         # Print XMPP username
+         reader.expect(/Your XMPP username/,60) do |output|
+            puts "#{output}"
+         end
+         
+         Process.wait(pid)
+         
+      end
+
+
+      if (status)
+         debug "[DBG] Instances running"
+         puts  "Instances running"
+      else
+         debug "[DBG] Impossible to run appscale instances"
+         err   "Impossible to run appscale instances"
+      end
       
    end
    

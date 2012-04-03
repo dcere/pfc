@@ -44,7 +44,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
             puts "[app-p] controller is not running"
             
             if resource[:type] == "controller" || resource[:type] == "master"
-               # AppScale complete failure
+               # AppScale complete failure. AppScale has a single point of failure
                # ...
             end
             
