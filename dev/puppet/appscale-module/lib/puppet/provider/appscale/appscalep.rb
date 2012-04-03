@@ -36,21 +36,27 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
             # Start god (the monitoring process)
             puts "[app-p] controller is running"
             if File.exists?("/etc/init.d/appscale-monitoring") # TODO Same as above
-               `/etc/ini.d/appscale-monitoring start`
+               `/etc/init.d/appscale-monitoring start`
             else
                unsolvable = true
             end
          else
             puts "[app-p] controller is not running"
+            
+            if resource[:type] == "controller" || resource[:type] == "master"
+               # AppScale complete failure
+               # ...
+            end
+            
             # Start the appscale controller
             if File.exists?("/etc/init.d/appscale-controller") # TODO Same as above
-               `/etc/ini.d/appscale-controller start`
+               `/etc/init.d/appscale-controller start`
             else
                unsolvable = true
             end
             # Start the appscale monitoring
             if File.exists?("/etc/init.d/appscale-monitoring") # TODO Same as above
-               `/etc/ini.d/appscale-monitoring start`
+               `/etc/init.d/appscale-monitoring start`
             else
                unsolvable = true
             end
@@ -68,6 +74,17 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    # Makes sure the node is not running.
    def stop
       puts "Stopping the node"
+
+      # Stop the appscale controller
+      if File.exists?("/etc/init.d/appscale-controller") # TODO Same as above
+         `/etc/init.d/appscale-controller stop`
+      end
+
+      # Stop the appscale monitoring
+      if File.exists?("/etc/init.d/appscale-monitoring") # TODO Same as above
+         `/etc/init.d/appscale-monitoring stop`
+      end
+      
    end
 
 

@@ -49,7 +49,7 @@ SSH="ssh root@$1"
 if [ $2 = "man" -o $2 = "all" ]
 then
    scp ./manifests/init.pp    root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/term.pp    root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/stop.pp    root@$1:$PUPPET_DST/$NAME/manifests/
    #scp ./files/...              root@$1:$PUPPET_DST/$NAME/files/
 fi
 

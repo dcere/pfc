@@ -24,7 +24,7 @@ sudo mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME
 
 # Copy manifests
 sudo cp ./manifests/init.pp      $PUPPET_DST/$NAME/manifests/init.pp
-sudo cp ./manifests/term.pp      $PUPPET_DST/$NAME/manifests/term.pp
+sudo cp ./manifests/stop.pp      $PUPPET_DST/$NAME/manifests/stop.pp
 
 # Copy type and provider
 TYPE_SRC="./lib/puppet/type"
