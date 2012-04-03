@@ -76,7 +76,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             err "Cloud type class: #{resource[:type].class}"
          end
          
-         
          # Distribute virtual machines among physical machines
          instances = vm_ips.count
          vm_per_pm = instances / pm_up.length

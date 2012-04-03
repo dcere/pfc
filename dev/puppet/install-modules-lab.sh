@@ -25,7 +25,8 @@ then
    echo "Use: $0 <IP address> <modules>"
    echo "Examples
 $0 155.210.155.170 all
-$0 155.210.155.170 cloud
+$0 155.210.155.170 cloud   # For cloud module
+$0 155.210.155.170 app     # For appscale module
 "
    exit 1
 fi 
