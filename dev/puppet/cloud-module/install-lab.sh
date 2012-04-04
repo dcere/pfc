@@ -12,6 +12,7 @@
 #     - tp:   only type and provider
 #     - test: only test files
 #     - app:  AppScale local manifests
+#     - lch:  AppScale launch files
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
@@ -84,7 +85,8 @@ fi
 # Copy validation script
 if [ $2 = "test" -o $2 = "all" ]
 then
-   scp ./validate.sh root@$1:$PUPPET_DST/$NAME
+   scp ./validate.sh    root@$1:$PUPPET_DST/$NAME
+
 fi
 
 # Copy AppScale local manifests
@@ -93,6 +95,14 @@ then
    $SSH mkdir -p $PUPPET_DST/$NAME/files/appscale-manifests
    scp ./files/appscale-manifests/basic.pp      root@$1:$PUPPET_DST/$NAME/files/appscale-manifests/basic.pp
 fi
+
+# Copy AppScale launch files
+if [ $2 = "lch" -o $2 = "all" ]
+then
+   scp ./appscale-launch.rb      root@$1:$PUPPET_DST/$NAME
+   scp ./ips-launch.yaml         root@$1:$PUPPET_DST/$NAME
+fi
+
 
 # Copy web local manifests
 # ...

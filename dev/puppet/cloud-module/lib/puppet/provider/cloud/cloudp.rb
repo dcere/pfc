@@ -201,18 +201,23 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             #mcollective_create_files("/tmp/test2","I am test2")
             puts "Manifest files created"
             
-            result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
+            # FIXME Only works if ssh keys are OK
+            #result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
             ips_yaml = File.basename(resource[:file])
             ips_yaml = "/tmp/" + ips_yaml
-            appscale_cloud_start(ssh_connect,ips_yaml)
+            puts "Calling appscale_cloud_start"
+            appscale_cloud_start(ssh_connect, ips_yaml)
+
          elsif resource[:type].to_s == "web"
             debug "[DBG] Starting a web cloud"
             puts  "Starting a web cloud"
             web_cloud_start
+
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] Starting a jobs cloud"
             puts  "Starting a jobs cloud"
             jobs_cloud_start
+
          else
             debug "[DBG] Cloud type undefined: #{resource[:type]}"
             err   "Cloud type undefined: #{resource[:type]}"
@@ -326,7 +331,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    
    def appscale_cloud_start(ssh_connect, ips_yaml)
-
+   
       require 'pty'
       require 'expect'
       
@@ -349,48 +354,51 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
       debug "[DBG] About to add key pairs"
       debug "[DBG] ips.yaml file: #{ips_yaml}"
-#      result = `#{ssh_connect}`
-#       result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-add-keypair --ips #{ips_yaml}'`
-#       if ($?.exitstatus == 0)
-#          debug "[DBG] Key pairs added"
-#       else
-#          debug "[DBG] Impossible to add key pairs"
-#          err   "Impossible to add key pairs"
-#       end
       
+      # Add key pairs
+      
+#      result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-add-keypair --ips #{ips_yaml}'`
+#      if ($?.exitstatus == 0)
+#         debug "[DBG] Key pairs added"
+#      else
+#         debug "[DBG] Impossible to add key pairs"
+#         err   "Impossible to add key pairs"
+#      end
+      
+      # Run instances
       debug "[DBG] About to run instances"
+      puts "About to run instances"
       command = "#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-run-instances --ips #{ips_yaml}'"
-      PTY.spawn(command) do |reader, writer, pid|
-
-         writer.sync = true
-
-         reader.expect(/e-mail address:/,60) do |output|
-            writer.puts(resource[:app_email])
-         end
-         puts "e-mail address sent"
+      begin
+         $expect_verbose = true
+         puts "expect_verbose set to true"
+         PTY.spawn(command) do |reader, writer, pid|
+            puts "about to begin"
+            begin
+               
+               writer.sync = true
+               puts "writer.sync set to true"
+               reader.expect(/e-mail address:/,60) do |output|
+                  writer.puts(resource[:app_email])
+               end
+               puts "mail sent"
+               reader.expect(/your new password:/,10) do |output|
+                  writer.puts(resource[:app_password])
+               end
+               puts "pass1 sent"
+               reader.expect(/again to verify:/,10) do |output|
+                  writer.puts(resource[:app_password])
+               end
+               puts "pass2 sent"
+            
+            rescue Errno::EIO
+               puts "end of output"
+            end
          
-         reader.expect(/your new password:/,10) do |output|
-            writer.puts(resource[:app_password])
-         end
-         puts "password sent 1/2"
-         
-         reader.expect(/again to verify:/,10) do |output|
-            writer.puts(resource[:app_password])
-         end
-         puts "password sent 2/2"
-         
-         # Print status location
-         reader.expect(/The status of your AppScale instance/,300) do |output|
-            puts "#{output}"
-         end
-         
-         # Print XMPP username
-         reader.expect(/Your XMPP username/,60) do |output|
-            puts "#{output}"
-         end
-         
-         Process.wait(pid)
-         
+         end # PTY.spawn end
+      
+      rescue PTY::ChildExited
+         err "The child process exited unexpectedly. AppScale is not sure to be running."
       end
 
 
