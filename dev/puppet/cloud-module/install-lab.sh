@@ -12,6 +12,7 @@
 #     - tp:   only type and provider
 #     - test: only test files
 #     - app:  AppScale local manifests
+#     - tls:  AppScale tools
 #     - lch:  AppScale launch files
 #
 # Examples:
@@ -93,7 +94,21 @@ fi
 if [ $2 = "app" -o $2 = "all" ]
 then
    $SSH mkdir -p $PUPPET_DST/$NAME/files/appscale-manifests
-   scp ./files/appscale-manifests/basic.pp      root@$1:$PUPPET_DST/$NAME/files/appscale-manifests/basic.pp
+   scp ./files/appscale-manifests/basic.pp \
+      root@$1:$PUPPET_DST/$NAME/files/appscale-manifests/basic.pp
+fi
+
+# Copy AppScale tools
+if [ $2 = "tls" -o $2 = "all" ]
+then
+   # Binaries
+   scp ./files/appscale-tools/appscale-add-keypair \
+      root@$1:/usr/local/appscale-tools/bin
+   scp ./files/appscale-tools/appscale-run-instances \
+      root@$1:/usr/local/appscale-tools/bin
+   # Libraries
+   scp ./files/appscale-tools/parse_args.rb \
+      root@$1:/usr/local/appscale-tools/lib
 fi
 
 # Copy AppScale launch files

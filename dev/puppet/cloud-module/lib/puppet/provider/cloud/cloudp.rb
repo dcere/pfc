@@ -330,7 +330,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   def appscale_cloud_start(ssh_connect, ips_yaml)
+   def appscale_cloud_start(ssh_connect, ips_yaml,
+                            app_user=nil, app_password=nil, root_password=nil)
    
       require 'pty'
       require 'expect'
@@ -355,51 +356,53 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       debug "[DBG] About to add key pairs"
       debug "[DBG] ips.yaml file: #{ips_yaml}"
       
+      bin_path = "/usr/local/appscale-tools/bin"
       # Add key pairs
-      
-#      result = `#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-add-keypair --ips #{ips_yaml}'`
-#      if ($?.exitstatus == 0)
-#         debug "[DBG] Key pairs added"
-#      else
-#         debug "[DBG] Impossible to add key pairs"
-#         err   "Impossible to add key pairs"
-#      end
+      arguments = "--auto --ips #{ips_yaml} --cp_pass #{root_password}"
+      result = `#{ssh_connect} '#{bin_path}/appscale-add-keypair #{arguments}'`
+      if ($?.exitstatus == 0)
+         debug "[DBG] Key pairs added"
+      else
+         debug "[DBG] Impossible to add key pairs"
+         err   "Impossible to add key pairs"
+      end
       
       # Run instances
       debug "[DBG] About to run instances"
       puts "About to run instances"
-      command = "#{ssh_connect} '/usr/local/appscale-tools/bin/appscale-run-instances --ips #{ips_yaml}'"
-      begin
-         $expect_verbose = true
-         puts "expect_verbose set to true"
-         PTY.spawn(command) do |reader, writer, pid|
-            puts "about to begin"
-            begin
-               
-               writer.sync = true
-               puts "writer.sync set to true"
-               reader.expect(/e-mail address:/,60) do |output|
-                  writer.puts(resource[:app_email])
-               end
-               puts "mail sent"
-               reader.expect(/your new password:/,10) do |output|
-                  writer.puts(resource[:app_password])
-               end
-               puts "pass1 sent"
-               reader.expect(/again to verify:/,10) do |output|
-                  writer.puts(resource[:app_password])
-               end
-               puts "pass2 sent"
-            
-            rescue Errno::EIO
-               puts "end of output"
-            end
-         
-         end # PTY.spawn end
-      
-      rescue PTY::ChildExited
-         err "The child process exited unexpectedly. AppScale is not sure to be running."
-      end
+      arguments = "--ips #{ips_yaml} --cp_user #{app_user} --cp_pass #{app_pass}"
+      command = "#{ssh_connect} '#{bin_path}/appscale-run-instances #{arguments}'"
+#       begin
+#          $expect_verbose = true
+#          puts "expect_verbose set to true"
+#          PTY.spawn(command) do |reader, writer, pid|
+#             puts "about to begin"
+#             begin
+#                
+#                writer.sync = true
+#                puts "writer.sync set to true"
+#                reader.expect(/e-mail address:/,60) do |output|
+#                   writer.puts(resource[:app_email])
+#                end
+#                puts "mail sent"
+#                reader.expect(/your new password:/,10) do |output|
+#                   writer.puts(resource[:app_password])
+#                end
+#                puts "pass1 sent"
+#                reader.expect(/again to verify:/,10) do |output|
+#                   writer.puts(resource[:app_password])
+#                end
+#                puts "pass2 sent"
+#             
+#             rescue Errno::EIO
+#                puts "end of output"
+#             end
+#          
+#          end # PTY.spawn end
+#       
+#       rescue PTY::ChildExited
+#          err "The child process exited unexpectedly. AppScale is not sure to be running."
+#       end
 
 
       if (status)
