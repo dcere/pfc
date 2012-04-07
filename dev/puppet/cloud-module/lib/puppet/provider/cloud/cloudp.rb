@@ -202,7 +202,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             puts "Manifest files created"
             
             # FIXME Only works if ssh keys are OK
-            #result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
+            puts "Copying appscale-1-node.yaml to 155.210.155.170:/tmp"
+            result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
             ips_yaml = File.basename(resource[:file])
             ips_yaml = "/tmp/" + ips_yaml
             puts "==Calling appscale_cloud_start"
@@ -354,7 +355,13 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       # No app uploaded. Use appscale-upload-app to upload an app later.
       # The status of your AppScale instance is at the following URL: http://155.210.155.73/status
       # Your XMPP username is david@155.210.155.73
-
+      
+      # Check arguments
+      puts "appscale_cloud_start called with:"
+      puts "  - app_email == #{app_email}"
+      puts "  - app_password == #{app_password}"
+      puts "  - root_password == #{root_password}"
+      
       debug "[DBG] About to add key pairs"
       puts "=About to add key pairs"
       debug "[DBG] ips.yaml file: #{ips_yaml}"
@@ -363,8 +370,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       
       # Add key pairs
       arguments = "--auto --ips #{ips_yaml} --cp_pass #{root_password}"
-      result = `#{ssh_connect} '#{bin_path}/appscale-add-keypair #{arguments}'`
-      puts result
+      #result = `#{ssh_connect} '#{bin_path}/appscale-add-keypair #{arguments}'`
+      result2 = `#{bin_path}/appscale-add-keypair #{arguments}`
+      puts result2
       if ($?.exitstatus == 0)
          debug "[DBG] Key pairs added"
          puts "Key pairs added"
@@ -378,8 +386,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       puts "=About to run instances"
       puts "This may take a while (~ 3 min), so please be patient"
       arguments = "--ips #{ips_yaml} --cp_user #{app_email} --cp_pass #{app_password}"
-      result = `#{ssh_connect} '#{bin_path}/appscale-run-instances #{arguments}'`
-      puts result
+      #result = `#{ssh_connect} '#{bin_path}/appscale-run-instances #{arguments}'`
+      result2 = `#{bin_path}/appscale-run-instances #{arguments}`
+      puts result2
       if ($?.exitstatus == 0)
          debug "[DBG] Instances running"
          puts  "Instances running"
