@@ -32,17 +32,21 @@ $0 155.210.155.170 app     # For appscale module
 fi 
 
 # Copy cloud module
+echo "Installing cloud module..."
 if [ $2 = "cloud" -o $2 = "all" ]
 then
    cd ./cloud-module
    ./install-lab.sh $1 all
    cd ..
 fi
+echo "...installed"
 
 # Copy AppScale module
+echo "Installing AppScale module..."
 if [ $2 = "app" -o $2 = "all" ]
 then
    cd ./appscale-module
    ./install-lab.sh $1 all
    cd ..
 fi
+echo "...installed"
