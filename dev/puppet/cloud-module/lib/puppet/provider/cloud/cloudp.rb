@@ -170,7 +170,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          while alive.has_value?(0)
             sleep(5)
             alive.keys.each do |vm|
-               result = `ping -q -c 1 #{vm}`
+               result = `ping -q -c 1 -w 4 #{vm}`
                if ($?.exitstatus == 0)
                   debug "[DBG] #{vm} is up"
                   alive[vm] = 1
@@ -181,7 +181,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Start the cloud
-         ssh_connect = "ssh root@155.210.155.170"
          if resource[:type].to_s == "appscale"
             if (resource[:app_email] == nil) || (resource[:app_password] == nil)
                err "Need an AppScale user and password"
@@ -207,7 +206,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             ips_yaml = File.basename(resource[:file])
             ips_yaml = "/tmp/" + ips_yaml
             puts "==Calling appscale_cloud_start"
-            appscale_cloud_start(ssh_connect, ips_yaml,
+            ssh_user = "root"
+            ssh_host = "155.210.155.170"
+            appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
                                  resource[:app_email], resource[:app_password],
                                  resource[:root_password])
 
@@ -291,7 +292,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       machines = resource[:pool]
       #debug "[DBG] Machines class: #{resource[:pool].class}"
       machines.each do |machine|
-         result = `ping -q -c 1 #{machine}`
+         result = `ping -q -c 1 -w 4 #{machine}`
          if ($?.exitstatus == 0)
             debug "[DBG] #{machine} (PM) is up"
             machines_up << machine
@@ -333,7 +334,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   def appscale_cloud_start(ssh_connect, ips_yaml,
+   def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
                             app_email=nil, app_password=nil, root_password=nil)
    
       require 'pty'
@@ -362,17 +363,22 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       puts "  - app_password == #{app_password}"
       puts "  - root_password == #{root_password}"
       
-      debug "[DBG] About to add key pairs"
-      puts "=About to add key pairs"
-      debug "[DBG] ips.yaml file: #{ips_yaml}"
-      
+      ssh_connect = "#{ssh_user}@#{ssh_host}"
       bin_path = "/usr/local/appscale-tools/bin"
       
       # Add key pairs
+      debug "[DBG] About to add key pairs"
+      puts "=About to add key pairs"
+      debug "[DBG] ips.yaml file: #{ips_yaml}"
       arguments = "--auto --ips #{ips_yaml} --cp_pass #{root_password}"
-      #result = `#{ssh_connect} '#{bin_path}/appscale-add-keypair #{arguments}'`
-      result2 = `#{bin_path}/appscale-add-keypair #{arguments}`
-      puts result2
+      if Facter.value(:ipaddress) == ssh_host
+         # Do it local
+         result = `#{bin_path}/appscale-add-keypair #{arguments}`
+      else
+         # Do it remote
+         result = `#{ssh_connect} '#{bin_path}/appscale-add-keypair #{arguments}'`
+      end
+      puts result
       if ($?.exitstatus == 0)
          debug "[DBG] Key pairs added"
          puts "Key pairs added"
@@ -386,9 +392,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       puts "=About to run instances"
       puts "This may take a while (~ 3 min), so please be patient"
       arguments = "--ips #{ips_yaml} --cp_user #{app_email} --cp_pass #{app_password}"
-      #result = `#{ssh_connect} '#{bin_path}/appscale-run-instances #{arguments}'`
-      result2 = `#{bin_path}/appscale-run-instances #{arguments}`
-      puts result2
+      if Facter.value(:ipaddress) == ssh_host
+         # Do it local
+         result = `#{bin_path}/appscale-run-instances #{arguments}`
+      else
+         # Do it remote
+         result = `#{ssh_connect} '#{bin_path}/appscale-run-instances #{arguments}`
+      end
+      puts result
       if ($?.exitstatus == 0)
          debug "[DBG] Instances running"
          puts  "Instances running"
