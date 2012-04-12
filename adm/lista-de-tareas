@@ -46,3 +46,6 @@
 - Plantillas ERB
   - erb -x -T '-' mycloud-template.xml | ruby -c
   - carla
+- Load balancing
+  - HAproxy: http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
+  - nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
