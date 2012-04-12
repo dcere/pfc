@@ -1,0 +1,25 @@
+<html>
+
+   <head>
+      <title>Nodes report</title>
+   </head>
+
+   <body>
+      <h1>Nodes report</h1>
+      <table border="1">
+      <tr>
+      <th>Node</th>
+      <th>IP address</th>
+      <th>Status</th>
+      </tr>
+      <% for node in @nodes %>
+         <tr>
+         <td><%= node.id %></td>
+         <td><%= node.ip %></td>
+         <td><%= node.status %></td>
+         </tr>
+      <% end %>
+      </table>
+   </body>
+
+</html>
