@@ -20,12 +20,7 @@ class Node < ActiveRecord::Base
 end
 
 get '/' do
-   'Hello there!'
+   @identifier = ARGV.size == 1 ? ARGV[0] : 0
    @nodes = Node.all()
    erb :index
 end
-
-
-
-  
-  
