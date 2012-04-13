@@ -6,7 +6,7 @@ require 'erb'
 ActiveRecord::Base.establish_connection(
    :adapter  => "mysql",
    :host     => "155.210.155.177",
-   :username => "mysql",
+   :username => "root-extern",
    :password => "mysql",
    :database => "mydb"
 )
