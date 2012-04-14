@@ -56,15 +56,13 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          if resource[:type].to_s == "appscale"
             debug "[DBG] It is an appscale cloud"
             puts "It is an appscale cloud"
-            #require './appscale_yaml.rb'
-            #debug "[DBG] Files required"
             vm_ips = appscale_yaml_parser(resource[:file])
             debug "[DBG] File parsed"
             debug "[DBG] #{vm_ips}"
          elsif resource[:type].to_s == "web"
             debug "[DBG] It is a web cloud"
             puts "It is a web cloud"
-            vm_ips = []
+            vm_ips = web_yaml_parser(resource[:file])
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] It is a jobs cloud"
             puts "It is a jobs cloud"
@@ -113,7 +111,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          elsif images.count == instances
             # N images to the N virtual machines in the kingdom of cloud
          else
-            # Error
+            err "You gave me #{images.count} images and #{instances} instances"
+            err "Either one image for all instances or as many as instances"
+            exit
          end
          
          debug "[DBG] Creating domain files"
@@ -132,7 +132,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             vm_name = "myvm1"
             vm_uuid = `uuidgen`
             vm_disk = resource[:images]
-            vm_mac  = "52:54:00:00:aa:ab"
+            vm_mac  = "52:54:00:00:ff:aa"
             myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
             
             domain_file.write(erb.result(myvm.get_binding))
@@ -145,10 +145,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             # Copy the domain definition file to the physical machine
             result = `scp /etc/puppet/modules/cloud/files/mycloud-1.xml dceresuela@#{pm}:/tmp`
             if ($?.exitstatus == 0)
-               debug "[DBG] #domain definition file copied"
+               debug "[DBG] domain definition file copied"
             else
                debug "[DBG] #{vm_name} impossible to copy domain definition file"
-               err   "#impossible to copy domain definition file"
+               err   "#{vm_name} impossible to copy domain definition file"
             end
             
             # Define the domain in the physical machine
@@ -215,7 +215,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          elsif resource[:type].to_s == "web"
             debug "[DBG] Starting a web cloud"
             puts  "Starting a web cloud"
-            web_cloud_start
+            ips_yaml = File.basename(resource[:file])
+            ips_yaml = "/tmp/" + ips_yaml
+            ssh_user = "root"
+            ssh_host = "155.210.155.170"
+            web_cloud_start(ssh_user, ssh_host, ips_yaml, resource[:root_password])
 
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] Starting a jobs cloud"
@@ -411,7 +415,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   def web_cloud_start
+   def web_cloud_start(ssh_user, ssh_host, ips_yaml, root_password=nil)
+   
+      ssh_connect = "#{ssh_user}@#{ssh_host}"
+      
    end
    
    
