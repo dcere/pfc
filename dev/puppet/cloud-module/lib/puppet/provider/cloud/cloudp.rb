@@ -62,7 +62,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          elsif resource[:type].to_s == "web"
             debug "[DBG] It is a web cloud"
             puts "It is a web cloud"
-            vm_ips = web_yaml_parser(resource[:file])
+            vm_ips, vm_roles = web_yaml_parser(resource[:file])
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] It is a jobs cloud"
             puts "It is a jobs cloud"
@@ -150,7 +150,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                # Copy the domain definition file to the physical machine
                result = `scp /etc/puppet/modules/cloud/files/cloud-#{vm_name}.xml dceresuela@#{pm}:/tmp`
-               if ($?.exitstatus == 0)
+               if $?.exitstatus == 0
                   debug "[DBG] domain definition file copied"
                else
                   debug "[DBG] #{vm_name} impossible to copy domain definition file"
@@ -181,7 +181,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             sleep(5)
             alive.keys.each do |vm|
                result = `ping -q -c 1 -w 4 #{vm}`
-               if ($?.exitstatus == 0)
+               if $?.exitstatus == 0
                   debug "[DBG] #{vm} is up"
                   alive[vm] = 1
                else
@@ -210,7 +210,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             #mcollective_create_files("/tmp/test2","I am test2")
             puts "Manifest files created"
             
-            # FIXME Only works if ssh keys are OK
+            # FIXME Only works if ssh keys are OK. Maybe Puppet source?
             puts "Copying appscale-1-node.yaml to 155.210.155.170:/tmp"
             result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
             ips_yaml = File.basename(resource[:file])
@@ -225,11 +225,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          elsif resource[:type].to_s == "web"
             debug "[DBG] Starting a web cloud"
             puts  "Starting a web cloud"
+            
+            puts "Copying web.yaml to 155.210.155.170:/tmp"
+            result = `scp /etc/puppet/modules/cloud/files/web.yaml root@155.210.155.170:/tmp`
             ips_yaml = File.basename(resource[:file])
             ips_yaml = "/tmp/" + ips_yaml
             ssh_user = "root"
             ssh_host = "155.210.155.170"
-            web_cloud_start(ssh_user, ssh_host, ips_yaml, resource[:root_password])
+            web_cloud_start(ssh_user, ssh_host, vm_roles)
 
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] Starting a jobs cloud"
@@ -262,7 +265,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          images = resource[:images]
          images.each do |image|
             result = `#{virsh_connect} shutdown #{image}`
-            if ($?.exitstatus == 0)
+            if $?.exitstatus == 0
                debug "[DBG] #{image} was shut down"
             else
                debug "[DBG] #{image} impossible to shut down"
@@ -307,7 +310,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       #debug "[DBG] Machines class: #{resource[:pool].class}"
       machines.each do |machine|
          result = `ping -q -c 1 -w 4 #{machine}`
-         if ($?.exitstatus == 0)
+         if $?.exitstatus == 0
             debug "[DBG] #{machine} (PM) is up"
             machines_up << machine
          else
@@ -323,7 +326,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def define_domain(ssh_connect, vm_name)
    
       result = `#{ssh_connect} '#{VIRSH_CONNECT} define /tmp/mycloud-1.xml'`
-      if ($?.exitstatus == 0)
+      if $?.exitstatus == 0
          debug "[DBG] #{vm_name} domain defined"
          return true
       else
@@ -337,7 +340,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def start_domain(ssh_connect, vm_name)
    
       result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
-      if ($?.exitstatus == 0)
+      if $?.exitstatus == 0
          debug "[DBG] #{vm_name} started"
          return true
       else
@@ -348,6 +351,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
+   #############################################################################
    def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
                             app_email=nil, app_password=nil, root_password=nil)
    
@@ -393,7 +397,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          result = `#{ssh_connect} '#{bin_path}/appscale-add-keypair #{arguments}'`
       end
       puts result
-      if ($?.exitstatus == 0)
+      if $?.exitstatus == 0
          debug "[DBG] Key pairs added"
          puts "Key pairs added"
       else
@@ -414,7 +418,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          result = `#{ssh_connect} '#{bin_path}/appscale-run-instances #{arguments}`
       end
       puts result
-      if ($?.exitstatus == 0)
+      if $?.exitstatus == 0
          debug "[DBG] Instances running"
          puts  "Instances running"
       else
@@ -425,9 +429,63 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   def web_cloud_start(ssh_user, ssh_host, ips_yaml, root_password=nil)
-   
-      ssh_connect = "#{ssh_user}@#{ssh_host}"
+   def web_cloud_start(ssh_user, ssh_host, web_roles)
+      
+      # Distribute manifests
+      #result = `mc manifest-agent -T balancer_coll`
+      balancers = web_roles[:balancer]
+      path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
+      balancers.each do |vm|
+         result = `scp #{path} root@#{vm}:/tmp`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to copy balancer manifest to #{vm}"
+            err   "Impossible to copy balancer manifest to #{vm}"
+         end
+      end
+
+      #result = `mc manifest-agent -T servers_coll`
+      servers = web_roles[:server]
+      path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
+      servers.each do |vm|
+         result = `scp #{path} root@#{vm}:/tmp`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to copy server manifest to #{vm}"
+            err   "Impossible to copy server manifest to #{vm}"
+         end
+      end
+      
+      #result = `mc manifest-agent -T database_coll`
+      databases = web_roles[:database]
+      path = "/etc/puppet/modules/cloud/files/web-manifests/database.pp"
+      databases.each do |vm|
+         result = `scp #{path} root@#{vm}:/tmp`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to copy database manifest to #{vm}"
+            err   "Impossible to copy database manifest to #{vm}"
+         end
+      end
+      
+      # Start load balancers => Start nginx
+      #result = `mc load-balancer-agent -T balancer_coll`
+      balancers.each do |vm|
+         result = `ssh root@#{vm} '/etc/init.d/nginx start`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start balancer in #{vm}"
+            err   "Impossible to start balancer in #{vm}"
+         end
+      end
+      
+      # Start web servers => Start sinatra application
+      #result = `mc web-server-agent -T servers_coll`
+      servers.each do |vm|
+         result = `ssh root@#{vm} 'ruby /root/web/web3.rb &'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start server in #{vm}"
+            err   "Impossible to start server in #{vm}"
+         end
+      end
+      
+      # Database servers start at boot time
       
    end
    

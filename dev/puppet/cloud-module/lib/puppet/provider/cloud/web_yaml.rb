@@ -7,6 +7,7 @@ require 'yaml'
 def web_yaml_parser(file)
 
    ips = []
+   roles = {}
 
    tree = YAML::parse(File.open(file))
    
@@ -16,16 +17,20 @@ def web_yaml_parser(file)
 
       # Classic deployment: load balancer + web servers + database
       balancer = tree[:balancer]
-      servers =  tree[:servers]
+      server   = tree[:server]
       database = tree[:database]
       
-      ips = ips + get_ips(balancer)
-      ips = ips + get_ips(servers)
-      ips = ips + get_ips(database)
+      roles[:balancer] = get_ips(balancer)
+      roles[:server]   = get_ips(server)
+      roles[:database] = get_ips(database)
+      
+      ips = ips + roles[:balancer]
+      ips = ips + roles[:server]
+      ips = ips + roles[:database]
       
       ips = ips.uniq
       
-      return ips
+      return ips, roles
    end
    
 end
