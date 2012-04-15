@@ -18,19 +18,19 @@ def appscale_yaml_parser(file)
 
       # Default deployment (from appscale-tools/lib/node_layout.rb)
       controller = tree[:controller]
-      servers = tree[:servers]
+      servers =    tree[:servers]
 
       ips = ips + get_ips(controller)
       ips = ips + get_ips(servers)
       
       # Custom deployment (from appscale-tools/lib/node_layout.rb)
-      master = tree[:master]
+      master =    tree[:master]
       appengine = tree[:appengine]
-      database = tree[:database]
-      login = tree[:login]
-      open = tree[:open]
+      database =  tree[:database]
+      login =     tree[:login]
+      open =      tree[:open]
       zookeeper = tree[:zookeeper]
-      memcache = tree[:memcache]
+      memcache =  tree[:memcache]
       
       ips = ips + get_ips(master)
       ips = ips + get_ips(appengine)

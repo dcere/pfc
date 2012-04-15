@@ -118,46 +118,56 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          debug "[DBG] Creating domain files"
          puts "Creating domain files"
-         # Suppose 1 physical machine and 1 virtual machine by now
+         
+         # Create names and MAC addresses for all virtual machines
+         mac_address = MAC_Address.new("52:54:01:00:00")
+         mac_address_array = mac_address.generate_array(instances)
+         vm_name = VM_Name.new("myvm")
+         vm_name_array = vm_name.generate_array(instances)
+         
          distribution.each do |pm, vms|
+            
             # Get ERB template
             require 'erb'
             template = File.open(resource[:domain], 'r').read()
-            
-            # Write vm domain file
-            domain_file = File.open("/etc/puppet/modules/cloud/files/mycloud-1.xml", 'w')
-            debug "[DBG] Domain file created"
             erb = ERB.new(template)
             
-            vm_name = "myvm1"
-            vm_uuid = `uuidgen`
-            vm_disk = resource[:images]
-            vm_mac  = "52:54:00:00:ff:aa"
-            myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
+            vms.each do |vm|
             
-            domain_file.write(erb.result(myvm.get_binding))
-            domain_file.close
-            info "Domain file written"
+               # Create VM data
+               vm_name = vm_name_array.shift
+               vm_uuid = `uuidgen`
+               vm_disk = resource[:images]
+               vm_mac  = mac_address_array.shift
+               myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
+               
+               # Write vm domain file
+               domain_file = File.open("/etc/puppet/modules/cloud/files/mycloud-#{vm_name}.xml", 'w')
+               debug "[DBG] Domain file created"
+               domain_file.write(erb.result(myvm.get_binding))
+               domain_file.close
+               info "Domain file written"
+               
+               # Copy the domain definition file to the physical machine
+               result = `scp /etc/puppet/modules/cloud/files/mycloud-#{vm_name}.xml dceresuela@#{pm}:/tmp`
+               if ($?.exitstatus == 0)
+                  debug "[DBG] domain definition file copied"
+               else
+                  debug "[DBG] #{vm_name} impossible to copy domain definition file"
+                  err   "#{vm_name} impossible to copy domain definition file"
+               end
+               
+               ssh_connect = "ssh dceresuela@#{pm}"
+               
+               # Define the domain in the physical machine
+               define_domain(ssh_connect, vm_name)
+               
+               # Start the domain
+               start_domain(ssh_connect, vm_name)
+               
+            end      # vms.each
             
-            ssh_connect = "ssh dceresuela@#{pm}"
-            #vms.each do |vm|  #TODO Make it general enough
-            
-            # Copy the domain definition file to the physical machine
-            result = `scp /etc/puppet/modules/cloud/files/mycloud-1.xml dceresuela@#{pm}:/tmp`
-            if ($?.exitstatus == 0)
-               debug "[DBG] domain definition file copied"
-            else
-               debug "[DBG] #{vm_name} impossible to copy domain definition file"
-               err   "#{vm_name} impossible to copy domain definition file"
-            end
-            
-            # Define the domain in the physical machine
-            define_domain(ssh_connect, vm_name)
-            
-            # Start the domain
-            start_domain(ssh_connect, vm_name)
-            
-         end
+         end      # distribution.each
          
          # Check virtual machines are alive
          alive = {}
@@ -167,7 +177,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end
          
-         while alive.has_value?(0)
+         while alive.has_value?(0)     # FIXME Make it not so dramatic
             sleep(5)
             alive.keys.each do |vm|
                result = `ping -q -c 1 -w 4 #{vm}`
