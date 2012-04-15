@@ -142,14 +142,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
                
                # Write vm domain file
-               domain_file = File.open("/etc/puppet/modules/cloud/files/mycloud-#{vm_name}.xml", 'w')
+               domain_file = File.open("/etc/puppet/modules/cloud/files/cloud-#{vm_name}.xml", 'w')
                debug "[DBG] Domain file created"
                domain_file.write(erb.result(myvm.get_binding))
                domain_file.close
                info "Domain file written"
                
                # Copy the domain definition file to the physical machine
-               result = `scp /etc/puppet/modules/cloud/files/mycloud-#{vm_name}.xml dceresuela@#{pm}:/tmp`
+               result = `scp /etc/puppet/modules/cloud/files/cloud-#{vm_name}.xml dceresuela@#{pm}:/tmp`
                if ($?.exitstatus == 0)
                   debug "[DBG] domain definition file copied"
                else
