@@ -39,13 +39,16 @@
   - Y también la ejecución de Puppet en modo "cron"
 - Comprobar estado de la propuesta
 - (X) Uso de MCollective para ejecutar comandos de shell => Comandos sencillos como 'whoami', 'ls'
-- Uso de invoke-rc.d mcollecive stop en vez de service mcollecive stop en Debian / Ubuntu
+- (X) Uso de invoke-rc.d mcollecive stop en vez de service mcollecive stop en Debian / Ubuntu
   - (X) Si se inicia con /usr/sbin/service mcollecive start, se apaga con /usr/sbin/service mcollecive stop
 - Estudiar los ejemplos de Agentes y Clientes de RPC que proporciona MCollective
 - SSH de Puppet vs SSH de AppScale: ¿compatibles?
 - Plantillas ERB
-  - erb -x -T '-' mycloud-template.xml | ruby -c
+  - (X) erb -x -T '-' mycloud-template.xml | ruby -c
   - carla
-- Load balancing
+- (X) Load balancing => nginx
   - HAproxy: http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
-  - nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
+  - (X) nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
+- mysqld?
+- nginxd?
+- Copias de seguridad imágenes lucid-{web,db,lb}
