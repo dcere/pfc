@@ -12,6 +12,8 @@ service { 'mysql':
    enable => true,
    hasstatus => true,
    require => Package["mysql-server"],
+   hasrestart => true,
+   restart => "/usr/bin/service mysql restart"
 }
 
 # User and group

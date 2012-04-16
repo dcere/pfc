@@ -10,4 +10,5 @@ service { 'nginx':
    ensure => running,
    enable => true,
    hasstatus => true,
+   require => Package['nginx'],
 }
