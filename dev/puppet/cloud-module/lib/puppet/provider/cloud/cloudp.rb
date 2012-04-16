@@ -104,15 +104,12 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          debug "[DBG] Virtual machines distribution completed"
          puts "Virtual machines distribution completed"
          
-         # Start virtual machines
+         # Check images number and instances are logical: either one image to
+         # all instances or as many images as instances
          images = resource[:images]
-         if images.count == 1
-            # One image to rule them all
-         elsif images.count == instances
-            # N images to the N virtual machines in the kingdom of cloud
-         else
+         if images.count != 1 && images.count != instances
             err "You gave me #{images.count} images and #{instances} instances"
-            err "Either one image for all instances or as many as instances"
+            err "Either one image for all instances or as many images as instances"
             exit
          end
          
@@ -125,6 +122,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          vm_name = VM_Name.new("myvm")
          vm_name_array = vm_name.generate_array(instances)
          
+         # Define and start virtual machines
          distribution.each do |pm, vms|
             
             # Get ERB template
@@ -137,7 +135,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Create VM data
                vm_name = vm_name_array.shift
                vm_uuid = `uuidgen`
-               vm_disk = resource[:images]
+               if images.count == 1
+                  vm_disk = images
+               else
+                  vm_disk = images.shift
+               end
                vm_mac  = mac_address_array.shift
                myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
                

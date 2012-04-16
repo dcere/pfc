@@ -50,8 +50,10 @@ fi
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
 then
-   scp ./manifests/init.pp           root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/stop.pp           root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/init-app.pp       root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/stop-app.pp       root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/init-web.pp       root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/stop-web.pp       root@$1:$PUPPET_DST/$NAME/manifests/
    scp ./files/appscale.yaml         root@$1:$PUPPET_DST/$NAME/files/
    scp ./files/appscale-1-node.yaml  root@$1:$PUPPET_DST/$NAME/files/
    scp ./files/mycloud-template.xml  root@$1:$PUPPET_DST/$NAME/files/

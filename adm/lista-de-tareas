@@ -52,3 +52,4 @@
 - mysqld?
 - nginxd?
 - Instalación de Puppet en las lucid-web
+- Estudiar el uso del parámetro "image_path" para facilitar la especificación de varias imágenes en "images"
