@@ -51,4 +51,4 @@
   - (X) nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
 - mysqld?
 - nginxd?
-- Copias de seguridad imágenes lucid-{web,db,lb}
+- Instalación de Puppet en las lucid-web

@@ -31,13 +31,15 @@ PUPPET_STABLE="puppet-2.7.9.tar.gz"
 FACTER_STABLE="facter-1.6.4.tar.gz"
 PUPPET_ENVIRONMENT="puppet-installation-environment.sh"
 PUPPET_INSTALL="puppet-installation.sh"
+PUPPET_CONFIGURE="puppet-configuration.sh"
+CONF_MANIFEST="configuration-manifest.pp"
 
 DESTINATION_PATH="root@$1:/root/."
 
-# Check if they already exist?
-# if test -f ...
-#scp ../ruby-installation/$RUBY_STABLE            $DESTINATION_PATH
-scp ../puppet-installation/$PUPPET_STABLE        $DESTINATION_PATH
-scp ../puppet-installation/$FACTER_STABLE        $DESTINATION_PATH
-scp ../puppet-installation/$PUPPET_INSTALL       $DESTINATION_PATH
-scp ../puppet-installation/$PUPPET_ENVIRONMENT   $DESTINATION_PATH
+# Copy files
+scp ../puppet-installation/$PUPPET_STABLE          $DESTINATION_PATH
+scp ../puppet-installation/$FACTER_STABLE          $DESTINATION_PATH
+scp ../puppet-installation/$PUPPET_INSTALL         $DESTINATION_PATH
+scp ../puppet-installation/$PUPPET_ENVIRONMENT     $DESTINATION_PATH
+scp ../puppet-installation/$PUPPET_CONFIGURE       $DESTINATION_PATH
+scp ../puppet-installation/$CONF_MANIFEST          $DESTINATION_PATH
