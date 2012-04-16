@@ -49,7 +49,7 @@
 - (X) Load balancing => nginx
   - HAproxy: http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
   - (X) nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
-- mysqld?
+- (X) mysqld => Nombre del proceso es mysql, el ejecutable es /usr/sbin/mysqld
 - nginxd?
 - Instalación de Puppet en las lucid-web
 - Estudiar el uso del parámetro "image_path" para facilitar la especificación de varias imágenes en "images"

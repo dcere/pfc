@@ -7,10 +7,11 @@ file { '/etc/mysql/my.cnf':
    require => Package['mysql-server'],
 }
 
-service { 'mysqld':
+service { 'mysql':
    ensure => running,
    enable => true,
    hasstatus => true,
+   require => Package["mysql-server"],
 }
 
 # User and group

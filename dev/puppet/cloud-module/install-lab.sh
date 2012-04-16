@@ -50,14 +50,16 @@ fi
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
 then
-   scp ./manifests/init-app.pp       root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/stop-app.pp       root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/init-web.pp       root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/stop-web.pp       root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./files/appscale.yaml         root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/appscale-1-node.yaml  root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/mycloud-template.xml  root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/helloworld-client.rb  root@$1:$PUPPET_DST/$NAME/files/
+   scp ./manifests/init-app.pp         root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/stop-app.pp         root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/init-web.pp         root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./manifests/stop-web.pp         root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./files/mycloud-template.xml    root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/helloworld-client.rb    root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/appscale.yaml           root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/appscale-1-node.yaml    root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/web.yaml                root@$1:$PUPPET_DST/$NAME/files/
+   scp ./files/web-simple.yaml         root@$1:$PUPPET_DST/$NAME/files/
 fi
 
 if [ $2 = "test" -o $2 = "all" ]
@@ -76,6 +78,7 @@ then
    scp $TYPE_SRC/cloud.rb                     root@$1:$TYPE_DST/cloud.rb
    scp $PROVIDER_SRC/$NAME/cloudp.rb          root@$1:$PROVIDER_DST/cloudp.rb
    scp $PROVIDER_SRC/$NAME/appscale_yaml.rb   root@$1:$PROVIDER_DST/appscale_yaml.rb
+   scp $PROVIDER_SRC/$NAME/web_yaml.rb        root@$1:$PROVIDER_DST/web_yaml.rb
    scp $PROVIDER_SRC/$NAME/mcollective_files.rb    root@$1:$PROVIDER_DST/mcollective_files.rb
 fi
 
@@ -122,7 +125,16 @@ fi
 
 
 # Copy web local manifests
-# ...
+if [ $2 = "web" -o $2 = "all" ]
+then
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/web-manifests
+   scp ./files/web-manifests/balancer.pp \
+      root@$1:$PUPPET_DST/$NAME/files/web-manifests/balancer.pp
+   scp ./files/web-manifests/server.pp \
+      root@$1:$PUPPET_DST/$NAME/files/web-manifests/server.pp
+   scp ./files/web-manifests/database.pp \
+      root@$1:$PUPPET_DST/$NAME/files/web-manifests/database.pp
+fi
 
 # Copy jobs local manifests
 # ...

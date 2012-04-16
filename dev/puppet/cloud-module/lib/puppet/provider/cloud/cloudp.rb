@@ -213,8 +213,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             puts "Manifest files created"
             
             # FIXME Only works if ssh keys are OK. Maybe Puppet source?
-            puts "Copying appscale-1-node.yaml to 155.210.155.170:/tmp"
-            result = `scp /etc/puppet/modules/cloud/files/appscale-1-node.yaml root@155.210.155.170:/tmp`
+            yaml_file = resource[:file]
+            puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
+            result = `scp #{yaml_file} root@155.210.155.170:/tmp`
             ips_yaml = File.basename(resource[:file])
             ips_yaml = "/tmp/" + ips_yaml
             puts "==Calling appscale_cloud_start"
@@ -228,8 +229,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             debug "[DBG] Starting a web cloud"
             puts  "Starting a web cloud"
             
-            puts "Copying web.yaml to 155.210.155.170:/tmp"
-            result = `scp /etc/puppet/modules/cloud/files/web.yaml root@155.210.155.170:/tmp`
+            yaml_file = resource[:file]
+            puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
+            result = `scp #{yaml_file} root@155.210.155.170:/tmp`
             ips_yaml = File.basename(resource[:file])
             ips_yaml = "/tmp/" + ips_yaml
             ssh_user = "root"
