@@ -241,6 +241,23 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             debug "[DBG] Starting a web cloud"
             puts  "Starting a web cloud"
             
+            # Distribute ssh key to nodes to make login passwordless
+            key_path = "/root/.ssh/id_rsa.pub"
+            command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud"
+            password = resource[:root_password]
+            puts "Distributing ssh keys to nodes"
+            distribution.each do |pm, vms|
+               vms.each do |vm|
+                  result = `#{command_path}/ssh_copy_id.sh root@#{vm} #{key_path} #{password}`
+                  puts "#{vm} : #{result}"
+                  if $?.exitstatus == 0
+                     puts "Copied ssh key to #{vm}"
+                  else
+                     puts "Impossible to copy ssh key to #{vm}"
+                  end
+               end
+            end
+            
             yaml_file = resource[:file]
             puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
             result = `scp #{yaml_file} root@155.210.155.170:/tmp`

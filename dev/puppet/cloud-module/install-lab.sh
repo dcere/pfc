@@ -82,6 +82,7 @@ then
    scp $PROVIDER_SRC/$NAME/mcollective_files.rb    root@$1:$PROVIDER_DST/mcollective_files.rb
    scp $PROVIDER_SRC/$NAME/mac.rb             root@$1:$PROVIDER_DST/mac.rb
    scp $PROVIDER_SRC/$NAME/vm_name.rb         root@$1:$PROVIDER_DST/vm_name.rb
+   scp $PROVIDER_SRC/$NAME/ssh_copy_id.sh     root@$1:$PROVIDER_DST/ssh_copy_id.sh
 fi
 
 # Copy test
