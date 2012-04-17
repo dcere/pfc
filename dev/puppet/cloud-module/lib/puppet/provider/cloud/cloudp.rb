@@ -249,11 +249,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             distribution.each do |pm, vms|
                vms.each do |vm|
                   result = `#{command_path}/ssh_copy_id.sh root@#{vm} #{key_path} #{password}`
-                  puts "#{vm} : #{result}"
                   if $?.exitstatus == 0
                      puts "Copied ssh key to #{vm}"
                   else
-                     puts "Impossible to copy ssh key to #{vm}"
+                     err "Impossible to copy ssh key to #{vm}"
                   end
                end
             end
