@@ -17,6 +17,10 @@
 # Create configuration file
 puppetmasterd --genconfig > /etc/puppet/puppet.conf
 
+# Create manifests directory and site.pp file
+mkdir -p /etc/puppet/manifests
+touch /etc/puppet/manifests/site.pp
+
 # Create user and group
 groupadd puppet
 useradd -g puppet puppet

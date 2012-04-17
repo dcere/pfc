@@ -1,6 +1,6 @@
 class MAC_Address
    
-   def attr_reader :mac
+   attr_reader :mac
    
    def initialize(value=nil)
       @mac = value ? value: "52:54:00:00:00:00"

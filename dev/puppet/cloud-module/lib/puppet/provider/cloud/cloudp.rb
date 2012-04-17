@@ -117,10 +117,21 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          puts "Creating domain files"
          
          # Create names and MAC addresses for all virtual machines
-         mac_address = MAC_Address.new("52:54:01:00:00")
+         mac_address = MAC_Address.new("52:54:00:01:00:00")
          mac_address_array = mac_address.generate_array(instances)
          vm_name = VM_Name.new("myvm")
          vm_name_array = vm_name.generate_array(instances)
+         
+         # Use the type of cloud in the XML domain file
+         if resource[:type].to_s == "appscale"
+            cloud_type = "app"
+         elsif resource[:type].to_s == "web"
+            cloud_type = "web"
+         elsif resource[:type].to_s == "jobs"
+            cloud_type = "job"
+         else
+            cloud_type = "X"
+         end
          
          # Define and start virtual machines
          distribution.each do |pm, vms|
@@ -144,14 +155,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
                
                # Write vm domain file
-               domain_file = File.open("/etc/puppet/modules/cloud/files/cloud-#{vm_name}.xml", 'w')
+               domain_file = File.open("/etc/puppet/modules/cloud/files/cloud-#{cloud_type}-#{vm_name}.xml", 'w')
                debug "[DBG] Domain file created"
                domain_file.write(erb.result(myvm.get_binding))
                domain_file.close
                info "Domain file written"
                
                # Copy the domain definition file to the physical machine
-               result = `scp /etc/puppet/modules/cloud/files/cloud-#{vm_name}.xml dceresuela@#{pm}:/tmp`
+               result = `scp /etc/puppet/modules/cloud/files/cloud-#{cloud_type}-#{vm_name}.xml dceresuela@#{pm}:/tmp`
                if $?.exitstatus == 0
                   debug "[DBG] domain definition file copied"
                else
@@ -160,9 +171,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
                
                ssh_connect = "ssh dceresuela@#{pm}"
+               domain_file_path = "/tmp/cloud-#{cloud_type}-#{vm_name}.xml"
                
                # Define the domain in the physical machine
-               define_domain(ssh_connect, vm_name)
+               define_domain(ssh_connect, vm_name, domain_file_path)
                
                # Start the domain
                start_domain(ssh_connect, vm_name)
@@ -327,9 +339,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   def define_domain(ssh_connect, vm_name)
+   def define_domain(ssh_connect, vm_name, domain_file_path)
    
-      result = `#{ssh_connect} '#{VIRSH_CONNECT} define /tmp/mycloud-1.xml'`
+      result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_path}'`
       if $?.exitstatus == 0
          debug "[DBG] #{vm_name} domain defined"
          return true
@@ -471,8 +483,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       
       # Start load balancers => Start nginx
       #result = `mc load-balancer-agent -T balancer_coll`
+      puts "Starting nginx on load balancers"
+      command = "/etc/init.d/nginx start"
       balancers.each do |vm|
-         result = `ssh root@#{vm} '/etc/init.d/nginx start`
+         result = `ssh root@#{vm} '#{command}'`
          unless $?.exitstatus == 0
             debug "[DBG] Impossible to start balancer in #{vm}"
             err   "Impossible to start balancer in #{vm}"
@@ -481,8 +495,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       
       # Start web servers => Start sinatra application
       #result = `mc web-server-agent -T servers_coll`
+      puts "Starting ruby web3 on web servers"
+      command = "nohup ruby /root/web/web3.rb > web3.out 2> web3.err < /dev/null &"
       servers.each do |vm|
-         result = `ssh root@#{vm} 'ruby /root/web/web3.rb &'`
+         result = `ssh root@#{vm} '#{command}'`
          unless $?.exitstatus == 0
             debug "[DBG] Impossible to start server in #{vm}"
             err   "Impossible to start server in #{vm}"

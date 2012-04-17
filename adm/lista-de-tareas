@@ -51,5 +51,8 @@
   - (X) nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
 - (X) mysqld => Nombre del proceso es mysql, el ejecutable es /usr/sbin/mysqld
 - nginxd?
-- Instalación de Puppet en las lucid-web
+- (X) Instalación de Puppet en las lucid-web
 - Estudiar el uso del parámetro "image_path" para facilitar la especificación de varias imágenes en "images"
+- Puppet: rubygems de ubuntu (1.3.5) vs gem --version (1.8.21) ¿Como se especifica la última en un manifiesto Puppet?
+- (X) Borrar definición de máquinas en virsh en lote: myvm* , cloud-app-* etc. ¿Se puede? => No
+  - => Guardar los nombres de las máquinas definidas en un fichero para poder borrar su definición desde la función stop

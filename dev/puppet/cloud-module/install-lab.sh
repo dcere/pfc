@@ -80,6 +80,8 @@ then
    scp $PROVIDER_SRC/$NAME/appscale_yaml.rb   root@$1:$PROVIDER_DST/appscale_yaml.rb
    scp $PROVIDER_SRC/$NAME/web_yaml.rb        root@$1:$PROVIDER_DST/web_yaml.rb
    scp $PROVIDER_SRC/$NAME/mcollective_files.rb    root@$1:$PROVIDER_DST/mcollective_files.rb
+   scp $PROVIDER_SRC/$NAME/mac.rb             root@$1:$PROVIDER_DST/mac.rb
+   scp $PROVIDER_SRC/$NAME/vm_name.rb         root@$1:$PROVIDER_DST/vm_name.rb
 fi
 
 # Copy test

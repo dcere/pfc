@@ -1,6 +1,6 @@
 class VM_Name
    
-   def attr_reader :name
+   attr_reader :name
    
    def initialize(value=nil)
       @name = value ? value: "myvm"
