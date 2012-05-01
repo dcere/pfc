@@ -1,9 +1,10 @@
 #!/bin/bash
 ARCHIVO=ppal
+FLAGS="-shell-escape"
 
 ./clean.sh
 
-pdflatex $ARCHIVO
-bibtex   $ARCHIVO
-pdflatex $ARCHIVO
-pdflatex $ARCHIVO
+pdflatex $FLAGS   $ARCHIVO
+bibtex   $FLAGS   $ARCHIVO
+pdflatex $FLAGS   $ARCHIVO
+pdflatex $FLAGS   $ARCHIVO
