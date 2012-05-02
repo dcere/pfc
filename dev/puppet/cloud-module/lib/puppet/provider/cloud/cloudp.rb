@@ -141,8 +141,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             template = File.open(resource[:domain], 'r').read()
             erb = ERB.new(template)
             
-            # TODO Delete the defined domains file on the physical machine
-            # TODO Be aware of the name convention
             
             vms.each do |vm|
             
@@ -331,12 +329,12 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          pms.each do |pm|
          
             ssh_connect = "ssh dceresuela@#{pm}"
-            defined_domains_path = "/tmp/defined-domains"
+            defined_domains_path = "/tmp/defined-domains-#{resource[:name]}"
             
             result = `scp dceresuela@#{pm}:#{defined_domains_path} #{defined_domains_path}`
             if $?.exitstatus == 0
             
-               puts "/tmp/defined-domains exists in #{pm}"
+               puts "#{defined_domains_path} exists in #{pm}"
                
                # Open files
                defined_domains = File.open(defined_domains_path)
@@ -363,6 +361,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                      err "#{domain} impossible to undefine"
                   end
                end
+               
+               # Delete the defined domains file on the physical machine
+               result = `#{ssh_connect} 'rm -rf /tmp/defined-domains-#{resource[:name]}'`
             
             else
                err "No #{defined_domains_path} file found in #{pm}"
