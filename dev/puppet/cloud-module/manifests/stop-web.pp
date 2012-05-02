@@ -1,5 +1,5 @@
 cloud {'mycloud':
-   type => "web",
-   images => ["karmic-6GB-1", "karmic-6GB-2"],
-   ensure => stopped,
+   type    => "web",
+   pool    => ["155.210.155.70"],
+   ensure  => stopped,
 }

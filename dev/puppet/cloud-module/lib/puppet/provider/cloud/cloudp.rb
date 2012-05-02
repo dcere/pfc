@@ -38,8 +38,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       puts "Starting cloud %s" % [resource[:name]]
       
       # Check existence
-      #if !exists?
-      if true
+      if !exists?
 
          # Check pool of physical machines
          pm_all_up, pm_up, pm_down = check_pool()
@@ -290,6 +289,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             err   "Cloud type undefined: #{resource[:type]}"
          end
          
+         # Create file
+         cloud_file = File.open("/tmp/cloud","w")
+         cloud_file.puts(resource[:name])
+         cloud_file.close
+         
          
          puts "Cloud started"
          
@@ -305,26 +309,71 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
       debug "[DBG] Stopping cloud %s" % [resource[:name]]
 
+      if !exists?
+         err "Cloud does not exist"
+         return
+      end
+      if status != :running
+         err "Cloud is not running"
+         return
+      end
       if exists? && status == :running
-         # Stop hosts
-         virsh_connect = "virsh -c qemu:///system"
-         images = resource[:images]
-         images.each do |image|
-            result = `#{virsh_connect} shutdown #{image}`
+         
+         pms = resource[:pool]
+         
+         pms.each do |pm|
+         
+            ssh_connect = "ssh dceresuela@#{pm}"
+            defined_domains_path = "/tmp/web-defined-domains"
+            
+            result = `#{ssh_connect} 'test -e #{defined_domains_path}'`
             if $?.exitstatus == 0
-               debug "[DBG] #{image} was shut down"
+            
+               puts "/tmp/web-defined-domains exists in #{pm}"
+            
+               # Open files
+               defined_domains = File.open(defined_domains_path)
+            
+               # Stop nodes
+               defined_domains.each_line do |domain|
+                  result = `#{ssh_connect} '#{VIRSH_CONNECT} shutdown #{domain}'`
+                  if $?.exitstatus == 0
+                     debug "[DBG] #{domain} was shutdown"
+                  else
+                     debug "[DBG] #{domain} impossible to shutdown"
+                     err "#{domain} impossible to shutdown"
+                  end
+               end
+               
+               # Undefine local domains
+               defined_domains.rewind
+               defined_domains.each_line do |domain|
+                  result = `#{ssh_connect} '#{VIRSH_CONNECT} undefine #{domain}'`
+                  if $?.exitstatus == 0
+                     debug "[DBG] #{domain} was undefined"
+                  else
+                     debug "[DBG] #{domain} impossible to undefine"
+                     err "#{domain} impossible to undefine"
+                  end
+               end
+            
             else
-               debug "[DBG] #{image} impossible to shut down"
+               err "No #{defined_domains_path} file found in #{pm}"
             end
-         end
+            
+         end   # pms.each
          
       end
-
+   
    end
 
 
    def status
-      return :stopped
+      if File.exists?("/tmp/cloud")
+         return :running
+      else
+         return :stopped
+      end
    end
 
 
@@ -340,10 +389,41 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
 
    def exists?
-      return false
+      if File.exists?("/tmp/cloud")
+         file = File.open("/tmp/cloud")
+         file.each_line do |line|
+            puts "line: #{line}"
+            puts "resource name: #{resource[:name]}"
+            if line.chomp == resource[:name]
+               return true
+            end
+         end
+         return false
+      else
+         return false
+      end
    end
    
-
+   
+   #############################################################################
+   # Properties need methods
+   #############################################################################
+   def images
+   end
+   
+   def pool
+   end
+   
+   def app_email
+   end
+   
+   def app_password
+   end
+   
+   def root_password
+   end
+   
+   
    #############################################################################
    # Auxiliar functions
    #############################################################################
