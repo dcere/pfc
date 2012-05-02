@@ -179,6 +179,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Start the domain
                start_domain(ssh_connect, vm_name)
                
+               # Save the domain's name
+               save_domain_name(ssh_connect, cloud_type, vm_name)
+               
             end      # vms.each
             
          end      # distribution.each
@@ -191,20 +194,30 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end
          
+         puts "Checking if virtual machines are alive"
+         alive_count = 0
          while alive.has_value?(0)     # FIXME Make it not so dramatic
             sleep(5)
             alive.keys.each do |vm|
                result = `ping -q -c 1 -w 4 #{vm}`
                if $?.exitstatus == 0
                   debug "[DBG] #{vm} is up"
+                  puts "#{vm} is up"
                   alive[vm] = 1
                else
                   debug "[DBG] #{vm} is down"
+                  puts "#{vm} is down"
                end
+            end
+            alive_count += 1
+            if alive_count == 5
+               err "Technical problems"
+               exit
             end
          end
          
          # Start the cloud
+         puts "Starting the cloud"
          if resource[:type].to_s == "appscale"
             if (resource[:app_email] == nil) || (resource[:app_password] == nil)
                err "Need an AppScale user and password"
@@ -257,6 +270,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
             end
             
+            # FIXME Only works if ssh keys are OK => Asks for password. Maybe Puppet source? 
             yaml_file = resource[:file]
             puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
             result = `scp #{yaml_file} root@155.210.155.170:/tmp`
@@ -378,6 +392,20 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       else
          debug "[DBG] #{vm_name} impossible to start"
          err   "#{vm_name} impossible to start"
+         return false
+      end
+   end
+   
+   
+   def save_domain_name(ssh_connect, cloud_type, vm_name)
+   
+      result = `#{ssh_connect} 'echo #{vm_name} >> /tmp/#{cloud_type}-defined-domains'`
+      if $?.exitstatus == 0
+         debug "[DBG] #{vm_name} name saved"
+         return true
+      else
+         debug "[DBG] #{vm_name} name impossible to save"
+         err   "#{vm_name} name impossible to save"
          return false
       end
    end
