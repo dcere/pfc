@@ -12,6 +12,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    # Some constants
    VIRSH_CONNECT = "virsh -c qemu:///system"
 
+
    # Virtual machine class
    class VM
       attr_accessor :vm
@@ -140,6 +141,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             template = File.open(resource[:domain], 'r').read()
             erb = ERB.new(template)
             
+            # TODO Delete the defined domains file on the physical machine
+            # TODO Be aware of the name convention
+            
             vms.each do |vm|
             
                # Create VM data
@@ -154,14 +158,18 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
                
                # Write vm domain file
-               domain_file = File.open("/etc/puppet/modules/cloud/files/cloud-#{cloud_type}-#{vm_name}.xml", 'w')
+               domain_file_name = "cloud-#{cloud_type}-#{vm_name}.xml"
+               domain_file = File.open("/etc/puppet/modules/cloud/files/#{domain_file_name}", 'w')
                debug "[DBG] Domain file created"
                domain_file.write(erb.result(myvm.get_binding))
                domain_file.close
                info "Domain file written"
                
                # Copy the domain definition file to the physical machine
-               result = `scp /etc/puppet/modules/cloud/files/cloud-#{cloud_type}-#{vm_name}.xml dceresuela@#{pm}:/tmp`
+               domain_file_path = "/tmp/" + domain_file_name
+               command = "scp /etc/puppet/modules/cloud/files/#{domain_file_name}" +
+                            " dceresuela@#{pm}:#{domain_file_path}"
+               result = `#{command}`
                if $?.exitstatus == 0
                   debug "[DBG] domain definition file copied"
                else
@@ -170,7 +178,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
                
                ssh_connect = "ssh dceresuela@#{pm}"
-               domain_file_path = "/tmp/cloud-#{cloud_type}-#{vm_name}.xml"
                
                # Define the domain in the physical machine
                define_domain(ssh_connect, vm_name, domain_file_path)
@@ -179,7 +186,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                start_domain(ssh_connect, vm_name)
                
                # Save the domain's name
-               save_domain_name(ssh_connect, cloud_type, vm_name)
+               save_domain_name(ssh_connect, vm_name)
                
             end      # vms.each
             
@@ -290,7 +297,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Create file
-         cloud_file = File.open("/tmp/cloud","w")
+         cloud_file = File.open("/tmp/cloud-#{resource[:name]}","w")
          cloud_file.puts(resource[:name])
          cloud_file.close
          
@@ -324,13 +331,13 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          pms.each do |pm|
          
             ssh_connect = "ssh dceresuela@#{pm}"
-            defined_domains_path = "/tmp/web-defined-domains"
+            defined_domains_path = "/tmp/defined-domains"
             
-            result = `#{ssh_connect} 'test -e #{defined_domains_path}'`
+            result = `scp dceresuela@#{pm}:#{defined_domains_path} #{defined_domains_path}`
             if $?.exitstatus == 0
             
-               puts "/tmp/web-defined-domains exists in #{pm}"
-            
+               puts "/tmp/defined-domains exists in #{pm}"
+               
                # Open files
                defined_domains = File.open(defined_domains_path)
             
@@ -363,13 +370,16 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             
          end   # pms.each
          
+         # Delete file
+         File.delete("/tmp/cloud-#{resource[:name]}")
+         
       end
    
    end
 
 
    def status
-      if File.exists?("/tmp/cloud")
+      if File.exists?("/tmp/cloud-#{resource[:name]}")
          return :running
       else
          return :stopped
@@ -389,19 +399,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
 
    def exists?
-      if File.exists?("/tmp/cloud")
-         file = File.open("/tmp/cloud")
-         file.each_line do |line|
-            puts "line: #{line}"
-            puts "resource name: #{resource[:name]}"
-            if line.chomp == resource[:name]
-               return true
-            end
-         end
-         return false
-      else
-         return false
-      end
+      return File.exists?("/tmp/cloud-#{resource[:name]}")
    end
    
    
@@ -449,9 +447,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   def define_domain(ssh_connect, vm_name, domain_file_path)
+   def define_domain(ssh_connect, vm_name, domain_file_name)
    
-      result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_path}'`
+      result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_name}'`
       if $?.exitstatus == 0
          debug "[DBG] #{vm_name} domain defined"
          return true
@@ -477,9 +475,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   def save_domain_name(ssh_connect, cloud_type, vm_name)
+   def save_domain_name(ssh_connect, vm_name)
    
-      result = `#{ssh_connect} 'echo #{vm_name} >> /tmp/#{cloud_type}-defined-domains'`
+      file = "/tmp/defined-domains-#{resource[:name]}"
+      result = `#{ssh_connect} 'echo #{vm_name} >> #{file}'`
       if $?.exitstatus == 0
          debug "[DBG] #{vm_name} name saved"
          return true
