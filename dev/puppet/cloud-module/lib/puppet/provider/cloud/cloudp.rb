@@ -572,6 +572,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def web_cloud_start(ssh_user, ssh_host, web_roles)
       
       # Distribute manifests
+      # TODO Factorize
       #result = `mc manifest-agent -T balancer_coll`
       balancers = web_roles[:balancer]
       path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
@@ -605,6 +606,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
       end
       
+      
       # Start load balancers => Start nginx
       #result = `mc load-balancer-agent -T balancer_coll`
       puts "Starting nginx on load balancers"
@@ -629,7 +631,36 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
       end
       
-      # Database servers start at boot time
+      # Database servers start at boot time, but just in case
+      puts "Starting mysql on database servers"
+      command = "/usr/bin/service mysql start"
+      databases.each do |vm|
+         result = `ssh root@#{vm} '#{command}'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start server in #{vm}"
+            err   "Impossible to start server in #{vm}"
+         end
+      end
+      
+      
+      # Start monitoring
+      path = "/etc/puppet/modules/cloud/files/web-monitor/database.god"
+      command = "mkdir -p /etc/god"
+      databases.each do |vm|
+         result = `ssh root@#{vm} '#{command}'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to copy balancer manifest to #{vm}"
+            err   "Impossible to copy balancer manifest to #{vm}"
+         end
+         result = `scp #{path} root@#{vm}:/etc/god/`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to copy balancer manifest to #{vm}"
+            err   "Impossible to copy balancer manifest to #{vm}"
+         end
+      end
+         
+      
+      
       
    end
    
