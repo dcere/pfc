@@ -573,6 +573,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       
       # Distribute manifests
       # TODO Factorize
+      
       #result = `mc manifest-agent -T balancer_coll`
       balancers = web_roles[:balancer]
       path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
@@ -607,6 +608,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       end
       
       
+      # Start services
+      
       # Start load balancers => Start nginx
       #result = `mc load-balancer-agent -T balancer_coll`
       puts "Starting nginx on load balancers"
@@ -638,24 +641,52 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          result = `ssh root@#{vm} '#{command}'`
          unless $?.exitstatus == 0
             debug "[DBG] Impossible to start server in #{vm}"
-            err   "Impossible to start server in #{vm}"
+            debug "[DBG] Might be already running"
+            #err   "Impossible to start server in #{vm}"
          end
       end
       
       
       # Start monitoring
-      path = "/etc/puppet/modules/cloud/files/web-monitor/database.god"
-      command = "mkdir -p /etc/god"
-      databases.each do |vm|
-         result = `ssh root@#{vm} '#{command}'`
+      
+      # Monitor web server with god
+      path = "/etc/puppet/modules/cloud/files/web-monitor/server.god"
+      servers.each do |vm|
+         result = `ssh root@#{vm} 'mkdir -p /etc/god'`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to copy balancer manifest to #{vm}"
-            err   "Impossible to copy balancer manifest to #{vm}"
+            debug "[DBG] Impossible to create /etc/god at #{vm}"
+            err   "Impossible to create /etc/god at #{vm}"
          end
          result = `scp #{path} root@#{vm}:/etc/god/`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to copy balancer manifest to #{vm}"
-            err   "Impossible to copy balancer manifest to #{vm}"
+            debug "[DBG] Impossible to copy #{path} to #{vm}"
+            err   "Impossible to copy #{path} to #{vm}"
+         end
+         result = `ssh root@#{vm} 'god -c /etc/god/server.god'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to run god in #{vm}"
+            err   "Impossible to run god in #{vm}"
+         end
+      end
+      
+      # Monitor database with god due to puppet vs ubuntu mysql bug
+      # http://projects.puppetlabs.com/issues/12773
+      path = "/etc/puppet/modules/cloud/files/web-monitor/database.god"
+      databases.each do |vm|
+         result = `ssh root@#{vm} 'mkdir -p /etc/god'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to create /etc/god at #{vm}"
+            err   "Impossible to create /etc/god at #{vm}"
+         end
+         result = `scp #{path} root@#{vm}:/etc/god/`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to copy #{path} to #{vm}"
+            err   "Impossible to copy #{path} to #{vm}"
+         end
+         result = `ssh root@#{vm} 'god -c /etc/god/database.god'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to run god in #{vm}"
+            err   "Impossible to run god in #{vm}"
          end
       end
          

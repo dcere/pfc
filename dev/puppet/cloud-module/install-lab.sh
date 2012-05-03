@@ -127,7 +127,7 @@ then
 fi
 
 
-# Copy web local manifests
+# Copy web local manifests and monitor files
 if [ $2 = "web" -o $2 = "all" ]
 then
    $SSH mkdir -p $PUPPET_DST/$NAME/files/web-manifests
@@ -137,6 +137,12 @@ then
       root@$1:$PUPPET_DST/$NAME/files/web-manifests/server.pp
    scp ./files/web-manifests/database.pp \
       root@$1:$PUPPET_DST/$NAME/files/web-manifests/database.pp
+
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/web-monitor
+   scp ./files/web-monitor/server.god \
+      root@$1:$PUPPET_DST/$NAME/files/web-monitor/server.god
+   scp ./files/web-monitor/database.god \
+      root@$1:$PUPPET_DST/$NAME/files/web-monitor/database.god
 fi
 
 # Copy jobs local manifests
