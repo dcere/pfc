@@ -220,6 +220,28 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end
          
+         # Distribute important files to all machines
+         distribution.each do |pm, vms|
+            vms.each do |vm|
+            
+               # Cloud manifest
+               # FIXME : Check 'source' attribute in manifest
+               command = "scp /etc/puppet/manifests/init-cloud.pp" +
+                         " root@#{vm}:/etc/puppet/manifests/init-cloud.pp"
+               result = `#{command}`
+               unless $?.exitstatus == 0
+                  err "Impossible to copy init.pp to #{vm}"
+               end
+               
+               # Cloud description (YAML file)
+               command = "scp #{resource[:file]} root@#{vm}:#{resource[:file]}"
+               result = `#{command}`
+               unless $?.exitstatus == 0
+                  err "Impossible to copy #{resource[:file]} to #{vm}"
+               end
+            end
+         end
+         
          # Start the cloud
          puts "Starting the cloud"
          if resource[:type].to_s == "appscale"
@@ -493,6 +515,19 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
+   def command_execution(ip_array, command, error_message)
+      
+      ip_array.each do |vm|
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            debug "[DBG] #{vm}: #{error_message}"
+            err   "#{vm}: #{error_message}"
+         end
+      end
+   
+   end
+   
+   
    #############################################################################
    def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
                             app_email=nil, app_password=nil, root_password=nil)
@@ -504,7 +539,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       # -------------
       # Enter your desired administrator e-mail address: david@mail.com
       # 
-      # The new administrator password must be at least six characters long and can include non-alphanumeric characters.
+      # The new administrator password must be at least six characters long and \
+      #   can include non-alphanumeric characters.
       # Enter your new password: 
       # Enter again to verify: 
       # Please wait for AppScale to prepare your machines for use.
@@ -514,7 +550,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       # 
       # Your user account has been created successfully.
       # No app uploaded. Use appscale-upload-app to upload an app later.
-      # The status of your AppScale instance is at the following URL: http://155.210.155.73/status
+      # The status of your AppScale instance is at the following URL: \
+      #   http://155.210.155.73/status
       # Your XMPP username is david@155.210.155.73
       
       # Check arguments
@@ -574,7 +611,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def web_cloud_start(ssh_user, ssh_host, web_roles)
       
       # Distribute manifests
-      # TODO Factorize
+      # TODO Factorize if possible: ssh and scp => 2 versions ?
+      #    command_execution_scp and command_execution_ssh?
       
       #result = `mc manifest-agent -T balancer_coll`
       balancers = web_roles[:balancer]
@@ -691,8 +729,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             err   "Impossible to run god in #{vm}"
          end
       end
-         
-      
       
       
    end
