@@ -38,5 +38,6 @@ Estructura
    
 ------------
 Notas / Dudas:
-- La fuente del resumen y del texto puede diferir
+- (X) La fuente del resumen y del texto puede diferir => Se controla desde LaTeX
 - Infraestructuras distribuidas? Infraestructuras de ejecucion de trabajos distribuidos?
+- Cuidado con los anglicismos y con las citas (e.g Wiki de github `a` => \texttt{a} o \emph{a} o \textbf{a} o \textsf{a})
