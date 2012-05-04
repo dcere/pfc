@@ -37,5 +37,6 @@ then
    scp ./web.rb               root@$1:$WEB_DST/
    scp ./web2.rb              root@$1:$WEB_DST/
    scp ./web3.rb              root@$1:$WEB_DST/
+   scp ./start-ruby-web3      root@$1:$WEB_DST/
    scp ./views/index.erb      root@$1:$WEB_DST/views/
 fi

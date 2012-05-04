@@ -341,6 +341,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             
                # Stop nodes
                defined_domains.each_line do |domain|
+                  domain.chomp!
                   result = `#{ssh_connect} '#{VIRSH_CONNECT} shutdown #{domain}'`
                   if $?.exitstatus == 0
                      debug "[DBG] #{domain} was shutdown"
@@ -353,6 +354,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Undefine local domains
                defined_domains.rewind
                defined_domains.each_line do |domain|
+                  domain.chomp!
                   result = `#{ssh_connect} '#{VIRSH_CONNECT} undefine #{domain}'`
                   if $?.exitstatus == 0
                      debug "[DBG] #{domain} was undefined"
@@ -625,7 +627,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       # Start web servers => Start sinatra application
       #result = `mc web-server-agent -T servers_coll`
       puts "Starting ruby web3 on web servers"
-      command = "nohup ruby /root/web/web3.rb > web3.out 2> web3.err < /dev/null &"
+      command = "/bin/bash /root/web/start-ruby-web3"
       servers.each do |vm|
          result = `ssh root@#{vm} '#{command}'`
          unless $?.exitstatus == 0
@@ -662,11 +664,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             debug "[DBG] Impossible to copy #{path} to #{vm}"
             err   "Impossible to copy #{path} to #{vm}"
          end
-         result = `ssh root@#{vm} 'god -c /etc/god/server.god'`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to run god in #{vm}"
-            err   "Impossible to run god in #{vm}"
-         end
+          result = `ssh root@#{vm} 'god -c /etc/god/server.god'`
+          unless $?.exitstatus == 0
+             debug "[DBG] Impossible to run god in #{vm}"
+             err   "Impossible to run god in #{vm}"
+          end
       end
       
       # Monitor database with god due to puppet vs ubuntu mysql bug
