@@ -6,6 +6,10 @@ Estructura
 + Introducción
    - 8 / 10 pag          || 2 / 5 pag (según normativa)
    - Modelos, herramientas y metodología
+      - Herramientas: kvm, qemu, libvirt, bash, ruby, debian, ubuntu
+      - Metodología: estudio de cfengine y puppet, de openstack
+           elección de puppet sobre cfengine
+           elección entre puppet faces y puppet type+provider
    - Estado de la técnica (state of the art), trabajos en los que nos hemos apoyado...
    - Explicación de ejemplos de infraestructura distribuida
    - Enfatizar que no hay nada de administración de infraestructuras
@@ -37,7 +41,16 @@ Estructura
    - Documentación de Puppet
    
 ------------
-Notas / Dudas:
+Notas:
 - (X) La fuente del resumen y del texto puede diferir => Se controla desde LaTeX
 - Infraestructuras distribuidas? Infraestructuras de ejecucion de trabajos distribuidos?
 - Cuidado con los anglicismos y con las citas (e.g Wiki de github `a` => \texttt{a} o \emph{a} o \textbf{a} o \textsf{a})
+  - Anglicismos: \emph{a} (en cursiva)
+  - Citas, valores: \texttt{a} (en courier)
+  
+  
+-----------
+Dudas:
+- Explicación de las infraestructuras distribuidas en la intro o en el capítulo correspondiente?
+- Metodología en la introducción o en capítulo aparte? => Capítulo aparte de momento
+- Explicación de qué es la virtualización o no?

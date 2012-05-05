@@ -1,8 +1,9 @@
 \chapter{Introducción}
 \label{cap:introduccion}
 
+[Revisar]\\
 
-Durante los últimos años la computación en la nube ha ido ganando importancia de manera progresiva. La capacidad de usar la computación como un servicio permite a los usuarios finales de una aplicación acceder a ésta a través de un navegador web, una aplicación móvil o un cliente de escritorio mientras que la lógica de la aplicación y los datos se encuentran en servidores situados en una localización remota. Las aplicaciones en la nube tratan de proporcionar al usuario el mismo servicio y rendimiento que las aplicaciones instaladas localmente en su ordenador.\\
+La computación en la nube es un nuevo paradigma que pretende transformar la computación en un servicio. Durante estos últimos años la computación en la nube ha ido ganando importancia de manera progresiva, ya que la posibilidad de usar la computación como un servicio permite a los usuarios de una aplicación acceder a ésta a través de un navegador web, una aplicación móvil o un cliente de escritorio mientras que la lógica de la aplicación y los datos se encuentran en servidores situados en una localización remota. Esto brinda a las empresas la posibilidad de ofrecer servicios web sin tener que hacer una gran inversión inicial en infraestructura propia. Las aplicaciones en la nube tratan de proporcionar al usuario el mismo servicio y rendimiento que las aplicaciones instaladas localmente en su ordenador.\\
 
 A lo largo de este proyecto se verán tres ejemplos de infraestructuras distribuidas. La primera de ellas es la infraestrucutra de ejecución de trabajos. Este tipo de infraestructuras está especializada en la ejecución de grandes cargas de trabajo paralelizable e intensivo en computación. Son por lo tanto idóneas para ser usadas en la computación de altas prestaciones. Dentro de esta infraestructura distribuida los ejemplos más claros que podemos encontrar son Condor y Torque.
 
@@ -12,7 +13,7 @@ La tercera y última es AppScale, una implementación \emph{open source} del App
 
 La infraestructura necesaria para dar soporte a todas estas APIs ya no es tan sencilla como en los dos casos anteriores. De hecho, las anteriores infraestructuras estarían contenidas en ésta. Hay dos maneras de definir la infraestructura de AppScale. En la primera de ellas se define un despliegue por defecto, en el que un nodo toma el rol de \emph{controller} y el resto de nodos toman el rol de \emph{servers}. El nodo \emph{controller} es el que carga con la responsabilidad de la coordinación y los nodos \emph{servers} son los que llevan cabo la mayor parte del trabajo. La segunda manera de definir la infraestructura es hacerlo a través de un despliegue personalizado. En este despliegue podemos definir con más precisión los roles que queremos que desempeñe un nodo. Entre todos los posibles roles que AppScale ofrece, los más interesantes desde nuestro punto de vista son: \emph{master}, \emph{appengine}, \emph{database}, \emph{login} y \emph{open}.\\
 
-De igual manera, las herramientas de administración de sistemas (o herramientas de gestión de configuración) también han experimentado un considerable avance. Con entornos cada vez más heterogéneos y complejos la administración de sistemas de manera manual ya no es una opción. Entre todo el conjunto de  herramientas destacan de manera especial Puppet y CFEngine. Puppet es una herramienta de gestión de configuración basada en un lenguaje  declarativo: el usuario especifica qué estado debe alcanzarse y Puppet se encarga de hacerlo. CFEngine permite al usuario un control más fino de cómo se hacen las cosas, ganando velocidad a costa de perder elementos de más alto nivel.\\
+De igual manera, las herramientas de administración de sistemas (o herramientas de gestión de configuración) también han experimentado un considerable avance. Con entornos cada vez más heterogéneos y complejos la administración de sistemas de manera manual ya no es una opción. Entre todo el conjunto de  herramientas destacan de manera especial Puppet y CFEngine. Puppet es una herramienta de gestión de configuración basada en un lenguaje  declarativo: el usuario especifica qué estado debe alcanzarse y Puppet se encarga de hacerlo. CFEngine permite al usuario un control más fino de cómo se hacen las cosas, mejorando el rendimiento a costa de perder abstracciones de más alto nivel.\\
 
 Sin embargo, estas herramientas de gestión de la configuración carecen de la funcionalidad requerida para administrar infraestructuras distribuidas.\\
 
@@ -38,10 +39,23 @@ El objetivo de este proyecto es proporcionar una herramienta que facilite la pue
 \end{enumerate}
 
 
+\section{Tecnología utilizada}
+
+Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnologías:
+\begin{itemize}
+\item KVM, QEMU, libvirt y virsh para el soporte de virtualización.
+\item Ruby como lenguaje de programación para la extensión de Puppet.
+\item Shell como lenguaje de programación de los \emph{scripts} de configuración.
+\item Sistema operativo Debian para las máquinas del laboratorio y Ubuntu para las máquinas virtuales.
+\item \LaTeX{} \cite{manual:latex} para la redacción de esta memoria.
+\end{itemize}
+
+
 \section{Organización de la memoria}
 
 El resto de este documento queda organizado de la siguiente manera:
 \begin{description}
+\item[Capítulo \ref{cap:metodologia}] Metodología seguida durante la realización del proyecto.
 \item[Capítulo \ref{cap:trabajo}] Extensión de Puppet para soporte de infraestructuras distribuidas.
 \item[Capítulo \ref{cap:appscale}] Uso de la extensión de Puppet para soporte de infraestructura AppScale.
 \item[Capítulo \ref{cap:web}] Uso de la extensión de Puppet para soporte de infraestructura web de tres niveles.

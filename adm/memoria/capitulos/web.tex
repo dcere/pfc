@@ -1,6 +1,7 @@
-\chapter{Web}
+\chapter{Uso de la extensión aplicado a la infraestructura web de tres niveles}
 \label{cap:web}
 
+[Revisar]\\
 
 Una típica arquitectura de servicios web consta de al menos tres niveles: balanceo de carga, servidores web y base de datos. Cada uno de estos niveles está compuesto por al menos un elemento clave: el balanceador de carga, el servidor web y el servidor de base de datos, respectivamente. El balanceador de carga es el punto de entrada al sistema y el que se encarga, como su nombre indica, de repartir las peticiones de los clientes a los distintos servidores web. Los servidores web se encargan de servir las páginas web a los clientes y para ello, dependiendo de las peticiones que hagan los clientes, podrán leer o almacenar información en la base de datos. Para manipular dicha información los servidores web tendrán que comunicarse con el servidor de base de datos, que es el que hará efectiva la lectura y modificación de la información. La arquitectura puede complicarse añadiendo más niveles y añadiendo más elementos a los niveles existentes.\\
 
@@ -10,7 +11,7 @@ Para demostrar la validez del modelo desarrollado, además de AppScale también 
 
 \section{Metamanifiesto}
 
-La sintaxis en el metamanifiesto es fundamentalmente similar a la utilizada en el ejemplo de AppScale: el único campo que cambia sustancialmente es el type, que pasa de tener valor \emph{appscale} a tener valor \emph{web}. El resto de campos se comportan como lo hacían en el ejemplo de AppScale: el campo file contiene el fichero de descripción de roles, el campo images contiene los discos duros de las máquinas virtuales, el campo domain contiene el fichero de descripción de la máquina virtual, el campo pool contiene el conjunto de máquinas físicas a usar y el campo ensure contiene el estado en el que queremos que quede el cloud.
+La sintaxis en el metamanifiesto es fundamentalmente similar a la utilizada en el ejemplo de AppScale: el único campo que cambia sustancialmente es el type, que pasa de tener valor \texttt{appscale} a tener valor \texttt{web}. El resto de campos se comportan como lo hacían en el ejemplo de AppScale: el campo file contiene el fichero de descripción de roles, el campo images contiene los discos duros de las máquinas virtuales, el campo domain contiene el fichero de descripción de la máquina virtual, el campo pool contiene el conjunto de máquinas físicas a usar y el campo ensure contiene el estado en el que queremos que quede el cloud.
 
 \begin{lstlisting}
 cloud {'mycloud':
@@ -27,9 +28,9 @@ cloud {'mycloud':
 
 El contenido del fichero de especificación de roles sí que poseerá valores distintos a los que tenía el ejemplo de AppScale ya que estamos describiendo una arquitectura distribuida distinta. Los nuevos roles que pueden desempeñar las máquinas son:
 \begin{description}
-\item[balancer] La máquina que desempeñará el rol de balanceador de carga.
-\item[server] La lista de máquinas que desempeñarán el rol de servidor web.
-\item[database] La máquina que desempeñará el rol de servidor de base de datos.
+\item[\texttt{balancer}] La máquina que desempeñará el rol de balanceador de carga.
+\item[\texttt{server}] La lista de máquinas que desempeñarán el rol de servidor web.
+\item[\texttt{database}] La máquina que desempeñará el rol de servidor de base de datos.
 \end{description}
 
 Un ejemplo completo del fichero de especificación de roles tendría un contenido similar a éste:
@@ -45,6 +46,7 @@ Un ejemplo completo del fichero de especificación de roles tendría un contenid
 
 
 %%% Tests
+Tests
 \begin{rubycode}
 class MAC_Address
    

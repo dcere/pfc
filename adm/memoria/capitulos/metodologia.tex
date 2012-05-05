@@ -1,0 +1,36 @@
+\chapter{Metodología}
+\label{cap:metodologia}
+
+[Revisar]\\
+
+En este capítulo se aborda la metodología seguida a la hora de realizar el proyecto.
+
+
+\section{Elección de la herramienta de virtualización \emph{hardware}}
+
+A la hora de hacer una virtualización \emph{hardware} hay varias opciones entre las que elegir. Las más ampliamente usadas son Xen y KVM. La principal diferencia entre ambas es que Xen ofrece paravirtualización y KVM ofrece virtualización nativa.
+La paravirtualización presenta a las máquinas virtuales una interfaz que es similar, pero no idéntica, al hardware de la máquina huésped. Todas las llamadas con privilegios deben ser capturadas y traducidas a llamadas al hipervisor. El sistema operativo de la máquina virtual debe ser modificado para hacer estas capturas.
+
+[Figuras, figuras, figuras]
+
+La virtualización nativa no requiere de ninguna modificación en el sistema operativo de la máquina virtual, pero necesita de un procesador con soporte para virtualización. KVM está incluido como un módulo del núcleo de Linux desde su versión 2.6.20, así que viene incluido por defecto en el sistema operativo de las máquinas del laboratorio.
+
+Como los ordenadores del laboratorio poseen procesadores con extensiones de soporte de virtualización se eligió KVM para dar soporte a las máquinas virtuales. Esto significa que podemos usar cualquier sistema operativo, sin hacer ninguna modificación, para las máquinas virtuales.
+
+\section{Análisis de las infraestrucutras de ejecución de trabajos distribuidos}
+
+
+\section{Elección de la herramienta de gestión de configuración}
+
+Dentro de las herramientas de gestión de configuración, se estudió el uso de CFEngine y Puppet. CFEngine es una herramienta de configuración con un lenguaje declarativo en el que se especifican acciones a realizar para las clases. Está programado en el lenguaje C y ofrece un buen rendimiento y un control fino de cómo se hacen las cosas. Puppet es una herramienta con un lenguaje declarativo en el que se especifica cuál debe ser el estado de los elementos. A diferencia de CFEngine, Puppet posee un nivel mayor de abstracción que permite un mejor modelado de los recursos de un sistema. Por ejemplo, Puppet proporciona tipos para modelar usuarios, grupos, archivos, paquetes y servicios. Está programado en el lenguaje Ruby.
+
+A la hora de realizar una extensión de la funcionalidad, se pensó que sería más fácil hacerla en la herramienta que más abstracción proporcionase y en el lenguaje en el que más fácil fuera modelar esta extensión. Por estas razones se eligió Puppet como la herramienta de gestión de configuración sobre la que hacer la extensión.
+
+
+\section{Extensión de la herramientas de configuración elegida}
+
+Una vez escogida la herramienta sobre la que se haría la extensión, quedaba por determinar cómo realizarla.
+
+La primera opción que se barajó fue la de usar \emph{Faces} de Puppet. \emph{Faces} es una API para crear subcomandos y acciones dentro de Puppet. Analizada a fondo, esta API no proporcionaba una ventaja muy superior a la ejecución de comandos desde la consola del sistema operativo, y no interesaba crear una abstracción que facilitara el trabajo para posteriormente estar usando continuamente la línea de comandos.
+
+La segunda opción, la creación de un tipo y un proveedor de ese tipo sí que presenta una ventaja considerable: podemos usar el tipo para modelar la infraestructura distribuida y podemos usar el proveedor para indicar como iniciar y mantener esa infraestructura. Esta aproximación se acerca más al modelo de Puppet ya que modelamos la infraestructura como si fuera un recurso más de los que posee Puppet. Así pues, esta es la aproximación que se tomó.
