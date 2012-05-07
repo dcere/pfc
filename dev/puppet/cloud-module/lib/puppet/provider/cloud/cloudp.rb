@@ -134,6 +134,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          end
          
          # Define and start virtual machines
+         id = 0      # Leader election identifier
          distribution.each do |pm, vms|
             
             # Get ERB template
@@ -185,6 +186,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                # Save the domain's name
                save_domain_name(ssh_connect, vm_name)
+               
+               # Give the virtual machine a identifier (leader election)
+               leader_election_id(id, vm)
+               id += 1
+               
+               # Tell the virtual machine the leader's id
+               leader_election_leader_id(0, vm)
+               
                
             end      # vms.each
             
@@ -512,6 +521,38 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          err   "#{vm_name} name impossible to save"
          return false
       end
+   end
+   
+   
+   def leader_election_id(id, vm)
+   
+      file = "/tmp/id.cloud"
+      result = `ssh root@#{vm} 'echo #{id} > #{file}'`
+      if $?.exitstatus == 0
+         debug "[DBG] #{vm} received leader election id"
+         return true
+      else
+         debug "[DBG] #{vm} did not receive leader election id"
+         err   "#{vm} did not receive leader election id"
+         return false
+      end
+      
+   end
+   
+   
+   def leader_election_leader_id(id, vm)
+   
+      file = "/tmp/leader.cloud"
+      result = `ssh root@#{vm} 'echo #{id} > #{file}'`
+      if $?.exitstatus == 0
+         debug "[DBG] #{vm} received leader election leader's id"
+         return true
+      else
+         debug "[DBG] #{vm} did not receive leader election leader's id"
+         err   "#{vm} did not receive leader election leader's id"
+         return false
+      end
+      
    end
    
    
