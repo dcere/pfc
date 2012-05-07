@@ -194,7 +194,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Tell the virtual machine the leader's id
                leader_election_leader_id(0, vm)
                
-               
             end      # vms.each
             
          end      # distribution.each
@@ -526,7 +525,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    def leader_election_id(id, vm)
    
-      file = "/tmp/id.cloud"
+      file = "/tmp/cloud-id"
       result = `ssh root@#{vm} 'echo #{id} > #{file}'`
       if $?.exitstatus == 0
          debug "[DBG] #{vm} received leader election id"
@@ -542,7 +541,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    def leader_election_leader_id(id, vm)
    
-      file = "/tmp/leader.cloud"
+      file = "/tmp/cloud-leader"
       result = `ssh root@#{vm} 'echo #{id} > #{file}'`
       if $?.exitstatus == 0
          debug "[DBG] #{vm} received leader election leader's id"
