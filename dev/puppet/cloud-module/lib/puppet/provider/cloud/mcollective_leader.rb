@@ -3,24 +3,24 @@ include MCollective::RPC
 
 def mcollective_ask_id
 
-   puts "Creatig client"
+   puts "Creating client"
    mc = rpcclient("leader")
-   puts "Retrieving nodes ids"
-   printrpc mc.ask_id()
-   printrpcstats
+   puts "Retrieving nodes' ids"
+   output = mc.ask_id()
    puts "Disconnecting"
    mc.disconnect
+   return output
 
 end
 
 def mcollective_new_leader(id)
 
-   puts "Creatig client"
+   puts "Creating client"
    mc = rpcclient("leader")
    puts "Sending new leader information"
-   printrpc mc.new_leader(id)
-   printrpcstats
+   output = mc.new_leader(id)
    puts "Disconnecting"
    mc.disconnect
+   return output
 
 end

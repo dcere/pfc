@@ -1,0 +1,9 @@
+#<MCollective::RPC::Result:0x7fc20dda6188
+@agent="leader",
+@results={:sender=>"lucid-mco1", :data=>{:leader=>"123", :success=>true}, :statusmsg=>"OK", :statuscode=>0},
+@action="new_leader">,
+
+#<MCollective::RPC::Result:0x7fc20dda3910
+@agent="leader",
+@results={:sender=>"lucid-mco2", :data=>{:leader=>"123", :success=>true}, :statusmsg=>"OK", :statuscode=>0},
+@action="new_leader">]
