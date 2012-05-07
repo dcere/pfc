@@ -9,6 +9,7 @@
 #   - Files: Files to install
 #     - all:    all agents
 #     - files:  files agent
+#     - leader: leader election agent
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
@@ -37,4 +38,10 @@ if [ $2 = "files" -o $2 = "all" ]
 then
    scp ./rpc/files.ddl     root@$1:$MCOLL_DST/
    scp ./rpc/files.rb      root@$1:$MCOLL_DST/
+fi
+
+if [ $2 = "leader" -o $2 = "all" ]
+then
+   scp ./rpc/leader.ddl     root@$1:$MCOLL_DST/
+   scp ./rpc/leader.rb      root@$1:$MCOLL_DST/
 fi

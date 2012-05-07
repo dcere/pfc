@@ -7,7 +7,7 @@ metadata    :name        => "File utilities for RPC Agents",
             :timeout     => 10
 
 action "create", :description => "Create a file" do
-    display :always
+   display :always
 
    input :path,
          :prompt      => "The file path",
