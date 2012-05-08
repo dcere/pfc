@@ -75,14 +75,12 @@ PROVIDER_DST="$PUPPET_DST/$NAME/lib/puppet/provider/$NAME"
 
 if [ $2 = "tp" -o $2 = "all" ]
 then
-   scp $TYPE_SRC/cloud.rb                     root@$1:$TYPE_DST/cloud.rb
-   scp $PROVIDER_SRC/$NAME/cloudp.rb          root@$1:$PROVIDER_DST/cloudp.rb
-   scp $PROVIDER_SRC/$NAME/appscale_yaml.rb   root@$1:$PROVIDER_DST/appscale_yaml.rb
-   scp $PROVIDER_SRC/$NAME/web_yaml.rb        root@$1:$PROVIDER_DST/web_yaml.rb
-   scp $PROVIDER_SRC/$NAME/mcollective_files.rb    root@$1:$PROVIDER_DST/mcollective_files.rb
-   scp $PROVIDER_SRC/$NAME/mac.rb             root@$1:$PROVIDER_DST/mac.rb
-   scp $PROVIDER_SRC/$NAME/vm_name.rb         root@$1:$PROVIDER_DST/vm_name.rb
-   scp $PROVIDER_SRC/$NAME/ssh_copy_id.sh     root@$1:$PROVIDER_DST/ssh_copy_id.sh
+   scp $TYPE_SRC/cloud.rb        root@$1:$TYPE_DST/cloud.rb
+
+   # cloudp.rb, appscale_yaml.rb, web_yaml.rb,
+   # mcollective_files.rb, mcollective_leader.rb,
+   # mac.rb, vm_name.rb, ssh_copy_id.sh
+   scp $PROVIDER_SRC/$NAME/*     root@$1:$PROVIDER_DST/
 fi
 
 # Copy test

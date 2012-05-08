@@ -40,6 +40,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       
       # Check existence
       if !exists?
+         # Cloud does not exist => Startup operations
 
          # Check pool of physical machines
          pm_all_up, pm_up, pm_down = check_pool()
@@ -333,7 +334,18 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          puts "Cloud started"
          
       else
+         # Cloud exists => Management operations
          debug "[DBG] Cloud already started"
+         
+         # Check if you are the leader
+         id = File.open("/tmp/cloud-id","r").read.chomp
+         leader_id = File.open("tmp/cloud-leader","r").read.chomp
+         
+         if id == leader_id
+            puts "I am the leader"
+         else
+            puts "I am not the leader"
+         end
       end
       
    end
