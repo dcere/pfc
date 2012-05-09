@@ -610,13 +610,13 @@ hostclass: CLASS classname argumentlist classparent LBRACE statements_and_declar
 }
 
 ### Cloudres ###################################################################
-cloudres: CLOUDRES {puts "Parsing a cloudres"} cloudname LBRACE resourceinstances endsemi RBRACE {
+cloudres: CLOUDRES cloudclass LBRACE resourceinstances endsemi RBRACE {
   @lexer.commentpop
   result = Puppet::Parser::AST::Cloudres.new(val[1],
                                              ast_context(true).merge(:code => val[3],
                                                                      :line => val[0][:line]))
 }
-cloudname : NAME { result = val[0][:value] }
+cloudclass : NAME { result = val[0][:value] }
 ################################################################################
 
 

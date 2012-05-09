@@ -78,7 +78,7 @@ class Puppet::Resource::Type
 
   def initialize(type, name, options = {})
     @type = type.to_s.downcase.to_sym
-    puts "[type] Received a #{@type} type"
+    puts "[type] Received a #{@type} type with name |#{name}|"
     raise ArgumentError, "Invalid resource supertype '#{type}'" unless RESOURCE_SUPERTYPES.include?(@type)
 
     puts "[type] Converting from AST..."

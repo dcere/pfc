@@ -292,6 +292,7 @@ class Puppet::Parser::Compiler
 
     add_resource(@topscope, @main_resource)
 
+    puts "[parser/compiler] About to evaluate #{@main_resource}"
     @main_resource.evaluate
   end
 

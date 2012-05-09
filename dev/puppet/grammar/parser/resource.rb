@@ -323,7 +323,10 @@ class Puppet::Parser::Resource < Puppet::Resource
 
   # Make sure the resource's parameters are all valid for the type.
   def validate
+    puts "[parser/resource] Validating parameters. I was called by"
+    puts caller
     @parameters.each do |name, param|
+      puts "[parser/resource] Validating parameter #{name} :: #{param}"
       validate_parameter(name)
     end
   rescue => detail
