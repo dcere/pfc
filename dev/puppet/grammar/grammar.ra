@@ -132,17 +132,22 @@ rvalue:       quotedtext
   | funcrvalue
   | undef
 
-resource:       classname LBRACE resourceinstances endsemi RBRACE {
-  @lexer.commentpop
-  result = ast(AST::Resource, :type => val[0], :instances => val[2])
-}           | classname LBRACE params endcomma RBRACE {
-  # This is a deprecated syntax.
-  error "All resource specifications require names"
-}           | classref LBRACE params endcomma RBRACE {
-  # a defaults setting for a type
-  @lexer.commentpop
-  result = ast(AST::ResourceDefaults, :type => val[0], :parameters => val[2])
-}
+resource:
+   classname LBRACE resourceinstances endsemi RBRACE {
+     puts "Syntax 1"
+     @lexer.commentpop
+     result = ast(AST::Resource, :type => val[0], :instances => val[2])
+   }
+|  classname LBRACE params endcomma RBRACE {
+     # This is a deprecated syntax.
+     error "All resource specifications require names"
+   }
+|  classref LBRACE params endcomma RBRACE {
+     puts "Syntax 2"
+     # a defaults setting for a type
+     @lexer.commentpop
+     result = ast(AST::ResourceDefaults, :type => val[0], :parameters => val[2])
+   }
 
 # Override a value set elsewhere in the configuration.
 resourceoverride:     resourceref LBRACE anyparams endcomma RBRACE {
@@ -605,7 +610,7 @@ hostclass: CLASS classname argumentlist classparent LBRACE statements_and_declar
 }
 
 ### Cloudres ###################################################################
-cloudres: CLOUDRES {puts "Parsing a cloudres"} cloudname LBRACE RBRACE {
+cloudres: CLOUDRES {puts "Parsing a cloudres"} cloudname LBRACE resourceinstances endsemi RBRACE {
   @lexer.commentpop
   result = Puppet::Parser::AST::Cloudres.new(val[1],
                                              ast_context(true).merge(:code => val[3],
