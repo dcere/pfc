@@ -608,14 +608,20 @@ hostclass: CLASS classname argumentlist classparent LBRACE statements_and_declar
 }
 
 ### Cloudres ###################################################################
-#cloudres: CLOUDRES cloudclass LBRACE resourceinst RBRACE {
 cloudres: CLOUDRES cloudclass LBRACE resourceinst RBRACE {
    puts "[grammar] Parsed cloudres"
   @lexer.commentpop
-  ast(AST::Resource, :type => val[1], :instances => val[3])
   result = Puppet::Parser::AST::Cloudres.new(val[1],
                                              ast_context(true).merge(:code => val[3],
                                                                      :line => val[0][:line]))
+
+
+#  @lexer.namepop
+#  result = Puppet::Parser::AST::Hostclass.new(classname(val[1]),
+#                                             ast_context(true).merge(:arguments => nil,
+#                                                                     :parent => nil,
+#                                                                     :code => val[3],
+#                                                                     :line => val[0][:line]))
 }
 cloudclass : NAME { result = val[0][:value] }
 

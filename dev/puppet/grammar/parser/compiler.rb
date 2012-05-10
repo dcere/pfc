@@ -52,6 +52,8 @@ class Puppet::Parser::Compiler
 
   # Store a resource in our resource table.
   def add_resource(scope, resource)
+    puts caller
+    puts "[parser/compiler] Adding resource #{resource}..."
     @resources << resource
 
     # Note that this will fail if the resource is not unique.
@@ -103,7 +105,7 @@ class Puppet::Parser::Compiler
     evaluate_node_classes
 
     evaluate_generators
-
+puts "[parser/compiler] Finishing..."
     finish
 
     fail_on_unevaluated
@@ -346,6 +348,7 @@ class Puppet::Parser::Compiler
     evaluate_relationships
 
     resources.each do |resource|
+    puts "[parser/compiler] Finishing #{resource}..."
       # Add in any resource overrides.
       if overrides = resource_overrides(resource)
         overrides.each do |over|

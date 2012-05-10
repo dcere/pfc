@@ -81,6 +81,7 @@ class Puppet::Parser::Resource < Puppet::Resource
     return if evaluated?
     @evaluated = true
     if klass = resource_type and ! builtin_type?
+      puts "[parser/resource] #{self} is a #{klass}"
       finish
       evaluated_code = klass.evaluate_code(self)
       add_edge_to_stage
@@ -109,6 +110,7 @@ class Puppet::Parser::Resource < Puppet::Resource
   def finish
     return if finished?
     @finished = true
+    puts "[parser/resource] Finishing #{self}..."
     add_defaults
     add_metaparams
     add_scope_tags

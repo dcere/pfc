@@ -147,6 +147,8 @@ class Puppet::Resource::Type
     type == :definition and raise ArgumentError, "Cannot create resources for defined resource types"
     resource_type = type == :hostclass ? :class : :node
 
+    puts "[resource/type] Ensuring in catalog"
+
     # Do nothing if the resource already exists; this makes sure we don't
     # get multiple copies of the class resource, which helps provide the
     # singleton nature of classes.
