@@ -78,13 +78,10 @@ class Puppet::Resource::Type
 
   def initialize(type, name, options = {})
     @type = type.to_s.downcase.to_sym
-    puts "[type] Received a #{@type} type with name |#{name}|"
     raise ArgumentError, "Invalid resource supertype '#{type}'" unless RESOURCE_SUPERTYPES.include?(@type)
 
-    puts "[type] Converting from AST..."
     name = convert_from_ast(name) if name.is_a?(Puppet::Parser::AST::HostName)
 
-    puts "[type] Setting name and namespace..."
     set_name_and_namespace(name)
 
     [:code, :doc, :line, :file, :parent].each do |param|
@@ -92,7 +89,6 @@ class Puppet::Resource::Type
       send(param.to_s + "=", value)
     end
 
-    puts "[type] Setting arguments..."
     set_arguments(options[:arguments])
 
     @module_name = options[:module_name]
@@ -149,11 +145,7 @@ class Puppet::Resource::Type
   # values.
   def ensure_in_catalog(scope, parameters=nil)
     type == :definition and raise ArgumentError, "Cannot create resources for defined resource types"
-    ###resource_type = type == :hostclass ? :class : :node
-    resource_type = case type
-      when :hostclass then :class
-      else type
-    end
+    resource_type = type == :hostclass ? :class : :node
 
     # Do nothing if the resource already exists; this makes sure we don't
     # get multiple copies of the class resource, which helps provide the

@@ -129,7 +129,7 @@ class Puppet::Parser::Parser
     else
       value = "'#{value[:value]}'"
     end
-    error = "Syntax error at #{value} (token: #{token})"
+    error = "Syntax error at #{value} token #{token} + stack: #{stack}"
 
     if brace = @lexer.expected
       error += "; expected '#{brace}'"

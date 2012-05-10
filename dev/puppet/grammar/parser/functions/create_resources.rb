@@ -56,8 +56,5 @@ Puppet::Parser::Functions::newfunction(:create_resources, :doc => <<-'ENDHEREDOC
       klass.ensure_in_catalog(self, params)
       compiler.catalog.add_class([title])
     end
-    when :cloudres
-       ### TODO What?
-    end
   end
 end

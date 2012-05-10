@@ -112,10 +112,6 @@ class Puppet::Parser::Scope
     known_resource_types.find_definition(namespaces, name)
   end
 
-  def find_cloudres(name)
-    known_resource_types.find_definition(namespaces, name)
-  end
-
   def findresource(string, name = nil)
     compiler.findresource(string, name)
   end
@@ -211,7 +207,7 @@ class Puppet::Parser::Scope
 
   # Look up a defined type.
   def lookuptype(name)
-    find_definition(name) || find_hostclass(name) || find_cloudres(name)
+    find_definition(name) || find_hostclass(name)
   end
 
   def undef_as(x,v)
@@ -410,7 +406,7 @@ class Puppet::Parser::Scope
 
   def find_resource_type(type)
     # It still works fine without the type == 'class' short-cut, but it is a lot slower.
-    return nil if ["class", "node", "cloudres"].include? type.to_s.downcase
+    return nil if ["class", "node"].include? type.to_s.downcase
     find_builtin_resource_type(type) || find_defined_resource_type(type)
   end
 
@@ -444,8 +440,6 @@ class Puppet::Parser::Scope
       end
     when "node"
       # no-op
-    when "cloudres"
-      # no-op?
     else
       # resolve the type
       resource_type = find_resource_type(type)

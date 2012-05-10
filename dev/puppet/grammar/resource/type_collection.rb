@@ -7,7 +7,9 @@ class Puppet::Resource::TypeCollection
     @definitions.clear
     @nodes.clear
     @watched_files.clear
-    @cloudres.clear
+    
+    ###
+    @cloudreses.clear
   end
 
   def initialize(env)
@@ -15,7 +17,9 @@ class Puppet::Resource::TypeCollection
     @hostclasses = {}
     @definitions = {}
     @nodes = {}
-    @cloudres = {}
+
+    ###
+    @cloudreses = {}
 
     # So we can keep a list and match the first-defined regex
     @node_list = []
@@ -24,17 +28,13 @@ class Puppet::Resource::TypeCollection
   end
 
   def import_ast(ast, modname)
-    puts "[type_collection] Importing AST..."
     ast.instantiate(modname).each do |instance|
-      puts "[type_collection] Adding instance #{instance}..."
       add(instance)
-      puts "[type_collection] ...Instance added"
     end
-    puts "[type_collection] ...AST imported"
   end
 
   def inspect
-    "TypeCollection" + { :hostclasses => @hostclasses.keys, :definitions => @definitions.keys, :nodes => @nodes.keys, :cloudres => @cloudres.keys}.inspect
+    "TypeCollection" + { :hostclasses => @hostclasses.keys, :definitions => @definitions.keys, :nodes => @nodes.keys, :cloudres => @cloudreses.keys }.inspect
   end
 
   def <<(thing)
@@ -121,15 +121,17 @@ class Puppet::Resource::TypeCollection
   def find_definition(namespaces, name)
     find_or_load(namespaces, name, :definition)
   end
-  
+
   ###
-  def add_cloudres(instance)
-    dupe_check(instance, @cloudres) { |dupe| "'#{instance.name}' is already defined#{dupe.error_context}; cannot be redefined" }
-    @cloudres[instance.name] = instance
-  end
-  
   def cloudres(name)
-    @cloudres[munge_name(name)]
+    @cloudreses[munge_name(name)]
+  end
+
+  def add_cloudres(instance)
+    dupe_check(instance, @cloudreses) { |dupe| "Cloudres '#{instance.name}' is already defined#{dupe.error_context}; cannot redefine" }
+
+    @cloudreses[instance.name] = instance
+    instance
   end
   
   def find_cloudres(namespaces, name)
@@ -137,6 +139,7 @@ class Puppet::Resource::TypeCollection
   end
   ###
 
+  ###
   [:hostclasses, :nodes, :definitions, :cloudres].each do |m|
     define_method(m) do
       instance_variable_get("@#{m}").dup

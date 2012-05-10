@@ -284,7 +284,7 @@ class Puppet::Parser::Lexer
       "true" => :TRUE,
 
       "in" => :IN,
-
+      
       "cloudres" => :CLOUDRES
   )
 
