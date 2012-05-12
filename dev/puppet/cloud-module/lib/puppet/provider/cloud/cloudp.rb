@@ -41,7 +41,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       # Check existence
       if !exists?
          # Cloud does not exist => Startup operations
-
+         
          # Check pool of physical machines
          pm_all_up, pm_up, pm_down = check_pool()
          if !pm_all_up
@@ -75,6 +75,15 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             err "Cloud type class: #{resource[:type].class}"
          end
          
+         # Check whether you are one of the virtual machines
+         if vm_ips.include?(Facter.value(:ipaddress))
+            puts "I am one of the virtual machines"
+            part_of_cloud = true
+         else
+            puts "I am not one of the virtual machines"
+            part_of_cloud = false
+         end
+         
          # Distribute virtual machines among physical machines
          instances = vm_ips.count
          vm_per_pm = instances / pm_up.length
@@ -97,7 +106,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end
          
-         # Prepare virtual machines
+         # Prepare virtual machines distribution
          distribution = {}
          pm_up.each do |pm|
             distribution[pm] = vm_ips.shift(quantity[pm])
@@ -157,7 +166,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                vm_mac  = mac_address_array.shift
                myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
                
-               # Write vm domain file
+               # Write VM domain file
                domain_file_name = "cloud-#{cloud_type}-#{vm_name}.xml"
                domain_file = File.open("/etc/puppet/modules/cloud/files/#{domain_file_name}", 'w')
                debug "[DBG] Domain file created"
@@ -580,212 +589,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    
-   #############################################################################
-   def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
-                            app_email=nil, app_password=nil, root_password=nil)
-   
-      require 'pty'
-      require 'expect'
-      
-      # Sample dialog
-      # -------------
-      # Enter your desired administrator e-mail address: david@mail.com
-      # 
-      # The new administrator password must be at least six characters long and \
-      #   can include non-alphanumeric characters.
-      # Enter your new password: 
-      # Enter again to verify: 
-      # Please wait for AppScale to prepare your machines for use.
-      # Starting up XMPP server
-      # 
-      # Your user account has been created successfully.
-      # 
-      # Your user account has been created successfully.
-      # No app uploaded. Use appscale-upload-app to upload an app later.
-      # The status of your AppScale instance is at the following URL: \
-      #   http://155.210.155.73/status
-      # Your XMPP username is david@155.210.155.73
-      
-      # Check arguments
-      puts "appscale_cloud_start called with:"
-      puts "  - app_email == #{app_email}"
-      puts "  - app_password == #{app_password}"
-      puts "  - root_password == #{root_password}"
-      
-      ssh_connect = "#{ssh_user}@#{ssh_host}"
-      bin_path = "/usr/local/appscale-tools/bin"
-      
-      # Add key pairs
-      debug "[DBG] About to add key pairs"
-      puts "=About to add key pairs"
-      debug "[DBG] ips.yaml file: #{ips_yaml}"
-      arguments = "--auto --ips #{ips_yaml} --cp_pass #{root_password}"
-      if Facter.value(:ipaddress) == ssh_host
-         # Do it local
-         result = `#{bin_path}/appscale-add-keypair #{arguments}`
-      else
-         # Do it remote
-         result = `#{ssh_connect} '#{bin_path}/appscale-add-keypair #{arguments}'`
-      end
-      puts result
-      if $?.exitstatus == 0
-         debug "[DBG] Key pairs added"
-         puts "Key pairs added"
-      else
-         debug "[DBG] Impossible to add key pairs"
-         err   "Impossible to add key pairs"
-      end
-      
-      # Run instances
-      debug "[DBG] About to run instances"
-      puts "=About to run instances"
-      puts "This may take a while (~ 3 min), so please be patient"
-      arguments = "--ips #{ips_yaml} --cp_user #{app_email} --cp_pass #{app_password}"
-      if Facter.value(:ipaddress) == ssh_host
-         # Do it local
-         result = `#{bin_path}/appscale-run-instances #{arguments}`
-      else
-         # Do it remote
-         result = `#{ssh_connect} '#{bin_path}/appscale-run-instances #{arguments}`
-      end
-      puts result
-      if $?.exitstatus == 0
-         debug "[DBG] Instances running"
-         puts  "Instances running"
-      else
-         debug "[DBG] Impossible to run appscale instances"
-         err   "Impossible to run appscale instances"
-      end
-      
-   end
-   
-   
-   def web_cloud_start(ssh_user, ssh_host, web_roles)
-      
-      # Distribute manifests
-      # TODO Factorize if possible: ssh and scp => 2 versions ?
-      #    command_execution_scp and command_execution_ssh?
-      
-      #result = `mc manifest-agent -T balancer_coll`
-      balancers = web_roles[:balancer]
-      path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
-      balancers.each do |vm|
-         result = `scp #{path} root@#{vm}:/tmp`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to copy balancer manifest to #{vm}"
-            err   "Impossible to copy balancer manifest to #{vm}"
-         end
-      end
-
-      #result = `mc manifest-agent -T servers_coll`
-      servers = web_roles[:server]
-      path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
-      servers.each do |vm|
-         result = `scp #{path} root@#{vm}:/tmp`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to copy server manifest to #{vm}"
-            err   "Impossible to copy server manifest to #{vm}"
-         end
-      end
-      
-      #result = `mc manifest-agent -T database_coll`
-      databases = web_roles[:database]
-      path = "/etc/puppet/modules/cloud/files/web-manifests/database.pp"
-      databases.each do |vm|
-         result = `scp #{path} root@#{vm}:/tmp`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to copy database manifest to #{vm}"
-            err   "Impossible to copy database manifest to #{vm}"
-         end
-      end
-      
-      
-      # Start services
-      
-      # Start load balancers => Start nginx
-      #result = `mc load-balancer-agent -T balancer_coll`
-      puts "Starting nginx on load balancers"
-      command = "/etc/init.d/nginx start"
-      balancers.each do |vm|
-         result = `ssh root@#{vm} '#{command}'`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start balancer in #{vm}"
-            err   "Impossible to start balancer in #{vm}"
-         end
-      end
-      
-      # Start web servers => Start sinatra application
-      #result = `mc web-server-agent -T servers_coll`
-      puts "Starting ruby web3 on web servers"
-      command = "/bin/bash /root/web/start-ruby-web3"
-      servers.each do |vm|
-         result = `ssh root@#{vm} '#{command}'`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start server in #{vm}"
-            err   "Impossible to start server in #{vm}"
-         end
-      end
-      
-      # Database servers start at boot time, but just in case
-      puts "Starting mysql on database servers"
-      command = "/usr/bin/service mysql start"
-      databases.each do |vm|
-         result = `ssh root@#{vm} '#{command}'`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start server in #{vm}"
-            debug "[DBG] Might be already running"
-            #err   "Impossible to start server in #{vm}"
-         end
-      end
-      
-      
-      # Start monitoring
-      
-      # Monitor web server with god
-      path = "/etc/puppet/modules/cloud/files/web-monitor/server.god"
-      servers.each do |vm|
-         result = `ssh root@#{vm} 'mkdir -p /etc/god'`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to create /etc/god at #{vm}"
-            err   "Impossible to create /etc/god at #{vm}"
-         end
-         result = `scp #{path} root@#{vm}:/etc/god/`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to copy #{path} to #{vm}"
-            err   "Impossible to copy #{path} to #{vm}"
-         end
-          result = `ssh root@#{vm} 'god -c /etc/god/server.god'`
-          unless $?.exitstatus == 0
-             debug "[DBG] Impossible to run god in #{vm}"
-             err   "Impossible to run god in #{vm}"
-          end
-      end
-      
-      # Monitor database with god due to puppet vs ubuntu mysql bug
-      # http://projects.puppetlabs.com/issues/12773
-      path = "/etc/puppet/modules/cloud/files/web-monitor/database.god"
-      databases.each do |vm|
-         result = `ssh root@#{vm} 'mkdir -p /etc/god'`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to create /etc/god at #{vm}"
-            err   "Impossible to create /etc/god at #{vm}"
-         end
-         result = `scp #{path} root@#{vm}:/etc/god/`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to copy #{path} to #{vm}"
-            err   "Impossible to copy #{path} to #{vm}"
-         end
-         result = `ssh root@#{vm} 'god -c /etc/god/database.god'`
-         unless $?.exitstatus == 0
-            debug "[DBG] Impossible to run god in #{vm}"
-            err   "Impossible to run god in #{vm}"
-         end
-      end
-      
-      
-   end
-   
-   
+   #############################################################################   
    def jobs_cloud_start
    end
    
