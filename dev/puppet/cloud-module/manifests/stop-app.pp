@@ -1,5 +1,5 @@
 cloud {'mycloud':
-   type => "appscale",
-   images => ["karmic-6GB-1", "karmic-6GB-2"],
+   type   => "appscale",
+   pool   => ["155.210.155.70"],
    ensure => stopped,
 }

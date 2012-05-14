@@ -6,11 +6,13 @@ require 'yaml'
 # Different roles obtained from AppScale wiki:
 #    http://code.google.com/p/appscale/wiki/Placement_Support
 
-def appscale_yaml_parser(file)
+def appscale_yaml_parser(path)
 
    ips = []
+   ip_roles = {}
 
-   tree = YAML::parse(File.open(file))
+   file = File.open(path)
+   tree = YAML::parse(file)
    
    if tree != nil
 
@@ -42,7 +44,9 @@ def appscale_yaml_parser(file)
       
       ips = ips.uniq
       
-      return ips
+      file.close
+      
+      return ips, ip_roles
    end
    
 end

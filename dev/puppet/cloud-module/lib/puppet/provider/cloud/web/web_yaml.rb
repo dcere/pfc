@@ -4,12 +4,13 @@ require 'yaml'
 # Obtains the ips from the web.yaml file. It does NOT check whether
 # the file has the proper format.
 
-def web_yaml_parser(file)
+def web_yaml_ips(path)
 
    ips = []
-   roles = {}
+   ip_roles = {}
 
-   tree = YAML::parse(File.open(file))
+   file = File.open(path)
+   tree = YAML::parse(file)
    
    if tree != nil
 
@@ -20,27 +21,65 @@ def web_yaml_parser(file)
       server   = tree[:server]
       database = tree[:database]
       
-      roles[:balancer] = get_ips(balancer)
-      roles[:server]   = get_ips(server)
-      roles[:database] = get_ips(database)
+      # Get the IPs that are under the "balancer", "server" and "database" label
+      ip_roles[:balancer] = get_elements(balancer)
+      ip_roles[:server]   = get_elements(server)
+      ip_roles[:database] = get_elements(database)
       
-      ips = ips + roles[:balancer]
-      ips = ips + roles[:server]
-      ips = ips + roles[:database]
+      # Add the IPs to the array
+      ips = ips + ip_roles[:balancer]
+      ips = ips + ip_roles[:server]
+      ips = ips + ip_roles[:database]
       
       ips = ips.uniq
       
-      return ips, roles
+      file.close
+      
+      return ips, ip_roles
    end
    
 end
 
-def get_ips(array)
+def web_yaml_images(path)
 
-   ips = []
-   if array != nil
-      ips = array.to_a
+   img_roles = {}
+
+   file = File.open(path)
+   tree = YAML::parse(file)
+   
+   if tree != nil
+
+      tree = tree.transform
+
+      # Classic deployment: load balancer + web servers + database
+      balancer = tree[:balancer]
+      server   = tree[:server]
+      database = tree[:database]
+      
+      # Maybe we have been given only an image for all virtual machines
+      all      = tree[:all]
+      
+      if all == nil
+         img_roles[:balancer] = get_elements(balancer)
+         img_roles[:server]   = get_elements(server)
+         img_roles[:database] = get_elements(database)
+      else
+         img_roles[:all]      = get_elements(all)
+      end
+      
+      file.close
+      
+      return img_roles
    end
-   return ips
+   
+end
+
+def get_elements(array)
+
+   elements = []
+   if array != nil
+      elements = array.to_a
+   end
+   return elements
 
 end

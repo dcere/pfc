@@ -64,8 +64,14 @@ Puppet::Type.newtype(:cloud) do
       newvalues("appscale", "web", "jobs")
    end 
    
-   newparam(:file) do
+   newparam(:ip_file) do
       desc "The file with the cloud description in YAML format"
+   end
+   
+   newparam(:img_file) do
+      desc "The file containing the qemu image(s). You must either provide " +
+           "one image from which all copies shall be made or provide " +
+           "an image for every instance"
    end
    
    newparam(:domain) do
@@ -74,11 +80,6 @@ Puppet::Type.newtype(:cloud) do
    
    newproperty(:images_path) do
       desc "The path where all the images are located"
-   end
-   
-   newproperty(:images, :array_matching => :all) do
-      desc "The qemu image(s). You must either provide one image from which" +
-         " copies shall be made or provide an image for every instance"
    end
    
    newproperty(:pool, :array_matching => :all) do

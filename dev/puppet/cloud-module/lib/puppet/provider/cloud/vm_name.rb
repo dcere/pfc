@@ -7,10 +7,10 @@ class VM_Name
    end
    
    
-   def generate_array(many)
+   def generate_array(many, start=1)
    
       result = []
-      for i in 1..many
+      for i in start..many
          result << @name + "-" + i.to_s
       end
       return result
