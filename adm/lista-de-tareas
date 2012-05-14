@@ -71,8 +71,9 @@
   - El archivo /etc/mcollecive/server.cfg
   - Instalado expect
   - Configurada la clave /root/.ssh/id_rsa.pub
-- Si las MV ya estaban funcionando, ¿cómo sabemos que dominios hay que parar y borrar su definición?
+- Si las MV ya estaban funcionando, ¿cómo sabemos qué dominios hay que parar y borrar su definición?
 - Asegurarse de que siempre hay un broker AMQP en el cloud
 - Asegurarse de iniciar mcollecive en las MVs
 - (X) ¿Hace falta borrar los archivos del directorio /tmp de las MV? Si las vamos a apagar, no, pero en caso contrario sí
   - (X) Cliente MCollective
+- Comprobar que la generación de IDs es correcta cuando las máquinas virtuales han sido arrancadas a priori

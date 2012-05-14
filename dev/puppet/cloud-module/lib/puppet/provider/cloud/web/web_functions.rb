@@ -145,5 +145,11 @@ def web_cloud_start(web_roles)
       end
    end
    
-   
+end
+
+
+def web_monitor(role)
+   puts "Monitoring #{role}"
+   err "role should be a symbol" unless role.class != "Symbol"
+   return
 end

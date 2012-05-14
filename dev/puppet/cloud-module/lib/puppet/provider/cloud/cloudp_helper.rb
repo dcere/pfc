@@ -35,7 +35,15 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # Check if they have their ID
-   # TODO
+   file = "/tmp/cloud-id"
+   command = "ssh root@#{vm} 'cat #{file}'"
+   result = `#{command}`
+   if $?.exitstatus != 0
+      id = get_last_id()
+      id += 1
+      vm_set_id(vm, id)
+      set_last_id(id)
+   end
    
    # Depending on the type of cloud we will have to monitor different components
    if resource[:type] == "appscale"
@@ -58,15 +66,8 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # start it
    
    # Get virtual machine's ID
-   puts "Getting VM's ID..."
-   if File.exists?("/tmp/cloud-last-id")
-      file = File.open("/tmp/cloud-last-id", 'r')
-   else
-      file = File.open("/tmp/cloud-id", 'r')
-   end
-   id = file.read().chomp().to_i
+   id = get_last_id()
    id += 1
-   file.close
    puts "...VM's ID is #{id}"
    
    # Get virtual machine's MAC address
@@ -117,7 +118,6 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Choose a physical machine to host the virtual machine
    pm = pm_up[rand(pm_up.count)] # Choose randomly
-   #pm = "155.210.155.70"
    
    # Copy the domain definition file to the physical machine
    domain_file_path = "/tmp/" + domain_file_name
@@ -142,12 +142,11 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Save the domain's name
    save_domain_name(ssh_connect, vm_name)
    
+   # Save the new virtual machine's ID as last ID
+   set_last_id(id)
    
-   
-   # Save the new virtual machine's ID
-   file = File.open("/tmp/cloud-last-id", 'w')
-   file.puts(id)
-   file.close
+   # Set the ID on the new virtual machine
+   vm_set_id(vm, id)
    
    # Save the new virtual machine's MAC address
    file = File.open("/tmp/cloud-last-mac", 'w')
@@ -269,11 +268,10 @@ def appscale_monitor(role)
    return
 end
 
-def web_monitor(role)
-   puts "Monitoring #{role}"
-   err "role should be a symbol" unless role.class != "Symbol"
-   return
-end
+# In web_functions.rb now
+# def web_monitor(role)
+#    ...
+# end
 
 def jobs_monitor(role)
    return
@@ -391,6 +389,48 @@ def command_execution(ip_array, command, error_message)
          debug "[DBG] #{vm}: #{error_message}"
          err   "#{vm}: #{error_message}"
       end
+   end
+
+end
+
+
+################################################################################
+# ID functions
+################################################################################
+def get_last_id()
+
+   if File.exists?("/tmp/cloud-last-id")
+      file = File.open("/tmp/cloud-last-id", 'r')
+   else
+      file = File.open("/tmp/cloud-id", 'r')
+   end
+   id = file.read().chomp().to_i
+   file.close
+   return id
+
+end
+
+
+def set_last_id(id)
+
+   if File.exists?("/tmp/cloud-last-id")
+      file = File.open("/tmp/cloud-last-id", 'w')
+      file.puts(id)
+      file.close
+   end
+   
+end
+
+
+def vm_set_id(vm, id)
+
+   file = "/tmp/cloud-id"
+   command = "ssh root@#{vm} 'echo #{id} > #{file}'"
+   result = `#{command}`
+   if $?.exitstatus == 0
+      puts "ID set to #{id} on #{vm}:#{file}"
+   else
+      err "Impossible to set ID on #{vm}"
    end
 
 end
