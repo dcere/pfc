@@ -2,6 +2,7 @@
 
 def monitor_vm(vm, ip_roles, img_roles)
 
+   role = :role_must_be_defined_outside_the_loop
    ip_roles.each do |r, ips|
       ips.each do |ip|
          if vm == ip then role = r end
@@ -21,7 +22,6 @@ def monitor_vm(vm, ip_roles, img_roles)
          
 
 end
-
 
 
 def start_vm(vm, ip_roles, img_roles, pmachines_up)
@@ -131,6 +131,8 @@ def appscale_monitor(role)
 end
 
 def web_monitor(role)
+   puts "Monitoring #{role}"
+   err "role should be a symbol" unless role.class != "Symbol"
    return
 end
 

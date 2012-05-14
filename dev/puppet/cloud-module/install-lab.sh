@@ -50,16 +50,8 @@ fi
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
 then
-   scp ./manifests/init-app.pp         root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/stop-app.pp         root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/init-web.pp         root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./manifests/stop-web.pp         root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./files/mycloud-template.xml    root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/helloworld-client.rb    root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/appscale.yaml           root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/appscale-1-node.yaml    root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/web.yaml                root@$1:$PUPPET_DST/$NAME/files/
-   scp ./files/web-simple.yaml         root@$1:$PUPPET_DST/$NAME/files/
+   scp ./manifests/*    root@$1:$PUPPET_DST/$NAME/manifests/
+   scp ./files/*        root@$1:$PUPPET_DST/$NAME/files/
 fi
 
 if [ $2 = "test" -o $2 = "all" ]
@@ -77,10 +69,10 @@ if [ $2 = "tp" -o $2 = "all" ]
 then
    scp $TYPE_SRC/cloud.rb        root@$1:$TYPE_DST/cloud.rb
 
-   # cloudp.rb, appscale_yaml.rb, web_yaml.rb,
+   # cloudp.rb, cloud_helper.rb, appscale_yaml.rb, web_yaml.rb,
    # mcollective_files.rb, mcollective_leader.rb,
    # mac.rb, vm_name.rb, ssh_copy_id.sh
-   scp $PROVIDER_SRC/$NAME/*     root@$1:$PROVIDER_DST/
+   scp -r $PROVIDER_SRC/$NAME/*     root@$1:$PROVIDER_DST/
 fi
 
 # Copy test

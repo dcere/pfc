@@ -1,6 +1,17 @@
 Puppet::Type.type(:cloud).provide(:cloudp) do
    desc "Manages clouds formed by KVM virtual machines"
 
+   # Require appscale auxiliar files
+   require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
+   require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
+
+   # Require web auxiliar files
+   require File.dirname(__FILE__) + '/web/web_yaml.rb'
+   require File.dirname(__FILE__) + '/web/web_functions.rb'
+#   Dir[File.dirname(__FILE__) + '/../lib/*.rb'].each do |file| 
+#      require File.basename(file, File.extname(file))
+#   end
+
    # Commands needed to make the provider suitable
    #commands :grep => "/bin/grep"
    #commands :ip => "/sbin/ip"
@@ -67,7 +78,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             debug "[DBG] It is a web cloud"
             puts "It is a web cloud"
             vm_ips, vm_ip_roles = web_yaml_ips(resource[:ip_file])
-            vm_img_roles = web_yaml_imgs(resource[:img_file])
+            vm_img_roles = web_yaml_images(resource[:img_file])
          elsif resource[:type].to_s == "jobs"
             debug "[DBG] It is a jobs cloud"
             puts "It is a jobs cloud"
@@ -84,11 +95,13 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             puts "I am one of the virtual machines"
             
             # Check if you are the leader
+            puts "Checking whether we are the leader..."
             le = LeaderElection.new("/tmp/cloud-id", "/tmp/cloud-leader")
             my_id = le.get_id
             leader_id = le.get_leader_id
  
             if my_id != -1 && my_id == leader_id      # We are the leader
+               puts "I am the leader"
                
                # Check virtual machines are alive
                alive = {}
@@ -114,6 +127,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                      # If they are alive, monitor them
                      puts "Calling monitor for #{vm}"
                      monitor_vm(vm, vm_ip_roles, vm_img_roles)
+                     puts "Monitor finished"
+                     
+                     # And we have finished
+                     return
                   else
                      # If they are not alive, start and configure them
                      puts "Calling start for #{vm}"
@@ -225,7 +242,17 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                
             else     # We are not the leader or we have not received our ID yet
-               exit
+               puts "I am not the leader"
+            
+               if my_id != -1
+                  # If we have received our ID, try to become leader
+                  puts "Election leader algorithm"
+               else
+                  # If we have not received our ID, exit
+                  return      # Using exit causes the following error:
+                              # err: /Stage[main]//Cloud[mycloud]: \
+                              # Could not evaluate: Puppet::Util::Log requires a message
+               end
             end
             
          else
