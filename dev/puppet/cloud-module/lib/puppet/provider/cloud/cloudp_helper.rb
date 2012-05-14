@@ -1,5 +1,30 @@
 # Auxiliar functions
 
+
+def obtain_vm_ips
+   
+   vm_ips = []
+   vm_ip_roles = []
+   vm_img_roles = []
+   if resource[:type].to_s == "appscale"
+      puts "It is an appscale cloud"
+      vm_ips = appscale_yaml_parser(resource[:ip_file])
+   elsif resource[:type].to_s == "web"
+      puts "It is a web cloud"
+      vm_ips, vm_ip_roles = web_yaml_ips(resource[:ip_file])
+      vm_img_roles = web_yaml_images(resource[:img_file])
+   elsif resource[:type].to_s == "jobs"
+      vm_ips = []
+      # ...
+   else
+      err "Cloud type undefined: #{resource[:type]}"
+      err "Cloud type class: #{resource[:type].class}"
+   end
+   return vm_ips, vm_ip_roles, vm_img_roles
+         
+end
+
+
 def monitor_vm(vm, ip_roles, img_roles)
 
    role = :role_must_be_defined_outside_the_loop
@@ -24,7 +49,7 @@ def monitor_vm(vm, ip_roles, img_roles)
 end
 
 
-def start_vm(vm, ip_roles, img_roles, pmachines_up)
+def start_vm(vm, ip_roles, img_roles, pm_up)
 
    # This function is cloud-type independent: define a new virtual machine and
    # start it
@@ -36,7 +61,7 @@ def start_vm(vm, ip_roles, img_roles, pmachines_up)
    else
       file = File.open("/tmp/cloud-id", 'r')
    end
-   id = file.read().chomp()
+   id = file.read().chomp().to_i
    id += 1
    file.close
    puts "...VM's ID is #{id}"
@@ -54,8 +79,10 @@ def start_vm(vm, ip_roles, img_roles, pmachines_up)
    
    # Get virtual machine's image disk
    puts "Getting VM's image disk..."
+   role = :role_must_be_defined_outside_the_loop
+   index = 0
    ip_roles.each do |r, ips|
-      index = 0
+      index = 0      # Reset the index for each role
       ips.each do |ip|
          if vm == ip
             role = r
@@ -118,9 +145,118 @@ def start_vm(vm, ip_roles, img_roles, pmachines_up)
    file = File.open("/tmp/cloud-last-id", 'w')
    file.puts(id)
    file.close
+   
+   # Save the new virtual machine's MAC address
+   file = File.open("/tmp/cloud-last-mac", 'w')
+   file.puts(mac_address)
+   file.close
 
 end
 
+
+def copy_cloud_files(ips)
+#TODO Use MCollective?
+
+
+   ips.each do |vm|
+   
+      if vm != MY_IP
+         # Cloud manifest
+         # FIXME : Check 'source' attribute in manifest
+         command = "scp /etc/puppet/manifests/init-cloud.pp" +
+                   " root@#{vm}:/etc/puppet/manifests/init-cloud.pp"
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            err "Impossible to copy init-cloud.pp to #{vm}"
+         end
+         
+         # Cloud description (IPs YAML file)
+         command = "scp #{resource[:ip_file]} root@#{vm}:#{resource[:ip_file]}"
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            err "Impossible to copy #{resource[:ip_file]} to #{vm}"
+         end
+         
+         # Cloud roles (Image disks YAML file)
+         command = "scp #{resource[:img_file]} root@#{vm}:#{resource[:img_file]}"
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            err "Impossible to copy #{resource[:img_file]} to #{vm}"
+         end
+      end
+   end
+   
+end
+
+
+def start_cloud(vm_ips, vm_ip_roles)
+
+   puts "Starting the cloud"
+   if resource[:type].to_s == "appscale"
+      if (resource[:app_email] == nil) || (resource[:app_password] == nil)
+         err "Need an AppScale user and password"
+         exit
+      else
+         puts "app_email = #{resource[:app_email]}"
+         puts "app_password = #{resource[:app_password]}"
+      end
+      debug "[DBG] Starting an appscale cloud"
+      puts  "Starting an appscale cloud"
+      
+      puppet_path = "/etc/puppet/"
+      appscale_manifest_path = puppet_path + "appscale_basic.pp"
+      appscale_manifest = File.open("/etc/puppet/modules/cloud/files/appscale-manifests/basic.pp", 'r').read()
+      puts "Creating manifest files on agent nodes"
+      mcollective_create_files(appscale_manifest_path, appscale_manifest)
+      puts "Manifest files created"
+      
+      # FIXME Only works if ssh keys are OK. Maybe Puppet source?
+      yaml_file = resource[:ip_file]
+      puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
+      result = `scp #{yaml_file} root@155.210.155.170:/tmp`
+      ips_yaml = File.basename(resource[:ip_file])
+      ips_yaml = "/tmp/" + ips_yaml
+      puts "==Calling appscale_cloud_start"
+      ssh_user = "root"
+      ssh_host = "155.210.155.170"
+      appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
+                           resource[:app_email], resource[:app_password],
+                           resource[:root_password])
+
+   elsif resource[:type].to_s == "web"
+      debug "[DBG] Starting a web cloud"
+      puts  "Starting a web cloud"
+      
+      # Distribute ssh key to nodes to make login passwordless
+      # TODO : Make sure the /root/.ssh/id_rsa.pub key exists
+      key_path = "/root/.ssh/id_rsa.pub"
+      command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud"
+      password = resource[:root_password]
+      puts "Distributing ssh keys to nodes"
+      vm_ips.each do |vm|
+         result = `#{command_path}/ssh_copy_id.sh root@#{vm} #{key_path} #{password}`
+         if $?.exitstatus == 0
+            puts "Copied ssh key to #{vm}"
+         else
+            err "Impossible to copy ssh key to #{vm}"
+         end
+      end
+      
+      # Start web cloud
+      web_cloud_start(vm_ip_roles)
+
+   elsif resource[:type].to_s == "jobs"
+      debug "[DBG] Starting a jobs cloud"
+      puts  "Starting a jobs cloud"
+      jobs_cloud_start
+
+   else
+      debug "[DBG] Cloud type undefined: #{resource[:type]}"
+      err   "Cloud type undefined: #{resource[:type]}"
+   end
+
+
+end
 
 
 

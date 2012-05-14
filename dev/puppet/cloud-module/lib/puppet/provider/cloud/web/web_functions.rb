@@ -1,8 +1,10 @@
-def web_cloud_start(ssh_user, ssh_host, web_roles)
+def web_cloud_start(web_roles)
    
    # Distribute manifests
    # TODO Factorize if possible: ssh and scp => 2 versions ?
-   #    command_execution_scp and command_execution_ssh?
+   #      command_execution_scp and command_execution_ssh?
+   #      ssh to itself? Does it work if keys are distributed? Should it make
+   #        a clear distinction between ssh to itself or others?
    
    #result = `mc manifest-agent -T balancer_coll`
    balancers = web_roles[:balancer]
@@ -45,10 +47,18 @@ def web_cloud_start(ssh_user, ssh_host, web_roles)
    puts "Starting nginx on load balancers"
    command = "/etc/init.d/nginx start"
    balancers.each do |vm|
-      result = `ssh root@#{vm} '#{command}'`
-      unless $?.exitstatus == 0
-         debug "[DBG] Impossible to start balancer in #{vm}"
-         err   "Impossible to start balancer in #{vm}"
+      if vm == MY_IP
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start balancer in #{vm}"
+            err   "Impossible to start balancer in #{vm}"
+         end
+      else
+         result = `ssh root@#{vm} '#{command}'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start balancer in #{vm}"
+            err   "Impossible to start balancer in #{vm}"
+         end
       end
    end
    
@@ -57,10 +67,18 @@ def web_cloud_start(ssh_user, ssh_host, web_roles)
    puts "Starting ruby web3 on web servers"
    command = "/bin/bash /root/web/start-ruby-web3"
    servers.each do |vm|
-      result = `ssh root@#{vm} '#{command}'`
-      unless $?.exitstatus == 0
-         debug "[DBG] Impossible to start server in #{vm}"
-         err   "Impossible to start server in #{vm}"
+      if vm == MY_IP
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start server in #{vm}"
+            err   "Impossible to start server in #{vm}"
+         end
+      else
+         result = `ssh root@#{vm} '#{command}'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start server in #{vm}"
+            err   "Impossible to start server in #{vm}"
+         end
       end
    end
    
@@ -68,11 +86,18 @@ def web_cloud_start(ssh_user, ssh_host, web_roles)
    puts "Starting mysql on database servers"
    command = "/usr/bin/service mysql start"
    databases.each do |vm|
-      result = `ssh root@#{vm} '#{command}'`
-      unless $?.exitstatus == 0
-         debug "[DBG] Impossible to start server in #{vm}"
-         debug "[DBG] Might be already running"
-         #err   "Impossible to start server in #{vm}"
+      if vm == MY_IP
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start database in #{vm}"
+            err   "Impossible to start database in #{vm}"
+         end
+      else
+         result = `ssh root@#{vm} '#{command}'`
+         unless $?.exitstatus == 0
+            debug "[DBG] Impossible to start database in #{vm}"
+            err   "Impossible to start database in #{vm}"
+         end
       end
    end
    

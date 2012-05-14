@@ -41,8 +41,8 @@
 - (X) Uso de MCollective para ejecutar comandos de shell => Comandos sencillos como 'whoami', 'ls'
 - (X) Uso de invoke-rc.d mcollecive stop en vez de service mcollecive stop en Debian / Ubuntu
   - (X) Si se inicia con /usr/sbin/service mcollecive start, se apaga con /usr/sbin/service mcollecive stop
-- Estudiar los ejemplos de Agentes y Clientes de RPC que proporciona MCollective
-- SSH de Puppet vs SSH de AppScale: ¿compatibles?
+- (X) Estudiar los ejemplos de Agentes y Clientes de RPC que proporciona MCollective
+- (X) SSH de Puppet vs SSH de AppScale: ¿compatibles? => Parece que sí
 - Plantillas ERB
   - (X) erb -x -T '-' mycloud-template.xml | ruby -c
   - carla
@@ -53,10 +53,24 @@
 - nginxd?
 - (X) Instalación de Puppet en las lucid-web
 - Instalación de MCollective en las lucid-web
+  - lucid-balancer
+  - (X) lucid-server1
+  - lucid-server2
+  - (X) lucid-database
 - Estudiar el uso del parámetro "image_path" para facilitar la especificación de varias imágenes en "images"
 - Puppet: rubygems de ubuntu (1.3.5) vs gem --version (1.8.21) ¿Como se especifica la última en un manifiesto Puppet?
 - (X) Borrar definición de máquinas en virsh en lote: myvm* , cloud-app-* etc. ¿Se puede? => No
   - => Guardar los nombres de las máquinas definidas en un fichero para poder borrar su definición desde la función stop
 - Fichero (XML, YAML) de valores del cloud: numero de nodos, mapa función - IP, nodo líder, mapa id (leader) - IP, etc
+  - En vez de un unico fichero, varios: cloud-id, cloud-leader, cloud-last-id, cloud-last-mac, etc
+  - También los ficheros del manifiesto, y el manifiesto deben ser copiados: init-cloud.pp, ip_file.yaml, img_file.yaml
 - Creación de carpeta /tmp/cloud en la que poner los ficheros: fichero de configuración, cloud-id, cloud-leader, etc
 - Definir como variables globales en el proveedor las rutas (y los nombres?) de estos ficheros
+- Comprobar que las máquinas virtuales tienen correctamente:
+  - Instalado MCollective
+  - El archivo /etc/mcollecive/server.cfg
+  - Instalado expect
+  - Configurada la clave /root/.ssh/id_rsa.pub
+- Si las MV ya estaban funcionando, ¿cómo sabemos que dominios hay que parar y borrar su definición?
+- Asegurarse de que siempre hay un broker AMQP en el cloud
+- Asegurarse de iniciar mcollecive en las MVs

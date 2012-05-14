@@ -67,26 +67,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips = []
-         if resource[:type].to_s == "appscale"
-            debug "[DBG] It is an appscale cloud"
-            puts "It is an appscale cloud"
-            vm_ips = appscale_yaml_parser(resource[:ip_file])
-            debug "[DBG] File parsed"
-            debug "[DBG] #{vm_ips}"
-         elsif resource[:type].to_s == "web"
-            debug "[DBG] It is a web cloud"
-            puts "It is a web cloud"
-            vm_ips, vm_ip_roles = web_yaml_ips(resource[:ip_file])
-            vm_img_roles = web_yaml_images(resource[:img_file])
-         elsif resource[:type].to_s == "jobs"
-            debug "[DBG] It is a jobs cloud"
-            puts "It is a jobs cloud"
-            vm_ips = []
-         else
-            err "Cloud type undefined: #{resource[:type]}"
-            err "Cloud type class: #{resource[:type].class}"
-         end
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_ips()
          
          # Check whether you are one of the virtual machines
          puts "Checking whether we are one of the virtual machines..."
@@ -106,7 +87,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Check virtual machines are alive
                alive = {}
                vm_ips.each do |vm|
-                  alive[vm] = 0
+                  alive[vm] = false
                end
                
                vm_ips.each do |vm|
@@ -114,7 +95,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   if $?.exitstatus == 0
                      debug "[DBG] #{vm} is up"
                      puts "#{vm} is up"
-                     alive[vm] = 1
+                     alive[vm] = true
                   else
                      debug "[DBG] #{vm} is down"
                      puts "#{vm} is down"
@@ -122,136 +103,66 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
                
                # Monitor the alive machines. Start and configure the dead ones.
+               deads = false
                vm_ips.each do |vm|
                   if alive[vm]
                      # If they are alive, monitor them
-                     puts "Calling monitor for #{vm}"
+                     puts "Monitoring #{vm}..."
                      monitor_vm(vm, vm_ip_roles, vm_img_roles)
-                     puts "Monitor finished"
-                     
-                     # And we have finished
-                     return
+                     puts "...Monitored"
                   else
                      # If they are not alive, start and configure them
-                     puts "Calling start for #{vm}"
+                     puts "Starting #{vm}..."
                      start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+                     puts "...Started"
+                     deads = true
                   end
+               end
+               
+               # If there were dead machines, give them some time to raise
+               puts "Some machines are starting. I will continue in 20 seconds"
+               if deads
+                  sleep(20)
                end
                
                # Distribute important files to all machines
-               vm_ips.each do |vm|
+               puts "Distributing important files to all virtual machines"
+               copy_cloud_files(vm_ips)
+               
+               # If not already started, start the cloud
+               unless File.exists?("/tmp/cloud-#{resource[:name]}")
+                  # Start the cloud
+                  start_cloud(vm_ips, vm_ip_roles)
                   
-                  # Cloud manifest
-                  # FIXME : Check 'source' attribute in manifest
-                  command = "scp /etc/puppet/manifests/init-cloud.pp" +
-                            " root@#{vm}:/etc/puppet/manifests/init-cloud.pp"
-                  result = `#{command}`
-                  unless $?.exitstatus == 0
-                     err "Impossible to copy init-cloud.pp to #{vm}"
-                  end
-                  
-                  # Cloud description (YAML file)
-                  command = "scp #{resource[:ip_file]} root@#{vm}:#{resource[:ip_file]}"
-                  result = `#{command}`
-                  unless $?.exitstatus == 0
-                     err "Impossible to copy #{resource[:ip_file]} to #{vm}"
-                  end
+                  # Create file
+                  cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
+                  cloud_file.puts(resource[:name])
+                  cloud_file.close
                end
-               
-               # Start the cloud
-               puts "Starting the cloud"
-               if resource[:type].to_s == "appscale"
-                  if (resource[:app_email] == nil) || (resource[:app_password] == nil)
-                     err "Need an AppScale user and password"
-                     exit
-                  else
-                     puts "app_email = #{resource[:app_email]}"
-                     puts "app_password = #{resource[:app_password]}"
-                  end
-                  debug "[DBG] Starting an appscale cloud"
-                  puts  "Starting an appscale cloud"
-                  
-                  puppet_path = "/etc/puppet/"
-                  appscale_manifest_path = puppet_path + "appscale_basic.pp"
-                  appscale_manifest = File.open("/etc/puppet/modules/cloud/files/appscale-manifests/basic.pp", 'r').read()
-                  puts "Creating manifest files on agent nodes"
-                  mcollective_create_files(appscale_manifest_path, appscale_manifest)
-                  puts "Manifest files created"
-                  
-                  # FIXME Only works if ssh keys are OK. Maybe Puppet source?
-                  yaml_file = resource[:ip_file]
-                  puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
-                  result = `scp #{yaml_file} root@155.210.155.170:/tmp`
-                  ips_yaml = File.basename(resource[:ip_file])
-                  ips_yaml = "/tmp/" + ips_yaml
-                  puts "==Calling appscale_cloud_start"
-                  ssh_user = "root"
-                  ssh_host = "155.210.155.170"
-                  appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
-                                       resource[:app_email], resource[:app_password],
-                                       resource[:root_password])
-
-               elsif resource[:type].to_s == "web"
-                  debug "[DBG] Starting a web cloud"
-                  puts  "Starting a web cloud"
-                  
-                  # Distribute ssh key to nodes to make login passwordless
-                  key_path = "/root/.ssh/id_rsa.pub"
-                  command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud"
-                  password = resource[:root_password]
-                  puts "Distributing ssh keys to nodes"
-                  distribution.each do |pm, vms|
-                     vms.each do |vm|
-                        result = `#{command_path}/ssh_copy_id.sh root@#{vm} #{key_path} #{password}`
-                        if $?.exitstatus == 0
-                           puts "Copied ssh key to #{vm}"
-                        else
-                           err "Impossible to copy ssh key to #{vm}"
-                        end
-                     end
-                  end
-                  
-                  # FIXME Only works if ssh keys are OK => Asks for password. Maybe Puppet source? 
-                  yaml_file = resource[:ip_file]
-                  puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
-                  result = `scp #{yaml_file} root@155.210.155.170:/tmp`
-                  ips_yaml = File.basename(resource[:ip_file])
-                  ips_yaml = "/tmp/" + ips_yaml
-                  ssh_user = "root"
-                  ssh_host = "155.210.155.170"
-                  web_cloud_start(ssh_user, ssh_host, vm_ip_roles)
-
-               elsif resource[:type].to_s == "jobs"
-                  debug "[DBG] Starting a jobs cloud"
-                  puts  "Starting a jobs cloud"
-                  jobs_cloud_start
-
-               else
-                  debug "[DBG] Cloud type undefined: #{resource[:type]}"
-                  err   "Cloud type undefined: #{resource[:type]}"
-               end
-               
-               # Create file
-               cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
-               cloud_file.puts(resource[:name])
-               cloud_file.close
-               
                
                puts "Cloud started"
-               
                
                
             else     # We are not the leader or we have not received our ID yet
                puts "I am not the leader"
             
-               if my_id != -1
-                  # If we have received our ID, try to become leader
+               if my_id == -1
+                  # If we have not received our ID, let's assume we will be the leader
                   puts "Election leader algorithm"
+                  
+                  # If no one answers, we are the leader
+                  id_file = File.open("/tmp/cloud-id", 'w')
+                  id_file.puts("0")
+                  id_file.close
+                  leader_file = File.open("/tmp/cloud-leader", 'w')
+                  leader_file.puts("0")
+                  leader_file.close
+                  
+                  puts "I will be the leader"
+                  
                else
-                  # If we have not received our ID, exit
-                  return      # Using exit causes the following error:
-                              # err: /Stage[main]//Cloud[mycloud]: \
-                              # Could not evaluate: Puppet::Util::Log requires a message
+                  # If we have received our ID, try to become leader
+                  return
                end
             end
             
@@ -268,13 +179,28 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
       else
          # Cloud exists => Management operations
-         debug "[DBG] Cloud already started"
+         puts "Cloud already started"
          
+         # Get your ID
+         id_file = File.open("/tmp/cloud-id",'r')
+         if id_file
+            id = id_file.read().chomp()
+            id_file.close
+         else
+            err "File /tmp/cloud-id does not exist"
+         end
+         
+         # Get leader's ID
+         leader_file = File.open("/tmp/cloud-leader",'r')
+         if leader_file
+            leader = leader_file.read().chomp()
+            leader_file.close
+         else
+            err "File /tmp/cloud-leader does not exist"
+         end
+
          # Check if you are the leader
-         id = File.open("/tmp/cloud-id","r").read.chomp
-         leader_id = File.open("tmp/cloud-leader","r").read.chomp
-         
-         if id == leader_id
+         if id == leader
             puts "I am the leader"
          else
             puts "I am not the leader"
@@ -348,8 +274,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             
          end   # pms.each
          
-         # Delete file
-         File.delete("/tmp/cloud-#{resource[:name]}")
+         # Delete files
+         File.delete("/tmp/defined-domains-#{resource[:name]}")      # Domains file
+         File.delete("/tmp/cloud-#{resource[:name]}")                # Cloud file
          
       end
    
