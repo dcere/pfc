@@ -1,14 +1,37 @@
 require 'mcollective'
 include MCollective::RPC
 
-def mcollective_create_files(path, content)
-
-   puts "Creating client"
-   mc = rpcclient("files")
-   puts "Sending path and content"
-   printrpc mc.create(:path => path, :content => content)
-   printrpcstats
-   puts "Disconnecting"
-   mc.disconnect
-
+class MCollectiveFilesClient
+   
+   
+   def initialize(client)
+      @client = client
+      @mc = rpcclient(@client)
+   end
+   
+   
+   def create_files(path, content)
+   
+      puts "Sending path and content via MCollective client"
+      printrpc @mc.create(:path => path, :content => content)
+      printrpcstats
+   
+   end
+   
+   
+   def delete_files(path)
+   
+      puts "Sending path via MCollective client"
+      printrpc @mc.delete(:path => path)
+      printrpcstats
+   
+   end
+   
+   
+   def disconnect
+      puts "Disconnecting MCollective client"
+      @mc.disconnect
+   end
+   
+   
 end

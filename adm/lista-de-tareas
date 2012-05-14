@@ -64,7 +64,7 @@
 - Fichero (XML, YAML) de valores del cloud: numero de nodos, mapa función - IP, nodo líder, mapa id (leader) - IP, etc
   - En vez de un unico fichero, varios: cloud-id, cloud-leader, cloud-last-id, cloud-last-mac, etc
   - También los ficheros del manifiesto, y el manifiesto deben ser copiados: init-cloud.pp, ip_file.yaml, img_file.yaml
-- Creación de carpeta /tmp/cloud en la que poner los ficheros: fichero de configuración, cloud-id, cloud-leader, etc
+- ¿Creación de carpeta /tmp/cloud en la que poner los ficheros: fichero de configuración, cloud-id, cloud-leader, etc?
 - Definir como variables globales en el proveedor las rutas (y los nombres?) de estos ficheros
 - Comprobar que las máquinas virtuales tienen correctamente:
   - Instalado MCollective
@@ -74,3 +74,5 @@
 - Si las MV ya estaban funcionando, ¿cómo sabemos que dominios hay que parar y borrar su definición?
 - Asegurarse de que siempre hay un broker AMQP en el cloud
 - Asegurarse de iniciar mcollecive en las MVs
+- (X) ¿Hace falta borrar los archivos del directorio /tmp de las MV? Si las vamos a apagar, no, pero en caso contrario sí
+  - (X) Cliente MCollective

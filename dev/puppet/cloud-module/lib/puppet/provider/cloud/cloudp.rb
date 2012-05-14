@@ -8,6 +8,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    # Require web auxiliar files
    require File.dirname(__FILE__) + '/web/web_yaml.rb'
    require File.dirname(__FILE__) + '/web/web_functions.rb'
+   
+   # Require MCollective files
+   require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
+   
 #   Dir[File.dirname(__FILE__) + '/../lib/*.rb'].each do |file| 
 #      require File.basename(file, File.extname(file))
 #   end
@@ -269,14 +274,38 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                result = `#{ssh_connect} 'rm -rf /tmp/defined-domains-#{resource[:name]}'`
             
             else
-               err "No #{defined_domains_path} file found in #{pm}"
+               # Some physical machines might not have any virtual machine defined.
+               # For instance, if they were already defined and running when we
+               # started the cloud.
+               puts "No #{defined_domains_path} file found in #{pm}"
             end
             
          end   # pms.each
          
          # Delete files
-         File.delete("/tmp/defined-domains-#{resource[:name]}")      # Domains file
-         File.delete("/tmp/cloud-#{resource[:name]}")                # Cloud file
+         
+         # Create an MCollective client so that we can push the broker to the limit
+         mcc = MCollectiveFilesClient.new("files")
+         mcc.delete_files("/tmp/cloud-leader")                 # Leader ID
+         mcc.delete_files("/tmp/cloud-id")                     # ID
+         mcc.disconnect
+         
+         # Delete rest of regular files
+         files = ["/tmp/cloud-last-id",                        # Last ID
+                  "/tmp/cloud-last-mac",                       # Last MAC address
+                  "/tmp/defined-domains-#{resource[:name]}",   # Domains file
+                  "/tmp/cloud-#{resource[:name]}"]             # Cloud file
+         files.each do |file|
+            if File.exists?(file)
+               File.delete(file)
+            else
+               puts "File #{file} does not exist"
+            end
+         end            
+         
+         # Note: As they are included in the /tmp directory, only the machines
+         # that are still alive need to delete these files. If the machine was
+         # shut down, these files will not be the next time it is started.
          
       end
    

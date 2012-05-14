@@ -34,6 +34,9 @@ def monitor_vm(vm, ip_roles, img_roles)
       end
    end
    
+   # Check if they have their ID
+   # TODO
+   
    # Depending on the type of cloud we will have to monitor different components
    if resource[:type] == "appscale"
       appscale_monitor(role)

@@ -1,26 +1,37 @@
 require 'mcollective'
 include MCollective::RPC
 
-def mcollective_ask_id
-
-   puts "Creating client"
-   mc = rpcclient("leader")
-   puts "Retrieving nodes' ids"
-   output = mc.ask_id()
-   puts "Disconnecting"
-   mc.disconnect
-   return output
-
-end
-
-def mcollective_new_leader(id)
-
-   puts "Creating client"
-   mc = rpcclient("leader")
-   puts "Sending new leader information"
-   output = mc.new_leader(id)
-   puts "Disconnecting"
-   mc.disconnect
-   return output
-
+class MCollectiveLeaderClient
+   
+   
+   def initialize(client)
+      @client = client
+      @mc = rpcclient(@client)
+   end
+   
+   
+   def ask_id
+   
+      puts "Retrieving nodes' ids via MCollective client"
+      output = @mc.ask_id()
+      return output
+   
+   end
+   
+   
+   def new_leader(id)
+   
+      puts "Sending new leader information via MCollective client"
+      output = @mc.new_leader(id)
+      return output
+   
+   end
+   
+   
+   def disconnect
+      puts "Disconnecting MCollective client"
+      @mc.disconnect
+   end
+   
+   
 end
