@@ -78,3 +78,4 @@
 - (X) ¿Hace falta borrar los archivos del directorio /tmp de las MV? Si las vamos a apagar, no, pero en caso contrario sí
   - (X) Cliente MCollective
 - (X) Comprobar que la generación de IDs es correcta cuando las máquinas virtuales han sido arrancadas a priori
+- Elección de líder: MCollective o codificación en LeaderElection?

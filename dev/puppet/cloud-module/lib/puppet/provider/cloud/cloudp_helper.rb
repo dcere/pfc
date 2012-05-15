@@ -35,15 +35,25 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # Check if they have their ID
+   # They are running, but they do not have their ID
+   #   - Set their ID before they can become another leader.
+   #   - Set also the leader's ID.
    le = LeaderElection.new()
-   file = "/tmp/cloud-id"
-   command = "ssh root@#{vm} 'cat #{file}'"
+   id_file = ID_FILE
+   command = "ssh root@#{vm} 'cat #{id_file}'"
    result = `#{command}`
    if $?.exitstatus != 0
+      # Set their ID (based on last ID we defined)
       id = get_last_id()
       id += 1
       le.vm_set_id(vm, id)
+      
+      le.set_id_YAML(vm, id) # FIXME: Is it really needed?
       set_last_id(id)
+      
+      # Set the leader's ID
+      leader = le.get_leader()
+      le.vm_set_leader(vm, leader)
    end
    
    # Depending on the type of cloud we will have to monitor different components
@@ -121,6 +131,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    pm = pm_up[rand(pm_up.count)] # Choose randomly
    
    # Copy the domain definition file to the physical machine
+   puts "Copying the domain definition file to the physical machine..."
    domain_file_path = "/tmp/" + domain_file_name
    command = "scp /etc/puppet/modules/cloud/files/#{domain_file_name}" +
                 " dceresuela@#{pm}:#{domain_file_path}"
@@ -135,12 +146,15 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    ssh_connect = "ssh dceresuela@#{pm}"
    
    # Define the domain in the physical machine
+   puts "Defining the domain in the physical machine..."
    define_domain(ssh_connect, vm_name, domain_file_path)
    
    # Start the domain
+   puts "Starting the domain..."
    start_domain(ssh_connect, vm_name)
    
    # Save the domain's name
+   puts "Saving the domain's name..."
    save_domain_name(ssh_connect, vm_name)
    
    # Save the new virtual machine's ID as last ID
@@ -148,9 +162,18 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Set the ID and leader ID on the new virtual machine
    le = LeaderElection.new()
-   le.vm_set_id(vm, id)
-   leader = le.vm_get_leader()
-   le.vm_set_leader(vm, leader)
+   unless le.vm_set_id(vm, id)
+      puts "Impossible to set ID on #{vm}"
+   end
+   
+   leader = le.get_leader()
+   unless le.vm_set_leader(vm, leader)
+      puts "Impossible to set leader's ID on #{vm}"
+   end
+
+   # WARNING: In case the machine is not still running when we try to set
+   # their ID and leader's ID, save their ID in a file
+   le.set_id_YAML(vm, id)
    
    # Save the new virtual machine's MAC address
    file = File.open("/tmp/cloud-last-mac", 'w')
@@ -366,6 +389,38 @@ def command_execution(ip_array, command, error_message)
 end
 
 
+def send_ids(vms)
+
+   id_file = ID_FILE
+   leader_file = LEADER_FILE
+   
+   le = LeaderElection.new()
+   
+   vms.each do |vm|
+      
+      if vm != MY_IP
+         
+         # Check if they have their ID. Send it otherwise.
+         command = "ssh root@#{vm} 'cat #{id_file}'"
+         result = `#{command}`
+         if $?.exitstatus != 0
+            id = le.get_id_YAML(vm)
+            le.vm_set_id(vm, id)
+         end
+         
+         # Check if they have the leader's ID. Send it otherwise.
+         command = "ssh root@#{vm} 'cat #{leader_file}'"
+         result = `#{command}`
+         if $?.exitstatus != 0
+            leader = le.get_leader()
+            le.vm_set_leader(vm, leader)
+         end
+         
+      end
+      
+   end
+   
+end
 ################################################################################
 # Last ID functions
 ################################################################################
@@ -374,7 +429,7 @@ def get_last_id()
    if File.exists?("/tmp/cloud-last-id")
       file = File.open("/tmp/cloud-last-id", 'r')
    else
-      file = File.open("/tmp/cloud-id", 'r')
+      file = File.open(ID_FILE, 'r')
    end
    id = file.read().chomp().to_i
    file.close

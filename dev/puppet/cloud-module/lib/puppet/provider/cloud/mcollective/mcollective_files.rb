@@ -13,7 +13,7 @@ class MCollectiveFilesClient
    def create_files(path, content)
    
       puts "Sending path and content via MCollective client"
-      printrpc @mc.create(:path => path, :content => content)
+      @mc.create(:path => path, :content => content)
       printrpcstats
    
    end
@@ -22,7 +22,7 @@ class MCollectiveFilesClient
    def delete_files(path)
    
       puts "Sending path via MCollective client"
-      printrpc @mc.delete(:path => path)
+      @mc.delete(:path => path)
       printrpcstats
    
    end

@@ -89,14 +89,14 @@ def web_cloud_start(web_roles)
       if vm == MY_IP
          result = `#{command}`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start database in #{vm}"
-            err   "Impossible to start database in #{vm}"
+            debug "[DBG] Impossible to start database in #{vm} (might be already running)"
+            err   "Impossible to start database in #{vm} (might be already running)"
          end
       else
          result = `ssh root@#{vm} '#{command}'`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start database in #{vm}"
-            err   "Impossible to start database in #{vm}"
+            debug "[DBG] Impossible to start database in #{vm} (might be already running)"
+            err   "Impossible to start database in #{vm} (might be already running)"
          end
       end
    end

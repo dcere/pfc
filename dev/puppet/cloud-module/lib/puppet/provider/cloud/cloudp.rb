@@ -29,6 +29,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    VIRSH_CONNECT = "virsh -c qemu:///system"
    MY_IP = Facter.value(:ipaddress)
 
+   ID_FILE     = "/tmp/cloud-id"
+   LEADER_FILE = "/tmp/cloud-leader"
+   IDS_YAML    = "/tmp/cloud-ids.yaml"
 
    # Virtual machine class
    class VM
@@ -82,7 +85,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             
             # Check if you are the leader
             puts "Checking whether we are the leader..."
-            le = LeaderElection.new("/tmp/cloud-id", "/tmp/cloud-leader")
+            le = LeaderElection.new()
             my_id = le.get_id()
             leader = le.get_leader()
  
@@ -125,10 +128,15 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
                
                # If there were dead machines, give them some time to raise
-               puts "Some machines are starting. I will continue in 20 seconds"
                if deads
+                  puts "Some machines are starting. I will continue in 20 seconds"
                   sleep(20)
+               else
+                  puts "There are no dead machines. I will start immediately"
                end
+               
+               # Send them their IDs and the leader's ID
+               send_ids(vm_ips)
                
                # Distribute important files to all machines
                puts "Distributing important files to all virtual machines"
@@ -156,10 +164,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   puts "Election leader algorithm"
                   
                   # If no one answers, we are the leader
-                  id_file = File.open("/tmp/cloud-id", 'w')
+                  id_file = File.open(ID_FILE, 'w')
                   id_file.puts("0")
                   id_file.close
-                  leader_file = File.open("/tmp/cloud-leader", 'w')
+                  leader_file = File.open(LEADER_FILE, 'w')
                   leader_file.puts("0")
                   leader_file.close
                   
@@ -187,21 +195,21 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          puts "Cloud already started"
          
          # Get your ID
-         id_file = File.open("/tmp/cloud-id",'r')
+         id_file = File.open(ID_FILE,'r')
          if id_file
             id = id_file.read().chomp()
             id_file.close
          else
-            err "File /tmp/cloud-id does not exist"
+            err "File #{ID_FILE} does not exist"
          end
          
          # Get leader's ID
-         leader_file = File.open("/tmp/cloud-leader",'r')
+         leader_file = File.open(LEADER_FILE,'r')
          if leader_file
             leader = leader_file.read().chomp()
             leader_file.close
          else
-            err "File /tmp/cloud-leader does not exist"
+            err "File #{LEADER_FILE} does not exist"
          end
 
          # Check if you are the leader
@@ -286,13 +294,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Create an MCollective client so that we can push the broker to the limit
          mcc = MCollectiveFilesClient.new("files")
-         mcc.delete_files("/tmp/cloud-leader")                 # Leader ID
-         mcc.delete_files("/tmp/cloud-id")                     # ID
+         mcc.delete_files(LEADER_FILE)                         # Leader ID
+         mcc.delete_files(ID_FILE)                             # ID
          mcc.disconnect
          
          # Delete rest of regular files
          files = ["/tmp/cloud-last-id",                        # Last ID
                   "/tmp/cloud-last-mac",                       # Last MAC address
+                  "/tmp/cloud-ids.yaml",                       # IDs YAML
                   "/tmp/defined-domains-#{resource[:name]}",   # Domains file
                   "/tmp/cloud-#{resource[:name]}"]             # Cloud file
          files.each do |file|

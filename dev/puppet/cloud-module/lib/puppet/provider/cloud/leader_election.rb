@@ -3,9 +3,14 @@ class LeaderElection
    # Do not use attr_reader because your id and your leader's id might change
    # during execution. The only thing that should not change are the files paths.
    
-   def initialize(id_file="/tmp/cloud-id", leader_id_file="/tmp/cloud-leader")
-      @id_file = id_file
-      @leader_id_file = leader_id_file
+   def initialize(id_file     = ID_FILE,
+                  leader_file = LEADER_FILE,
+                  yaml_file   = IDS_YAML)
+
+      @id_file     = id_file
+      @leader_file = leader_file
+      @yaml_file   = yaml_file
+
    end
 
 
@@ -25,14 +30,14 @@ class LeaderElection
    
    def get_leader
    
-      if File.exists?(@leader_id_file)
-         leader_id_file = File.open(@leader_id_file, 'r')
-         leader_id = leader_id_file.read().chomp()
-         leader_id_file.close
+      if File.exists?(@leader_file)
+         leader_file = File.open(@leader_file, 'r')
+         leader = leader_file.read().chomp()
+         leader_file.close
       else
-         leader_id = -1
+         leader = -1
       end
-      return leader_id
+      return leader
    
    end
    
@@ -41,26 +46,51 @@ class LeaderElection
    
       command = "ssh root@#{vm} 'echo #{id} > #{@id_file}'"
       result = `#{command}`
-      if $?.exitstatus == 0
-         puts "#{vm} received ID: #{id}"
-      else
-         err "Impossible to set ID on #{vm}"
-      end
-
+      return $?.exitstatus == 0
+      
    end
 
 
    def vm_set_leader(vm, leader)
    
-      command = "ssh root@#{vm} 'echo #{id} > #{@leader_file}'"
+      command = "ssh root@#{vm} 'echo #{leader} > #{@leader_file}'"
       result = `#{command}`
-      if $?.exitstatus == 0
-         puts "#{vm} received leader's ID: #{id}"
-      else
-         err "Impossible to set ID on #{vm}"
-      end
-
+      return $?.exitstatus == 0
+      
    end
    
    
+   def get_id_YAML(vm)
+
+      require 'yaml'
+   
+      if File.exists?(@yaml_file)
+
+         file = File.open(@yaml_file, 'r')
+         tree = YAML::parse(file)
+
+         if tree != nil
+            tree = tree.transform
+            id = tree[vm]
+         end
+         return id
+         
+      else
+         return -1
+      end
+   
+   end
+   
+   
+   def set_id_YAML(vm, id)
+   
+      require 'yaml'
+      
+      file = File.open(@yaml_file, 'a')
+      file.puts("#{vm}: #{id}")
+      file.close
+      
+   end
+      
+      
 end
