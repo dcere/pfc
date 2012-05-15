@@ -43,7 +43,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    command = "ssh root@#{vm} 'cat #{id_file}'"
    result = `#{command}`
    if $?.exitstatus != 0
-      # Set their ID (based on last ID we defined)
+      # Set their ID (based on the last ID we defined)
       id = get_last_id()
       id += 1
       le.vm_set_id(vm, id)
@@ -163,12 +163,12 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Set the ID and leader ID on the new virtual machine
    le = LeaderElection.new()
    unless le.vm_set_id(vm, id)
-      puts "Impossible to set ID on #{vm}"
+      puts "Impossible to set ID on #{vm}. Try again later"
    end
    
    leader = le.get_leader()
    unless le.vm_set_leader(vm, leader)
-      puts "Impossible to set leader's ID on #{vm}"
+      puts "Impossible to set leader's ID on #{vm}. Try again later"
    end
 
    # WARNING: In case the machine is not still running when we try to set
@@ -184,8 +184,9 @@ end
 
 
 def copy_cloud_files(ips)
-#TODO Use MCollective?
-
+# Use MCollective?
+#  - Without MCollective we are able to send it to both one machine or multiple
+#    machines without changing anything, so not really.
 
    ips.each do |vm|
    
@@ -426,8 +427,8 @@ end
 ################################################################################
 def get_last_id()
 
-   if File.exists?("/tmp/cloud-last-id")
-      file = File.open("/tmp/cloud-last-id", 'r')
+   if File.exists?(LAST_ID_FILE)
+      file = File.open(LAST_ID_FILE, 'r')
    else
       file = File.open(ID_FILE, 'r')
    end
@@ -440,8 +441,8 @@ end
 
 def set_last_id(id)
 
-   if File.exists?("/tmp/cloud-last-id")
-      file = File.open("/tmp/cloud-last-id", 'w')
+   if File.exists?(LAST_ID_FILE)
+      file = File.open(LAST_ID_FILE, 'w')
       file.puts(id)
       file.close
    end

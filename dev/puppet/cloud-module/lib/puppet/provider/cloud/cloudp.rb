@@ -33,6 +33,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    LEADER_FILE = "/tmp/cloud-leader"
    IDS_YAML    = "/tmp/cloud-ids.yaml"
 
+   LAST_MAC_FILE = "/tmp/cloud-last-mac"
+   LAST_ID_FILE  = "/tmp/cloud-last-id"
+   
+   TIME = 20      # Start up time for a virtual machine
+   
    # Virtual machine class
    class VM
       attr_accessor :vm
@@ -129,8 +134,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                # If there were dead machines, give them some time to raise
                if deads
-                  puts "Some machines are starting. I will continue in 20 seconds"
-                  sleep(20)
+                  puts "Some machines are starting. I will continue in #{TIME} seconds"
+                  sleep(TIME)
                else
                   puts "There are no dead machines. I will start immediately"
                end
@@ -181,11 +186,60 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             
          else
             puts "I am not one of the virtual machines"
-            # Start one of the virtual machines
+            
+            # Try to find one virtual machine that is already running
+            alive = false
+            vm_leader = ""
+            vm_ips.each do |vm|
+               result = `ping -q -c 1 -w 4 #{vm}`
+               if $?.exitstatus == 0
+                  puts "#{vm} is up"
+                  alive = true
+                  vm_leader = vm
+                  break    # TODO Check Ruby's break
+               end
+            end
+            
+            if !alive
+               puts "All virtual machines are stopped"
+               puts "Starting one as leader..."
+            
+               # Start one of the virtual machines
+               vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
+               puts "Starting #{vm} as leader..."
+               
+               le = LeaderElection.new()
+               le.set_id(0)      # Set the ID of this machine to 0
+                                 # We will define virtual machine's IDs starting
+                                 # from this one
+               
+               file = File.open(LAST_ID_FILE, 'w')
+               file.puts(0)
+               file.close
+               
+               start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+               
+               # Give it time to raise
+               puts "Wait #{TIME} seconds for #{vm} to raise"
+               sleep(TIME)
+               
+               # Copy last-id and last-mac files to it
+               [LAST_ID_FILE, LAST_MAC_FILE].each do |file|
+                  result = `scp #{file} root@#{vm}:/tmp`
+                  if $?.exitstatus != 0
+                     puts "Impossible to copy #{file} to #{vm}"
+                  end
+               end
+               
+               # This virtual machine will be the leader
+               vm_leader = vm
+            end
             
             # Copy important files to it
+            copy_cloud_files(vm_leader)
             
-            # Make it leader
+            puts "#{vm_leader} is the leader of the cloud"
+            puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
          end
          
          

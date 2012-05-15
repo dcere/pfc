@@ -28,6 +28,15 @@ class LeaderElection
    end
    
    
+   def set_id(id)
+   
+      file = File.open(@id_file, 'w')
+      file.puts(id)
+      file.close
+      
+   end
+   
+   
    def get_leader
    
       if File.exists?(@leader_file)
