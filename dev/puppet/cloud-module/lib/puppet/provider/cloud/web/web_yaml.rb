@@ -1,7 +1,7 @@
 require 'yaml'
 
 ##
-# Obtains the ips from the web.yaml file. It does NOT check whether
+# Obtains the IP addresses from the web.yaml file. It does NOT check whether
 # the file has the proper format.
 
 def web_yaml_ips(path)

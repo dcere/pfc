@@ -1,3 +1,21 @@
+# Virtual machine class
+class VM
+   attr_accessor :vm
+   
+   def initialize(name,uuid,disk,mac)
+   @vm = {
+      :name => "#{name}",
+      :uuid => "#{uuid}",
+      :disk => "#{disk}",
+      :mac  => "#{mac}"}
+   end
+   
+   def get_binding
+      binding()
+   end
+end
+
+
 class VM_Name
    
    attr_reader :name

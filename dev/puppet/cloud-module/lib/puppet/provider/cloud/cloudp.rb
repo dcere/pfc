@@ -38,24 +38,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    TIME = 20      # Start up time for a virtual machine
    
-   # Virtual machine class
-   class VM
-      attr_accessor :vm
-      
-      def initialize(name,uuid,disk,mac)
-      @vm = {
-         :name => "#{name}",
-         :uuid => "#{uuid}",
-         :disk => "#{disk}",
-         :mac  => "#{mac}"}
-      end
-      
-      def get_binding
-         binding()
-      end
-   end
-
-
 
    # Makes sure the cloud is running.
    def start
@@ -346,16 +328,19 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Delete files
          
-         # Create an MCollective client so that we can push the broker to the limit
+         # Create an MCollective client so that we avoid errors that appear
+         # when you create more than one client in a short time
          mcc = MCollectiveFilesClient.new("files")
+         
+         # Delete leader and id files on all machines (leader included)
          mcc.delete_files(LEADER_FILE)                         # Leader ID
          mcc.delete_files(ID_FILE)                             # ID
          mcc.disconnect
          
-         # Delete rest of regular files
-         files = ["/tmp/cloud-last-id",                        # Last ID
-                  "/tmp/cloud-last-mac",                       # Last MAC address
-                  "/tmp/cloud-ids.yaml",                       # IDs YAML
+         # Delete rest of regular files on leader machine
+         files = [ID_FILE,                                     # Last ID
+                  LAST_MAC_FILE,                               # Last MAC address
+                  IDS_YAML,                                    # IDs YAML
                   "/tmp/defined-domains-#{resource[:name]}",   # Domains file
                   "/tmp/cloud-#{resource[:name]}"]             # Cloud file
          files.each do |file|

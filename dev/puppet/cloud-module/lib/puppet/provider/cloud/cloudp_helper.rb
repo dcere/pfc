@@ -83,9 +83,10 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Get virtual machine's MAC address
    puts "Getting VM's MAC address..."
-   if File.exists?("/tmp/cloud-last-mac")
-      file = File.open("/tmp/cloud-last-mac", 'r')
+   if File.exists?(LAST_MAC_FILE)
+      file = File.open(LAST_MAC_FILE, 'r')
       mac_address = MAC_Address.new(file.read().chomp())
+      file.close
    else
       mac_address = MAC_Address.new("52:54:00:01:00:00")
    end
@@ -161,6 +162,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    set_last_id(id)
    
    # Set the ID and leader ID on the new virtual machine
+   # WARNING: At this point the machine is probably not running
    le = LeaderElection.new()
    unless le.vm_set_id(vm, id)
       puts "Impossible to set ID on #{vm}. Try again later"
@@ -176,7 +178,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    le.set_id_YAML(vm, id)
    
    # Save the new virtual machine's MAC address
-   file = File.open("/tmp/cloud-last-mac", 'w')
+   file = File.open(LAST_MAC_FILE, 'w')
    file.puts(mac_address)
    file.close
 
