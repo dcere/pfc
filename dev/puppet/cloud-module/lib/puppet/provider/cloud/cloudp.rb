@@ -83,10 +83,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             # Check if you are the leader
             puts "Checking whether we are the leader..."
             le = LeaderElection.new("/tmp/cloud-id", "/tmp/cloud-leader")
-            my_id = le.get_id
-            leader_id = le.get_leader_id
+            my_id = le.get_id()
+            leader = le.get_leader()
  
-            if my_id != -1 && my_id == leader_id      # We are the leader
+            if my_id != -1 && my_id == leader      # We are the leader
                puts "I am the leader"
                
                # Check virtual machines are alive

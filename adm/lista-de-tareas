@@ -72,8 +72,9 @@
   - Instalado expect
   - Configurada la clave /root/.ssh/id_rsa.pub
 - Si las MV ya estaban funcionando, ¿cómo sabemos qué dominios hay que parar y borrar su definición?
+  - No lo sabemos, pero a lo mejor no es muy sensato destruir esas máquinas si ya estaban encendidas de antes
 - Asegurarse de que siempre hay un broker AMQP en el cloud
 - Asegurarse de iniciar mcollecive en las MVs
 - (X) ¿Hace falta borrar los archivos del directorio /tmp de las MV? Si las vamos a apagar, no, pero en caso contrario sí
   - (X) Cliente MCollective
-- Comprobar que la generación de IDs es correcta cuando las máquinas virtuales han sido arrancadas a priori
+- (X) Comprobar que la generación de IDs es correcta cuando las máquinas virtuales han sido arrancadas a priori

@@ -23,7 +23,7 @@ class LeaderElection
    end
    
    
-   def get_leader_id
+   def get_leader
    
       if File.exists?(@leader_id_file)
          leader_id_file = File.open(@leader_id_file, 'r')
@@ -34,6 +34,32 @@ class LeaderElection
       end
       return leader_id
    
+   end
+   
+   
+   def vm_set_id(vm, id)
+   
+      command = "ssh root@#{vm} 'echo #{id} > #{@id_file}'"
+      result = `#{command}`
+      if $?.exitstatus == 0
+         puts "#{vm} received ID: #{id}"
+      else
+         err "Impossible to set ID on #{vm}"
+      end
+
+   end
+
+
+   def vm_set_leader(vm, leader)
+   
+      command = "ssh root@#{vm} 'echo #{id} > #{@leader_file}'"
+      result = `#{command}`
+      if $?.exitstatus == 0
+         puts "#{vm} received leader's ID: #{id}"
+      else
+         err "Impossible to set ID on #{vm}"
+      end
+
    end
    
    

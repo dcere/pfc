@@ -35,13 +35,14 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # Check if they have their ID
+   le = LeaderElection.new()
    file = "/tmp/cloud-id"
    command = "ssh root@#{vm} 'cat #{file}'"
    result = `#{command}`
    if $?.exitstatus != 0
       id = get_last_id()
       id += 1
-      vm_set_id(vm, id)
+      le.vm_set_id(vm, id)
       set_last_id(id)
    end
    
@@ -145,8 +146,11 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Save the new virtual machine's ID as last ID
    set_last_id(id)
    
-   # Set the ID on the new virtual machine
-   vm_set_id(vm, id)
+   # Set the ID and leader ID on the new virtual machine
+   le = LeaderElection.new()
+   le.vm_set_id(vm, id)
+   leader = le.vm_get_leader()
+   le.vm_set_leader(vm, leader)
    
    # Save the new virtual machine's MAC address
    file = File.open("/tmp/cloud-last-mac", 'w')
@@ -349,38 +353,6 @@ def save_domain_name(ssh_connect, vm_name)
 end
 
 
-def leader_election_id(id, vm)
-
-   file = "/tmp/cloud-id"
-   result = `ssh root@#{vm} 'echo #{id} > #{file}'`
-   if $?.exitstatus == 0
-      debug "[DBG] #{vm} received leader election id"
-      return true
-   else
-      debug "[DBG] #{vm} did not receive leader election id"
-      err   "#{vm} did not receive leader election id"
-      return false
-   end
-   
-end
-
-
-def leader_election_leader_id(id, vm)
-
-   file = "/tmp/cloud-leader"
-   result = `ssh root@#{vm} 'echo #{id} > #{file}'`
-   if $?.exitstatus == 0
-      debug "[DBG] #{vm} received leader election leader's id"
-      return true
-   else
-      debug "[DBG] #{vm} did not receive leader election leader's id"
-      err   "#{vm} did not receive leader election leader's id"
-      return false
-   end
-   
-end
-
-
 def command_execution(ip_array, command, error_message)
    
    ip_array.each do |vm|
@@ -395,7 +367,7 @@ end
 
 
 ################################################################################
-# ID functions
+# Last ID functions
 ################################################################################
 def get_last_id()
 
@@ -419,18 +391,4 @@ def set_last_id(id)
       file.close
    end
    
-end
-
-
-def vm_set_id(vm, id)
-
-   file = "/tmp/cloud-id"
-   command = "ssh root@#{vm} 'echo #{id} > #{file}'"
-   result = `#{command}`
-   if $?.exitstatus == 0
-      puts "ID set to #{id} on #{vm}:#{file}"
-   else
-      err "Impossible to set ID on #{vm}"
-   end
-
 end
