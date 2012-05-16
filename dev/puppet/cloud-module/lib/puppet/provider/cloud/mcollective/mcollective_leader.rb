@@ -12,16 +12,27 @@ class MCollectiveLeaderClient
    
    def ask_id
    
-      puts "Retrieving nodes' ids via MCollective client"
-      output = @mc.ask_id()
-      return output
+      ids = []
+      regex = /^.*ID: (\d+).*$/
+   
+      puts "Retrieving nodes' ids via MCollective client..."
+      output = Helpers.rpcresults @mc.ask_id()
+      
+      output.each_line do |line|
+         m = line.match(regex)
+         if m
+            ids << m[1]
+         end
+      end
+      
+      return ids
    
    end
    
    
    def new_leader(id)
    
-      puts "Sending new leader information via MCollective client"
+      puts "Sending new leader information via MCollective client..."
       output = @mc.new_leader(id)
       return output
    
@@ -29,7 +40,7 @@ class MCollectiveLeaderClient
    
    
    def disconnect
-      puts "Disconnecting MCollective client"
+      puts "Disconnecting MCollective client..."
       @mc.disconnect
    end
    

@@ -79,5 +79,5 @@
   - (X) Cliente MCollective
 - (X) Comprobar que la generación de IDs es correcta cuando las máquinas virtuales han sido arrancadas a priori
 - (X) Elección de líder: MCollective o codificación en LeaderElection
-  - (X) MCollective para preguntarles a todos por su ID
-  - (X) LeaderElection para la gestión de IDs
+  - (X) MCollective para preguntarles a todos por su ID y enviarles el ID del líder a todos de vez
+  - (X) LeaderElection para la gestión de IDs en tu propia máquina

@@ -68,7 +68,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          puts "Checking whether we are one of the virtual machines..."
          part_of_cloud = vm_ips.include?(MY_IP)
          if part_of_cloud
-            puts "I am one of the virtual machines"
+            puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
             puts "Checking whether we are the leader..."
@@ -77,7 +77,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             leader = le.get_leader()
  
             if my_id != -1 && my_id == leader      # We are the leader
-               puts "I am the leader"
+               puts "#{MY_IP} is the leader"
                
                # Check virtual machines are alive
                alive = {}
@@ -143,14 +143,13 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                puts "Cloud started"
                
                
-            else     # We are not the leader or we have not received our ID yet
-               puts "I am not the leader"
+            else
+               
+               # We are not the leader or we have not received our ID yet
+               puts "#{MY_IP} is not the leader"
             
                if my_id == -1
                   # If we have not received our ID, let's assume we will be the leader
-                  puts "Election leader algorithm"
-                  
-                  # If no one answers, we are the leader
                   id_file = File.open(ID_FILE, 'w')
                   id_file.puts("0")
                   id_file.close
@@ -158,16 +157,46 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   leader_file.puts("0")
                   leader_file.close
                   
-                  puts "I will be the leader"
+                  puts "#{MY_IP} will be the leader"
                   
                else
                   # If we have received our ID, try to become leader
+                  puts "Trying to become leader..."
+                  
+                  # Get your ID
+                  le = LeaderElection.new()
+                  my_id = le.get_id()
+                  
+                  # Get all machines' IDs
+                  mcc = MCollectiveLeaderClient.new("leader")
+                  ids = mcc.ask_id()
+                  
+                  # See if some other machine is leader
+                  exists_leader = false
+                  ids.each do |id|
+                     if id < my_id
+                        exists_leader = true 
+                        break
+                     end
+                  end
+                  
+                  # If there is no leader, we will be the new leader
+                  if !exists_leader
+                     mcc.new_leader(id)
+                     puts "...#{MY_IP} will be leader"
+                  else
+                     puts "...Some other machine is/should be leader"
+                  end
+                  mcc.disconnect
+                  
                   return
                end
+               
             end
             
          else
-            puts "I am not one of the virtual machines"
+            # We are not part of the cloud
+            puts "#{MY_IP} is not part of the cloud"
             
             # Try to find one virtual machine that is already running
             alive = false
@@ -178,7 +207,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   puts "#{vm} is up"
                   alive = true
                   vm_leader = vm
-                  break    # TODO Check Ruby's break
+                  break
                end
             end
             
@@ -250,9 +279,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
          # Check if you are the leader
          if id == leader
-            puts "I am the leader"
+            puts "#{MY_IP} is the leader"
          else
-            puts "I am not the leader"
+            puts "#{MY_IP} is not the leader"
          end
       end
       
