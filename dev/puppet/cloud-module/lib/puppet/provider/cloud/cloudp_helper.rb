@@ -35,12 +35,12 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # Check if they have their ID
-   # They are running, but they do not have their ID
+   # If they are running, but they do not have their ID:
    #   - Set their ID before they can become another leader.
    #   - Set also the leader's ID.
    le = LeaderElection.new()
    id_file = ID_FILE
-   command = "ssh root@#{vm} 'cat #{id_file}'"
+   command = "ssh root@#{vm} 'cat #{id_file}' > /dev/null 2> /dev/null"
    result = `#{command}`
    if $?.exitstatus != 0
       # Set their ID (based on the last ID we defined)
@@ -56,6 +56,23 @@ def monitor_vm(vm, ip_roles, img_roles)
       le.vm_set_leader(vm, leader)
    end
    
+   # Make sure MCollective is running. We need this to ensure the leader election
+   # so it can not be in their manifest, it must be done explicitly
+   command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
+   result = `#{command}`
+   if $?.exitstatus != 0
+      puts "MCollective is not running on #{vm}"
+      command = "ssh root@#{vm} '/usr/bin/service mcollective start'"
+      result = `#{command}`
+      if $?.exitstatus != 0
+         err "Impossible to start mcollective on #{vm}"
+      else
+         puts "MCollective is running now on #{vm}"
+      end
+   else
+      puts "MCollective is running on #{vm}"
+   end
+   
    # Depending on the type of cloud we will have to monitor different components
    if resource[:type] == "appscale"
       appscale_monitor(role)
@@ -64,7 +81,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    elsif resource[:type] == "jobs"
       jobs_monitor(role)
    else
-      err "[%s-%s]: Unrecognized type of cloud" % [__FILE__,__LINE__]
+      err "Unrecognized type of cloud: #{resource[:type]}"
    end
          
 

@@ -125,8 +125,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Send them their IDs and the leader's ID
                send_ids(vm_ips)
                
-               # Distribute important files to all machines
-               puts "Distributing important files to all virtual machines"
+               # Copy important files to all machines
+               puts "Copying important files to all virtual machines"
                copy_cloud_files(vm_ips)
                
                # If not already started, start the cloud

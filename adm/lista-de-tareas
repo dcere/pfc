@@ -49,7 +49,7 @@
 - (X) Load balancing => nginx
   - HAproxy: http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
   - (X) nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
-- (X) mysqld => Nombre del proceso es mysql, el ejecutable es /usr/sbin/mysqld
+- (X) mysqld => Nombre del proceso es mysql, el ejecutable es /usr/sbin/mysqld (o /usr/bin/service mysql start)
 - nginxd?
 - (X) Instalación de Puppet en las lucid-web
 - Instalación de MCollective en las lucid-web
@@ -61,21 +61,23 @@
 - Puppet: rubygems de ubuntu (1.3.5) vs gem --version (1.8.21) ¿Como se especifica la última en un manifiesto Puppet?
 - (X) Borrar definición de máquinas en virsh en lote: myvm* , cloud-app-* etc. ¿Se puede? => No
   - => Guardar los nombres de las máquinas definidas en un fichero para poder borrar su definición desde la función stop
-- Fichero (XML, YAML) de valores del cloud: numero de nodos, mapa función - IP, nodo líder, mapa id (leader) - IP, etc
-  - En vez de un unico fichero, varios: cloud-id, cloud-leader, cloud-last-id, cloud-last-mac, etc
-  - También los ficheros del manifiesto, y el manifiesto deben ser copiados: init-cloud.pp, ip_file.yaml, img_file.yaml
+- (X) Fichero (XML, YAML) de valores del cloud: numero de nodos, mapa función - IP, nodo líder, mapa id (leader) - IP, etc
+  - (X) En vez de un unico fichero, varios: cloud-id, cloud-leader, cloud-last-id, cloud-last-mac, etc
+  - (X) También los ficheros del manifiesto, y el manifiesto deben ser copiados: init-cloud.pp, ip_file.yaml, img_file.yaml
 - ¿Creación de carpeta /tmp/cloud en la que poner los ficheros: fichero de configuración, cloud-id, cloud-leader, etc?
-- Definir como variables globales en el proveedor las rutas (y los nombres?) de estos ficheros
+- (X) Definir como variables globales en el proveedor las rutas (y los nombres?) de estos ficheros
 - Comprobar que las máquinas virtuales tienen correctamente:
   - Instalado MCollective
   - El archivo /etc/mcollecive/server.cfg
   - Instalado expect
   - Configurada la clave /root/.ssh/id_rsa.pub
-- Si las MV ya estaban funcionando, ¿cómo sabemos qué dominios hay que parar y borrar su definición?
-  - No lo sabemos, pero a lo mejor no es muy sensato destruir esas máquinas si ya estaban encendidas de antes
+- (X) Si las MV ya estaban funcionando, ¿cómo sabemos qué dominios hay que parar y borrar su definición?
+  - (X) No lo sabemos, pero a lo mejor no es muy sensato destruir esas máquinas si ya estaban encendidas de antes
 - Asegurarse de que siempre hay un broker AMQP en el cloud
-- Asegurarse de iniciar mcollecive en las MVs
+- (X) Asegurarse de iniciar mcollecive en las MVs
 - (X) ¿Hace falta borrar los archivos del directorio /tmp de las MV? Si las vamos a apagar, no, pero en caso contrario sí
   - (X) Cliente MCollective
 - (X) Comprobar que la generación de IDs es correcta cuando las máquinas virtuales han sido arrancadas a priori
-- Elección de líder: MCollective o codificación en LeaderElection?
+- (X) Elección de líder: MCollective o codificación en LeaderElection
+  - (X) MCollective para preguntarles a todos por su ID
+  - (X) LeaderElection para la gestión de IDs

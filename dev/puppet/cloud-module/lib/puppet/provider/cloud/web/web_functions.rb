@@ -82,21 +82,29 @@ def web_cloud_start(web_roles)
       end
    end
    
-   # Database servers start at boot time, but just in case
+   # Database servers start at boot time, but check whether they have started
+   # and if they have not, start them
    puts "Starting mysql on database servers"
+   check_command = "ps aux | grep -v grep | grep mysql"
    command = "/usr/bin/service mysql start"
    databases.each do |vm|
       if vm == MY_IP
-         result = `#{command}`
+         result = `#{check_command}`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start database in #{vm} (might be already running)"
-            err   "Impossible to start database in #{vm} (might be already running)"
+            result = `#{command}`
+            unless $?.exitstatus == 0
+               debug "[DBG] Impossible to start database in #{vm}"
+               err   "Impossible to start database in #{vm}"
+            end
          end
       else
-         result = `ssh root@#{vm} '#{command}'`
+         result = `ssh root@#{vm} '#{check_command}'`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start database in #{vm} (might be already running)"
-            err   "Impossible to start database in #{vm} (might be already running)"
+            result = `ssh root@#{vm} '#{command}'`
+            unless $?.exitstatus == 0
+               debug "[DBG] Impossible to start database in #{vm}"
+               err   "Impossible to start database in #{vm}"
+            end
          end
       end
    end
