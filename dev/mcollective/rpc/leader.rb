@@ -11,7 +11,7 @@ module MCollective
 
          # Leader election algorithm actions
          action "ask_id" do
-            file = File.open("/tmp/id.cloud", 'r')
+            file = File.open("/tmp/cloud-id", 'r')
             id = file.read()
             file.close
             
@@ -21,7 +21,7 @@ module MCollective
          
          action "new_leader" do
             id = request[:id]
-            file = File.open("/tmp/leader.cloud", 'w')
+            file = File.open("/tmp/cloud-leader", 'w')
             file.write(request[:id])
             file.close
             
