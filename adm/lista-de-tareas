@@ -83,4 +83,6 @@
   - (X) LeaderElection para la gestión de IDs en tu propia máquina
 - Asignación de MACs a las MV. Fichero /etc/udev/rules.../70-...rules
 - Trabajos cron para Puppet
+  - (X) Inicialización
+  - Terminación
 - Separación de proveedores

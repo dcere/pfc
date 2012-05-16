@@ -70,8 +70,8 @@ then
    scp $TYPE_SRC/cloud.rb        root@$1:$TYPE_DST/cloud.rb
 
    # cloudp.rb, cloud_helper.rb, appscale_yaml.rb, web_yaml.rb,
-   # mcollective_files.rb, mcollective_leader.rb,
-   # mac.rb, vm_name.rb, ssh_copy_id.sh
+   # mcollective_files.rb, mcollective_leader.rb, mcollective_cron.rb,
+   # mac.rb, vm.rb, ssh_copy_id.sh
    scp -r $PROVIDER_SRC/$NAME/*     root@$1:$PROVIDER_DST/
 fi
 

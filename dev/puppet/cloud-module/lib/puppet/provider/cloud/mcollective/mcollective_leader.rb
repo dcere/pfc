@@ -1,12 +1,11 @@
 require 'mcollective'
 include MCollective::RPC
 
-class MCollectiveLeaderClient
+class MCollectiveLeaderClient < MCollectiveClient
    
    
    def initialize(client)
-      @client = client
-      @mc = rpcclient(@client)
+      super(client)
    end
    
    
@@ -36,12 +35,6 @@ class MCollectiveLeaderClient
       output = @mc.new_leader(id)
       return output
    
-   end
-   
-   
-   def disconnect
-      puts "Disconnecting MCollective client..."
-      @mc.disconnect
    end
    
    

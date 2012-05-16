@@ -27,7 +27,7 @@ action "create", :description => "Create a file" do
 
    output :success,
           :description => "Success on creating the file",
-          :display_as => "File created"
+          :display_as  => "File created"
 
 end
 
@@ -45,6 +45,6 @@ action "delete", :description => "Delete a file" do
 
    output :success,
           :description => "Success on deleting the file",
-          :display_as => "File deleted"
+          :display_as  => "File deleted"
 
 end

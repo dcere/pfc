@@ -10,8 +10,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    require File.dirname(__FILE__) + '/web/web_functions.rb'
    
    # Require MCollective files
+   require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
    require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
    require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
    
 #   Dir[File.dirname(__FILE__) + '/../lib/*.rb'].each do |file| 
 #      require File.basename(file, File.extname(file))
@@ -38,6 +40,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    TIME = 20      # Start up time for a virtual machine
    
+   CRON_FILE = "/var/spool/cron/crontabs/root"
 
    # Makes sure the cloud is running.
    def start
@@ -355,7 +358,15 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             
          end   # pms.each
          
+         # Stop cron jobs on all machines
+         puts "Stopping cron jobs on all machines..."
+         mcc = MCollectiveCronClient.new("cron")
+         mcc.delete_line(CRON_FILE, /^.*puppet.*apply.*init-#{resource[:type]}.*$/)
+         mcc.disconnect
+         sleep(5)
+         
          # Delete files
+         puts "Deleting cloud files on all machines..."
          
          # Create an MCollective client so that we avoid errors that appear
          # when you create more than one client in a short time

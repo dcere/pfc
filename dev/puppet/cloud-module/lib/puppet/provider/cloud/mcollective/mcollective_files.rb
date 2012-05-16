@@ -1,12 +1,11 @@
 require 'mcollective'
 include MCollective::RPC
 
-class MCollectiveFilesClient
+class MCollectiveFilesClient < MCollectiveClient
    
    
    def initialize(client)
-      @client = client
-      @mc = rpcclient(@client)
+      super(client)
    end
    
    
@@ -25,12 +24,6 @@ class MCollectiveFilesClient
       @mc.delete(:path => path)
       printrpcstats
    
-   end
-   
-   
-   def disconnect
-      puts "Disconnecting MCollective client"
-      @mc.disconnect
    end
    
    

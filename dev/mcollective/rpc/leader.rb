@@ -5,7 +5,7 @@ module MCollective
                      :description => "Bully election algorithm",
                      :author      => "David Ceresuela <david.ceresuela@gmail.com>",
                      :license     => "",
-                     :version     => "0.1",
+                     :version     => "0.2",
                      :url         => "",
                      :timeout     => 10
 
