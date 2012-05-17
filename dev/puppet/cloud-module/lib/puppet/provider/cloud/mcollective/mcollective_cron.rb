@@ -18,15 +18,10 @@ class MCollectiveCronClient < MCollectiveClient
    end
    
    
-   def delete_line(path, regex)
+   def delete_line(path, string)
    
       puts "Sending path and regular expression via MCollective client"
-      string_regex = "#{regex}"
-      puts "Regular expression = #{string_regex}"
-      
-      # Due to MCollective restrictions, a regular expression can not be passed
-      # as an input parameter, so regex to string now, and later string to regex
-      @mc.delete_line(:path => path, :regex => string_regex)
+      @mc.delete_line(:path => path, :regex => string)
       printrpcstats
    
    end

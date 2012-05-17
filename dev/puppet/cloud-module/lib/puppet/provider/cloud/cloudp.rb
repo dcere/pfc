@@ -361,10 +361,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
          mcc = MCollectiveCronClient.new("cron")
-         regex = /^.*puppet.*apply.*init-#{resource[:type]}.*$/
-         mcc.delete_line(CRON_FILE, regex)
+         string = "init-#{resource[:type]}"
+         mcc.delete_line(CRON_FILE, string)
          mcc.disconnect
-         sleep(5)
+         sleep(5) # TODO : Check if it is needed to not get a Broken pipe error
          
          # Delete files
          puts "Deleting cloud files on all machines..."
