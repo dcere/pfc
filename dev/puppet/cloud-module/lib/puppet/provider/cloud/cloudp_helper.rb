@@ -318,13 +318,7 @@ end
 
 def auto_manage()
 
-   if resource[:type].to_s == "appscale"
-      cron_file = "crontab-appscale"
-   elsif resource[:type].to_s == "web"
-      cron_file = "crontab-web"
-   elsif resource[:type].to_s == "jobs"
-      cron_file = "crontab-jobs"
-   end
+   cron_file = "crontab-%s" % [resource[:type].to_s]
    path = "/etc/puppet/modules/cloud/files/cron/#{cron_file}"
    
    if File.exists?(path)
@@ -349,10 +343,6 @@ def appscale_monitor(role)
    return
 end
 
-# In web_functions.rb now
-# def web_monitor(role)
-#    ...
-# end
 
 def jobs_monitor(role)
    return
@@ -373,7 +363,7 @@ def check_pool
    machines_down = []
    machines = resource[:pool]
    machines.each do |machine|
-      result = `ping -q -c 1 -w 4 #{machine}`
+      result = `#{PING} #{machine}`
       if $?.exitstatus == 0
          debug "[DBG] #{machine} (PM) is up"
          machines_up << machine

@@ -160,7 +160,7 @@ def web_monitor(vm, role)
 
    puts "Monitoring #{role}"
    err "role should be a symbol" unless role.class != "Symbol"
-   result = `ping -q -c 1 -w 4 #{vm}`
+   result = `#{PING} #{vm}`
    if $?.exitstatus == 0
       puts "#{vm} is up"
    else

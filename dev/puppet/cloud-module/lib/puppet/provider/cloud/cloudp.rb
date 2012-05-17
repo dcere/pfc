@@ -30,6 +30,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    # Some constants
    VIRSH_CONNECT = "virsh -c qemu:///system"
    MY_IP = Facter.value(:ipaddress)
+   PING = "ping -q -c 1 -w 4"
 
    ID_FILE     = "/tmp/cloud-id"
    LEADER_FILE = "/tmp/cloud-leader"
@@ -88,7 +89,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                puts "Checking whether virtual machines are alive..."
                vm_ips.each do |vm|
-                  result = `ping -q -c 1 -w 4 #{vm}`
+                  result = `#{PING} #{vm}`
                   if $?.exitstatus == 0
                      debug "[DBG] #{vm} is up"
                      alive[vm] = true
@@ -117,10 +118,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                # If there were dead machines, give them some time to raise
                if deads
-                  puts "Some machines are starting. I will continue in #{TIME} seconds"
+                  puts "Some machines are starting: continuing in #{TIME} seconds"
                   sleep(TIME)
                else
-                  puts "There are no dead machines. I will start immediately"
+                  puts "All machines are up and running: starting immediately"
                end
                
                # Send them their IDs and the leader's ID
@@ -135,14 +136,15 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   # Start the cloud
                   start_cloud(vm_ips, vm_ip_roles)
                   
+                  # Make cloud nodes manage themselves
+                  auto_manage()     # Only if cloud was started properly
+                  
                   # Create file
                   cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
                   cloud_file.puts(resource[:name])
                   cloud_file.close
                end
                
-               # Make cloud nodes manage themselves
-               auto_manage()
                
                puts "Cloud started"
                
@@ -206,7 +208,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             alive = false
             vm_leader = ""
             vm_ips.each do |vm|
-               result = `ping -q -c 1 -w 4 #{vm}`
+               result = `#{PING} #{vm}`
                if $?.exitstatus == 0
                   puts "#{vm} is up"
                   alive = true
@@ -285,9 +287,17 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          if id == leader
             puts "#{MY_IP} is the leader"
             
-            # TODO Do monitoring
+            # Do monitoring
+            vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_ips()
+            vm_ips.each do |vm|
+               puts "Monitoring #{vm}..."
+               monitor_vm(vm, vm_ip_roles, vm_img_roles)
+               puts "...Monitored"
+            end
+            
+            
          else
-            puts "#{MY_IP} is not the leader"
+            puts "#{MY_IP} is not the leader"      # Nothing to do
          end
       end
       
