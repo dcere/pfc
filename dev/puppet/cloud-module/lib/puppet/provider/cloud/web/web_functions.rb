@@ -156,8 +156,16 @@ def web_cloud_start(web_roles)
 end
 
 
-def web_monitor(role)
+def web_monitor(vm, role)
+
    puts "Monitoring #{role}"
    err "role should be a symbol" unless role.class != "Symbol"
+   result = `ping -q -c 1 -w 4 #{vm}`
+   if $?.exitstatus == 0
+      puts "#{vm} is up"
+   else
+      puts "#{vm} is down"
+   end
    return
+   
 end

@@ -20,8 +20,8 @@ class MCollectiveCronClient < MCollectiveClient
    
    def delete_line(path, string)
    
-      puts "Sending path and regular expression via MCollective client"
-      @mc.delete_line(:path => path, :regex => string)
+      puts "Sending path and string via MCollective client"
+      @mc.delete_line(:path => path, :string => string)
       printrpcstats
    
    end

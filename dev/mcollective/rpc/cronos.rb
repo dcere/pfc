@@ -26,7 +26,7 @@ module MCollective
          action "delete_line" do
             path  = request[:path]
             string = request[:string]
-            regex = /^.*puppet.*apply.*#{string}.*$/
+            regex = /^.*puppet.*apply.*#{string}.*$/     # Only delete puppet's
             copy = ""
             number = 0
             if File.exists?(path)

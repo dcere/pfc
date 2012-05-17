@@ -45,7 +45,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    # Makes sure the cloud is running.
    def start
 
-      debug "[DBG] Starting cloud %s" % [resource[:name]]
       puts "Starting cloud %s" % [resource[:name]]
       
       # Check existence
@@ -56,11 +55,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          puts "Checking pool of physical machines..."
          pm_all_up, pm_up, pm_down = check_pool()
          if !pm_all_up
-            debug "[DBG] Some physical machines are down"
+            puts "Some physical machines are down"
             pm_down.each do |pm|
                debug "[DBG] - #{pm}"
             end
-            puts "Some physical machines are down"
          end
          
          # Obtain the virtual machines' IPs
@@ -88,11 +86,11 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   alive[vm] = false
                end
                
+               puts "Checking whether virtual machines are alive..."
                vm_ips.each do |vm|
                   result = `ping -q -c 1 -w 4 #{vm}`
                   if $?.exitstatus == 0
                      debug "[DBG] #{vm} is up"
-                     puts "#{vm} is up"
                      alive[vm] = true
                   else
                      debug "[DBG] #{vm} is down"
@@ -283,6 +281,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Check if you are the leader
          if id == leader
             puts "#{MY_IP} is the leader"
+            
+            # TODO Do monitoring
          else
             puts "#{MY_IP} is not the leader"
          end
@@ -360,11 +360,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
-         mcc = MCollectiveCronClient.new("cron")
+         mcc = MCollectiveCronClient.new("cronos")
          string = "init-#{resource[:type]}"
          mcc.delete_line(CRON_FILE, string)
-         mcc.disconnect
-         sleep(5) # TODO : Check if it is needed to not get a Broken pipe error
+         # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
          
          # Delete files
          puts "Deleting cloud files on all machines..."
@@ -376,7 +375,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Delete leader and id files on all machines (leader included)
          mcc.delete_files(LEADER_FILE)                         # Leader ID
          mcc.delete_files(ID_FILE)                             # ID
-         mcc.disconnect
+         mcc.disconnect       # Now it can be disconnected
          
          # Delete rest of regular files on leader machine
          files = [ID_FILE,                                     # Last ID

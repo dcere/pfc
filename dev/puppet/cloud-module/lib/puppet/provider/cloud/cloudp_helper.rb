@@ -14,6 +14,7 @@ def obtain_vm_ips
       vm_ips, vm_ip_roles = web_yaml_ips(resource[:ip_file])
       vm_img_roles = web_yaml_images(resource[:img_file])
    elsif resource[:type].to_s == "jobs"
+      puts "It is a jobs cloud"
       vm_ips = []
       # ...
    else
@@ -75,9 +76,9 @@ def monitor_vm(vm, ip_roles, img_roles)
    
    # Depending on the type of cloud we will have to monitor different components
    if resource[:type] == "appscale"
-      appscale_monitor(role)
+      appscale_monitor(vm, role)
    elsif resource[:type] == "web"
-      web_monitor(role)
+      web_monitor(vm, role)
    elsif resource[:type] == "jobs"
       jobs_monitor(role)
    else
@@ -212,11 +213,18 @@ def copy_cloud_files(ips)
       if vm != MY_IP
          # Cloud manifest
          # FIXME : Check 'source' attribute in manifest
-         command = "scp /etc/puppet/manifests/init-cloud.pp" +
-                   " root@#{vm}:/etc/puppet/manifests/init-cloud.pp"
+         if resource[:type] == "appscale"
+            file = "init-appscale.pp"
+         elsif resource[:type] == "web"
+            file = "init-web.pp"
+         elsif resource[:type] == "jobs"
+            file = "init-jobs.pp"
+         end
+         command = "scp /etc/puppet/modules/cloud/manifests/#{file}" +
+                   " root@#{vm}:/etc/puppet/modules/cloud/manifests/#{file}"
          result = `#{command}`
          unless $?.exitstatus == 0
-            err "Impossible to copy init-cloud.pp to #{vm}"
+            err "Impossible to copy #{file} to #{vm}"
          end
          
          # Cloud description (IPs YAML file)

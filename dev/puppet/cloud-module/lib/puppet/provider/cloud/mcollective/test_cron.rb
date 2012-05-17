@@ -1,7 +1,7 @@
 require 'mcollective'
 include MCollective::RPC
 
-#def test
+def test
 
    # Connect
    puts "Creating client"
@@ -32,4 +32,4 @@ include MCollective::RPC
    # Disconnect
    puts "Disconnecting"
    mc.disconnect
-#end
+end
