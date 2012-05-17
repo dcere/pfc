@@ -10,7 +10,7 @@
 #     - all:    all agents
 #     - files:  files agent
 #     - leader: leader election agent
-#     - cron:   cron agent
+#     - cronos: cron agent
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
@@ -47,8 +47,8 @@ then
    scp ./rpc/leader.rb      root@$1:$MCOLL_DST/
 fi
 
-if [ $2 = "cron" -o $2 = "all" ]
+if [ $2 = "cronos" -o $2 = "all" ]
 then
-   scp ./rpc/cron.ddl     root@$1:$MCOLL_DST/
-   scp ./rpc/cron.rb      root@$1:$MCOLL_DST/
+   scp ./rpc/cronos.ddl     root@$1:$MCOLL_DST/
+   scp ./rpc/cronos.rb      root@$1:$MCOLL_DST/
 fi

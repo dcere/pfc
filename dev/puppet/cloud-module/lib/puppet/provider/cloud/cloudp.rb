@@ -361,7 +361,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
          mcc = MCollectiveCronClient.new("cron")
-         mcc.delete_line(CRON_FILE, /^.*puppet.*apply.*init-#{resource[:type]}.*$/)
+         regex = /^.*puppet.*apply.*init-#{resource[:type]}.*$/
+         mcc.delete_line(CRON_FILE, regex)
          mcc.disconnect
          sleep(5)
          
