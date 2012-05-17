@@ -141,6 +141,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   cloud_file.close
                end
                
+               # Make cloud nodes manage themselves
+               auto_manage()
+               
                puts "Cloud started"
                
                

@@ -14,7 +14,7 @@ class MCollectiveLeaderClient < MCollectiveClient
       ids = []
       regex = /^.*ID: (\d+).*$/
    
-      puts "Retrieving nodes' ids via MCollective client..."
+      puts "Retrieving nodes' ids via MCollective Leader client"
       output = Helpers.rpcresults @mc.ask_id()
       
       output.each_line do |line|
@@ -31,7 +31,7 @@ class MCollectiveLeaderClient < MCollectiveClient
    
    def new_leader(id)
    
-      puts "Sending new leader information via MCollective client..."
+      puts "Sending new leader information via MCollective Leader client"
       output = @mc.new_leader(id)
       return output
    

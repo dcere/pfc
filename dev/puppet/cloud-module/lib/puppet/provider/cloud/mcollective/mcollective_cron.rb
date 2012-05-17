@@ -11,7 +11,7 @@ class MCollectiveCronClient < MCollectiveClient
    
    def add_line(path, line)
    
-      puts "Sending path and line via MCollective client"
+      puts "Sending path and line via MCollective Cron client"
       @mc.add_line(:path => path, :line => line)
       printrpcstats
    
@@ -20,7 +20,7 @@ class MCollectiveCronClient < MCollectiveClient
    
    def delete_line(path, string)
    
-      puts "Sending path and string via MCollective client"
+      puts "Sending path and string via MCollective Cron client"
       @mc.delete_line(:path => path, :string => string)
       printrpcstats
    

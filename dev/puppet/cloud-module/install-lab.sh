@@ -50,8 +50,8 @@ fi
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
 then
-   scp ./manifests/*    root@$1:$PUPPET_DST/$NAME/manifests/
-   scp ./files/*        root@$1:$PUPPET_DST/$NAME/files/
+   scp ./manifests/*       root@$1:$PUPPET_DST/$NAME/manifests/
+   scp -r ./files/*        root@$1:$PUPPET_DST/$NAME/files/
 fi
 
 if [ $2 = "test" -o $2 = "all" ]

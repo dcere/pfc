@@ -75,11 +75,11 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # Depending on the type of cloud we will have to monitor different components
-   if resource[:type] == "appscale"
+   if resource[:type].to_s == "appscale"
       appscale_monitor(vm, role)
-   elsif resource[:type] == "web"
+   elsif resource[:type].to_s == "web"
       web_monitor(vm, role)
-   elsif resource[:type] == "jobs"
+   elsif resource[:type].to_s == "jobs"
       jobs_monitor(role)
    else
       err "Unrecognized type of cloud: #{resource[:type]}"
@@ -213,11 +213,11 @@ def copy_cloud_files(ips)
       if vm != MY_IP
          # Cloud manifest
          # FIXME : Check 'source' attribute in manifest
-         if resource[:type] == "appscale"
+         if resource[:type].to_s == "appscale"
             file = "init-appscale.pp"
-         elsif resource[:type] == "web"
+         elsif resource[:type].to_s == "web"
             file = "init-web.pp"
-         elsif resource[:type] == "jobs"
+         elsif resource[:type].to_s == "jobs"
             file = "init-jobs.pp"
          end
          command = "scp /etc/puppet/modules/cloud/manifests/#{file}" +
@@ -315,6 +315,32 @@ def start_cloud(vm_ips, vm_ip_roles)
 
 end
 
+
+def auto_manage()
+
+   if resource[:type].to_s == "appscale"
+      cron_file = "crontab-appscale"
+   elsif resource[:type].to_s == "web"
+      cron_file = "crontab-web"
+   elsif resource[:type].to_s == "jobs"
+      cron_file = "crontab-jobs"
+   end
+   path = "/etc/puppet/modules/cloud/files/cron/#{cron_file}"
+   
+   if File.exists?(path)
+      file = File.open(path, 'r')
+      line = file.read().chomp()
+      file.close
+      
+      # Add the 'puppet apply manifest.pp' line to the crontab file
+      mcc = MCollectiveCronClient.new("cronos")
+      mcc.add_line(CRON_FILE, line)
+      mcc.disconnect
+   else
+      err "Impossible to find cron file at #{path}"
+   end
+   
+end
 
 
 ################################################################################

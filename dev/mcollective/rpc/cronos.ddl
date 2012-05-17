@@ -29,6 +29,10 @@ action "add_line", :description => "Add a new line to the cron file" do
           :description => "Success on adding the line.",
           :display_as  => "Line added"
 
+   output :message,
+          :description => "Success or Error message.",
+          :display_as  => "Message"
+
 end
 
 

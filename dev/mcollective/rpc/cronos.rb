@@ -11,18 +11,62 @@ module MCollective
 
          # Cron files management functions
          action "add_line" do
+
             path = request[:path]
             line = request[:line]
+
             if File.exists?(path)
+               # Check if the line already exists
+               file = File.open(path, 'r')
+               file.each_line do |file_line|
+                  if file_line == line
+                     reply[:success] = true
+                     reply[:message] = "Line already existed"
+                     file.close
+                     return
+                  end
+               end
+               file.close     # Line does not exist, so close the file (reading mode)
+               
+               # Add the line if it does not exist
                file = File.open(path, 'a')
                file.puts(line)
                file.close
-               reply[:success] = true
+               
+               # Execute crontab
+               result = `crontab #{path}`
+               if $?.exitstatus == 0
+                  reply[:success] = true
+                  reply[:message] = "Everything OK"
+               else
+                  reply[:success] = false
+                  reply[:message] = "Could not execute crontab"
+               end
+
             else
-               reply[:success] = false
+               # File does not exist
+               file = File.open(path, 'w')
+               if file != nil
+                  file.puts(line)
+                  file.close
+                  
+                  # Execute crontab
+                  result = `crontab #{path}`
+                  if $?.exitstatus == 0
+                     reply[:success] = true
+                     reply[:message] = "Everything OK"
+                  else
+                     reply[:success] = false
+                     reply[:message] = "Could not execute crontab"
+                  end
+               else
+                  reply[:success] = false
+                  reply[:message] = "Could not create crontab/root file"
+               end
             end
          end
          
+
          action "delete_line" do
             path  = request[:path]
             string = request[:string]
@@ -54,6 +98,7 @@ module MCollective
                reply[:number]  = 0
             end
          end
+         
          
       end
    end
