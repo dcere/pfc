@@ -57,6 +57,12 @@
   - (X) lucid-server1
   - lucid-server2
   - (X) lucid-database
+- (X) Instalación de MCollective en las appscale
+  - (X) appscale-image0
+  - (X) appscale-image1
+- Instalación de appscale-tools en las appscale
+  - appscale-image0
+  - appscale-image1
 - Estudiar el uso del parámetro "image_path" para facilitar la especificación de varias imágenes en "images"
 - Puppet: rubygems de ubuntu (1.3.5) vs gem --version (1.8.21) ¿Como se especifica la última en un manifiesto Puppet?
 - (X) Borrar definición de máquinas en virsh en lote: myvm* , cloud-app-* etc. ¿Se puede? => No
@@ -68,7 +74,9 @@
 - (X) Definir como variables globales en el proveedor las rutas (y los nombres?) de estos ficheros
 - Comprobar que las máquinas virtuales tienen correctamente:
   - Instalado MCollective
+  - Instalados los clientes MCollective que vamos a usar: files, leader, cron
   - El archivo /etc/mcollecive/server.cfg
+  - El archivo /etc/mcollecive/client.cfg
   - Instalado expect
   - Configurada la clave /root/.ssh/id_rsa.pub
 - (X) Si las MV ya estaban funcionando, ¿cómo sabemos qué dominios hay que parar y borrar su definición?
@@ -86,4 +94,5 @@
   - (X) Inicialización
   - (X) Terminación
 - Separación de proveedores
-- Inicio de AppScale desde Puppet con script expect
+- (1/2) Inicio de AppScale desde Puppet con script expect: A veces sí, a veces no, depende de como lleve el día AppScale.
+- Comprobación de roles en AppScale

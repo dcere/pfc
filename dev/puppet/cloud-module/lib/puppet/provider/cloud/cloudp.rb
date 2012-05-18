@@ -78,7 +78,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             my_id = le.get_id()
             leader = le.get_leader()
  
-            if my_id != -1 && my_id == leader      # We are the leader
+            if my_id != -1 && my_id == leader
+               # We are the leader
                puts "#{MY_IP} is the leader"
                
                # Check virtual machines are alive
@@ -126,6 +127,12 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                # Send them their IDs and the leader's ID
                send_ids(vm_ips)
+               
+               # Check MCollective is installed and configured
+               # TODO
+               
+               # Check expect is installed
+               # TODO
                
                # Copy important files to all machines
                puts "Copying important files to all virtual machines"

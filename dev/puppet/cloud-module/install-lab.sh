@@ -7,18 +7,19 @@
 # Arguments:
 #   - IP address: IP address of remote host.
 #   - Files: Files to install
-#     - all:  all the files
-#     - man:  only manifests
-#     - tp:   only type and provider
-#     - test: only test files
-#     - app:  AppScale local manifests
-#     - tls:  AppScale tools
-#     - lch:  AppScale launch files
+#     - all:   all the files
+#     - man:   only manifests
+#     - tp:    only type and provider
+#     - files: only type and provider files directory
+#     - test:  only test files
+#     - app:   AppScale local manifests
+#     - tls:   AppScale tools
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
 #   _$: install-lab.sh 155.210.155.170 tp
-#   _$: install-lab.sh 155.210.155.170 manif
+#   _$: install-lab.sh 155.210.155.170 man
+#   _$: install-lab.sh 155.210.155.170 files
 #
 #
 # Author:
@@ -45,13 +46,13 @@ then
    $SSH mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}
    $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/type
    $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/{appscale-manifests,appscale-tools,cron,web-manifests,web-monitor}
 fi
 
 # Copy manifests
 if [ $2 = "man" -o $2 = "all" ]
 then
-   scp ./manifests/*       root@$1:$PUPPET_DST/$NAME/manifests/
-   scp -r ./files/*        root@$1:$PUPPET_DST/$NAME/files/
+   scp ./manifests/*    root@$1:$PUPPET_DST/$NAME/manifests/
 fi
 
 if [ $2 = "test" -o $2 = "all" ]
@@ -73,6 +74,12 @@ then
    # mcollective_files.rb, mcollective_leader.rb, mcollective_cron.rb,
    # mac.rb, vm.rb, ssh_copy_id.sh
    scp -r $PROVIDER_SRC/$NAME/*     root@$1:$PROVIDER_DST/
+fi
+
+# Copy type and provider files directory
+if [ $2 = "files" -o $2 = "all" ]
+then
+   scp -r ./files/*     root@$1:$PUPPET_DST/$NAME/files/
 fi
 
 # Copy test
@@ -97,24 +104,17 @@ then
 fi
 
 # Copy AppScale tools
-if [ $2 = "tls" -o $2 = "all" ]
-then
-   # Binaries
-   scp ./files/appscale-tools/appscale-add-keypair \
-      root@$1:/usr/local/appscale-tools/bin
-   scp ./files/appscale-tools/appscale-run-instances \
-      root@$1:/usr/local/appscale-tools/bin
-   # Libraries
-   scp ./files/appscale-tools/parse_args.rb \
-      root@$1:/usr/local/appscale-tools/lib
-fi
-
-# Copy AppScale launch files
-if [ $2 = "lch" -o $2 = "all" ]
-then
-   scp ./appscale-launch.rb      root@$1:$PUPPET_DST/$NAME
-   scp ./ips-launch.yaml         root@$1:$PUPPET_DST/$NAME
-fi
+# if [ $2 = "tls" -o $2 = "all" ]
+# then
+#    # Binaries
+#    scp ./files/appscale-tools/appscale-add-keypair \
+#       root@$1:/usr/local/appscale-tools/bin
+#    scp ./files/appscale-tools/appscale-run-instances \
+#       root@$1:/usr/local/appscale-tools/bin
+#    # Libraries
+#    scp ./files/appscale-tools/parse_args.rb \
+#       root@$1:/usr/local/appscale-tools/lib
+# fi
 
 
 # Copy web local manifests and monitor files

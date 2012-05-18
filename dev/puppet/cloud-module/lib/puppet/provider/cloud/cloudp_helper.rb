@@ -1,4 +1,4 @@
-# Auxiliar functions
+# Auxiliar functions for cloud provider
 
 
 def obtain_vm_ips
@@ -8,7 +8,8 @@ def obtain_vm_ips
    vm_img_roles = []
    if resource[:type].to_s == "appscale"
       puts "It is an appscale cloud"
-      vm_ips = appscale_yaml_parser(resource[:ip_file])
+      vm_ips, vm_ip_roles = appscale_yaml_ips(resource[:ip_file])
+      vm_img_roles = appscale_yaml_images(resource[:img_file])
    elsif resource[:type].to_s == "web"
       puts "It is a web cloud"
       vm_ips, vm_ip_roles = web_yaml_ips(resource[:ip_file])
@@ -57,8 +58,9 @@ def monitor_vm(vm, ip_roles, img_roles)
       le.vm_set_leader(vm, leader)
    end
    
-   # Make sure MCollective is running. We need this to ensure the leader election
-   # so it can not be in their manifest, it must be done explicitly
+   # Make sure MCollective is running. We need this to ensure the leader election,
+   # so assuring MCollective is running can not be left to Puppet in their local
+   # manifest. It must be done explicitly and now.
    command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
    result = `#{command}`
    if $?.exitstatus != 0
@@ -212,14 +214,8 @@ def copy_cloud_files(ips)
    
       if vm != MY_IP
          # Cloud manifest
-         # FIXME : Check 'source' attribute in manifest
-         if resource[:type].to_s == "appscale"
-            file = "init-appscale.pp"
-         elsif resource[:type].to_s == "web"
-            file = "init-web.pp"
-         elsif resource[:type].to_s == "jobs"
-            file = "init-jobs.pp"
-         end
+         # FIXME : Check 'source' attribute in manifest to avoid scp
+         file = "init-%s.pp" % [resource[:type].to_s]
          command = "scp /etc/puppet/modules/cloud/manifests/#{file}" +
                    " root@#{vm}:/etc/puppet/modules/cloud/manifests/#{file}"
          result = `#{command}`
@@ -257,23 +253,24 @@ def start_cloud(vm_ips, vm_ip_roles)
          puts "app_email = #{resource[:app_email]}"
          puts "app_password = #{resource[:app_password]}"
       end
-      debug "[DBG] Starting an appscale cloud"
       puts  "Starting an appscale cloud"
       
       puppet_path = "/etc/puppet/"
       appscale_manifest_path = puppet_path + "appscale_basic.pp"
       appscale_manifest = File.open("/etc/puppet/modules/cloud/files/appscale-manifests/basic.pp", 'r').read()
       puts "Creating manifest files on agent nodes"
-      mcollective_create_files(appscale_manifest_path, appscale_manifest)
+      mcc = MCollectiveFilesClient.new("files")
+      mcc.create_files(appscale_manifest_path, appscale_manifest)
+      mcc.disconnect()
       puts "Manifest files created"
       
       # FIXME Only works if ssh keys are OK. Maybe Puppet source?
-      yaml_file = resource[:ip_file]
-      puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
-      result = `scp #{yaml_file} root@155.210.155.170:/tmp`
+      #yaml_file = resource[:ip_file]
+      #puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
+      #result = `scp #{yaml_file} root@155.210.155.170:/tmp`
       ips_yaml = File.basename(resource[:ip_file])
       ips_yaml = "/tmp/" + ips_yaml
-      puts "==Calling appscale_cloud_start"
+      puts "Calling appscale_cloud_start"
       ssh_user = "root"
       ssh_host = "155.210.155.170"
       appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
@@ -281,7 +278,6 @@ def start_cloud(vm_ips, vm_ip_roles)
                            resource[:root_password])
 
    elsif resource[:type].to_s == "web"
-      debug "[DBG] Starting a web cloud"
       puts  "Starting a web cloud"
       
       # Distribute ssh key to nodes to make login passwordless
@@ -339,18 +335,10 @@ end
 
 ################################################################################
 # TODO: Move them out of here
-def appscale_monitor(role)
-   return
-end
-
 
 def jobs_monitor(role)
    return
 end
-
-
-
-
 
 
 ################################################################################
