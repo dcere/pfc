@@ -58,22 +58,18 @@ def monitor_vm(vm, ip_roles, img_roles)
       le.vm_set_leader(vm, leader)
    end
    
+   # Check if MCollective is installed and configured
+   mcollective_installed = monitor_mcollective_installed(vm)
+   unless mcollective_installed
+      err "MCollective is not installed on #{vm}"
+   end
+   
    # Make sure MCollective is running. We need this to ensure the leader election,
    # so assuring MCollective is running can not be left to Puppet in their local
    # manifest. It must be done explicitly and now.
-   command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
-   result = `#{command}`
-   if $?.exitstatus != 0
-      puts "MCollective is not running on #{vm}"
-      command = "ssh root@#{vm} '/usr/bin/service mcollective start'"
-      result = `#{command}`
-      if $?.exitstatus != 0
-         err "Impossible to start mcollective on #{vm}"
-      else
-         puts "MCollective is running now on #{vm}"
-      end
-   else
-      puts "MCollective is running on #{vm}"
+   mcollective_running = monitor_mcollective_running(vm)
+   unless mcollective_running
+      err "MCollective is not running on #{vm}"
    end
    
    # Depending on the type of cloud we will have to monitor different components
@@ -86,8 +82,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    else
       err "Unrecognized type of cloud: #{resource[:type]}"
    end
-         
-
+   
 end
 
 
@@ -453,6 +448,8 @@ def send_ids(vms)
    end
    
 end
+
+
 ################################################################################
 # Last ID functions
 ################################################################################
@@ -476,6 +473,59 @@ def set_last_id(id)
       file = File.open(LAST_ID_FILE, 'w')
       file.puts(id)
       file.close
+   end
+   
+end
+
+
+################################################################################
+# Monitor functions
+################################################################################
+def monitor_mcollective_installed(vm)
+   
+   installed = true
+   
+   # Client configuration file
+   client_file = "/etc/mcollective/client.cfg"
+   command = "ssh root@#{vm} 'cat #{client_file} > /dev/null 2> /dev/null'"
+   result = `#{command}`
+   if $?.exitstatus != 0
+      puts "#{client_file} does not exist on #{vm}"
+      installed = false
+   end
+
+   # Server configuration file
+   server_file = "/etc/mcollective/server.cfg"
+   command = "ssh root@#{vm} 'cat #{server_file} > /dev/null 2> /dev/null'"
+   result = `#{command}`
+   if $?.exitstatus != 0
+      puts "#{server_file} does not exist on #{vm}"
+      installed = false
+   end
+   
+   return installed
+   
+end
+
+
+def monitor_mcollective_running(vm)
+   
+   command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
+   result = `#{command}`
+   if $?.exitstatus != 0
+      puts "MCollective is not running on #{vm}"
+      command = "ssh root@#{vm} '/usr/bin/service mcollective start'"
+      result = `#{command}`
+      if $?.exitstatus != 0
+         puts "Impossible to start mcollective on #{vm}"
+         return false
+      else
+         puts "MCollective is running now on #{vm}"
+         return true
+      end
+   else
+      puts "MCollective is running on #{vm}"
+      return true
    end
    
 end

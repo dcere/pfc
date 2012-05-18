@@ -128,9 +128,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Send them their IDs and the leader's ID
                send_ids(vm_ips)
                
-               # Check MCollective is installed and configured
-               # TODO
-               
                # Check expect is installed
                # TODO
                
