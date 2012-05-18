@@ -4,14 +4,14 @@
 #   Installs the cloud puppet module
 #
 # Synopsis:
-#   appscale-add-keypair.sh <password>
+#   appscale-add-keypair.tcl <password>
 #
 # Arguments:
 #   - File: AppScale YAML configuration file.
 #   - Password: Root password for all machines.
 #
 # Examples:
-#   _$: appscale-add-keypair.sh ips.yaml my_password_is_abcd
+#   _$: appscale-add-keypair.tcl ips.yaml my_password_is_abcd
 #
 #
 # Author:

@@ -16,11 +16,11 @@ def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
    # Copy expect scripts
    puts "Copying expect scripts"
    path = "/etc/puppet/modules/cloud/files"
-   script_keys = "appscale-add-keypair.sh"
-   script_run = "appscale-run-instances.sh"
+   script_keys = "appscale-add-keypair.tcl"
+   script_run = "appscale-run-instances.tcl"
    if MY_IP != ssh_host
    
-      # appscale-add-keypair.sh expect script
+      # appscale-add-keypair.tcl expect script
       result = `scp #{path}/#{script_keys} #{ssh_user}@#{ssh_host}:#{path}/`
       if $?.exitstatus == 0
          puts "#{script_keys} copied"
@@ -28,7 +28,7 @@ def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
          err "Impossible to copy #{script_keys}"
       end
       
-      # appscale-run-instances.sh expect script
+      # appscale-run-instances.tcl expect script
       result = `scp #{path}/#{script_run} #{ssh_user}@#{ssh_host}:#{path}/`
       if $?.exitstatus == 0
          puts "#{script_run} copied"

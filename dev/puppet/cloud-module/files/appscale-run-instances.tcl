@@ -4,7 +4,7 @@
 #   Installs the cloud puppet module
 #
 # Synopsis:
-#   appscale-run-instances.sh <file> <e-mail> <password>
+#   appscale-run-instances.tcl <file> <e-mail> <password>
 #
 # Arguments:
 #   - File: AppScale YAML configuration file.
@@ -12,7 +12,7 @@
 #   - Password: AppScale administration password.
 #
 # Examples:
-#   _$: appscale-run-instances.sh ips.yaml user@mail.com appscale
+#   _$: appscale-run-instances.tcl ips.yaml user@mail.com appscale
 #
 #
 # Author:
