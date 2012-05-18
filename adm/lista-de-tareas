@@ -33,10 +33,10 @@
   - Configurar mediante Puppet => Especificar el contenido del fichero /etc/network/interfaces para cada máquina
 - (X) Escribir como disminuir el tamaño de las imágenes de Ubuntu: caché apt, etc
 - Comprobar uso de Custom facts para obtener información de AppScale
-- Comprobar uso de Puppet nodes para los nodos de AppScale
-  - Comprobar, en general, el uso de los tipos de Puppet para adaptarlos a los manifiestos
+- (X) Comprobar uso de Puppet nodes para los nodos de AppScale
+  - (X) Comprobar, en general, el uso de los tipos de Puppet para adaptarlos a los manifiestos
 - Comprobar ejecución de Puppet (nivel 2) desde MCollective
-  - Y también la ejecución de Puppet en modo "cron"
+  - (X) Y también la ejecución de Puppet en modo "cron"
 - Comprobar estado de la propuesta
 - (X) Uso de MCollective para ejecutar comandos de shell => Comandos sencillos como 'whoami', 'ls'
 - (X) Uso de invoke-rc.d mcollecive stop en vez de service mcollecive stop en Debian / Ubuntu
@@ -82,7 +82,7 @@
   - (X) MCollective para preguntarles a todos por su ID y enviarles el ID del líder a todos de vez
   - (X) LeaderElection para la gestión de IDs en tu propia máquina
 - Asignación de MACs a las MV. Fichero /etc/udev/rules.../70-...rules
-- Trabajos cron para Puppet
+- (X) Trabajos cron para Puppet
   - (X) Inicialización
-  - Terminación
+  - (X) Terminación
 - Separación de proveedores

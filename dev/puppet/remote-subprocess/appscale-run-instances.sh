@@ -35,11 +35,11 @@ proc runinstances { user password } {
 
 #Parsing command-line arguments
 set yaml     [lrange $argv 0 0]
-set user     [lrange $argv 1 1]     # [lindex $argv 1]
+set user     [lrange $argv 1 1]
 set password [lrange $argv 2 2]
 
-#Setting timeout to an arbitrary value of 300 that works well for appscale-run-instances
-set timeout 300
+#Setting timeout to an arbitrary value of 120 that works well for appscale-run-instances
+set timeout 120
 
 # Execute appscale-run-instances command
 eval spawn /usr/local/appscale-tools/bin/appscale-run-instances --ips $yaml
