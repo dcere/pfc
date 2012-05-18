@@ -1,8 +1,23 @@
 #!/usr/bin/env expect
 
-################################################################################
-# Use: appscale-run-instances.sh <ips.yaml> <user@mail.com> <password>
-################################################################################
+# Description:
+#   Installs the cloud puppet module
+#
+# Synopsis:
+#   appscale-run-instances.sh <file> <e-mail> <password>
+#
+# Arguments:
+#   - File: AppScale YAML configuration file.
+#   - e-mail: AppScale administration e-mail.
+#   - Password: AppScale administration password.
+#
+# Examples:
+#   _$: appscale-run-instances.sh ips.yaml user@mail.com appscale
+#
+#
+# Author:
+#   David Ceresuela
+
 
 # Procedure to interact with appscale-run-instances command
 # Parameter : user

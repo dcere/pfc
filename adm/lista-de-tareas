@@ -86,3 +86,4 @@
   - (X) Inicialización
   - (X) Terminación
 - Separación de proveedores
+- Inicio de AppScale desde Puppet con script expect

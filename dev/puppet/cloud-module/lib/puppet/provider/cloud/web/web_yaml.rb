@@ -40,6 +40,7 @@ def web_yaml_ips(path)
    
 end
 
+
 def web_yaml_images(path)
 
    img_roles = {}
@@ -73,6 +74,7 @@ def web_yaml_images(path)
    end
    
 end
+
 
 def get_elements(array)
 
