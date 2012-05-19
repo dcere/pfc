@@ -41,8 +41,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    #   - Set their ID before they can become another leader.
    #   - Set also the leader's ID.
    le = LeaderElection.new()
-   id_file = ID_FILE
-   command = "ssh root@#{vm} 'cat #{id_file}' > /dev/null 2> /dev/null"
+   command = "ssh root@#{vm} 'cat #{ID_FILE}' > /dev/null 2> /dev/null"
    result = `#{command}`
    if $?.exitstatus != 0
       # Set their ID (based on the last ID we defined)

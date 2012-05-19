@@ -1,14 +1,17 @@
 require 'mcollective'
 include MCollective::RPC
 
+# MCollective leader client used to help with leader election algorithm
 class MCollectiveLeaderClient < MCollectiveClient
    
    
+   # Creates a new MCollective leader client.
    def initialize(client)
       super(client)
    end
    
    
+   # Asks all nodes for their ID.
    def ask_id
    
       ids = []
@@ -29,6 +32,7 @@ class MCollectiveLeaderClient < MCollectiveClient
    end
    
    
+   # Sends all nodes the leader's ID.
    def new_leader(id)
    
       puts "Sending new leader information via MCollective Leader client"

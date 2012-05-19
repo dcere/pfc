@@ -1,3 +1,4 @@
+# Starts a web cloud.
 def web_cloud_start(web_roles)
    
    # Distribute manifests
@@ -156,6 +157,7 @@ def web_cloud_start(web_roles)
 end
 
 
+# Monitors a virtual machine belonging to a web cloud.
 def web_monitor(vm, role)
 
    puts "Monitoring #{role}"

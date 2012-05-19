@@ -75,8 +75,8 @@
 - Comprobar que las máquinas virtuales tienen correctamente:
   - Instalado MCollective
   - Instalados los clientes MCollective que vamos a usar: files, leader, cron
-  - El archivo /etc/mcollecive/server.cfg
-  - El archivo /etc/mcollecive/client.cfg
+  - (X) El archivo /etc/mcollecive/server.cfg
+  - (X) El archivo /etc/mcollecive/client.cfg
   - Instalado expect
   - Configurada la clave /root/.ssh/id_rsa.pub
 - (X) Si las MV ya estaban funcionando, ¿cómo sabemos qué dominios hay que parar y borrar su definición?

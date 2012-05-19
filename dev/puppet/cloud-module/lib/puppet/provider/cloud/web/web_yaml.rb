@@ -1,7 +1,7 @@
 require 'yaml'
 
 ##
-# Obtains the IP addresses from the web.yaml file. It does NOT check whether
+# Obtains the IP addresses from the ip_file file. It does NOT check whether
 # the file has the proper format.
 
 def web_yaml_ips(path)
@@ -41,6 +41,7 @@ def web_yaml_ips(path)
 end
 
 
+# Obtains the disk images from the img_file file.
 def web_yaml_images(path)
 
    img_roles = {}
@@ -76,6 +77,7 @@ def web_yaml_images(path)
 end
 
 
+# Transforms the given elements to an array.
 def get_elements(array)
 
    elements = []

@@ -1,12 +1,15 @@
+# MAC address
 class MAC_Address
    
    attr_reader :mac
    
+   # Creates a new MAC_Address object.
    def initialize(value=nil)
       @mac = value ? value: "52:54:00:00:00:00"
    end
    
    
+   # Obtains the next MAC address.
    def next_mac
    
       mac_string = @mac.delete(":")
@@ -20,6 +23,7 @@ class MAC_Address
    end
    
    
+   # Generates an array of <many> MAC addresses starting from this one.
    def generate_array(many)
    
       result = []

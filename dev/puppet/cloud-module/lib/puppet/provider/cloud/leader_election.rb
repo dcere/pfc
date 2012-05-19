@@ -1,8 +1,10 @@
+# Leader election helper methods
 class LeaderElection
    
    # Do not use attr_reader because your id and your leader's id might change
    # during execution. The only thing that should not change are the files paths.
    
+   # Creates a new LeaderElection object.
    def initialize(id_file     = ID_FILE,
                   leader_file = LEADER_FILE,
                   yaml_file   = IDS_YAML)
@@ -14,6 +16,7 @@ class LeaderElection
    end
 
 
+   # Gets the ID of the node by reading the node's id_file.
    def get_id
       
       if File.exists?(@id_file)
@@ -28,6 +31,7 @@ class LeaderElection
    end
    
    
+   # Sets the ID of the node.
    def set_id(id)
    
       file = File.open(@id_file, 'w')
@@ -37,6 +41,7 @@ class LeaderElection
    end
    
    
+   # Gets the ID of the leader by reading the node's leader_file.
    def get_leader
    
       if File.exists?(@leader_file)
@@ -51,6 +56,7 @@ class LeaderElection
    end
    
    
+   # Sets the node's ID on a remote node.
    def vm_set_id(vm, id)
    
       command = "ssh root@#{vm} 'echo #{id} > #{@id_file}'"
@@ -60,6 +66,7 @@ class LeaderElection
    end
 
 
+   # Sets the leader's ID on a remote node.
    def vm_set_leader(vm, leader)
    
       command = "ssh root@#{vm} 'echo #{leader} > #{@leader_file}'"
@@ -69,6 +76,7 @@ class LeaderElection
    end
    
    
+   # Gets the ID of a node from the yaml_file.
    def get_id_YAML(vm)
 
       require 'yaml'
@@ -91,6 +99,7 @@ class LeaderElection
    end
    
    
+   # Sets the ID of a node on the yaml_file.
    def set_id_YAML(vm, id)
    
       require 'yaml'

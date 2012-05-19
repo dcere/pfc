@@ -1,3 +1,4 @@
+# Starts an AppScale cloud.
 def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
                          app_email=nil, app_password=nil, root_password=nil)
 
@@ -82,6 +83,7 @@ def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
 end
 
 
+# Monitors a virtual machine belonging to an AppScale cloud.
 def appscale_monitor(vm, role)
 
    puts "Monitoring #{role}"
