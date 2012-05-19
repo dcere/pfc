@@ -64,7 +64,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_ips()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
          
          # Check whether you are one of the virtual machines
          puts "Checking whether we are one of the virtual machines..."
@@ -292,7 +292,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             puts "#{MY_IP} is the leader"
             
             # Do monitoring
-            vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_ips()
+            vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
             vm_ips.each do |vm|
                puts "Monitoring #{vm}..."
                monitor_vm(vm, vm_ip_roles, vm_img_roles)

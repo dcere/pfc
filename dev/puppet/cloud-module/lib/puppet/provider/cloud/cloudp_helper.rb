@@ -1,7 +1,8 @@
 # Auxiliar functions for cloud provider
 
 
-def obtain_vm_ips
+# Obtains virtual machines' IP addresses, image disks and roles.
+def obtain_vm_data
    
    vm_ips = []
    vm_ip_roles = []
@@ -27,6 +28,7 @@ def obtain_vm_ips
 end
 
 
+# Monitors a virtual machine.
 def monitor_vm(vm, ip_roles, img_roles)
 
    role = :role_must_be_defined_outside_the_loop
@@ -85,6 +87,7 @@ def monitor_vm(vm, ip_roles, img_roles)
 end
 
 
+# Starts a virtual machine.
 def start_vm(vm, ip_roles, img_roles, pm_up)
 
    # This function is cloud-type independent: define a new virtual machine and
@@ -199,6 +202,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
 end
 
 
+# Copies important files to all machines inside <ips>
 def copy_cloud_files(ips)
 # Use MCollective?
 #  - Without MCollective we are able to send it to both one machine or multiple
@@ -236,6 +240,7 @@ def copy_cloud_files(ips)
 end
 
 
+# Starts a cloud formed by <vm_ips> performing <vm_ip_roles>
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
@@ -306,6 +311,7 @@ def start_cloud(vm_ips, vm_ip_roles)
 end
 
 
+# Makes the cloud auto-manageable through crontab files.
 def auto_manage()
 
    cron_file = "crontab-%s" % [resource[:type].to_s]
@@ -338,6 +344,8 @@ end
 ################################################################################
 # Auxiliar functions
 ################################################################################
+
+# Checks the pool of physical machines are OK.
 def check_pool
 
    all_up = true
@@ -359,6 +367,7 @@ def check_pool
 end
 
 
+# Define a domain for a virtual machine on a physical machine.
 def define_domain(ssh_connect, vm_name, domain_file_name)
 
    result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_name}'`
@@ -373,6 +382,7 @@ def define_domain(ssh_connect, vm_name, domain_file_name)
 end
 
 
+# Starts a domain on a physical machine.
 def start_domain(ssh_connect, vm_name)
 
    result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
@@ -387,6 +397,7 @@ def start_domain(ssh_connect, vm_name)
 end
 
 
+# Saves the virtual machine's domain name in a file.
 def save_domain_name(ssh_connect, vm_name)
 
    file = "/tmp/defined-domains-#{resource[:name]}"
@@ -415,6 +426,7 @@ def command_execution(ip_array, command, error_message)
 end
 
 
+# Sends their IDs to some virtual machines.
 def send_ids(vms)
 
    id_file = ID_FILE
@@ -452,6 +464,8 @@ end
 ################################################################################
 # Last ID functions
 ################################################################################
+
+# Gets the last defined ID in the ID file.
 def get_last_id()
 
    if File.exists?(LAST_ID_FILE)
@@ -466,6 +480,7 @@ def get_last_id()
 end
 
 
+# Sets last defined ID in the ID file.
 def set_last_id(id)
 
    if File.exists?(LAST_ID_FILE)
@@ -480,6 +495,8 @@ end
 ################################################################################
 # Monitor functions
 ################################################################################
+
+# Checks if MCollective is installed in <vm>.
 def monitor_mcollective_installed(vm)
    
    installed = true
@@ -507,6 +524,7 @@ def monitor_mcollective_installed(vm)
 end
 
 
+# Checks if MCollective is running in <vm>.
 def monitor_mcollective_running(vm)
    
    command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
