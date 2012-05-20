@@ -31,6 +31,14 @@ end
 # Monitors a virtual machine.
 def monitor_vm(vm, ip_roles, img_roles)
 
+   include Monitor
+
+   # Check if it is alive
+   alive = Monitor.ping(vm)
+   unless alive
+      err "#{vm} is not alive. Impossible to monitor"
+   end
+
    role = :role_must_be_defined_outside_the_loop
    ip_roles.each do |r, ips|
       ips.each do |ip|
@@ -60,7 +68,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # Check if MCollective is installed and configured
-   mcollective_installed = monitor_mcollective_installed(vm)
+   mcollective_installed = Monitor.mcollective_installed(vm)
    unless mcollective_installed
       err "MCollective is not installed on #{vm}"
    end
@@ -68,7 +76,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    # Make sure MCollective is running. We need this to ensure the leader election,
    # so assuring MCollective is running can not be left to Puppet in their local
    # manifest. It must be done explicitly and now.
-   mcollective_running = monitor_mcollective_running(vm)
+   mcollective_running = Monitor.mcollective_running(vm)
    unless mcollective_running
       err "MCollective is not running on #{vm}"
    end
@@ -487,62 +495,6 @@ def set_last_id(id)
       file = File.open(LAST_ID_FILE, 'w')
       file.puts(id)
       file.close
-   end
-   
-end
-
-
-################################################################################
-# Monitor functions
-################################################################################
-
-# Checks if MCollective is installed in <vm>.
-def monitor_mcollective_installed(vm)
-   
-   installed = true
-   
-   # Client configuration file
-   client_file = "/etc/mcollective/client.cfg"
-   command = "ssh root@#{vm} 'cat #{client_file} > /dev/null 2> /dev/null'"
-   result = `#{command}`
-   if $?.exitstatus != 0
-      puts "#{client_file} does not exist on #{vm}"
-      installed = false
-   end
-
-   # Server configuration file
-   server_file = "/etc/mcollective/server.cfg"
-   command = "ssh root@#{vm} 'cat #{server_file} > /dev/null 2> /dev/null'"
-   result = `#{command}`
-   if $?.exitstatus != 0
-      puts "#{server_file} does not exist on #{vm}"
-      installed = false
-   end
-   
-   return installed
-   
-end
-
-
-# Checks if MCollective is running in <vm>.
-def monitor_mcollective_running(vm)
-   
-   command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
-   result = `#{command}`
-   if $?.exitstatus != 0
-      puts "MCollective is not running on #{vm}"
-      command = "ssh root@#{vm} '/usr/bin/service mcollective start'"
-      result = `#{command}`
-      if $?.exitstatus != 0
-         puts "Impossible to start mcollective on #{vm}"
-         return false
-      else
-         puts "MCollective is running now on #{vm}"
-         return true
-      end
-   else
-      puts "MCollective is running on #{vm}"
-      return true
    end
    
 end

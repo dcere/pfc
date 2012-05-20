@@ -15,6 +15,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
    require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
    
+   # Require monitoring files
+   require File.dirname(__FILE__) + '/monitor/monitor.rb'
+   
 #   Dir[File.dirname(__FILE__) + '/../lib/*.rb'].each do |file| 
 #      require File.basename(file, File.extname(file))
 #   end
