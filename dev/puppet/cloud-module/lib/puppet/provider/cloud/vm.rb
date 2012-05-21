@@ -1,7 +1,7 @@
 # Virtual machine class
 class VM
 
-   #attr_accessor :vm # TODO Is it needed? Aren't we using the array?
+   attr_accessor :vm
    
    
    # Creates a description of a virtual machine.
