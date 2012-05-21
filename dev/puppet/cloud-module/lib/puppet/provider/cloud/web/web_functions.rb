@@ -10,8 +10,8 @@ def web_cloud_start(web_roles)
    balancers = web_roles[:balancer]
    path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
    balancers.each do |vm|
-      result = `scp #{path} root@#{vm}:/tmp`
-      unless $?.exitstatus == 0
+      out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+      unless success
          debug "[DBG] Impossible to copy balancer manifest to #{vm}"
          err   "Impossible to copy balancer manifest to #{vm}"
       end
@@ -21,8 +21,8 @@ def web_cloud_start(web_roles)
    servers = web_roles[:server]
    path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
    servers.each do |vm|
-      result = `scp #{path} root@#{vm}:/tmp`
-      unless $?.exitstatus == 0
+      out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+      unless success
          debug "[DBG] Impossible to copy server manifest to #{vm}"
          err   "Impossible to copy server manifest to #{vm}"
       end
@@ -32,8 +32,8 @@ def web_cloud_start(web_roles)
    databases = web_roles[:database]
    path = "/etc/puppet/modules/cloud/files/web-manifests/database.pp"
    databases.each do |vm|
-      result = `scp #{path} root@#{vm}:/tmp`
-      unless $?.exitstatus == 0
+      out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+      unless success
          debug "[DBG] Impossible to copy database manifest to #{vm}"
          err   "Impossible to copy database manifest to #{vm}"
       end
@@ -54,8 +54,8 @@ def web_cloud_start(web_roles)
             err   "Impossible to start balancer in #{vm}"
          end
       else
-         result = `ssh root@#{vm} '#{command}'`
-         unless $?.exitstatus == 0
+         out, success = CloudSSH.execute_remote(command, vm)
+         unless success
             debug "[DBG] Impossible to start balancer in #{vm}"
             err   "Impossible to start balancer in #{vm}"
          end
@@ -74,8 +74,8 @@ def web_cloud_start(web_roles)
             err   "Impossible to start server in #{vm}"
          end
       else
-         result = `ssh root@#{vm} '#{command}'`
-         unless $?.exitstatus == 0
+         out, success = CloudSSH.execute_remote(command, vm)
+         unless success
             debug "[DBG] Impossible to start server in #{vm}"
             err   "Impossible to start server in #{vm}"
          end
@@ -98,10 +98,10 @@ def web_cloud_start(web_roles)
             end
          end
       else
-         result = `ssh root@#{vm} '#{check_command}'`
-         unless $?.exitstatus == 0
-            result = `ssh root@#{vm} '#{command}'`
-            unless $?.exitstatus == 0
+         out, success = CloudSSH.execute_remote(check_command, vm)
+         unless success
+            out, success = CloudSSH.execute_remote(command, vm)
+            unless success
                debug "[DBG] Impossible to start database in #{vm}"
                err   "Impossible to start database in #{vm}"
             end
@@ -115,39 +115,43 @@ def web_cloud_start(web_roles)
    # Monitor web server with god
    path = "/etc/puppet/modules/cloud/files/web-monitor/server.god"
    servers.each do |vm|
-      result = `ssh root@#{vm} 'mkdir -p /etc/god'`
-      unless $?.exitstatus == 0
+      command = "mkdir -p /etc/god"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
          debug "[DBG] Impossible to create /etc/god at #{vm}"
          err   "Impossible to create /etc/god at #{vm}"
       end
-      result = `scp #{path} root@#{vm}:/etc/god/`
-      unless $?.exitstatus == 0
+      out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+      unless success
          debug "[DBG] Impossible to copy #{path} to #{vm}"
          err   "Impossible to copy #{path} to #{vm}"
       end
-       result = `ssh root@#{vm} 'god -c /etc/god/server.god'`
-       unless $?.exitstatus == 0
-          debug "[DBG] Impossible to run god in #{vm}"
-          err   "Impossible to run god in #{vm}"
-       end
+      command = "god -c /etc/god/server.god"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
+         debug "[DBG] Impossible to run god in #{vm}"
+         err   "Impossible to run god in #{vm}"
+      end
    end
    
    # Monitor database with god due to puppet vs ubuntu mysql bug
    # http://projects.puppetlabs.com/issues/12773
    path = "/etc/puppet/modules/cloud/files/web-monitor/database.god"
    databases.each do |vm|
-      result = `ssh root@#{vm} 'mkdir -p /etc/god'`
-      unless $?.exitstatus == 0
+      command = "mkdir -p /etc/god"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
          debug "[DBG] Impossible to create /etc/god at #{vm}"
          err   "Impossible to create /etc/god at #{vm}"
       end
-      result = `scp #{path} root@#{vm}:/etc/god/`
-      unless $?.exitstatus == 0
+      out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+      unless success
          debug "[DBG] Impossible to copy #{path} to #{vm}"
          err   "Impossible to copy #{path} to #{vm}"
       end
-      result = `ssh root@#{vm} 'god -c /etc/god/database.god'`
-      unless $?.exitstatus == 0
+      command = "god -c /etc/god/database.god"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
          debug "[DBG] Impossible to run god in #{vm}"
          err   "Impossible to run god in #{vm}"
       end

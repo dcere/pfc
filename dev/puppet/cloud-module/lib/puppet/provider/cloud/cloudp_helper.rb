@@ -40,11 +40,11 @@ def monitor_vm(vm, ip_roles, img_roles)
       return
    end
    
-   # Send it your ssh key. WARNING: We are sending it to all machines
-   my_key = File.open("#{SSH_PATH}/#{SSH_KEY}.pub", 'r').read().chomp()
-   mcc = MCollectiveFilesClient("files")
-   mcc.append_content("/root/.ssh/authorized_keys", my_key)
-   mcc.disconnect()
+   # Send it your ssh key.
+   puts "Sending ssh key to #{vm}"
+   password = resource[:root_password]
+   CloudSSH.copy_ssh_key(vm, password)
+   puts "ssh key sent"
    
    role = :role_must_be_defined_outside_the_loop
    ip_roles.each do |r, ips|
@@ -58,9 +58,9 @@ def monitor_vm(vm, ip_roles, img_roles)
    #   - Set their ID before they can become another leader.
    #   - Set also the leader's ID.
    le = LeaderElection.new()
-   command = "ssh root@#{vm} 'cat #{ID_FILE}' > /dev/null 2> /dev/null"
-   result = `#{command}`
-   if $?.exitstatus != 0
+   command = "cat #{ID_FILE} > /dev/null 2> /dev/null"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
       # Set their ID (based on the last ID we defined)
       id = get_last_id()
       id += 1
@@ -456,17 +456,17 @@ def send_ids(vms)
       if vm != MY_IP
          
          # Check if they have their ID. Send it otherwise.
-         command = "ssh root@#{vm} 'cat #{id_file}'"
-         result = `#{command}`
-         if $?.exitstatus != 0
+         command = "cat #{id_file}"
+         out, success = CloudSSH.execute_remote(command, vm)
+         unless success
             id = le.get_id_YAML(vm)
             le.vm_set_id(vm, id)
          end
          
          # Check if they have the leader's ID. Send it otherwise.
-         command = "ssh root@#{vm} 'cat #{leader_file}'"
-         result = `#{command}`
-         if $?.exitstatus != 0
+         command = "cat #{leader_file}"
+         out, success = CloudSSH.execute_remote(command, vm)
+         unless success
             leader = le.get_leader()
             le.vm_set_leader(vm, leader)
          end

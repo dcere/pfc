@@ -59,9 +59,9 @@ class LeaderElection
    # Sets the node's ID on a remote node.
    def vm_set_id(vm, id)
    
-      command = "ssh root@#{vm} 'echo #{id} > #{@id_file}'"
-      result = `#{command}`
-      return $?.exitstatus == 0
+      command = "echo #{id} > #{@id_file}"
+      out, success = CloudSSH.execute_remote(command, vm)
+      return success
       
    end
 
@@ -69,9 +69,9 @@ class LeaderElection
    # Sets the leader's ID on a remote node.
    def vm_set_leader(vm, leader)
    
-      command = "ssh root@#{vm} 'echo #{leader} > #{@leader_file}'"
-      result = `#{command}`
-      return $?.exitstatus == 0
+      command = "echo #{leader} > #{@leader_file}"
+      out, success = CloudSSH.execute_remote(command, vm)
+      return success
       
    end
    

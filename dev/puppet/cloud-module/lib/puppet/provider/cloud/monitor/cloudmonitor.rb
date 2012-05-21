@@ -25,28 +25,18 @@ module CloudMonitor
       
       # Client configuration file
       client_file = "/etc/mcollective/client.cfg"
-      puts "[CloudMonitor] MY_IP = #{MY_IP}, vm = #{vm}"
-      unless MY_IP == vm
-         command = "ssh root@#{vm} 'cat #{client_file} > /dev/null 2> /dev/null'"
-      else
-         command = "cat #{client_file} > /dev/null 2> /dev/null"
-      end
-      result = `#{command}`
-      if $?.exitstatus != 0
+      command = "cat #{client_file} > /dev/null 2> /dev/null"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
          puts "[CloudMonitor]: #{client_file} does not exist on #{vm}"
          installed = false
       end
 
       # Server configuration file
       server_file = "/etc/mcollective/server.cfg"
-      puts "[CloudMonitor] MY_IP = #{MY_IP}, vm = #{vm}"
-      unless MY_IP == vm
-         command = "ssh root@#{vm} 'cat #{server_file} > /dev/null 2> /dev/null'"
-      else
-         command = "cat #{server_file} > /dev/null 2> /dev/null"
-      end
-      result = `#{command}`
-      if $?.exitstatus != 0
+      command = "cat #{server_file} > /dev/null 2> /dev/null"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
          puts "[CloudMonitor]: #{server_file} does not exist on #{vm}"
          installed = false
       end
@@ -59,22 +49,13 @@ module CloudMonitor
    # Checks if MCollective is running in <vm>.
    def self.mcollective_running(vm)
       
-      puts "[CloudMonitor] MY_IP = #{MY_IP}, vm = #{vm}"
-      unless MY_IP == vm
-         command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
-      else
-         command = "ps aux | grep -v grep | grep mcollective"
-      end
-      result = `#{command}`
-      if $?.exitstatus != 0
+      command = "ps aux | grep -v grep | grep mcollective"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
          puts "MCollective is not running on #{vm}"
-         unless MY_IP == vm
-            command = "ssh root@#{vm} '/usr/bin/service mcollective start'"
-         else
-            command = "/usr/bin/service mcollective start"
-         end
-         result = `#{command}`
-         if $?.exitstatus != 0
+         command = "/usr/bin/service mcollective start"
+         out, success = CloudSSH.execute_remote(command, vm)
+         unless success
             puts "[CloudMonitor]: Impossible to start mcollective on #{vm}"
             return false
          else

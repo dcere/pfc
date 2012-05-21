@@ -262,8 +262,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                # Copy last-id and last-mac files to it
                [LAST_ID_FILE, LAST_MAC_FILE].each do |file|
-                  result = `scp #{file} root@#{vm}:/tmp`
-                  if $?.exitstatus != 0
+                  out, success = CloudSSH.copy_remote(file, vm, "/tmp")
+                  unless success
                      puts "Impossible to copy #{file} to #{vm}"
                   end
                end
