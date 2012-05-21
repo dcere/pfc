@@ -25,7 +25,12 @@ module CloudMonitor
       
       # Client configuration file
       client_file = "/etc/mcollective/client.cfg"
-      command = "ssh root@#{vm} 'cat #{client_file} > /dev/null 2> /dev/null'"
+      puts "[CloudMonitor] MY_IP = #{MY_IP}, vm = #{vm}"
+      unless MY_IP == vm
+         command = "ssh root@#{vm} 'cat #{client_file} > /dev/null 2> /dev/null'"
+      else
+         command = "cat #{client_file} > /dev/null 2> /dev/null"
+      end
       result = `#{command}`
       if $?.exitstatus != 0
          puts "[CloudMonitor]: #{client_file} does not exist on #{vm}"
@@ -34,7 +39,12 @@ module CloudMonitor
 
       # Server configuration file
       server_file = "/etc/mcollective/server.cfg"
-      command = "ssh root@#{vm} 'cat #{server_file} > /dev/null 2> /dev/null'"
+      puts "[CloudMonitor] MY_IP = #{MY_IP}, vm = #{vm}"
+      unless MY_IP == vm
+         command = "ssh root@#{vm} 'cat #{server_file} > /dev/null 2> /dev/null'"
+      else
+         command = "cat #{server_file} > /dev/null 2> /dev/null"
+      end
       result = `#{command}`
       if $?.exitstatus != 0
          puts "[CloudMonitor]: #{server_file} does not exist on #{vm}"
@@ -49,11 +59,20 @@ module CloudMonitor
    # Checks if MCollective is running in <vm>.
    def self.mcollective_running(vm)
       
-      command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
+      puts "[CloudMonitor] MY_IP = #{MY_IP}, vm = #{vm}"
+      unless MY_IP == vm
+         command = "ssh root@#{vm} 'ps aux | grep -v grep | grep mcollective'"
+      else
+         command = "ps aux | grep -v grep | grep mcollective"
+      end
       result = `#{command}`
       if $?.exitstatus != 0
          puts "MCollective is not running on #{vm}"
-         command = "ssh root@#{vm} '/usr/bin/service mcollective start'"
+         unless MY_IP == vm
+            command = "ssh root@#{vm} '/usr/bin/service mcollective start'"
+         else
+            command = "/usr/bin/service mcollective start"
+         end
          result = `#{command}`
          if $?.exitstatus != 0
             puts "[CloudMonitor]: Impossible to start mcollective on #{vm}"

@@ -20,6 +20,11 @@ class MCollectiveLeaderClient < MCollectiveClient
       puts "Retrieving nodes' ids via MCollective Leader client"
       output = Helpers.rpcresults @mc.ask_id()
       
+      puts "Complete output:"
+      puts "---------------------------"
+      puts "#{output}"
+      puts "---------------------------"
+      
       output.each_line do |line|
          m = line.match(regex)
          if m
