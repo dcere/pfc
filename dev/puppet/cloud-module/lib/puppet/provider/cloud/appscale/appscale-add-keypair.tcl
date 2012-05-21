@@ -1,7 +1,7 @@
 #!/usr/bin/env expect
 
 # Description:
-#   Installs the cloud puppet module
+#   Interacts with the appscale-add-keypair tool
 #
 # Synopsis:
 #   appscale-add-keypair.tcl <password>

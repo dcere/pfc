@@ -3,7 +3,6 @@ def web_cloud_start(web_roles)
    
    # Distribute manifests
    # TODO Factorize if possible: ssh and scp => 2 versions ?
-   #      command_execution_scp and command_execution_ssh?
    #      ssh to itself? Does it work if keys are distributed? Should it make
    #        a clear distinction between ssh to itself or others?
    

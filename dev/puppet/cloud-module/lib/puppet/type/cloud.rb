@@ -87,6 +87,14 @@ Puppet::Type.newtype(:cloud) do
    end
 
    
+   # Infrastructure parameters
+
+   newproperty(:root_password) do
+      desc "Virtual machines' root password"
+      defaultto "root"
+   end
+   
+   
    # AppScale parameters
    
    newproperty(:app_email) do
@@ -97,11 +105,6 @@ Puppet::Type.newtype(:cloud) do
    newproperty(:app_password) do
       desc "AppScale administrator password"
       defaultto "appscale"
-   end
-   
-   newproperty(:root_password) do
-      desc "Virtual machines' root password"
-      defaultto "root"
    end
    
    # Jobs and webs parameters ...

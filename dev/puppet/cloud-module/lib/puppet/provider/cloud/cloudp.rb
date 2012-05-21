@@ -18,6 +18,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    # Require monitoring files
    require File.dirname(__FILE__) + '/monitor/cloudmonitor.rb'
    
+   # Require ssh files
+   require File.dirname(__FILE__) + '/ssh/cloudssh.rb'
+   
 #   Dir[File.dirname(__FILE__) + '/../lib/*.rb'].each do |file| 
 #      require File.basename(file, File.extname(file))
 #   end
@@ -85,6 +88,16 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # We are the leader
                puts "#{MY_IP} is the leader"
                
+               # Create your ssh key
+               CloudSSH.generate_ssh_key(CloudSSH::SSH_PATH, CloudSSH::SSH_KEY)
+               
+               CloudSSH.copy_ssh_key("155.210.155.177", resource[:root_password])
+               out, success = CloudSSH.execute_remote("ls -la", "155.210.155.177")
+               if success
+                  puts out
+               end
+               
+               return ###FIXME
                # Check virtual machines are alive
                alive = {}
                vm_ips.each do |vm|
@@ -393,8 +406,8 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          mcc = MCollectiveFilesClient.new("files")
          
          # Delete leader and id files on all machines (leader included)
-         mcc.delete_files(LEADER_FILE)                         # Leader ID
-         mcc.delete_files(ID_FILE)                             # ID
+         mcc.delete_file(LEADER_FILE)                          # Leader ID
+         mcc.delete_file(ID_FILE)                              # ID
          mcc.disconnect       # Now it can be disconnected
          
          # Delete rest of regular files on leader machine

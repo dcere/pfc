@@ -1,7 +1,7 @@
 #!/usr/bin/env expect
 
 # Description:
-#   Installs the cloud puppet module
+#   Interacts with the appscale-run-instances tool
 #
 # Synopsis:
 #   appscale-run-instances.tcl <file> <e-mail> <password>

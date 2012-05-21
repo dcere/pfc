@@ -16,7 +16,8 @@ def appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
    
    # Copy expect scripts
    puts "Copying expect scripts"
-   path = "/etc/puppet/modules/cloud/files"
+   #path = "/etc/puppet/modules/cloud/files"
+   path = "./"
    script_keys = "appscale-add-keypair.tcl"
    script_run = "appscale-run-instances.tcl"
    if MY_IP != ssh_host

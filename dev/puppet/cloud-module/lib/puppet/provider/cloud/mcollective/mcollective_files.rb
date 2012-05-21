@@ -12,7 +12,7 @@ class MCollectiveFilesClient < MCollectiveClient
    
    
    # Cretes a new file in <path> containing <content>.
-   def create_files(path, content)
+   def create_file(path, content)
    
       puts "Sending path and content via MCollective Files client"
       @mc.create(:path => path, :content => content)
@@ -21,8 +21,18 @@ class MCollectiveFilesClient < MCollectiveClient
    end
    
    
+   # Appends <content> to the file located at <path>.
+   def append_content(path, content)
+   
+      puts "Sending path and content via MCollective Files client"
+      @mc.append(:path => path, :content => content)
+      printrpcstats
+   
+   end
+   
+   
    # Deletes a file located at <path>.
-   def delete_files(path)
+   def delete_file(path)
    
       puts "Sending path via MCollective Files client"
       @mc.delete(:path => path)

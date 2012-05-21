@@ -35,8 +35,17 @@ def monitor_vm(vm, ip_roles, img_roles)
    alive = CloudMonitor.ping(vm)
    unless alive
       err "#{vm} is not alive. Impossible to monitor"
+      
+      # If it is not alive there is no point in continuing
+      return
    end
-
+   
+   # Send it your ssh key. WARNING: We are sending it to all machines
+   my_key = File.open("#{SSH_PATH}/#{SSH_KEY}.pub", 'r').read().chomp()
+   mcc = MCollectiveFilesClient("files")
+   mcc.append_content("/root/.ssh/authorized_keys", my_key)
+   mcc.disconnect()
+   
    role = :role_must_be_defined_outside_the_loop
    ip_roles.each do |r, ips|
       ips.each do |ip|
@@ -73,7 +82,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    
    # Make sure MCollective is running. We need this to ensure the leader election,
    # so assuring MCollective is running can not be left to Puppet in their local
-   # manifest. It must be done explicitly and now.
+   # manifest. It must be done explicitly here and now.
    mcollective_running = CloudMonitor.mcollective_running(vm)
    unless mcollective_running
       err "MCollective is not running on #{vm}"
@@ -285,10 +294,12 @@ def start_cloud(vm_ips, vm_ip_roles)
    elsif resource[:type].to_s == "web"
       puts  "Starting a web cloud"
       
+      # FIXME : SSH distribution keys must be done before first login in the virtual
+      # machines. It is needed for monitoring.
       # Distribute ssh key to nodes to make login passwordless
       # TODO : Make sure the /root/.ssh/id_rsa.pub key exists
       key_path = "/root/.ssh/id_rsa.pub"
-      command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud"
+      command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud/ssh"
       password = resource[:root_password]
       puts "Distributing ssh keys to nodes"
       vm_ips.each do |vm|

@@ -26,7 +26,9 @@ module MCollective
                      return
                   end
                end
-               file.close     # Line does not exist, so close the file (reading mode)
+               
+               # Line does not exist, so close the file (reading mode)
+               file.close
                
                # Add the line if it does not exist
                file = File.open(path, 'a')

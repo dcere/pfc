@@ -96,3 +96,4 @@
 - Separación de proveedores
 - (1/2) Inicio de AppScale desde Puppet con script expect: A veces sí, a veces no, depende de como lleve el día AppScale.
 - Comprobación de roles en AppScale
+- Ver como hace la distribucion de claves SSH appscale e imitarla.

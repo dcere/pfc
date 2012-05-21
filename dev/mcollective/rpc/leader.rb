@@ -19,6 +19,7 @@ module MCollective
             reply[:node_id] = node_id
          end
          
+         
          action "new_leader" do
             leader_id = request[:leader_id]
             file = File.open("/tmp/cloud-leader", 'w')
@@ -28,6 +29,8 @@ module MCollective
             reply[:success] = true
             reply[:leader] = leader_id
          end
+         
+         
       end
    end
 end
