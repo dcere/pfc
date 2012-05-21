@@ -45,7 +45,7 @@ module CloudSSH
       command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud/ssh"
       identity_file = "#{SSH_PATH}/#{SSH_KEY}"
       if password
-         `#{command_path}/ssh_copy_id.sh #{ip} #{identity_file} #{password}`
+         `#{command_path}/ssh_copy_id.sh root@#{ip} #{identity_file} #{password}`
       else
          `ssh-copy-id -i #{identity_file} root@#{ip}`
       end
