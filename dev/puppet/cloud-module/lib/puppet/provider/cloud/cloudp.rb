@@ -16,7 +16,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
    
    # Require monitoring files
-   require File.dirname(__FILE__) + '/monitor/monitor.rb'
+   require File.dirname(__FILE__) + '/monitor/cloudmonitor.rb'
    
 #   Dir[File.dirname(__FILE__) + '/../lib/*.rb'].each do |file| 
 #      require File.basename(file, File.extname(file))
@@ -144,7 +144,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   start_cloud(vm_ips, vm_ip_roles)
                   
                   # Make cloud nodes manage themselves
-                  auto_manage()     # Only if cloud was started properly
+                  #auto_manage()     # Only if cloud was started properly FIXME Uncomment after tests
                   
                   # Create file
                   cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')

@@ -31,10 +31,8 @@ end
 # Monitors a virtual machine.
 def monitor_vm(vm, ip_roles, img_roles)
 
-   include Monitor
-
    # Check if it is alive
-   alive = Monitor.ping(vm)
+   alive = CloudMonitor.ping(vm)
    unless alive
       err "#{vm} is not alive. Impossible to monitor"
    end
@@ -68,7 +66,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # Check if MCollective is installed and configured
-   mcollective_installed = Monitor.mcollective_installed(vm)
+   mcollective_installed = CloudMonitor.mcollective_installed(vm)
    unless mcollective_installed
       err "MCollective is not installed on #{vm}"
    end
@@ -76,7 +74,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    # Make sure MCollective is running. We need this to ensure the leader election,
    # so assuring MCollective is running can not be left to Puppet in their local
    # manifest. It must be done explicitly and now.
-   mcollective_running = Monitor.mcollective_running(vm)
+   mcollective_running = CloudMonitor.mcollective_running(vm)
    unless mcollective_running
       err "MCollective is not running on #{vm}"
    end
