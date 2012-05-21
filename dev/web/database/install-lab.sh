@@ -31,7 +31,7 @@ DB_DST="/root/db"
 # Create directories
 $SSH mkdir -p $DB_DST/
 
-# Copy manifests
+# Copy SQL files
 if [ $2 = "all" ]
 then
    scp ./create-db.sql           root@$1:$DB_DST/
