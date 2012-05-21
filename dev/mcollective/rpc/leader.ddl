@@ -9,7 +9,7 @@ metadata    :name        => "Leader election algorithm",
 action "ask_id", :description => "Asks a node's id" do
    display :always
    
-   output :id,
+   output :node_id,
           :description => "Node's ID",
           :display_as  => "ID"
 
@@ -18,13 +18,13 @@ end
 action "new_leader", :description => "Tells the leader's id to all nodes" do
    display :always
    
-   input :id,
+   input :leader_id,
          :prompt      => "Leader's id",
          :description => "Leader's id",
          :type        => :string,
          :validation  => '^.+$',
          :optional    => false,
-         :maxlength   => 0
+         :maxlength   => 10
    
    output :success,
           :description => "Success on receiving leader's ID",

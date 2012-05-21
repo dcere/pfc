@@ -36,7 +36,7 @@ class MCollectiveLeaderClient < MCollectiveClient
    def new_leader(id)
    
       puts "Sending new leader information via MCollective Leader client"
-      output = @mc.new_leader(id)
+      output = @mc.new_leader(:leader_id => id)
       return output
    
    end

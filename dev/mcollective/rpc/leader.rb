@@ -12,21 +12,21 @@ module MCollective
          # Leader election algorithm actions
          action "ask_id" do
             file = File.open("/tmp/cloud-id", 'r')
-            id = file.read()
+            node_id = file.read()
             file.close
             
-            id.chomp!
-            reply[:id] = id
+            node_id.chomp!
+            reply[:node_id] = node_id
          end
          
          action "new_leader" do
-            id = request[:id]
+            leader_id = request[:leader_id]
             file = File.open("/tmp/cloud-leader", 'w')
-            file.write(request[:id])
+            file.write(leader_id)
             file.close
             
             reply[:success] = true
-            reply[:leader] = id
+            reply[:leader] = leader_id
          end
       end
    end

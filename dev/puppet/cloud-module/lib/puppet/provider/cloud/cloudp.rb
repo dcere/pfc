@@ -195,7 +195,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   
                   # If there is no leader, we will be the new leader
                   if !exists_leader
-                     mcc.new_leader(id)
+                     mcc.new_leader(my_id)
                      puts "...#{MY_IP} will be leader"
                   else
                      puts "...Some other machine is/should be leader"
