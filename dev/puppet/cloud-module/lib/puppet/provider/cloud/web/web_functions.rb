@@ -2,11 +2,9 @@
 def web_cloud_start(web_roles)
    
    # Distribute manifests
-   # TODO Factorize if possible: ssh and scp => 2 versions ?
    #      ssh to itself? Does it work if keys are distributed? Should it make
    #        a clear distinction between ssh to itself or others?
    
-   #result = `mc manifest-agent -T balancer_coll`
    balancers = web_roles[:balancer]
    path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
    balancers.each do |vm|
@@ -17,7 +15,6 @@ def web_cloud_start(web_roles)
       end
    end
 
-   #result = `mc manifest-agent -T servers_coll`
    servers = web_roles[:server]
    path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
    servers.each do |vm|
@@ -28,7 +25,6 @@ def web_cloud_start(web_roles)
       end
    end
    
-   #result = `mc manifest-agent -T database_coll`
    databases = web_roles[:database]
    path = "/etc/puppet/modules/cloud/files/web-manifests/database.pp"
    databases.each do |vm|
@@ -43,9 +39,8 @@ def web_cloud_start(web_roles)
    # Start services
    
    # Start load balancers => Start nginx
-   #result = `mc load-balancer-agent -T balancer_coll`
    puts "Starting nginx on load balancers"
-   command = "/etc/init.d/nginx start"
+   command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
    balancers.each do |vm|
       if vm == MY_IP
          result = `#{command}`
@@ -63,7 +58,6 @@ def web_cloud_start(web_roles)
    end
    
    # Start web servers => Start sinatra application
-   #result = `mc web-server-agent -T servers_coll`
    puts "Starting ruby web3 on web servers"
    command = "/bin/bash /root/web/start-ruby-web3"
    servers.each do |vm|

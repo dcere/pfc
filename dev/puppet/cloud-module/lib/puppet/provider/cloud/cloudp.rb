@@ -301,13 +301,23 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             puts "#{MY_IP} is the leader"
             
             # Do monitoring
+            deads = []
             vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
             vm_ips.each do |vm|
                puts "Monitoring #{vm}..."
-               monitor_vm(vm, vm_ip_roles, vm_img_roles)
+               unless monitor_vm(vm, vm_ip_roles, vm_img_roles)
+                  deads << vm
+               end
                puts "...Monitored"
             end
             
+            # Check pool of physical machines
+            pm_all_up, pm_up, pm_down = check_pool()
+            
+            # TODO Raise again the dead machines
+            #deads.each do |vm|
+            #   start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+            #end
             
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do

@@ -37,7 +37,7 @@ def monitor_vm(vm, ip_roles, img_roles)
       err "#{vm} is not alive. Impossible to monitor"
       
       # If it is not alive there is no point in continuing
-      return
+      return false
    end
    
    # Send it your ssh key
@@ -98,6 +98,8 @@ def monitor_vm(vm, ip_roles, img_roles)
    else
       err "Unrecognized type of cloud: #{resource[:type]}"
    end
+   
+   return true
    
 end
 
