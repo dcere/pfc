@@ -47,7 +47,7 @@ Notas:
 - Cuidado con los anglicismos y con las citas (e.g Wiki de github `a` => \texttt{a} o \emph{a} o \textbf{a} o \textsf{a})
   - Anglicismos: \emph{a} (en cursiva)
   - Citas, valores: \texttt{a} (en courier)
-  
+Caracteres reservados: & % $ # _ { } ~ ^ \
   
 -----------
 Dudas:
