@@ -65,9 +65,8 @@ def web_cloud_start(web_roles)
    # Start web servers => Start sinatra application
    #result = `mc web-server-agent -T servers_coll`
    puts "Starting ruby web3 on web servers"
-   identifier = 0
+   command = "/bin/bash /root/web/start-ruby-web3"
    servers.each do |vm|
-      command = "/bin/bash /root/web/start-ruby-web3"
       if vm == MY_IP
          result = `#{command}`
          unless $?.exitstatus == 0
@@ -81,7 +80,6 @@ def web_cloud_start(web_roles)
             err   "Impossible to start server in #{vm}"
          end
       end
-      identifier += 1
    end
    
    # Database servers start at boot time, but check whether they have started
@@ -115,7 +113,7 @@ def web_cloud_start(web_roles)
    # Start monitoring
    
    # Monitor web server with god
-   path = "/etc/puppet/modules/cloud/files/web-monitor/server.god"
+   path = "/etc/puppet/modules/cloud/files/web-god/server.god"
    servers.each do |vm|
       command = "mkdir -p /etc/god"
       out, success = CloudSSH.execute_remote(command, vm)
@@ -138,7 +136,7 @@ def web_cloud_start(web_roles)
    
    # Monitor database with god due to puppet vs ubuntu mysql bug
    # http://projects.puppetlabs.com/issues/12773
-   path = "/etc/puppet/modules/cloud/files/web-monitor/database.god"
+   path = "/etc/puppet/modules/cloud/files/web-god/database.god"
    databases.each do |vm|
       command = "mkdir -p /etc/god"
       out, success = CloudSSH.execute_remote(command, vm)

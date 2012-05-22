@@ -46,7 +46,7 @@ then
    $SSH mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}
    $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/type
    $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME
-   $SSH mkdir -p $PUPPET_DST/$NAME/files/{appscale-manifests,appscale-tools,cron,web-manifests,web-monitor}
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/{appscale-manifests,appscale-tools,cron,web-manifests,web-god}
 fi
 
 # Copy manifests
@@ -115,11 +115,11 @@ then
    scp ./files/web-manifests/database.pp \
       root@$1:$PUPPET_DST/$NAME/files/web-manifests/database.pp
 
-   $SSH mkdir -p $PUPPET_DST/$NAME/files/web-monitor
-   scp ./files/web-monitor/server.god \
-      root@$1:$PUPPET_DST/$NAME/files/web-monitor/server.god
-   scp ./files/web-monitor/database.god \
-      root@$1:$PUPPET_DST/$NAME/files/web-monitor/database.god
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/web-god
+   scp ./files/web-god/server.god \
+      root@$1:$PUPPET_DST/$NAME/files/web-god/server.god
+   scp ./files/web-god/database.god \
+      root@$1:$PUPPET_DST/$NAME/files/web-god/database.god
 fi
 
 # Copy jobs local manifests
