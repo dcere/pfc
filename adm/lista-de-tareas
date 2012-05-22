@@ -53,9 +53,9 @@
 - nginxd?
 - (X) Instalación de Puppet en las lucid-web
 - Instalación de MCollective en las lucid-web
-  - lucid-balancer
+  - (X) lucid-balancer
   - (X) lucid-server1
-  - lucid-server2
+  - (X) lucid-server2
   - (X) lucid-database
 - (X) Instalación de MCollective en las appscale
   - (X) appscale-image0
@@ -96,4 +96,4 @@
 - Separación de proveedores
 - (1/2) Inicio de AppScale desde Puppet con script expect: A veces sí, a veces no, depende de como lleve el día AppScale.
 - Comprobación de roles en AppScale
-- Ver como hace la distribucion de claves SSH appscale e imitarla.
+- (X) Ver como hace la distribucion de claves SSH appscale e imitarla.

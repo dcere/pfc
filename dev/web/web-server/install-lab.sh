@@ -16,14 +16,14 @@
 # Author:
 #   David Ceresuela
 
-if [ $# -ne 2 ]
-then
-   echo "Use: $0 <IP address> <set of files>"
-   echo "Examples
-$0 155.210.155.170 all
-"
-   exit 1
-fi 
+#if [ $# -ne 2 ]
+#then
+#   echo "Use: $0 <IP address> <set of files>"
+#   echo "Examples
+#$0 155.210.155.170 all
+#"
+#   exit 1
+#fi 
 
 SSH="ssh root@$1"
 WEB_DST="/root/web"
@@ -32,11 +32,11 @@ WEB_DST="/root/web"
 $SSH mkdir -p $WEB_DST/views
 
 # Copy manifests
-if [ $2 = "all" ]
-then
+#if [ $2 = "all" ]
+#then
    scp ./web.rb               root@$1:$WEB_DST/
    scp ./web2.rb              root@$1:$WEB_DST/
    scp ./web3.rb              root@$1:$WEB_DST/
    scp ./start-ruby-web3      root@$1:$WEB_DST/
    scp ./views/index.erb      root@$1:$WEB_DST/views/
-fi
+#fi

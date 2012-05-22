@@ -1,0 +1,6 @@
+--- 
+:balancer: "/var/tmp/dceresuela/lucid-lb.img"
+:server:
+- "/var/tmp/dceresuela/lucid-web.img"
+- "/var/tmp/dceresuela/lucid-web2.img"
+:database: "/var/tmp/dceresuela/lucid-db.img"

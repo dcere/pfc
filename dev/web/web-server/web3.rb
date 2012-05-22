@@ -19,8 +19,9 @@ ActiveRecord::Base.establish_connection(
 class Node < ActiveRecord::Base
 end
 
+@@identifier = rand(100)
 get '/' do
-   @identifier = ARGV.size == 1 ? ARGV[0] : 0
+   @identifier = @@identifier
    @nodes = Node.all()
    erb :index
 end

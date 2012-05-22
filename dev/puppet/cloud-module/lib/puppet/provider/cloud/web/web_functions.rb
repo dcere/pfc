@@ -65,8 +65,9 @@ def web_cloud_start(web_roles)
    # Start web servers => Start sinatra application
    #result = `mc web-server-agent -T servers_coll`
    puts "Starting ruby web3 on web servers"
-   command = "/bin/bash /root/web/start-ruby-web3"
+   identifier = 0
    servers.each do |vm|
+      command = "/bin/bash /root/web/start-ruby-web3"
       if vm == MY_IP
          result = `#{command}`
          unless $?.exitstatus == 0
@@ -80,6 +81,7 @@ def web_cloud_start(web_roles)
             err   "Impossible to start server in #{vm}"
          end
       end
+      identifier += 1
    end
    
    # Database servers start at boot time, but check whether they have started
