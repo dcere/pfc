@@ -126,6 +126,18 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   end
                end
                
+               #################################################################
+               # Test area
+               #################################################################
+               out, success = CloudSSH.execute_remote("god -c /unassg/asdugk", "155.210.155.178")
+               if success
+                  puts "Remote command executed"
+               else
+                  puts "Remote command not executed"
+               end
+               return
+               
+               
                # If there were dead machines, give them some time to raise
                if deads
                   puts "Some machines are starting: continuing in #{TIME} seconds"
