@@ -25,13 +25,10 @@ module CloudSSH
          puts "Could not create #{path}/#{file} key"
       end
       
-      puts "Evaluating agent..."
-      result = `eval \`ssh-agent\``
-      unless $?.exitstatus == 0
-         puts "Could not evaluate agent"
-      end
+      puts "Evaluating agent and adding identity..."
       
-      result = `ssh-add #{path}/id_rsa`
+      # Must be done in one command
+      result = `eval \`ssh-agent\` ; ssh-add #{path}/id_rsa`
       unless $?.exitstatus == 0
          puts "Could not add #{path}/#{file} key"
       end
