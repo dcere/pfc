@@ -12,6 +12,7 @@ Para instalar MySQL, haz lo siguiente:
 \begin{bashcode}
 _: apt-get install mysql-server
 \end{bashcode}
+\\
 
 
 %%
@@ -22,18 +23,21 @@ Para configurar los ajustes básicos hay que editar el fichero \texttt{/etc/mysq
 \begin{bashcode}
 bind_address = 155.210.155.73
 \end{bashcode}
+\\
 
 Nota: Si estás usando Ubuntu 10.04 debido a un bug es mejor que comentes toda la línea \url{http://ubuntuforums.org/showthread.php?t=1479310}. Además nosotros usaremos dos servidores web, así que mejor la comentamos:
 
 \begin{bashcode}
 #bind_address = 155.210.155.73
 \end{bashcode}
+\\
 
 Vamos a reiniciar el servidor para que los cambios surtan efecto:
 
 \begin{bashcode}
 _: /usr/bin/service mysql restart
 \end{bashcode}
+\\
 
 Para comprobar que ha sido instalado correctamente, podemos hacer lo siguiente:
 
@@ -47,6 +51,7 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 mysql> CREATE DATABASE mydb;
 \end{bashcode}
+\\
 
 
 %%
@@ -57,11 +62,13 @@ Para ejecutar el servidor de bases de datos usaremos el programa \texttt{service
 \begin{bashcode}
 _: /usr/bin/service mysql start
 \end{bashcode}
+\\
 
 como para pararlo:
 \begin{bashcode}
 _: /usr/bin/service mysql stop
 \end{bashcode}
+\\
 
 
 %%

@@ -14,6 +14,7 @@ Una vez instalado Ruby y rubygems, instalaremos ruby-dev:
 \begin{bashcode}
 _: apt-get install ruby1.8-dev
 \end{bashcode}
+\\
 
 Y ahora instalaremos el soporte necesario para interactuar con la base de datos:
 
@@ -21,6 +22,7 @@ Y ahora instalaremos el soporte necesario para interactuar con la base de datos:
 _: apt-get install libmysqlclient-dev
 _: gem install mysql
 \end{bashcode}
+\\
 
 La aplicación web será desarrollada usando Sinatra. Antes de comenzar con la instalación, comprueba que tu versión de rubygems es igual o superior a la 1.3.6. Esto puede hacerse fácilmente de la siguiente manera:
 
@@ -28,6 +30,7 @@ La aplicación web será desarrollada usando Sinatra. Antes de comenzar con la i
 _: gem --version
 1.3.6
 \end{bashcode}
+\\
 
 Para instalar Sinatra, haremos lo siguiente:
 
@@ -45,6 +48,7 @@ Installing RDoc documentation for rack-1.4.1...
 ...
 Installing RDoc documentation for sinatra-1.3.2...
 \end{bashcode}
+\\
 
 Nota: Puede llevar un tiempo hasta que el proceso de instalación muestre cosas por pantalla.
 
@@ -68,6 +72,7 @@ y lanza el servidor web:
 \begin{bashcode}
 _: ruby web.rb
 \end{bashcode}
+\\
 
 Nota: Para salir Ctrl + C.
 
@@ -82,6 +87,7 @@ Para interactuar con la base de datos usaremos ActiveRecord. Este componente es 
 \begin{bashcode}
 _: gem install activerecord
 \end{bashcode}
+\\
 
 Ahora vamos a crear una segunda aplicación web. Guarda el siguiente fichero como \texttt{web2.rb}:
 
@@ -103,6 +109,7 @@ y lanza el servidor web como antes:
 \begin{bashcode}
 _: ruby web2.rb
 \end{bashcode}
+\\
 
 En tu navegador web ve a la dirección \texttt{http://localhost:4567} y encontrarás la aplicación web. Muestra lo mismo que la primera aplicación web, pero hemos incluido (aunque no usado) el soporte para la base de datos.
 
