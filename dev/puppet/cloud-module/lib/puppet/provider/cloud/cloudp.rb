@@ -91,13 +91,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # Create your ssh key
                CloudSSH.generate_ssh_key(CloudSSH::SSH_PATH, CloudSSH::SSH_KEY)
                
-               CloudSSH.copy_ssh_key("155.210.155.177", resource[:root_password])
-               out, success = CloudSSH.execute_remote("ls -la", "155.210.155.177")
-               if success
-                  puts out
-               end
-               
-               return ###FIXME
                # Check virtual machines are alive
                alive = {}
                vm_ips.each do |vm|

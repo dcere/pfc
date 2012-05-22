@@ -60,7 +60,7 @@ module CloudSSH
    
    def self.copy_remote(src_file, ip, dst_file, path = SSH_PATH, file = SSH_KEY)
    
-      result = `scp #{src_file} root@#{ip}:#{dst_file} -i #{SSH_PATH}/#{SSH_KEY}`
+      result = `scp -i #{SSH_PATH}/#{SSH_KEY} #{src_file} root@#{ip}:#{dst_file}`
       success = $?.exitstatus == 0
       return result, success
    end

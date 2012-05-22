@@ -40,7 +40,7 @@ def monitor_vm(vm, ip_roles, img_roles)
       return
    end
    
-   # Send it your ssh key.
+   # Send it your ssh key
    puts "Sending ssh key to #{vm}"
    password = resource[:root_password]
    CloudSSH.copy_ssh_key(vm, password)
@@ -229,24 +229,21 @@ def copy_cloud_files(ips)
          # Cloud manifest
          # FIXME : Check 'source' attribute in manifest to avoid scp
          file = "init-%s.pp" % [resource[:type].to_s]
-         command = "scp /etc/puppet/modules/cloud/manifests/#{file}" +
-                   " root@#{vm}:/etc/puppet/modules/cloud/manifests/#{file}"
-         result = `#{command}`
-         unless $?.exitstatus == 0
+         path = "/etc/puppet/modules/cloud/manifests/#{file}"
+         out, success = CloudSSH.copy_remote(path, vm, path)
+         unless success
             err "Impossible to copy #{file} to #{vm}"
          end
          
          # Cloud description (IPs YAML file)
-         command = "scp #{resource[:ip_file]} root@#{vm}:#{resource[:ip_file]}"
-         result = `#{command}`
-         unless $?.exitstatus == 0
+         out, success = CloudSSH.copy_remote(resource[:ip_file], vm, resource[:ip_file])
+         unless success
             err "Impossible to copy #{resource[:ip_file]} to #{vm}"
          end
          
          # Cloud roles (Image disks YAML file)
-         command = "scp #{resource[:img_file]} root@#{vm}:#{resource[:img_file]}"
-         result = `#{command}`
-         unless $?.exitstatus == 0
+         out, success = CloudSSH.copy_remote(resource[:img_file], vm, resource[:img_file])
+         unless success
             err "Impossible to copy #{resource[:img_file]} to #{vm}"
          end
       end
