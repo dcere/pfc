@@ -40,9 +40,8 @@ def monitor_vm(vm, ip_roles, img_roles)
       return false
    end
    
-   # TODO : Make sure the /root/.ssh/id_rsa.pub key exists
-   
    # Send it your ssh key
+   # Your key was created when you turned into leader
    puts "Sending ssh key to #{vm}"
    password = resource[:root_password]
    CloudSSH.copy_ssh_key(vm, password)

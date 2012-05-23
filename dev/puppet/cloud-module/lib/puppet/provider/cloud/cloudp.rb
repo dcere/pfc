@@ -89,9 +89,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                # We are the leader
                puts "#{MY_IP} is the leader"
                
-               # Create your ssh key
-               CloudSSH.generate_ssh_key(CloudSSH::SSH_PATH, CloudSSH::SSH_KEY)
-               
                # Check wether virtual machines are alive or not
                alive = {}
                vm_ips.each do |vm|
@@ -214,6 +211,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   if !exists_leader
                      mcc.new_leader(my_id)
                      puts "...#{MY_IP} will be leader"
+                     
+                     # Create your ssh key
+                     CloudSSH.generate_ssh_key()
                   else
                      puts "...Some other machine is/should be leader"
                   end
