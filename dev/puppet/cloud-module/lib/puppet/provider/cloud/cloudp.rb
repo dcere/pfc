@@ -85,13 +85,14 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             leader = le.get_leader()
  
             if my_id != -1 && my_id == leader
+            
                # We are the leader
                puts "#{MY_IP} is the leader"
                
                # Create your ssh key
                CloudSSH.generate_ssh_key(CloudSSH::SSH_PATH, CloudSSH::SSH_KEY)
                
-               # Check virtual machines are alive
+               # Check wether virtual machines are alive or not
                alive = {}
                vm_ips.each do |vm|
                   alive[vm] = false
@@ -129,49 +130,45 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                #################################################################
                # Test area
                #################################################################
-               out, success = CloudSSH.execute_remote("god -c /unassg/asdugk", "155.210.155.178")
-               if success
-                  puts "Remote command executed"
-               else
-                  puts "Remote command not executed"
-               end
-               return
+#               out, success = CloudSSH.execute_remote("god -c /unassg/asdugk", "155.210.155.178")
+#               if success
+#                  puts "Remote command executed"
+#               else
+#                  puts "Remote command not executed"
+#               end
+#               return
                
                
-               # If there were dead machines, give them some time to raise
-               if deads
-                  puts "Some machines are starting: continuing in #{TIME} seconds"
-                  sleep(TIME)
-               else
-                  puts "All machines are up and running: starting immediately"
-               end
                
-               # Send them their IDs and the leader's ID
-               send_ids(vm_ips)
+               # Wait for all machines to be started
+               unless deads
                
-               # Check expect is installed
-               # TODO
-               
-               # Copy important files to all machines
-               puts "Copying important files to all virtual machines"
-               copy_cloud_files(vm_ips)
-               
-               # If not already started, start the cloud
-               unless File.exists?("/tmp/cloud-#{resource[:name]}")
-                  # Start the cloud
-                  start_cloud(vm_ips, vm_ip_roles)
+                  # If not already started, start the cloud
+                  unless File.exists?("/tmp/cloud-#{resource[:name]}")
+                     
+                     # Check expect is installed
+                     # TODO
+                     
+                     # Copy important files to all machines
+                     puts "Copying important files to all virtual machines"
+                     copy_cloud_files(vm_ips)      # TODO Move it to monitor? call it each time for one vm?
                   
-                  # Make cloud nodes manage themselves
-                  #auto_manage()     # Only if cloud was started properly FIXME Uncomment after tests
+                     # Start the cloud
+                     start_cloud(vm_ips, vm_ip_roles)
+                     
+                     # Make cloud nodes manage themselves
+                     #auto_manage()     # Only if cloud was started properly FIXME Uncomment after tests
+                     
+                     # Create file
+                     cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
+                     cloud_file.puts(resource[:name])
+                     cloud_file.close
+                     
+                     puts "Cloud started"
+                  end      # unless File
                   
-                  # Create file
-                  cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
-                  cloud_file.puts(resource[:name])
-                  cloud_file.close
-               end
+               end      # unless deads
                
-               
-               puts "Cloud started"
                
                
             else
@@ -180,6 +177,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                puts "#{MY_IP} is not the leader"
             
                if my_id == -1
+                  
                   # If we have not received our ID, let's assume we will be the leader
                   id_file = File.open(ID_FILE, 'w')
                   id_file.puts("0")
@@ -191,6 +189,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   puts "#{MY_IP} will be the leader"
                   
                else
+                  
                   # If we have received our ID, try to become leader
                   puts "Trying to become leader..."
                   
@@ -226,6 +225,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
             
          else
+            
             # We are not part of the cloud
             puts "#{MY_IP} is not part of the cloud"
             
@@ -287,6 +287,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          
          
       else
+         
          # Cloud exists => Management operations
          puts "Cloud already started"
          

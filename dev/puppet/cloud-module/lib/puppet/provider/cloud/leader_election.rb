@@ -76,39 +76,39 @@ class LeaderElection
    end
    
    
-   # Gets the ID of a node from the yaml_file.
-   def get_id_YAML(vm)
+#   # Gets the ID of a node from the yaml_file.
+#   def get_id_YAML(vm)
 
-      require 'yaml'
-   
-      if File.exists?(@yaml_file)
+#      require 'yaml'
+#   
+#      if File.exists?(@yaml_file)
 
-         file = File.open(@yaml_file, 'r')
-         tree = YAML::parse(file)
+#         file = File.open(@yaml_file, 'r')
+#         tree = YAML::parse(file)
 
-         if tree != nil
-            tree = tree.transform
-            id = tree[vm]
-         end
-         return id
-         
-      else
-         return -1
-      end
-   
-   end
-   
-   
-   # Sets the ID of a node on the yaml_file.
-   def set_id_YAML(vm, id)
-   
-      require 'yaml'
-      
-      file = File.open(@yaml_file, 'a')
-      file.puts("#{vm}: #{id}")
-      file.close
-      
-   end
+#         if tree != nil
+#            tree = tree.transform
+#            id = tree[vm]
+#         end
+#         return id
+#         
+#      else
+#         return -1
+#      end
+#   
+#   end
+#   
+#   
+#   # Sets the ID of a node on the yaml_file.
+#   def set_id_YAML(vm, id)
+#   
+#      require 'yaml'
+#      
+#      file = File.open(@yaml_file, 'a')
+#      file.puts("#{vm}: #{id}")
+#      file.close
+#      
+#   end
       
       
 end

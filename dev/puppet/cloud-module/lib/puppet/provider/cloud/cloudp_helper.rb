@@ -40,6 +40,8 @@ def monitor_vm(vm, ip_roles, img_roles)
       return false
    end
    
+   # TODO : Make sure the /root/.ssh/id_rsa.pub key exists
+   
    # Send it your ssh key
    puts "Sending ssh key to #{vm}"
    password = resource[:root_password]
@@ -57,16 +59,15 @@ def monitor_vm(vm, ip_roles, img_roles)
    # If they are running, but they do not have their ID:
    #   - Set their ID before they can become another leader.
    #   - Set also the leader's ID.
-   le = LeaderElection.new()
    command = "cat #{ID_FILE} > /dev/null 2> /dev/null"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
+      le = LeaderElection.new()
+   
       # Set their ID (based on the last ID we defined)
       id = get_last_id()
       id += 1
       le.vm_set_id(vm, id)
-      
-      le.set_id_YAML(vm, id) # FIXME: Is it really needed?
       set_last_id(id)
       
       # Set the leader's ID
@@ -109,11 +110,12 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
 
    # This function is cloud-type independent: define a new virtual machine and
    # start it
-   
-   # Get virtual machine's ID
-   id = get_last_id()
-   id += 1
-   puts "...VM's ID is #{id}"
+
+# TODO Delete
+#   # Get virtual machine's ID
+#   id = get_last_id()
+#   id += 1
+#   puts "...VM's ID is #{id}"
    
    # Get virtual machine's MAC address
    puts "Getting VM's MAC address..."
@@ -192,24 +194,25 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    puts "Saving the domain's name..."
    save_domain_name(ssh_connect, vm_name)
    
-   # Save the new virtual machine's ID as last ID
-   set_last_id(id)
-   
-   # Set the ID and leader ID on the new virtual machine
-   # WARNING: At this point the machine is probably not running
-   le = LeaderElection.new()
-   unless le.vm_set_id(vm, id)
-      puts "Impossible to set ID on #{vm}. Try again later"
-   end
-   
-   leader = le.get_leader()
-   unless le.vm_set_leader(vm, leader)
-      puts "Impossible to set leader's ID on #{vm}. Try again later"
-   end
-
-   # WARNING: In case the machine is not still running when we try to set
-   # their ID and leader's ID, save their ID in a file
-   le.set_id_YAML(vm, id)
+# TODO Delete
+#   # Save the new virtual machine's ID as last ID
+#   set_last_id(id)
+#   
+#   # Set the ID and leader ID on the new virtual machine
+#   # WARNING: At this point the machine is probably not running
+#   le = LeaderElection.new()
+#   unless le.vm_set_id(vm, id)
+#      puts "Impossible to set ID on #{vm}. Try again later"
+#   end
+#   
+#   leader = le.get_leader()
+#   unless le.vm_set_leader(vm, leader)
+#      puts "Impossible to set leader's ID on #{vm}. Try again later"
+#   end
+#
+#   # WARNING: In case the machine is not still running when we try to set
+#   # their ID and leader's ID, save their ID in a file
+#   le.set_id_YAML(vm, id)
    
    # Save the new virtual machine's MAC address
    file = File.open(LAST_MAC_FILE, 'w')
@@ -293,10 +296,7 @@ def start_cloud(vm_ips, vm_ip_roles)
    elsif resource[:type].to_s == "web"
       puts  "Starting a web cloud"
       
-      # FIXME : SSH distribution keys must be done before first login in the virtual
-      # machines. It is needed for monitoring.
       # Distribute ssh key to nodes to make login passwordless
-      # TODO : Make sure the /root/.ssh/id_rsa.pub key exists
       key_path = "/root/.ssh/id_rsa.pub"
       command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud/ssh"
       password = resource[:root_password]
@@ -429,52 +429,53 @@ def save_domain_name(ssh_connect, vm_name)
 end
 
 
-def command_execution(ip_array, command, error_message)
-   
-   ip_array.each do |vm|
-      result = `#{command}`
-      unless $?.exitstatus == 0
-         debug "[DBG] #{vm}: #{error_message}"
-         err   "#{vm}: #{error_message}"
-      end
-   end
+#def command_execution(ip_array, command, error_message)
+#   
+#   ip_array.each do |vm|
+#      result = `#{command}`
+#      unless $?.exitstatus == 0
+#         debug "[DBG] #{vm}: #{error_message}"
+#         err   "#{vm}: #{error_message}"
+#      end
+#   end
 
-end
+#end
 
 
+# TODO Delete
 # Sends their IDs to some virtual machines.
-def send_ids(vms)
+#def send_ids(vms)
 
-   id_file = ID_FILE
-   leader_file = LEADER_FILE
-   
-   le = LeaderElection.new()
-   
-   vms.each do |vm|
-      
-      if vm != MY_IP
-         
-         # Check if they have their ID. Send it otherwise.
-         command = "cat #{id_file}"
-         out, success = CloudSSH.execute_remote(command, vm)
-         unless success
-            id = le.get_id_YAML(vm)
-            le.vm_set_id(vm, id)
-         end
-         
-         # Check if they have the leader's ID. Send it otherwise.
-         command = "cat #{leader_file}"
-         out, success = CloudSSH.execute_remote(command, vm)
-         unless success
-            leader = le.get_leader()
-            le.vm_set_leader(vm, leader)
-         end
-         
-      end
-      
-   end
-   
-end
+#   id_file = ID_FILE
+#   leader_file = LEADER_FILE
+#   
+#   le = LeaderElection.new()
+#   
+#   vms.each do |vm|
+#      
+#      if vm != MY_IP
+#         
+#         # Check if they have their ID. Send it otherwise.
+#         command = "cat #{id_file}"
+#         out, success = CloudSSH.execute_remote(command, vm)
+#         unless success
+#            id = le.get_id_YAML(vm)
+#            le.vm_set_id(vm, id)
+#         end
+#         
+#         # Check if they have the leader's ID. Send it otherwise.
+#         command = "cat #{leader_file}"
+#         out, success = CloudSSH.execute_remote(command, vm)
+#         unless success
+#            leader = le.get_leader()
+#            le.vm_set_leader(vm, leader)
+#         end
+#         
+#      end
+#      
+#   end
+#   
+#end
 
 
 ################################################################################
