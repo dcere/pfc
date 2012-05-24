@@ -1,0 +1,333 @@
+\chapter{Facter y Puppet}
+\label{comun:puppet}
+
+%%
+\section{Instalación de libopenssl-ruby}
+
+Si nuestro sistema no tiene instalado \texttt{libopenssl-ruby} tenemos que instalarlo:
+
+\begin{bashcode}
+_: apt-get install libopenssl-ruby
+\end{bashcode}
+
+
+%%
+\section{Creación del entorno de instalación de Facter y Puppet}
+
+Antes de instalar Facter y Puppet, hay que dar valores a ciertas variables:
+
+\begin{bashcode}
+_: FACTER_DIR="/root/facter-1.6.4"
+_: PUPPET_DIR="/root/puppet-2.7.9"
+_: PATH=$PATH:$FACTER_DIR/bin:$PUPPET_DIR/puppet/bin
+_: RUBYLIB=$FACTER_DIR/lib:$PUPPET_DIR/lib
+_: export PATH RUBYLIB
+\end{bashcode}
+
+
+%% Put a $ to get back highlightning in gedit
+\section{Instalación de Facter}
+
+Instalaremos Facter mediante una instalación por fuentes. Para ello primero tenemos que obtener las fuentes:
+
+\begin{bashcode}
+_: wget http://puppetlabs.com/downloads/facter/facter-1.6.4.tgz
+\end{bashcode}
+
+Una vez conseguidas las fuentes lo descomprimimos:
+
+\begin{bashcode}
+_: gzip -d -c facter-1.6.4.tgz | tar xf -
+\end{bashcode}
+
+Y posteriormente lo instalamos:
+
+\begin{bashcode}
+_: cd facter-1.6.4
+_: ruby install.rb
+\end{bashcode}
+
+
+%%
+\section{Instalación de Puppet}
+
+Instalaremos Puppet también mediante fuentes. Obtenemos las fuentes:
+
+\begin{bashcode}
+_: wget http://puppetlabs.com/downloads/puppet/puppet-2.7.9.tgz
+\end{bashcode}
+
+Lo descomprimimos:
+
+\begin{bashcode}
+_: gzip -d -c puppet-2.7.9.tgz | tar xf -
+\end{bashcode}
+
+Y lo instalamos:
+
+\begin{bashcode}
+_: cd puppet-2.7.9
+_: ruby install.rb
+\end{bashcode}
+
+
+%%
+\section{Configuración de Puppet}
+
+Nos aseguramos de que el fichero \texttt{/etc/puppet/puppet.conf} existe en nuestro sistema. Si no es así, podemos crearlo de la siguiente manera:
+
+\begin{bashcode}
+_: puppetmasterd --genconfig > /etc/puppet/puppet.conf
+\end{bashcode}
+
+Tenemos que asegurarnos de que existen tanto un usuario como un grupo \texttt{puppet}. Si no existen, los creamos:
+
+\begin{bashcode}
+_: groupadd puppet
+_: useradd -g puppet puppet
+\end{bashcode}
+
+Por último tenemos que asegurarnos de que el directorio \texttt{/var/lib/puppet/rrd} pertenece al usuario y grupo \texttt{puppet}. Si no pertenece, cambiamos los permisos:
+
+\begin{bashcode}
+_: chown puppet /var/lib/puppet/rrd
+_: chgrp puppet /var/lib/puppet/rrd
+\end{bashcode}
+
+Nota: Si este directorio todavía no existe seguimos adelante con la instalación y ya revisitaremos este punto.
+
+
+%%
+\section{Comprobación de la instalación}
+
+Vamos a comprobar de manera rápida que la instalación de Facter y Puppet fue exitosa:
+
+\begin{bashcode}
+_: facter
+[Muestra datos del sistema]
+_: puppet describe -s user
+[Muestra una descripcion del tipo usuario]
+\end{bashcode}
+
+Ahora creamos un manifiesto simple en el fichero \texttt{manifest.pp}:
+
+\begin{rubycode}
+file {'testfile':
+  path    => '/tmp/testfile',
+  ensure  => present,
+  mode    => 0640,
+  content => "I'm a test file.",
+}
+\end{rubycode}
+
+Lo aplicamos:
+
+\begin{bashcode}
+_: puppet apply manifest.pp
+\end{bashcode}
+
+Y comprobamos el contenido del fichero \texttt{/tmp/testfile} que Puppet debería haber creado:
+
+\begin{bashcode}
+_: cat /tmp/testfile
+I'm a test file.
+\end{bashcode}
+
+Ahora es momento de volver al directorio \texttt{/var/lib/puppet/rrd} y comprobar que tanto el usuario como el grupo de ese directorio tienen como valor \texttt{puppet}.
+
+
+%%
+\subsection{Comprobación del maestro de Puppet}
+
+Para comprobar que el maestro de puppet puede ejecutarse como un demonio tenemos que hacer:
+
+\begin{bashcode}
+_: puppet master
+Could not prepare for execution: Got 1 failure(s) while initializing: \
+change from directory to file failed: 
+Could not set 'file on ensure: Is a directory - /var/lib/puppet/facts
+\end{bashcode}
+
+Si aparece este fallo tenemos que ir al fichero de configuración \texttt{/etc/puppet/puppet.conf} y comentar la línea con la propiedad \texttt{factdest}. Esta es la solución propuesta para el \href{https://projects.puppetlabs.com/issues/9491}{bug}.
+
+Si lo ejecutamos de nuevo no debería dar más problemas:
+
+\begin{bashcode}
+_: puppet master
+\end{bashcode}
+
+
+%%
+\subsection{Comprobación del agente de Puppet}
+
+Nota: Supondremos que el maestro de Puppet se está ejecutando en una máquina que tiene por nombre \texttt{puppet.example.com}. La máquina desde la que se ejecuta el agente tiene por nombre \texttt{node1.example.com}
+
+Desde la máquina que tiene el agente, lanzamos la siguiente orden:
+
+\begin{bashcode}
+_: puppet agent --server=puppet.example.com \
+--no-daemonize --verbose   # Usa nombres de dominio completos
+warning: peer certificate won't be verified in this SSL session
+info: Caching certificate for ca
+warning: peer certificate won't be verified in this SSL session
+warning: peer certificate won't be verified in this SSL session
+info: Creating a new SSL certificate request for appscale-image1.cloud.net
+info: Certificate Request fingerprint (md5): ... 
+warning: peer certificate won't be verified in this SSL session
+[Se queda colgado]
+[Ctrl + C]
+\end{bashcode}
+
+Vamos a la máquina en la que se está ejecutando el maestro y hacemos lo siguiente:
+
+\begin{bashcode}
+_: puppet cert --sign node1.example.com
+notice: Signed certificate request for node1.example.com
+notice: Removing file Puppet::SSL::CertificateRequest node1.example.com at \
+'/etc/puppet/ssl/ca/requests/node1.example.com.pem'
+\end{bashcode}
+
+Y de vuelta a la máquina del agente:
+
+\begin{bashcode}
+_: puppet agent --server=puppet.example.com --no-daemonize --verbose
+warning: peer certificate won't be verified in this SSL session
+info: Caching certificate for node1.example.com
+notice: Starting Puppet client version 2.7.9
+info: Caching certificate_revocation_list for ca
+info: Caching catalog for node1.example.com
+info: Applying configuration version '1331813472'
+info: Creating state file /var/lib/puppet/state/state.yaml
+notice: Finished catalog run in 0.03 seconds
+[Se queda colgado]
+[Ctrl + C]
+notice: Caught INT; calling stop
+\end{bashcode}
+
+Si no tienes una configuración preparada para tu nodo te aparecerá un error, pero no te preocupes: Puppet está funcionando correctamente. El error será similar a éste:
+
+\begin{bashcode}
+_: puppet agent --server=puppet.example.com --no-daemonize --verbose
+notice: Starting Puppet client version 2.7.9
+info: Caching certificate_revocation_list for ca
+err: Could not retrieve catalog from remote server: Error 400 on SERVER: \
+Could not find default node or by name with 'node1.example.com, node1' \
+on node node1.example.com
+notice: Using cached catalog
+err: Could not retrieve catalog; skipping run
+[Se queda colgado]
+[Ctrl + C]
+notice: Caught INT; calling stop
+\end{bashcode}
+
+
+%%
+\subsection{Comprobación del sistema Puppet}
+
+Creamos el fichero \texttt{/etc/puppet/manifests/site.pp} en la máquina del maestro con el siguiente contenido:
+
+\begin{rubycode}
+# Create "/tmp/testfile" if it doesn't exist.
+class test_class {
+    file { "/tmp/testfile":
+       ensure => present,
+       mode   => 644,
+       owner  => root,
+       group  => root
+    }
+}
+
+# tell puppet on which client to run the class
+node 'node1' {            # Notice it is node1 and not node1.example.com
+    include test_class
+}
+
+node 'puppet' {           # Notice it is puppet and not puppet.example.com
+}
+\end{rubycode}
+
+Y desde la máquina del agente tecleamos esto:
+
+\begin{bashcode}
+_: puppet agent --server=puppet.example.com --no-daemonize --verbose
+\end{bashcode}
+
+Comprobamos que en la máquina del agente se ha creado el fichero \texttt{/tmp/testfile}:
+
+\begin{bashcode}
+_: cat /tmp/testfile
+I'm a test file.
+\end{bashcode}
+
+
+%%
+\section{Problemas}
+
+Durante la ejecución de Puppet pueden ocurrir varios errores. Como la información de Puppet puede ser en ocasiones algo críptica se muestra a continuación una colección de los errores más comunes y su solución:
+
+\begin{bashcode}
+_: puppet master
+err: /File[/var/lib/puppet/facts]/ensure: change from directory to file \
+failed: Could not set 'file on ensure: Is a directory - /var/lib/puppet/facts
+\end{bashcode}
+
+Solución: Comenta la propiedad factdest en el fichero de configuración de Puppet en la máquina del maestro.
+
+\begin{bashcode}
+_: puppet agent --server=puppet.example.com --no-daemonize --verbose
+err: Could not retrieve catalog from remote server: Error 400 on SERVER: \
+Could not find default node or by name with ...
+\end{bashcode}
+
+Solución: Necesitas incluir el nombre del agente en el fichero \texttt{site.pp} de la máquina del maestro. O puedes incluir un nodo por defecto:
+
+\begin{rubycode}
+node 'default' {
+}
+\end{rubycode}
+
+\begin{bashcode}
+_: puppet master
+err: Could not prepare for execution: Retrieved certificate does not match \
+private key; please remove certificate from server and regenerate it with \
+the current key
+\end{bashcode}
+
+Solución: Cambia el nombre del directorio \texttt{/etc/puppet/ssl} a \texttt{/etc/puppet/ssl.old} y prueba de nuevo.
+
+\begin{bashcode}
+_: puppet agent --server=puppet.example.com --no-daemonize --verbose
+err: Could not send report: SSL_connect returned=1 errno=0 state=SSLv3 read \
+server certificate B: certificate verify failed. This is often because the \
+time is out of sync on the server or client
+\end{bashcode}
+
+Solución: Compleja, mejor mira \href{http://projects.puppetlabs.com/projects/1/wiki/Certificates_And_Security}{aquí}.
+
+\begin{bashcode}
+_: puppet master
+err: Could not run: Could not create PID file: /var/lib/puppet/run/master.pid
+\end{bashcode}
+
+Solución: El maestro de Puppet ya se está ejecutando.
+
+\begin{bashcode}
+_: puppet apply manifest.pp
+err: Could not evaluate: Puppet::Util::Log requires a message
+\end{bashcode}
+
+Solution: Puppet ha salido de manera abrupta. Si estás ejecutando un proveedor asegúrate de que sales de él con \texttt{return} y no con \texttt{exit}.
+
+
+%%
+\section{Versiones}
+
+\begin{tabular}{|c|c|}
+   \hline
+   Software & Versión \\ \hline
+   Ubuntu & 10.04 \\ \hline
+   Ruby   & 1.8.7 \\ \hline
+   Facter & 1.6.4 \\ \hline
+   Puppet & 2.7.9 \\ \hline
+   libopenssl-ruby &	4.2 \\ \hline
+\end{tabular}

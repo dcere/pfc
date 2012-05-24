@@ -9,7 +9,6 @@ Empezaremos añadiendo la línea
 \begin{bashcode}
 deb http://www.rabbitmq.com/debian/ testing main
 \end{bashcode}
-\\
 
 a nuestro fichero \texttt{/etc/apt/sources.list} de la siguiente manera:
 
@@ -17,7 +16,6 @@ a nuestro fichero \texttt{/etc/apt/sources.list} de la siguiente manera:
 _: echo "deb http://www.rabbitmq.com/debian/ testing main" >> \
 /etc/apt/sources.list
 \end{bashcode}
-\\
 
 Para evitar avisos acerca de paquetes que no han sido firmados, podemos añadir la clave pública de RabbitMQ a nuestra lista de claves:
 
@@ -25,21 +23,18 @@ Para evitar avisos acerca de paquetes que no han sido firmados, podemos añadir 
 _: wget http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
 _: apt-key add rabbitmq-signing-key-public.asc
 \end{bashcode}
-\\
 
 Actualizamos el sistema con los nuevos cambios:
 
 \begin{bashcode}
 _: apt-get update
 \end{bashcode}
-\\
 
 E instalamos el paquete de la manera habitual:
 
 \begin{bashcode}
 _: apt-get install rabbitmq-server
 \end{bashcode}
-\\
 
 La instalación incluirá automáticamente los paquetes de Erlang necesarios para ejecutar RabbitMQ.
 
@@ -56,7 +51,6 @@ amqp_client-2.7.1.ez
 _: wget -q http://www.rabbitmq.com/releases/plugins/v2.7.1/\
 rabbitmq_stomp-2.7.1.ez
 \end{bashcode}
-\\
 
 Nota: Los nombres de los \emph{plugins} pueden variar dependiendo de la versión instalada.
 
@@ -67,14 +61,12 @@ _: rabbitmq-plugins list
 _: rabbitmq-plugins enable amqp_client           # El nombre puede cambiar
 _: rabbitmq-plugins enable rabbitmq_stomp        # El nombre puede cambiar
 \end{bashcode}
-\\
 
 y reiniciamos el servidor:
 
 \begin{bashcode}
 _: /usr/sbin/service rabbitmq-server restart
 \end{bashcode}
-\\
 
 
 %%
@@ -84,21 +76,18 @@ Añadimos el usuario \texttt{mcollective} y la contraseña \texttt{mcollective}:
 \begin{bashcode}
 _: rabbitmqctl add_user mcollective mcollective
 \end{bashcode}
-\\
 
 Establecemos los permisos necesarios:
 
 \begin{bashcode}
 _: rabbitmqctl set_permissions -p / mcollective "^amq.gen-.*" ".*" ".*"
 \end{bashcode}
-\\
 
 Y por seguridad borramos la cuenta de invitado:
 
 \begin{bashcode}
 _: rabbitmqctl delete_user guest
 \end{bashcode}
-\\
 
 
 %%
@@ -111,7 +100,6 @@ _: invoke-rc.d rabbitmq-server start
 Starting rabbitmq-server: SUCCESS
 rabbitmq-server.
 \end{bashcode}
-\\
 
 
 %%

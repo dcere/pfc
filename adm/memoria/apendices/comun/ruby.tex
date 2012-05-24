@@ -12,7 +12,6 @@ Empezaremos instalando Ruby, IRB (Interactive Ruby Shell) y RDoc, la herramienta
 \begin{bashcode}
 _: apt-get install ruby irb rdoc
 \end{bashcode}
-\\
 
 A continuación instalaremos RubyGems. Para ello, descarga el paquete más actual de \href{http://rubyforge.org/frs/?group_id=126}{rubyforge}. Durante el resto de la instalación usaremos como ejemplo el paquete 1.8.10, pero los pasos son análogos para cualquier otra versión.
 
@@ -21,7 +20,6 @@ Descomprimimos el paquete:
 \begin{bashcode}
 _: tar xvf rubygems-1.8.10.tgz
 \end{bashcode}
-\\
 
 E instalamos rubygems:
 
@@ -29,7 +27,6 @@ E instalamos rubygems:
 _: cd rubygems-1.8.10
 _: ruby setup.rb
 \end{bashcode}
-\\
 
 Una vez instalado, comprobamos la versión:
 
@@ -37,7 +34,6 @@ Una vez instalado, comprobamos la versión:
 _: gem --version
 1.8.10
 \end{bashcode}
-\\
 
 Y la actualizamos a la última versión disponible. Es posible que antes de hacer este paso haya que actualizar el sistema operativo.
 
@@ -46,14 +42,12 @@ _: gem update --system
 _: gem --version
 1.8.24
 \end{bashcode}
-\\
 
 En caso de que necesites actualizar el sistema operativo, se hace de esta manera:
 
 \begin{bashcode}
 _: apt-get upgrade
 \end{bashcode}
-\\
 
 
 %%
@@ -64,14 +58,12 @@ Puede que durante la ejecución de programas Ruby, o la instalación de \emph{ge
 \begin{bashcode}
 _: apt-get install ruby1.8-dev
 \end{bashcode}
-\\
 
 También puede aparecer el error \texttt{no such file to load -- net/https (LoadError)}. Para solucionarlo, instala \texttt{libopenssl-ruby}:
 
 \begin{bashcode}
 _: apt-get install libopenssl-ruby
 \end{bashcode}
-\\
 
 
 %%

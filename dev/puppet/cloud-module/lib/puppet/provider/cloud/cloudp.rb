@@ -148,7 +148,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                      
                      # Copy important files to all machines
                      puts "Copying important files to all virtual machines"
-                     copy_cloud_files(vm_ips)      # TODO Move it to monitor? call it each time for one vm?
+                     copy_cloud_files(vm_ips)      # TODO Move it to monitor and call it each time for one vm?
                   
                      # Start the cloud
                      start_cloud(vm_ips, vm_ip_roles)
