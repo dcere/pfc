@@ -276,19 +276,8 @@ def start_cloud(vm_ips, vm_ip_roles)
    elsif resource[:type].to_s == "web"
       puts  "Starting a web cloud"
       
-      # Distribute ssh key to nodes to make login passwordless
-      key_path = "/root/.ssh/id_rsa.pub"
-      command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud/ssh"
-      password = resource[:root_password]
-      puts "Distributing ssh keys to nodes"
-      vm_ips.each do |vm|
-         result = `#{command_path}/ssh_copy_id.sh root@#{vm} #{key_path} #{password}`
-         if $?.exitstatus == 0
-            puts "Copied ssh key to #{vm}"
-         else
-            err "Impossible to copy ssh key to #{vm}"
-         end
-      end
+      # SSH keys have already been distributed when machines were monitorized,
+      # so we do not have to distribute them again
       
       # Start web cloud
       web_cloud_start(vm_ip_roles)
