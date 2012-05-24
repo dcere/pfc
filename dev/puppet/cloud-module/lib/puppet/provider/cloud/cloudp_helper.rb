@@ -409,55 +409,6 @@ def save_domain_name(ssh_connect, vm_name)
 end
 
 
-#def command_execution(ip_array, command, error_message)
-#   
-#   ip_array.each do |vm|
-#      result = `#{command}`
-#      unless $?.exitstatus == 0
-#         debug "[DBG] #{vm}: #{error_message}"
-#         err   "#{vm}: #{error_message}"
-#      end
-#   end
-
-#end
-
-
-# TODO Delete
-# Sends their IDs to some virtual machines.
-#def send_ids(vms)
-
-#   id_file = ID_FILE
-#   leader_file = LEADER_FILE
-#   
-#   le = LeaderElection.new()
-#   
-#   vms.each do |vm|
-#      
-#      if vm != MY_IP
-#         
-#         # Check if they have their ID. Send it otherwise.
-#         command = "cat #{id_file}"
-#         out, success = CloudSSH.execute_remote(command, vm)
-#         unless success
-#            id = le.get_id_YAML(vm)
-#            le.vm_set_id(vm, id)
-#         end
-#         
-#         # Check if they have the leader's ID. Send it otherwise.
-#         command = "cat #{leader_file}"
-#         out, success = CloudSSH.execute_remote(command, vm)
-#         unless success
-#            leader = le.get_leader()
-#            le.vm_set_leader(vm, leader)
-#         end
-#         
-#      end
-#      
-#   end
-#   
-#end
-
-
 ################################################################################
 # Last ID functions
 ################################################################################
