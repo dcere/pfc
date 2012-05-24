@@ -12,9 +12,9 @@
   - Control de errores al iniciar MV
 - Inicio de un cloud AppScale con la configuración por defecto ( 1 + 3 ) => Control de las copias de la imagen
 - Probar Neptune para coger salidas de trabajos
-- Envío de archivos (sin usar ssh o scp)
+- (X)) Envío de archivos (sin usar ssh o scp)
   - (X) MCollective => Como cadena, con Agente y Cliente RPC
-  - Puppet => Uso del atributo source (http://docs.puppetlabs.com/module_cheat_sheet.html)
+  - (X) Puppet => Uso del atributo source (http://docs.puppetlabs.com/module_cheat_sheet.html). No lo vamos a usar
 - (X) Configuración de Puppet
   - (X) Maestro en lucid-nep
     - http://www.puppetlogs.com/puppet/%23puppet-2010-11-06.log.html
@@ -35,9 +35,9 @@
 - Comprobar uso de Custom facts para obtener información de AppScale
 - (X) Comprobar uso de Puppet nodes para los nodos de AppScale
   - (X) Comprobar, en general, el uso de los tipos de Puppet para adaptarlos a los manifiestos
-- Comprobar ejecución de Puppet (nivel 2) desde MCollective
+- (X) Comprobar ejecución de Puppet (nivel 2) desde MCollective => No lo vamos a usar
   - (X) Y también la ejecución de Puppet en modo "cron"
-- Comprobar estado de la propuesta
+- (X) Comprobar estado de la propuesta => Aceptada
 - (X) Uso de MCollective para ejecutar comandos de shell => Comandos sencillos como 'whoami', 'ls'
 - (X) Uso de invoke-rc.d mcollecive stop en vez de service mcollecive stop en Debian / Ubuntu
   - (X) Si se inicia con /usr/sbin/service mcollecive start, se apaga con /usr/sbin/service mcollecive stop

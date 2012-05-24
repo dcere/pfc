@@ -109,12 +109,6 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
 
    # This function is cloud-type independent: define a new virtual machine and
    # start it
-
-# TODO Delete
-#   # Get virtual machine's ID
-#   id = get_last_id()
-#   id += 1
-#   puts "...VM's ID is #{id}"
    
    # Get virtual machine's MAC address
    puts "Getting VM's MAC address..."
@@ -133,19 +127,26 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    role = :role_must_be_defined_outside_the_loop
    index = 0
    ip_roles.each do |r, ips|
-      index = 0      # Reset the index for each role
+      index_aux = 0      # Reset the index for each role
       ips.each do |ip|
          if vm == ip
+            puts "vm: #{vm} == ip: #{ip}"
             role = r
+            index = index_aux
+            puts "role: #{role}"
          else
-            index += 1
+            index_aux += 1
          end
       end
    end
+   puts "Finished iterating. role: #{role}, index: #{index}"
+   puts "Image roles:"
+   p img_roles
    disk = img_roles[role][index]
    puts "...VM's image disk is #{disk}"
    
    # Define new virtual machine
+   id = rand(10000)      # Choose a number for domain name randomly
    vm_name = "myvm-#{id}"
    vm_uuid = `uuidgen`
    vm_mac  = mac_address
@@ -192,26 +193,6 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Save the domain's name
    puts "Saving the domain's name..."
    save_domain_name(ssh_connect, vm_name)
-   
-# TODO Delete
-#   # Save the new virtual machine's ID as last ID
-#   set_last_id(id)
-#   
-#   # Set the ID and leader ID on the new virtual machine
-#   # WARNING: At this point the machine is probably not running
-#   le = LeaderElection.new()
-#   unless le.vm_set_id(vm, id)
-#      puts "Impossible to set ID on #{vm}. Try again later"
-#   end
-#   
-#   leader = le.get_leader()
-#   unless le.vm_set_leader(vm, leader)
-#      puts "Impossible to set leader's ID on #{vm}. Try again later"
-#   end
-#
-#   # WARNING: In case the machine is not still running when we try to set
-#   # their ID and leader's ID, save their ID in a file
-#   le.set_id_YAML(vm, id)
    
    # Save the new virtual machine's MAC address
    file = File.open(LAST_MAC_FILE, 'w')

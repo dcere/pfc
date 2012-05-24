@@ -185,6 +185,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   
                   puts "#{MY_IP} will be the leader"
                   
+                  # Create your ssh key
+                  CloudSSH.generate_ssh_key()
+                  
                else
                   
                   # If we have received our ID, try to become leader
