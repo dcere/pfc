@@ -410,15 +410,15 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # when you create more than one client in a short time
          mcc = MCollectiveFilesClient.new("files")
          
-         # Delete leader and id files on all machines (leader included)
+         # Delete leader, id, last_id and last_mac files on all machines (leader included)
          mcc.delete_file(LEADER_FILE)                          # Leader ID
          mcc.delete_file(ID_FILE)                              # ID
+         mcc.delete_file(LAST_ID_FILE)                         # Last ID
+         mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
          mcc.disconnect       # Now it can be disconnected
          
          # Delete rest of regular files on leader machine
-         files = [LAST_ID_FILE,                                # Last ID
-                  LAST_MAC_FILE,                               # Last MAC address
-                  DOMAINS_FILE,                                # Domains file
+         files = [DOMAINS_FILE,                                # Domains file
                   "/tmp/cloud-#{resource[:name]}"]             # Cloud file
          files.each do |file|
             if File.exists?(file)
