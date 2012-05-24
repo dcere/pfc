@@ -250,44 +250,27 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             
             if !alive
                puts "All virtual machines are stopped"
-               puts "Starting one as leader..."
+               puts "Starting one of them..."
             
                # Start one of the virtual machines
                vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
-               puts "Starting #{vm} as leader..."
-               
-               le = LeaderElection.new()
-               le.set_id(0)      # Set the ID of this machine to 0
-                                 # We will define virtual machine's IDs starting
-                                 # from this one
-               
-               file = File.open(LAST_ID_FILE, 'w')
-               file.puts(0)
-               file.close
+               puts "Starting #{vm} ..."
                
                start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
                
-               # Give it time to raise
-               puts "Wait #{TIME} seconds for #{vm} to raise"
-               sleep(TIME)
-               
-               # Copy last-id and last-mac files to it
-               [LAST_ID_FILE, LAST_MAC_FILE].each do |file|
-                  out, success = CloudSSH.copy_remote(file, vm, "/tmp")
-                  unless success
-                     puts "Impossible to copy #{file} to #{vm}"
-                  end
-               end
-               
-               # This virtual machine will be the leader
+               # This virtual machine will be the "leader" (actually the chosen one)
                vm_leader = vm
-            end
+               
+               # Copy important files to it
+               #copy_cloud_files(vm_leader)
+               
+               puts "#{vm_leader} is being started"
+               puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}" 
+            else
+               puts "#{vm_leader} is already running"
+               puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
+            end 
             
-            # Copy important files to it
-            copy_cloud_files(vm_leader)
-            
-            puts "#{vm_leader} is the leader of the cloud"
-            puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
          end
          
          

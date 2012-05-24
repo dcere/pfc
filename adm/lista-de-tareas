@@ -50,8 +50,17 @@
   - HAproxy: http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
   - (X) nginx: http://spin.atomicobject.com/2012/02/28/load-balancing-and-reverse-proxying-with-nginx/
 - (X) mysqld => Nombre del proceso es mysql, el ejecutable es /usr/sbin/mysqld (o /usr/bin/service mysql start)
-- nginxd?
-- (X) Instalación de Puppet en las lucid-web
+- (X) nginxd? => /etc/init.d/nginx start | stop | restart
+- Instalación de Puppet en las lucid-web
+  - (X) lucid-balancer
+  - (X) lucid-server1
+  - (X) lucid-server2
+  - (X) lucid-database
+- Instalación de Expect en las lucid-web
+  - (X) lucid-balancer
+  - (X) lucid-server1
+  - (X) lucid-server2
+  - (X) lucid-database
 - Instalación de MCollective en las lucid-web
   - (X) lucid-balancer
   - (X) lucid-server1

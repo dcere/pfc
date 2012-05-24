@@ -7,7 +7,7 @@ module CloudSSH
    # Generates a new ssh key to be used in all machines
    def self.generate_ssh_key(path = SSH_PATH, file = SSH_KEY)
       
-      puts "Creating directory..."
+      puts "Creating #{path} directory..."
       result = `mkdir -p #{path}`
       unless $?.exitstatus == 0
          puts "Could not create #{path} directory"

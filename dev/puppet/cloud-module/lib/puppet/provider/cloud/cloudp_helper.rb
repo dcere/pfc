@@ -72,6 +72,11 @@ def monitor_vm(vm, ip_roles, img_roles)
       # Set the leader's ID
       leader = le.get_leader()
       le.vm_set_leader(vm, leader)
+      
+      # Send the last ID to all nodes
+      mcc = MCollectiveFilesClient.new("files")
+      mcc.create_file(LAST_ID_FILE, id.to_s)
+      #mcc.disconnect
    end
    
    # Check if MCollective is installed and configured
@@ -198,6 +203,11 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    file = File.open(LAST_MAC_FILE, 'w')
    file.puts(mac_address)
    file.close
+   
+   # Send the new virtual machine's MAC address to all nodes
+   mcc = MCollectiveFilesClient.new("files")
+   mcc.create_file(LAST_MAC_FILE, mac_address)
+   #mcc.disconnect
 
 end
 
