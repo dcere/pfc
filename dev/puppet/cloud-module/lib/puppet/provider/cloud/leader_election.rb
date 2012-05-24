@@ -5,13 +5,10 @@ class LeaderElection
    # during execution. The only thing that should not change are the files paths.
    
    # Creates a new LeaderElection object.
-   def initialize(id_file     = ID_FILE,
-                  leader_file = LEADER_FILE,
-                  yaml_file   = IDS_YAML)
+   def initialize(id_file = ID_FILE, leader_file = LEADER_FILE)
 
       @id_file     = id_file
       @leader_file = leader_file
-      @yaml_file   = yaml_file
 
    end
 

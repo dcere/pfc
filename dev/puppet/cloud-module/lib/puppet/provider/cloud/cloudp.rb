@@ -40,7 +40,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 
    ID_FILE     = "/tmp/cloud-id"
    LEADER_FILE = "/tmp/cloud-leader"
-   IDS_YAML    = "/tmp/cloud-ids.yaml"
 
    LAST_MAC_FILE = "/tmp/cloud-last-mac"
    LAST_ID_FILE  = "/tmp/cloud-last-id"
@@ -161,7 +160,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                      cloud_file.puts(resource[:name])
                      cloud_file.close
                      
-                     puts "Cloud started"
+                     info "Cloud started"
                   end      # unless File
                   
                end      # unless deads
@@ -432,7 +431,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Delete rest of regular files on leader machine
          files = [ID_FILE,                                     # Last ID
                   LAST_MAC_FILE,                               # Last MAC address
-                  IDS_YAML,                                    # IDs YAML
                   "/tmp/defined-domains-#{resource[:name]}",   # Domains file
                   "/tmp/cloud-#{resource[:name]}"]             # Cloud file
          files.each do |file|
