@@ -107,3 +107,4 @@
 - Comprobación de roles en AppScale
 - (X) Ver como hace la distribucion de claves SSH appscale e imitarla.
 - Creación de un comando copy_remote_pm o similar para copiar ficheros a las máquinas físicas que alojan a las máquinas virtuales
+- ¿Es necesaria la clase VM_Name si generamos nombres random? => No?.

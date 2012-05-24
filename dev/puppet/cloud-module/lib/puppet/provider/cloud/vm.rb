@@ -20,29 +20,3 @@ class VM
    end
    
 end
-
-
-# Virtual machine name generator
-class VM_Name
-   
-   attr_reader :name
-   
-   
-   # Creates a generic prefix for virtual machines' names.
-   def initialize(value=nil)
-      @name = value ? value: "myvm"
-   end
-   
-   
-   # Generates an array of <many> names starting with suffix <start>.
-   def generate_array(many, start=1)
-   
-      result = []
-      for i in start..many
-         result << @name + "-" + i.to_s
-      end
-      return result
-   
-   end
-   
-end
