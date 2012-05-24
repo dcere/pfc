@@ -160,7 +160,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                      cloud_file.puts(resource[:name])
                      cloud_file.close
                      
-                     info "Cloud started"
+                     puts "==================="
+                     puts "== Cloud started =="
+                     puts "==================="
                   end      # unless File
                   
                end      # unless deads
@@ -444,6 +446,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          # Note: As they are included in the /tmp directory, only the machines
          # that are still alive need to delete these files. If the machine was
          # shut down, these files will not be the next time it is started.
+         
+         puts "==================="
+         puts "== Cloud stopped =="
+         puts "==================="
          
       end
    
