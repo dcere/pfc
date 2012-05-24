@@ -97,3 +97,4 @@
 - (1/2) Inicio de AppScale desde Puppet con script expect: A veces sí, a veces no, depende de como lleve el día AppScale.
 - Comprobación de roles en AppScale
 - (X) Ver como hace la distribucion de claves SSH appscale e imitarla.
+- Creación de un comando copy_remote_pm o similar para copiar ficheros a las máquinas físicas que alojan a las máquinas virtuales

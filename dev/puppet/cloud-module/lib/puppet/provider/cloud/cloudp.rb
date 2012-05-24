@@ -44,7 +44,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    LAST_MAC_FILE = "/tmp/cloud-last-mac"
    LAST_ID_FILE  = "/tmp/cloud-last-id"
    
-   TIME = 20      # Start up time for a virtual machine
+   DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
+   
+   TIME = 20      # Start up time for a virtual machine     # TODO Check if it is needed
    
    CRON_FILE = "/var/spool/cron/crontabs/root"
 
@@ -347,7 +349,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    # Makes sure the cloud is not running.
    def stop
 
-      debug "[DBG] Stopping cloud %s" % [resource[:name]]
+      puts "Stopping cloud %s" % [resource[:name]]
 
       if !exists?
          err "Cloud does not exist"
@@ -364,15 +366,15 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          pms.each do |pm|
          
             ssh_connect = "ssh dceresuela@#{pm}"
-            defined_domains_path = "/tmp/defined-domains-#{resource[:name]}"
             
-            result = `scp dceresuela@#{pm}:#{defined_domains_path} #{defined_domains_path}`
+            # Bring the defined domains file from the physical machine to this one
+            result = `scp dceresuela@#{pm}:#{DOMAINS_FILE} #{DOMAINS_FILE}`
             if $?.exitstatus == 0
             
-               puts "#{defined_domains_path} exists in #{pm}"
+               puts "#{DOMAINS_FILE} exists in #{pm}"
                
                # Open files
-               defined_domains = File.open(defined_domains_path)
+               defined_domains = File.open(DOMAINS_FILE, 'r')
             
                # Stop nodes
                defined_domains.each_line do |domain|
@@ -400,13 +402,13 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
                
                # Delete the defined domains file on the physical machine
-               result = `#{ssh_connect} 'rm -rf /tmp/defined-domains-#{resource[:name]}'`
+               result = `#{ssh_connect} 'rm -rf #{DOMAINS_FILE}'`
             
             else
                # Some physical machines might not have any virtual machine defined.
                # For instance, if they were already defined and running when we
                # started the cloud.
-               puts "No #{defined_domains_path} file found in #{pm}"
+               puts "No #{DOMAINS_FILE} file found in #{pm}"
             end
             
          end   # pms.each
@@ -431,9 +433,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
          mcc.disconnect       # Now it can be disconnected
          
          # Delete rest of regular files on leader machine
-         files = [ID_FILE,                                     # Last ID
+         files = [LAST_ID_FILE,                                # Last ID
                   LAST_MAC_FILE,                               # Last MAC address
-                  "/tmp/defined-domains-#{resource[:name]}",   # Domains file
+                  DOMAINS_FILE,                                # Domains file
                   "/tmp/cloud-#{resource[:name]}"]             # Cloud file
          files.each do |file|
             if File.exists?(file)

@@ -385,8 +385,7 @@ end
 # Saves the virtual machine's domain name in a file.
 def save_domain_name(ssh_connect, vm_name)
 
-   file = "/tmp/defined-domains-#{resource[:name]}"
-   result = `#{ssh_connect} 'echo #{vm_name} >> #{file}'`
+   result = `#{ssh_connect} 'echo #{vm_name} >> #{DOMAINS_FILE}'`
    if $?.exitstatus == 0
       debug "[DBG] #{vm_name} name saved"
       return true
@@ -420,10 +419,8 @@ end
 # Sets last defined ID in the ID file.
 def set_last_id(id)
 
-   if File.exists?(LAST_ID_FILE)
-      file = File.open(LAST_ID_FILE, 'w')
-      file.puts(id)
-      file.close
-   end
+   file = File.open(LAST_ID_FILE, 'w')
+   file.puts(id)
+   file.close
    
 end
