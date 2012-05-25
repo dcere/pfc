@@ -258,7 +258,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
                
-               # This virtual machine will be the "leader" (actually the chosen one)
+               # That virtual machine will be the "leader" (actually the chosen one)
                vm_leader = vm
                
                # Copy important files to it
@@ -316,10 +316,16 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             # Check pool of physical machines
             pm_all_up, pm_up, pm_down = check_pool()
             
-            # TODO Raise again the dead machines
-            #deads.each do |vm|
-            #   start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-            #end
+            if deads.count == 0
+               puts "=========================="
+               puts "== Cloud up and running =="
+               puts "=========================="
+            else
+               # Raise again the dead machines
+               deads.each do |vm|
+                  start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+               end
+            end
             
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
