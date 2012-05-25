@@ -98,7 +98,7 @@
 - (X) Elección de líder: MCollective o codificación en LeaderElection
   - (X) MCollective para preguntarles a todos por su ID y enviarles el ID del líder a todos de vez
   - (X) LeaderElection para la gestión de IDs en tu propia máquina
-- Asignación de MACs a las MV. Fichero /etc/udev/rules.../70-...rules
+- (X) Asignación de MACs a las MV. Fichero /etc/udev/rules.../70-...rules => script cloud-net-rules en /etc/init.d
 - (X) Trabajos cron para Puppet
   - (X) Inicialización
   - (X) Terminación

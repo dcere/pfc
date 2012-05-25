@@ -8,7 +8,7 @@
 #   - IP address: IP address of remote host.
 #
 # Examples:
-#   _$: copy-puppet-installation-files.sh 192.168.1.100 
+#   _$: copy-puppet-installation-files.sh 192.168.1.100
 #
 #
 # Author:
