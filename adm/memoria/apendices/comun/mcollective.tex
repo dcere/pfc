@@ -1,0 +1,92 @@
+\chapter{MCollective}
+\label{comun:mcollective}
+
+
+%%
+\section{Instalación}
+
+El primer paso es instalar rubygems. Para instalarlo, consulta el apéndice \ref{comun:ruby} de instalación de Ruby y rubygems.
+
+Descargamos los paquetes mcollective, mcollective-client y mcollective-common de \url{http://downloads.puppetlabs.com/mcollective/}:
+
+\begin{bashcode}
+_: wget http://downloads.puppetlabs.com/mcollective/\
+mcollective_1.2.1-1_all.deb
+_: wget http://downloads.puppetlabs.com/mcollective/\
+mcollective-client_1.2.1-1_all.deb
+_: wget http://downloads.puppetlabs.com/mcollective/\
+mcollective-common_1.2.1-1_all.deb
+\end{bashcode}
+
+Dependiendo de si el nodo va a ser administrador o administrado tendremos que instalar unos u otros paquetes:
+
+\begin{tabular}{|c|c|c|}
+   \hline
+   Paquete & Nodo administrador & Nodo administrado \\ \hline
+   mcollective-common & X & X \\ \hline
+   mcollective-client & X &   \\ \hline
+   mcollective &  & X \\ \hline
+\end{tabular}
+\\
+
+Podemos instalar los paquetes de la siguiente manera:
+
+\begin{bashcode}
+_: dpkg -i mcollective*.deb
+\end{bashcode}
+
+Una vez instalado MCollective, instalamos la librería \texttt{libstomp-ruby}:
+
+\begin{bashcode}
+_: apt-get install libstomp-ruby
+\end{bashcode}
+
+
+%%
+\section{Configuración}
+
+A continuación hay que editar el fichero de configuración de MCollective. En los nodos administradores (clientes) se encuentra en \texttt{/etc/mcollective/client.cfg} mientras que en los nodos administrados (servidores) se encuentra en \texttt{/etc/mcollective/server.cfg}. Nos aseguramos de que contengan los siguientes valores:
+
+\begin{bashcode}
+plugin.stomp.host = 155.210.155.ABC # Direccion IP del MQ broker
+plugin.stomp.port = 61613
+plugin.stomp.user = mcollective
+plugin.stomp.password = mcollective
+\end{bashcode}
+
+
+%%
+\section{Comprobación de la instalación}
+
+En el servidor stomp lanza el siguiente comando:
+
+\begin{bashcode}
+_: /usr/sbin/service rabbitmq-server start
+\end{bashcode}
+
+En los nodos administrados (servidores) lanza éste:
+
+\begin{bashcode}
+_: /usr/sbin/service mcollective start
+\end{bashcode}
+
+Y en uno de los nodos administradores (clientes) lanzaremos el comando \texttt{mc-ping}. La salida obtenida al ejecutar el comando debería ser similar a la siguiente:
+
+\begin{bashcode}
+_: mc-ping
+155.210.155.177                       time=46.06 ms
+---- ping statistics ----
+1 replies max: 46.06 min: 46.06 avg: 46.06
+\end{bashcode}
+
+
+%%
+\section{Versiones}
+
+\begin{tabular}{|c|c|}
+   \hline
+   Software & Versión \\ \hline
+   Ubuntu & 10.04 \\ \hline
+   MCollective & 1.2.1-1 \\ \hline
+   libstomp-ruby & 1.8 (1.0.4-1) \\ \hline
+\end{tabular}
