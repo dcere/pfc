@@ -114,7 +114,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                   if alive[vm]
                      # If they are alive, monitor them
                      puts "Monitoring #{vm}..."
-                     monitor_vm(vm, vm_ip_roles, vm_img_roles)
+                     monitor_vm(vm, vm_ip_roles)
                      puts "...Monitored"
                   else
                      # If they are not alive, start and configure them
@@ -307,7 +307,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
             vm_ips.each do |vm|
                puts "Monitoring #{vm}..."
-               unless monitor_vm(vm, vm_ip_roles, vm_img_roles)
+               unless monitor_vm(vm, vm_ip_roles)
                   deads << vm
                end
                puts "...Monitored"

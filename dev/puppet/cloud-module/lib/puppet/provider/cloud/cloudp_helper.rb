@@ -29,7 +29,7 @@ end
 
 
 # Monitors a virtual machine.
-def monitor_vm(vm, ip_roles, img_roles)
+def monitor_vm(vm, ip_roles)
 
    # Check if it is alive
    alive = CloudMonitor.ping(vm)
@@ -63,6 +63,7 @@ def monitor_vm(vm, ip_roles, img_roles)
    end
    
    # TODO What if a machine has different roles?
+   
    role = :role_must_be_defined_outside_the_loop
    ip_roles.each do |r, ips|
       ips.each do |ip|

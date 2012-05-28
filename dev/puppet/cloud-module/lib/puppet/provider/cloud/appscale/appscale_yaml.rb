@@ -22,8 +22,11 @@ def appscale_yaml_ips(path)
       controller = tree[:controller]
       servers =    tree[:servers]
 
-      ips = ips + get_elements(controller)
-      ips = ips + get_elements(servers)
+      ip_roles[:controller] = get_elements(controller)
+      ip_roles[:servers]    = get_elements(servers)
+
+      ips = ips + ip_roles[:controller]
+      ips = ips + ip_roles[:servers]
       
       # Custom deployment (from appscale-tools/lib/node_layout.rb)
       master =    tree[:master]
@@ -34,13 +37,21 @@ def appscale_yaml_ips(path)
       zookeeper = tree[:zookeeper]
       memcache =  tree[:memcache]
       
-      ips = ips + get_elements(master)
-      ips = ips + get_elements(appengine)
-      ips = ips + get_elements(database)
-      ips = ips + get_elements(login)
-      ips = ips + get_elements(open)
-      ips = ips + get_elements(zookeeper)
-      ips = ips + get_elements(memcache)
+      ip_roles[:master]    = get_elements(master)
+      ip_roles[:appengine] = get_elements(appengine)
+      ip_roles[:database]  = get_elements(database)
+      ip_roles[:login]     = get_elements(login)
+      ip_roles[:open]      = get_elements(open)
+      ip_roles[:zookeeper] = get_elements(zookeeper)
+      ip_roles[:memcache]  = get_elements(memcache)
+      
+      ips = ips + ip_roles[:master]
+      ips = ips + ip_roles[:appengine]
+      ips = ips + ip_roles[:database]
+      ips = ips + ip_roles[:login]
+      ips = ips + ip_roles[:open]
+      ips = ips + ip_roles[:zookeeper]
+      ips = ips + ip_roles[:memcache]
       
       ips = ips.uniq
       
