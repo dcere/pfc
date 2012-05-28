@@ -106,7 +106,7 @@ def web_cloud_start(web_roles)
    
    # Start monitoring
    
-   # Monitor web server with god
+   # Monitor web servers with god
    path = "/etc/puppet/modules/cloud/files/web-god/server.god"
    servers.each do |vm|
       command = "mkdir -p /etc/god"
@@ -157,14 +157,17 @@ end
 # Monitors a virtual machine belonging to a web cloud.
 def web_monitor(vm, role)
 
-   puts "Monitoring #{role}"
-   err "role should be a symbol" unless role.class != "Symbol"
-   result = `#{PING} #{vm}`
-   if $?.exitstatus == 0
-      puts "#{vm} is up"
+   if role == :balancer
+      puts "[Web monitor] Monitoring load balancer"
+      # TODO Check puppet is running
+   elsif role == :server
+      puts "[Web monitor] Monitoring web server"
+      # TODO Check god is running
+   elsif role == :database
+      puts "[Web monitor] Monitoring database"
+      # TODO Check god is running
    else
-      puts "#{vm} is down"
+      puts "[Web monitor] Unknown role: #{role}"
    end
-   return
    
 end
