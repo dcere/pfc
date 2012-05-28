@@ -8,34 +8,6 @@ Puppet::Type.newtype(:cloud) do
       "Stops a cloud."
 
 
-   # A base class for numeric Cloud parameters validation.
-   class CloudNumericParam < Puppet::Property
-
-      def numfix(num)
-         if num =~ /^\d+$/
-            return num.to_i
-         elsif num.is_a?(Integer)
-            return num
-         else
-            return false
-         end
-      end
-
-      munge do |value|
-         value.to_i
-      end
-
-      validate do |value|
-         if numfix(value)
-            return value
-         else
-            self.fail "%s is not a valid %s" % [value, self.class.name]
-         end
-      end
-
-   end
-
-
    # General parameters
    
    ensurable do
