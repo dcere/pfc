@@ -46,7 +46,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
    
-   TIME = 20      # Start up time for a virtual machine     # TODO Check if it is needed
+#   TIME = 20      # Start up time for a virtual machine     # TODO Check if it is needed
    
    CRON_FILE = "/var/spool/cron/crontabs/root"
 
@@ -350,8 +350,25 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
       end
       if exists? && status == :running
          
+         # Stop cloud infrastructure
+         if resource[:type] == "appscale"
+            puts "It is an appscale cloud"
+            appscale_cloud_stop(MY_IP)    # TODO What if we run stop on a different machine than start?
+         elsif resource[:type] == "web"
+            puts "It is a web cloud"
+         elsif resource[:type] == "jobs"
+            puts "It is a jobs cloud"
+         else
+            err "Cloud type undefined: #{resource[:type]}"
+            err "Cloud type class: #{resource[:type].class}"
+            return
+         end
+         
+         
+         # Get pool of physical machines
          pms = resource[:pool]
          
+         # Shutdown and undefine all virtual machines explicitly created for this cloud
          pms.each do |pm|
          
             ssh_connect = "ssh dceresuela@#{pm}"

@@ -47,6 +47,22 @@ def monitor_vm(vm, ip_roles, img_roles)
    CloudSSH.copy_ssh_key(vm, password)
    puts "ssh key sent"
    
+   # Check if MCollective is installed and configured
+   mcollective_installed = CloudMonitor.mcollective_installed(vm)
+   unless mcollective_installed
+      err "MCollective is not installed on #{vm}"
+   end
+   
+   # Make sure MCollective is running.
+   # We need this to ensure the leader election, so ensuring MCollective
+   # is running can not be left to Puppet in their local manifest. It must be
+   # done explicitly here and now.
+   mcollective_running = CloudMonitor.mcollective_running(vm)
+   unless mcollective_running
+      err "MCollective is not running on #{vm}"
+   end
+   
+   # TODO What if a machine has different roles?
    role = :role_must_be_defined_outside_the_loop
    ip_roles.each do |r, ips|
       ips.each do |ip|
@@ -79,19 +95,9 @@ def monitor_vm(vm, ip_roles, img_roles)
       #mcc.disconnect
    end
    
-   # Check if MCollective is installed and configured
-   mcollective_installed = CloudMonitor.mcollective_installed(vm)
-   unless mcollective_installed
-      err "MCollective is not installed on #{vm}"
-   end
-   
-   # Make sure MCollective is running. We need this to ensure the leader election,
-   # so assuring MCollective is running can not be left to Puppet in their local
-   # manifest. It must be done explicitly here and now.
-   mcollective_running = CloudMonitor.mcollective_running(vm)
-   unless mcollective_running
-      err "MCollective is not running on #{vm}"
-   end
+   # TODO Copy cloud files each time a machine is monitored?
+   # TODO Copy files no matter what or check first if they have them?
+   # Use copy_cloud_files if we copy no matter what. Modify it if we check
    
    # Depending on the type of cloud we will have to monitor different components
    if resource[:type].to_s == "appscale"
@@ -129,6 +135,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Get virtual machine's image disk
    puts "Getting VM's image disk..."
+   # TODO What if a machine has different roles?
    role = :role_must_be_defined_outside_the_loop
    index = 0
    ip_roles.each do |r, ips|
@@ -261,26 +268,8 @@ def start_cloud(vm_ips, vm_ip_roles)
       end
       puts  "Starting an appscale cloud"
       
-      puppet_path = "/etc/puppet/"
-      appscale_manifest_path = puppet_path + "appscale_basic.pp"
-      appscale_manifest = File.open("/etc/puppet/modules/cloud/files/appscale-manifests/basic.pp", 'r').read()
-      puts "Creating manifest files on agent nodes"
-      mcc = MCollectiveFilesClient.new("files")
-      mcc.create_files(appscale_manifest_path, appscale_manifest)
-      mcc.disconnect()
-      puts "Manifest files created"
-      
-      # FIXME Only works if ssh keys are OK. Maybe Puppet source?
-      #yaml_file = resource[:ip_file]
-      #puts "Copying #{yaml_file} to 155.210.155.170:/tmp"
-      #result = `scp #{yaml_file} root@155.210.155.170:/tmp`
-      ips_yaml = File.basename(resource[:ip_file])
-      ips_yaml = "/tmp/" + ips_yaml
-      puts "Calling appscale_cloud_start"
-      ssh_user = "root"
-      ssh_host = "155.210.155.170"
-      appscale_cloud_start(ssh_user, ssh_host, ips_yaml,
-                           resource[:app_email], resource[:app_password],
+      # Start appscale cloud
+      appscale_cloud_start(resource[:app_email], resource[:app_password],
                            resource[:root_password])
 
    elsif resource[:type].to_s == "web"
