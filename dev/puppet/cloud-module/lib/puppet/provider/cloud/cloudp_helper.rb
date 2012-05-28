@@ -7,15 +7,15 @@ def obtain_vm_data
    vm_ips = []
    vm_ip_roles = []
    vm_img_roles = []
-   if resource[:type].to_s == "appscale"
+   if resource[:type] == "appscale"
       puts "It is an appscale cloud"
       vm_ips, vm_ip_roles = appscale_yaml_ips(resource[:ip_file])
       vm_img_roles = appscale_yaml_images(resource[:img_file])
-   elsif resource[:type].to_s == "web"
+   elsif resource[:type] == "web"
       puts "It is a web cloud"
       vm_ips, vm_ip_roles = web_yaml_ips(resource[:ip_file])
       vm_img_roles = web_yaml_images(resource[:img_file])
-   elsif resource[:type].to_s == "jobs"
+   elsif resource[:type] == "jobs"
       puts "It is a jobs cloud"
       vm_ips = []
       # ...
@@ -101,11 +101,11 @@ def monitor_vm(vm, ip_roles)
    # Use copy_cloud_files if we copy no matter what. Modify it if we check
    
    # Depending on the type of cloud we will have to monitor different components
-   if resource[:type].to_s == "appscale"
+   if resource[:type] == "appscale"
       appscale_monitor(vm, role)
-   elsif resource[:type].to_s == "web"
+   elsif resource[:type] == "web"
       web_monitor(vm, role)
-   elsif resource[:type].to_s == "jobs"
+   elsif resource[:type] == "jobs"
       jobs_monitor(role)
    else
       err "Unrecognized type of cloud: #{resource[:type]}"
@@ -231,7 +231,7 @@ def copy_cloud_files(ips)
       if vm != MY_IP
          # Cloud manifest
          # FIXME : Check 'source' attribute in manifest to avoid scp
-         file = "init-%s.pp" % [resource[:type].to_s]
+         file = "init-%s.pp" % [resource[:type]]
          path = "/etc/puppet/modules/cloud/manifests/#{file}"
          out, success = CloudSSH.copy_remote(path, vm, path)
          unless success
@@ -259,7 +259,7 @@ end
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-   if resource[:type].to_s == "appscale"
+   if resource[:type] == "appscale"
       if (resource[:app_email] == nil) || (resource[:app_password] == nil)
          err "Need an AppScale user and password"
          exit
@@ -273,7 +273,7 @@ def start_cloud(vm_ips, vm_ip_roles)
       appscale_cloud_start(resource[:app_email], resource[:app_password],
                            resource[:root_password])
 
-   elsif resource[:type].to_s == "web"
+   elsif resource[:type] == "web"
       puts  "Starting a web cloud"
       
       # SSH keys have already been distributed when machines were monitorized,
@@ -282,7 +282,7 @@ def start_cloud(vm_ips, vm_ip_roles)
       # Start web cloud
       web_cloud_start(vm_ip_roles)
 
-   elsif resource[:type].to_s == "jobs"
+   elsif resource[:type] == "jobs"
       debug "[DBG] Starting a jobs cloud"
       puts  "Starting a jobs cloud"
       jobs_cloud_start
@@ -299,7 +299,7 @@ end
 # Makes the cloud auto-manageable through crontab files.
 def auto_manage()
 
-   cron_file = "crontab-%s" % [resource[:type].to_s]
+   cron_file = "crontab-%s" % [resource[:type]]
    path = "/etc/puppet/modules/cloud/files/cron/#{cron_file}"
    
    if File.exists?(path)
