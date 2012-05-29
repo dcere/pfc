@@ -64,7 +64,7 @@ def monitor_vm(vm, ip_roles)
    
    # TODO What if a machine has different roles?
    
-   role = :role_must_be_defined_outside_the_loop
+   role = :undefined
    ip_roles.each do |r, ips|
       ips.each do |ip|
          if vm == ip then role = r end
@@ -137,7 +137,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Get virtual machine's image disk
    puts "Getting VM's image disk..."
    # TODO What if a machine has different roles?
-   role = :role_must_be_defined_outside_the_loop
+   role = :undefined
    index = 0
    ip_roles.each do |r, ips|
       index_aux = 0      # Reset the index for each role
@@ -270,7 +270,8 @@ def start_cloud(vm_ips, vm_ip_roles)
       puts  "Starting an appscale cloud"
       
       # Start appscale cloud
-      appscale_cloud_start(resource[:app_email], resource[:app_password],
+      appscale_cloud_start(vm_ips, vm_ip_roles,
+                           resource[:app_email], resource[:app_password],
                            resource[:root_password])
 
    elsif resource[:type] == "web"
