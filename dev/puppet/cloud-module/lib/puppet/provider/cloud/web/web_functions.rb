@@ -109,14 +109,14 @@ def web_monitor(vm, role)
       check_command = "ps aux | grep -v grep | grep god | grep server.god"
       out, success = CloudSSH.execute_remote(check_command, vm)
       unless success
-         err "God is not running in #{vm}"
+         puts "[Web monitor] God is not running in #{vm}"
          
          # Try to start monitoring again
          puts "[Web monitor] Starting monitoring server on #{vm}"
          if start_monitor_server(vm)
             puts "[Web monitor] Successfully started to monitor server on #{vm}"
          else
-            puts "[Web monitor] Impossible to monitor server on #{vm}"
+            err "[Web monitor] Impossible to monitor server on #{vm}"
          end
       end
       puts "[Web monitor] Monitored web server"
@@ -128,14 +128,14 @@ def web_monitor(vm, role)
       check_command = "ps aux | grep -v grep | grep god | grep database.god"
       out, success = CloudSSH.execute_remote(check_command, vm)
       unless success
-         err "God is not running in #{vm}"
+         puts "[Web monitor] God is not running in #{vm}"
          
          # Try to start monitoring again
          puts "[Web monitor] Starting monitoring database on #{vm}"
          if start_monitor_database(vm)
             puts "[Web monitor] Successfully started to monitor database on #{vm}"
          else
-            puts "[Web monitor] Impossible to monitor database on #{vm}"
+            err "[Web monitor] Impossible to monitor database on #{vm}"
          end
       end
       puts "[Web monitor] Monitored database"
@@ -156,7 +156,7 @@ def start_monitor_balancer(vm)
    path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
    out, success = CloudSSH.copy_remote(path, vm, "/tmp")
    unless success
-      err "Impossible to copy balancer manifest to #{vm}"
+      err "[Web monitor] Impossible to copy balancer manifest to #{vm}"
       return false
    end
 
@@ -166,7 +166,7 @@ def start_monitor_balancer(vm)
    command = "puppet apply /tmp/balancer.pp"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "Impossible to run puppet in #{vm}"
+      err "[Web monitor] Impossible to run puppet in #{vm}"
       return false
    end
    return true
@@ -180,7 +180,7 @@ def start_monitor_server(vm)
    path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
    out, success = CloudSSH.copy_remote(path, vm, "/tmp")
    unless success
-      err "Impossible to copy server manifest to #{vm}"
+      err "[Web monitor] Impossible to copy server manifest to #{vm}"
       return false
    end
    
@@ -188,7 +188,7 @@ def start_monitor_server(vm)
    command = "puppet apply /tmp/server.pp"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "Impossible to run puppet in #{vm}"
+      err "[Web monitor] Impossible to run puppet in #{vm}"
       return false
    end
    
@@ -197,18 +197,18 @@ def start_monitor_server(vm)
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "Impossible to create /etc/god at #{vm}"
+      err "[Web monitor] Impossible to create /etc/god at #{vm}"
       return false
    end
    out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
    unless success
-      err "Impossible to copy #{path} to #{vm}"
+      err "[Web monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
    command = "god -c /etc/god/server.god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "Impossible to run god in #{vm}"
+      err "[Web monitor] Impossible to run god in #{vm}"
       return false
    end
    return true
@@ -225,18 +225,18 @@ def start_monitor_database(vm)
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "Impossible to create /etc/god at #{vm}"
+      err "[Web monitor] Impossible to create /etc/god at #{vm}"
       return false
    end
    out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
    unless success
-      err "Impossible to copy #{path} to #{vm}"
+      err "[Web monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
    command = "god -c /etc/god/database.god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "Impossible to run god in #{vm}"
+      err "[Web monitor] Impossible to run god in #{vm}"
       return false
    end
    return true
