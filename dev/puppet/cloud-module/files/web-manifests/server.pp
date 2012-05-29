@@ -10,4 +10,3 @@ package {
    'activerecord': provider => "gem", ensure => present;
 }
 
-

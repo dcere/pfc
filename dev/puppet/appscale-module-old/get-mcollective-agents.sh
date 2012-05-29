@@ -1,1 +1,0 @@
-cp ../../mcollective/rpc/* ./files

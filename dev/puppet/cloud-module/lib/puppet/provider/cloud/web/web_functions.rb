@@ -1,41 +1,13 @@
 # Starts a web cloud.
 def web_cloud_start(web_roles)
    
-   # Distribute manifests
-   #      ssh to itself? Does it work if keys are distributed? Should it make
+   # TODO   ssh to itself? Does it work if keys are distributed? Should it make
    #        a clear distinction between ssh to itself or others?
-   
-   balancers = web_roles[:balancer]
-   path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
-   balancers.each do |vm|
-      out, success = CloudSSH.copy_remote(path, vm, "/tmp")
-      unless success
-         debug "[DBG] Impossible to copy balancer manifest to #{vm}"
-         err   "Impossible to copy balancer manifest to #{vm}"
-      end
-   end
 
-   servers = web_roles[:server]
-   path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
-   servers.each do |vm|
-      out, success = CloudSSH.copy_remote(path, vm, "/tmp")
-      unless success
-         debug "[DBG] Impossible to copy server manifest to #{vm}"
-         err   "Impossible to copy server manifest to #{vm}"
-      end
-   end
-   
+   balancers = web_roles[:balancer]
+   servers   = web_roles[:server]
    databases = web_roles[:database]
-   path = "/etc/puppet/modules/cloud/files/web-manifests/database.pp"
-   databases.each do |vm|
-      out, success = CloudSSH.copy_remote(path, vm, "/tmp")
-      unless success
-         debug "[DBG] Impossible to copy database manifest to #{vm}"
-         err   "Impossible to copy database manifest to #{vm}"
-      end
-   end
-   
-   
+
    # Start services
    
    # Start load balancers => Start nginx
@@ -45,14 +17,12 @@ def web_cloud_start(web_roles)
       if vm == MY_IP
          result = `#{command}`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start balancer in #{vm}"
-            err   "Impossible to start balancer in #{vm}"
+            err "Impossible to start balancer in #{vm}"
          end
       else
          out, success = CloudSSH.execute_remote(command, vm)
          unless success
-            debug "[DBG] Impossible to start balancer in #{vm}"
-            err   "Impossible to start balancer in #{vm}"
+            err "Impossible to start balancer in #{vm}"
          end
       end
    end
@@ -64,14 +34,12 @@ def web_cloud_start(web_roles)
       if vm == MY_IP
          result = `#{command}`
          unless $?.exitstatus == 0
-            debug "[DBG] Impossible to start server in #{vm}"
-            err   "Impossible to start server in #{vm}"
+            err "Impossible to start server in #{vm}"
          end
       else
          out, success = CloudSSH.execute_remote(command, vm)
          unless success
-            debug "[DBG] Impossible to start server in #{vm}"
-            err   "Impossible to start server in #{vm}"
+            err "Impossible to start server in #{vm}"
          end
       end
    end
@@ -87,8 +55,7 @@ def web_cloud_start(web_roles)
          unless $?.exitstatus == 0
             result = `#{command}`
             unless $?.exitstatus == 0
-               debug "[DBG] Impossible to start database in #{vm}"
-               err   "Impossible to start database in #{vm}"
+               err "Impossible to start database in #{vm}"
             end
          end
       else
@@ -96,8 +63,7 @@ def web_cloud_start(web_roles)
          unless success
             out, success = CloudSSH.execute_remote(command, vm)
             unless success
-               debug "[DBG] Impossible to start database in #{vm}"
-               err   "Impossible to start database in #{vm}"
+               err "Impossible to start database in #{vm}"
             end
          end
       end
@@ -106,49 +72,19 @@ def web_cloud_start(web_roles)
    
    # Start monitoring
    
-   # Monitor web servers with god
-   path = "/etc/puppet/modules/cloud/files/web-god/server.god"
-   servers.each do |vm|
-      command = "mkdir -p /etc/god"
-      out, success = CloudSSH.execute_remote(command, vm)
-      unless success
-         debug "[DBG] Impossible to create /etc/god at #{vm}"
-         err   "Impossible to create /etc/god at #{vm}"
-      end
-      out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
-      unless success
-         debug "[DBG] Impossible to copy #{path} to #{vm}"
-         err   "Impossible to copy #{path} to #{vm}"
-      end
-      command = "god -c /etc/god/server.god"
-      out, success = CloudSSH.execute_remote(command, vm)
-      unless success
-         debug "[DBG] Impossible to run god in #{vm}"
-         err   "Impossible to run god in #{vm}"
-      end
+   # Load balancers
+   balancers.each do |vm|
+      start_monitor_balancer(vm)
    end
    
-   # Monitor database with god due to puppet vs ubuntu mysql bug
-   # http://projects.puppetlabs.com/issues/12773
-   path = "/etc/puppet/modules/cloud/files/web-god/database.god"
+   # Web servers
+   servers.each do |vm|
+      start_monitor_server(vm)
+   end
+   
+   # Database servers
    databases.each do |vm|
-      command = "mkdir -p /etc/god"
-      out, success = CloudSSH.execute_remote(command, vm)
-      unless success
-         debug "[DBG] Impossible to create /etc/god at #{vm}"
-         err   "Impossible to create /etc/god at #{vm}"
-      end
-      out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
-      unless success
-         debug "[DBG] Impossible to copy #{path} to #{vm}"
-         err   "Impossible to copy #{path} to #{vm}"
-      end
-      command = "god -c /etc/god/database.god"
-      out, success = CloudSSH.execute_remote(command, vm)
-      unless success
-         debug "[DBG] Impossible to run god in #{vm}"
-         err   "Impossible to run god in #{vm}"
-      end
+      start_monitor_database(vm)
    end
    
 end
@@ -159,15 +95,150 @@ def web_monitor(vm, role)
 
    if role == :balancer
       puts "[Web monitor] Monitoring load balancer"
-      # TODO Check puppet is running
+      
+      # Run puppet
+      unless start_monitor_balancer(vm)
+         puts "[Web monitor] Impossible to monitor load balancer on #{vm}"
+      end
+      puts "[Web monitor] Monitored load balancer"
+
    elsif role == :server
       puts "[Web monitor] Monitoring web server"
-      # TODO Check god is running
+      
+      # Check god is running
+      check_command = "ps aux | grep -v grep | grep god | grep server.god"
+      out, success = CloudSSH.execute_remote(check_command, vm)
+      unless success
+         err "God is not running in #{vm}"
+         
+         # Try to start monitoring again
+         puts "[Web monitor] Starting monitoring server on #{vm}"
+         if start_monitor_server(vm)
+            puts "[Web monitor] Successfully started to monitor server on #{vm}"
+         else
+            puts "[Web monitor] Impossible to monitor server on #{vm}"
+         end
+      end
+      puts "[Web monitor] Monitored web server"
+
    elsif role == :database
       puts "[Web monitor] Monitoring database"
-      # TODO Check god is running
+      
+      # Check god is running
+      check_command = "ps aux | grep -v grep | grep god | grep database.god"
+      out, success = CloudSSH.execute_remote(check_command, vm)
+      unless success
+         err "God is not running in #{vm}"
+         
+         # Try to start monitoring again
+         puts "[Web monitor] Starting monitoring database on #{vm}"
+         if start_monitor_database(vm)
+            puts "[Web monitor] Successfully started to monitor database on #{vm}"
+         else
+            puts "[Web monitor] Impossible to monitor database on #{vm}"
+         end
+      end
+      puts "[Web monitor] Monitored database"
+
    else
       puts "[Web monitor] Unknown role: #{role}"
    end
    
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+def start_monitor_balancer(vm)
+
+   # Copy the puppet manifest
+   path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "Impossible to copy balancer manifest to #{vm}"
+      return false
+   end
+
+   # Monitor load balancer with puppet
+   # While god monitoring will be done in a loop this will only be done if
+   # explicitly invoked, so we must call 'puppet apply' every time.
+   command = "puppet apply /tmp/balancer.pp"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to run puppet in #{vm}"
+      return false
+   end
+   return true
+   
+end
+
+
+def start_monitor_server(vm)
+
+   # Copy the puppet manifest
+   path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "Impossible to copy server manifest to #{vm}"
+      return false
+   end
+   
+   # Monitor web servers with puppet: installation files and required gems
+   command = "puppet apply /tmp/server.pp"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to run puppet in #{vm}"
+      return false
+   end
+   
+   # Monitor web servers with god: web server is up and running
+   path = "/etc/puppet/modules/cloud/files/web-god/server.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   command = "god -c /etc/god/server.god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to run god in #{vm}"
+      return false
+   end
+   return true
+
+end
+
+
+def start_monitor_database(vm)
+
+   # Monitor database with god due to puppet vs ubuntu mysql bug
+   # http://projects.puppetlabs.com/issues/12773
+   # Therefore there is no puppet monitoring, only god
+   path = "/etc/puppet/modules/cloud/files/web-god/database.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   command = "god -c /etc/god/database.god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to run god in #{vm}"
+      return false
+   end
+   return true
+
 end
