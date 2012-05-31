@@ -1,0 +1,7 @@
+:master:    "/var/tmp/dceresuela/lucid-appscale-tr1.img"
+:appengine: "/var/tmp/dceresuela/lucid-appscale-tr1.img"
+:database:  "/var/tmp/dceresuela/lucid-appscale-tr1.img"
+:login:     "/var/tmp/dceresuela/lucid-appscale-tr1.img"
+:open:
+- "/var/tmp/dceresuela/lucid-appscale-tr2.img"
+- "/var/tmp/dceresuela/lucid-appscale-tr3.img"
