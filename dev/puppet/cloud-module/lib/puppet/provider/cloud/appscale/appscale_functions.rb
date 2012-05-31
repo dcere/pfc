@@ -78,8 +78,9 @@ def appscale_monitor(vm, role)
       return false
    end
    
-   # AppMonitoring calls god, so look for god processes
-   if out.include? "/usr/bin/god"
+   # AppMonitoring calls god, so look for god processes who look like this:
+   # /usr/bin/ruby1.8 /usr/bin/god -c /root/appscale/AppMonitoring/config/global.god
+   if out.include? "/usr/bin/god -c /root/appscale/AppMonitoring"
    
       # AppMonitoring is running
       puts "[AppScale monitor] AppMonitoring is running"
@@ -108,46 +109,22 @@ def appscale_monitor(vm, role)
          # AppController is running
          puts "[AppScale monitor] AppController is running"
          
-         # Try to start the AppMonitoring
-         puts "[AppScale monitor] Starting AppMonitoring on #{vm}"
-         command = "/etc/init.d/appscale-monitoring start"
-         out, success = CloudSSH.execute_remote(command, vm)
-         if success
-            puts "[AppScale monitor] Successfully started AppMonitoring"
-         else
-            err "[AppScale monitor] Impossible to start AppMonitoring in #{vm}"
-            return false
-         end
-         
-
-      else
-      
-         # AppController is not running
-         puts "[AppScale monitor] AppController is not running"
-         
-         # Try to start the AppController
-         puts "[AppScale monitor] Starting AppController on #{vm}"
-         command = "/etc/init.d/appscale-controller start"
-         out, success = CloudSSH.execute_remote(command, vm)
-         if success
-            puts "[AppScale monitor] Successfully started AppController"
-         else
-            err "[AppScale monitor] Impossible to start AppController in #{vm}"
-            return false
-         end
-         
-         # Try to start the AppMonitoring
-         puts "[AppScale monitor] Starting AppMonitoring on #{vm}"
-         command = "/etc/init.d/appscale-monitoring start"
-         out, success = CloudSSH.execute_remote(command, vm)
-         if success
-            puts "[AppScale monitor] Successfully started AppMonitoring"
-         else
-            err "[AppScale monitor] Impossible to start AppMonitoring in #{vm}"
-            return false
-         end
-         
       end
+      
+      # Try to start the AppMonitoring
+      puts "[AppScale monitor] Starting AppMonitoring on #{vm}"
+      command = "/etc/init.d/appscale-monitoring start"
+      out, success = CloudSSH.execute_remote(command, vm)
+      if success
+         puts "[AppScale monitor] Successfully started AppMonitoring"
+      else
+         err "[AppScale monitor] Impossible to start AppMonitoring in #{vm}"
+         return false
+      end
+      
+      # Since the AppMonitoring will take care of the AppController, we do
+      # not have to start the AppController
+      
       
    end
    
