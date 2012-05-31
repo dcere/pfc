@@ -1,68 +1,68 @@
-###############################################################################
+################################################################################
 # AppScale root directory
 
 file { '/root/appscale':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
 file { '/root/appscale/.appscale':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
-###############################################################################
+################################################################################
 # AppScale basic roles
 
 file { '/root/appscale/AppController':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
 file { '/root/appscale/AppDB':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
 file { '/root/appscale/AppLoadBalancer':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
 file { '/root/appscale/AppMonitoring':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
 file { '/root/appscale/AppServer':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
 file { '/root/appscale/AppServer_Java':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
 file { '/root/appscale/Neptune':
-   ensure => 'present',
-   audit  => 'all',
+   ensure => 'directory',
+   noop   => 'true',
 }
 
-###############################################################################
+################################################################################
 # AppScale programs
 
 file { '/usr/bin/god':
    ensure => 'present',
-   audit  => 'all',
+   noop   => 'true',
 }
 
 file { '/usr/bin/mongrel_rails':
    ensure => 'present',
-   audit  => 'all',
+   noop   => 'true',
 }
 
 file { '/usr/sbin/nginx':
    ensure => 'present',
-   audit  => 'all',
+   noop   => 'true',
 }

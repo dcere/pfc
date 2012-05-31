@@ -75,7 +75,7 @@ def appscale_monitor(vm, role)
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
       err "[AppScale monitor] Impossible to execute #{command} in #{vm}"
-      return false
+      return
    end
    
    # AppMonitoring calls god, so look for god processes who look like this:
@@ -119,7 +119,7 @@ def appscale_monitor(vm, role)
          puts "[AppScale monitor] Successfully started AppMonitoring"
       else
          err "[AppScale monitor] Impossible to start AppMonitoring in #{vm}"
-         return false
+         return
       end
       
       # Since the AppMonitoring will take care of the AppController, we do
@@ -136,7 +136,7 @@ def appscale_monitor(vm, role)
    out, success = CloudSSH.copy_remote(path, vm, "/tmp")
    unless success
       err "[AppScale monitor] Impossible to copy basic manifest to #{vm}"
-      return false
+      return
    end
    
    # Apply the manifest
@@ -145,7 +145,14 @@ def appscale_monitor(vm, role)
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
       err "[AppScale monitor] Impossible to run puppet in #{vm}"
-      return false
+      return
+   end
+   
+   # Analyze the output
+   if out.include? "should be directory (noop)"
+      err "[AppScale monitor] Missing directory in #{vm}"
+      puts out
+      return
    end
    
 end

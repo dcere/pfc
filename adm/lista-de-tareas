@@ -111,3 +111,6 @@
 - (X) ¿Es necesaria la clase VM_Name si generamos nombres aleatoriamente? => No.
 - Añadir el parámetro "starting MAC" o similar para evitar colisiones de MACs.
 - Crear fichero para saber desde qué máquina se ha iniciado el cloud AppScale y poder realizar appscale-terminate-instances
+- (X) Valores de retorno de las funciones de monitorización => Sin valores de retorno. Si hay un fallo se informa al usuario
+  - (X) Fallo al aplicar el manifiesto basic.pp => Se le indica al usuario y se muestra la salida que dio puppet en la máquina
+- Uso de monitorización antes del inicio del cloud?

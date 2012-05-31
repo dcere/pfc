@@ -29,6 +29,7 @@ end
 
 
 # Monitors a virtual machine.
+# Returns false if the machine is not alive.
 def monitor_vm(vm, ip_roles)
 
    # Check if it is alive
