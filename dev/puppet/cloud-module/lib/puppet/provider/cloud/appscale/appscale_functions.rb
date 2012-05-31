@@ -23,7 +23,7 @@ def appscale_cloud_start(app_ips, app_roles,
       puts "Key pairs added"
    else
       err "Impossible to add key pairs"
-      return
+      return false
    end
    
    # Run instances
@@ -35,7 +35,7 @@ def appscale_cloud_start(app_ips, app_roles,
       puts "result = #{result}"
    else
       err "Impossible to run appscale instances"
-      return
+      return false
    end
    
    # Start monitoring
@@ -53,6 +53,7 @@ def appscale_cloud_start(app_ips, app_roles,
       puts "Calling appscale_monitor"
       appscale_monitor(vm, role)
    end
+   return true
    
 end
 
@@ -77,7 +78,7 @@ def appscale_monitor(vm, role)
       return false
    end
    
-   # AppMonitoring calls god, so look fot god processes
+   # AppMonitoring calls god, so look for god processes
    if out.include? "/usr/bin/god"
    
       # AppMonitoring is running

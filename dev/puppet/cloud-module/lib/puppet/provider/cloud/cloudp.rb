@@ -152,19 +152,22 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                      copy_cloud_files(vm_ips)      # TODO Move it to monitor and call it each time for one vm?
                   
                      # Start the cloud
-                     start_cloud(vm_ips, vm_ip_roles)
-                     
-                     # Make cloud nodes manage themselves
-                     #auto_manage()     # Only if cloud was started properly FIXME Uncomment after tests
-                     
-                     # Create file
-                     cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
-                     cloud_file.puts(resource[:name])
-                     cloud_file.close
-                     
-                     puts "==================="
-                     puts "== Cloud started =="
-                     puts "==================="
+                     if start_cloud(vm_ips, vm_ip_roles)
+                        
+                        # Make cloud nodes manage themselves
+                        #auto_manage()     # Only if cloud was started properly FIXME Uncomment after tests
+                        
+                        # Create file
+                        cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
+                        cloud_file.puts(resource[:name])
+                        cloud_file.close
+                        
+                        puts "==================="
+                        puts "== Cloud started =="
+                        puts "==================="
+                     else
+                        puts "Impossible to start cloud"
+                     end
                   end      # unless File
                   
                end      # unless deads

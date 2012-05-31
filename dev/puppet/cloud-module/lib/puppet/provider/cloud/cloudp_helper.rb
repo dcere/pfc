@@ -270,9 +270,9 @@ def start_cloud(vm_ips, vm_ip_roles)
       puts  "Starting an appscale cloud"
       
       # Start appscale cloud
-      appscale_cloud_start(vm_ips, vm_ip_roles,
-                           resource[:app_email], resource[:app_password],
-                           resource[:root_password])
+      return appscale_cloud_start(vm_ips, vm_ip_roles,
+                                  resource[:app_email], resource[:app_password],
+                                  resource[:root_password])
 
    elsif resource[:type] == "web"
       puts  "Starting a web cloud"
@@ -281,7 +281,7 @@ def start_cloud(vm_ips, vm_ip_roles)
       # so we do not have to distribute them again
       
       # Start web cloud
-      web_cloud_start(vm_ip_roles)
+      return web_cloud_start(vm_ip_roles)
 
    elsif resource[:type] == "jobs"
       debug "[DBG] Starting a jobs cloud"

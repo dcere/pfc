@@ -18,11 +18,13 @@ def web_cloud_start(web_roles)
          result = `#{command}`
          unless $?.exitstatus == 0
             err "Impossible to start balancer in #{vm}"
+            return false
          end
       else
          out, success = CloudSSH.execute_remote(command, vm)
          unless success
             err "Impossible to start balancer in #{vm}"
+            return false
          end
       end
    end
@@ -35,11 +37,13 @@ def web_cloud_start(web_roles)
          result = `#{command}`
          unless $?.exitstatus == 0
             err "Impossible to start server in #{vm}"
+            return false
          end
       else
          out, success = CloudSSH.execute_remote(command, vm)
          unless success
             err "Impossible to start server in #{vm}"
+            return false
          end
       end
    end
@@ -56,6 +60,7 @@ def web_cloud_start(web_roles)
             result = `#{command}`
             unless $?.exitstatus == 0
                err "Impossible to start database in #{vm}"
+               return false
             end
          end
       else
@@ -64,6 +69,7 @@ def web_cloud_start(web_roles)
             out, success = CloudSSH.execute_remote(command, vm)
             unless success
                err "Impossible to start database in #{vm}"
+               return false
             end
          end
       end
@@ -86,6 +92,8 @@ def web_cloud_start(web_roles)
    databases.each do |vm|
       start_monitor_database(vm)
    end
+   
+   return true
    
 end
 
