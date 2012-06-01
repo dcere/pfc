@@ -1,6 +1,9 @@
 \chapter{RabbitMQ}
 \label{comun:rabbitmq}
 
+RabbitMQ es un \emph{middleware} de mensajería que implementa el estándar AMQP (Advanced Message Queuing Protocol).
+
+
 %%
 \section{Instalación de RabbitMQ y Erlang}
 
@@ -40,10 +43,9 @@ La instalación incluirá automáticamente los paquetes de Erlang necesarios par
 
 
 %%
-\section{Instalación de AMQP y los \emph{plugins} Stomp}
+\section{Instalación de los \emph{plugins} para el soporte de AMQP y STOMP}
 
-Vamos al fichero \texttt{/usr/lib/rabbitmq/lib/rabbitmq\_server-2.7.1/plugins} 
-y comprobamos si existen \texttt{amqp\_client-2.7.1.ez} y \texttt{rabbitmq\_stomp-2.7.1.ez}. Si no existen, los instalamos:
+RabbitMQ no basta para proporcionar el servicio de paso de mensajes que MCollective requiere. Para que sea capaz de proporcionarlo necesitamos instalar unos \emph{plugins}. Para ello, vamos al fichero \texttt{/usr/lib/rabbitmq/lib/rabbitmq\_server-2.7.1/plugins} y comprobamos si existen \texttt{amqp\_client-2.7.1.ez} y \texttt{rabbitmq\_stomp-2.7.1.ez}. Si no existen, los instalamos:
 
 \begin{bashcode}
 _: wget -q http://www.rabbitmq.com/releases/plugins/v2.7.1/\
