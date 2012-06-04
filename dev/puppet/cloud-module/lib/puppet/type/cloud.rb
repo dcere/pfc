@@ -61,6 +61,11 @@ Puppet::Type.newtype(:cloud) do
    
    # Infrastructure parameters
 
+   newproperty(:starting_mac_address) do
+      desc "Starting MAC address for new virtual machines"
+      defaultto "52:54:00:01:00:00"
+   end
+
    newproperty(:root_password) do
       desc "Virtual machines' root password"
       defaultto "root"

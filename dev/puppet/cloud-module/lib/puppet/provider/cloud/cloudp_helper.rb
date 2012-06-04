@@ -136,7 +136,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
       mac_address = MAC_Address.new(file.read().chomp())
       file.close
    else
-      mac_address = MAC_Address.new("52:54:00:01:00:00")
+      mac_address = MAC_Address.new(resource[:starting_mac_address])
    end
    mac_address = mac_address.next_mac()
    puts "...VM's MAC is #{mac_address}"
