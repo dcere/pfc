@@ -3,7 +3,7 @@ require 'yaml'
 
 # Obtains the IP addresses from the ip_file file. It does NOT check whether
 # the file has the proper format.
-def web_yaml_ips(path)
+def jobs_yaml_ips(path)
 
    ips = []
    ip_roles = {}
@@ -15,20 +15,17 @@ def web_yaml_ips(path)
 
       tree = tree.transform
 
-      # Classic deployment: load balancer + web servers + database
-      balancer = tree[:balancer]
-      server   = tree[:server]
-      database = tree[:database]
+      # Deployment: head node + compute nodes
+      head      = tree[:head]
+      compute   = tree[:compute]
       
-      # Get the IPs that are under the "balancer", "server" and "database" labels
-      ip_roles[:balancer] = get_elements(balancer)
-      ip_roles[:server]   = get_elements(server)
-      ip_roles[:database] = get_elements(database)
+      # Get the IPs that are under the "head" and "compute" labels
+      ip_roles[:head]      = get_elements(head)
+      ip_roles[:compute]   = get_elements(compute)
       
       # Add the IPs to the array
-      ips = ips + ip_roles[:balancer]
-      ips = ips + ip_roles[:server]
-      ips = ips + ip_roles[:database]
+      ips = ips + ip_roles[:head]
+      ips = ips + ip_roles[:compute]
       
       ips = ips.uniq
       
@@ -41,7 +38,7 @@ end
 
 
 # Obtains the disk images from the img_file file.
-def web_yaml_images(path)
+def jobs_yaml_images(path)
 
    img_roles = {}
 
@@ -52,18 +49,16 @@ def web_yaml_images(path)
 
       tree = tree.transform
 
-      # Classic deployment: load balancer + web servers + database
-      balancer = tree[:balancer]
-      server   = tree[:server]
-      database = tree[:database]
+      # Deployment: head node + compute nodes
+      head      = tree[:head]
+      compute   = tree[:compute]
       
       # Maybe we have been given only an image for all virtual machines
-      all      = tree[:all]
+      all       = tree[:all]
       
       if all == nil
-         img_roles[:balancer] = get_elements(balancer)
-         img_roles[:server]   = get_elements(server)
-         img_roles[:database] = get_elements(database)
+         img_roles[:head]      = get_elements(head)
+         img_roles[:compute]   = get_elements(compute)
       else
          img_roles[:all]      = get_elements(all)
       end

@@ -1,0 +1,4 @@
+--- 
+:head: "/var/tmp/dceresuela/lucid-tor1.img"
+:compute:
+- "/var/tmp/dceresuela/lucid-tor2.img"

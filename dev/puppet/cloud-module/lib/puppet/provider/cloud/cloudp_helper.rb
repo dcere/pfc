@@ -17,8 +17,10 @@ def obtain_vm_data
       vm_img_roles = web_yaml_images(resource[:img_file])
    elsif resource[:type] == "jobs"
       puts "It is a jobs cloud"
-      vm_ips = []
-      # ...
+      vm_ips, vm_ip_roles = jobs_yaml_ips(resource[:ip_file])
+      puts "Obtained ip roles"
+      vm_img_roles = jobs_yaml_images(resource[:img_file])
+      puts "Obtained img roles"
    else
       err "Cloud type undefined: #{resource[:type]}"
       err "Cloud type class: #{resource[:type].class}"
@@ -45,8 +47,12 @@ def monitor_vm(vm, ip_roles)
    # Your key was created when you turned into leader
    puts "Sending ssh key to #{vm}"
    password = resource[:root_password]
-   CloudSSH.copy_ssh_key(vm, password)
-   puts "ssh key sent"
+   out, success = CloudSSH.copy_ssh_key(vm, password)
+   if success
+      puts "ssh key sent"
+   else
+      err "ssh key impossible to send"
+   end
    
    # Check if MCollective is installed and configured
    mcollective_installed = CloudMonitor.mcollective_installed(vm)
@@ -68,7 +74,7 @@ def monitor_vm(vm, ip_roles)
    role = :undefined
    ip_roles.each do |r, ips|
       ips.each do |ip|
-         if vm == ip then role = r end
+         if ip == vm then role = r end
       end
    end
    
@@ -107,7 +113,7 @@ def monitor_vm(vm, ip_roles)
    elsif resource[:type] == "web"
       web_monitor(vm, role)
    elsif resource[:type] == "jobs"
-      jobs_monitor(role)
+      jobs_monitor(vm, role)
    else
       err "Unrecognized type of cloud: #{resource[:type]}"
    end
@@ -287,7 +293,7 @@ def start_cloud(vm_ips, vm_ip_roles)
    elsif resource[:type] == "jobs"
       debug "[DBG] Starting a jobs cloud"
       puts  "Starting a jobs cloud"
-      jobs_cloud_start
+      return jobs_cloud_start(vm_ip_roles)
 
    else
       debug "[DBG] Cloud type undefined: #{resource[:type]}"
@@ -317,14 +323,6 @@ def auto_manage()
       err "Impossible to find cron file at #{path}"
    end
    
-end
-
-
-################################################################################
-# TODO: Move them out of here
-
-def jobs_monitor(role)
-   return
 end
 
 

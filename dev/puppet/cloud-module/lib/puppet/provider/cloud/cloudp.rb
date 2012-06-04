@@ -9,6 +9,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    require File.dirname(__FILE__) + '/web/web_yaml.rb'
    require File.dirname(__FILE__) + '/web/web_functions.rb'
    
+   # Require jobs auxiliar files
+   require File.dirname(__FILE__) + '/jobs/jobs_yaml.rb'
+   require File.dirname(__FILE__) + '/jobs/jobs_functions.rb'
+   
    # Require MCollective files
    require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
    require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
@@ -26,9 +30,9 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
 #   end
 
    # Commands needed to make the provider suitable
-   #commands :grep => "/bin/grep"
-   #commands :ip => "/sbin/ip"
    commands :ping => "/bin/ping"
+   #commands :grep => "/bin/grep"
+   #commands :ps   => "/bin/ps"
    
    # Operating system restrictions
    confine :osfamily => "Debian"
@@ -505,11 +509,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    end
    
    def root_password
-   end
-   
-   
-   #############################################################################   
-   def jobs_cloud_start
    end
    
    

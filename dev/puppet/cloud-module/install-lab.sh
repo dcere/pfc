@@ -14,6 +14,8 @@
 #     - test:  only test files
 #     - app:   AppScale local manifests
 #     - tls:   AppScale tools
+#     - web:   Web local manifests and monitor files
+#     - jobs:  Jobs local manifests and monitor files
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
