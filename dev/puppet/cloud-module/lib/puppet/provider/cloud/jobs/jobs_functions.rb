@@ -43,6 +43,9 @@ def jobs_cloud_start(jobs_roles)
             err "Impossible to start pbs_mom in #{vm}"
             return false
          end
+         
+         # Add the node to the compute node list on head
+         add_compute_node(vm, head)
       end
    end
    
@@ -67,10 +70,87 @@ def jobs_monitor(vm, role)
 
    elsif role == :compute
       puts "[Torque monitor] Monitoring compute"
+      
+      # Obtain head node's IP
+      vm_ips, vm_ip_roles = jobs_yaml_ips(resource[:ip_file])
+      head = vm_ip_roles[:head]
+      
+      # Check if the node is in the list of compute nodes
+      command = "qmgr -c 'list node @localhost'"      # Get a list of all nodes
+      out, success = CloudSSH.execute_remote(command, head)
+      unless success
+         err "[Torque monitor] Impossible to obtain node list from #{head}"
+      end
+      
+      command = "hostname"
+      hostname, success = CloudSSH.execute_remote(command, vm)
+      unless success
+         err "[Torque monitor] Impossible to obtain hostname for #{vm}"
+      end
+      
+      # Add the node to the list of compute nodes
+      unless out.include? "Node #{hostname}"
+         puts "[Torque monitor] Trying to add #{hostname} to the list of compute nodes"
+         add_compute_node(vm, head)
+      end
+      
       puts "[Torque monitor] Monitored compute"
 
    else
       puts "[Torque monitor] Unknown role: #{role}"
+   end
+   
+end
+
+
+# Stops a jobs cloud.
+def jobs_cloud_stop(jobs_roles)
+
+   head    = jobs_roles[:head]
+   compute = jobs_roles[:compute]
+   
+   compute.each do |vm|
+      del_compute_node(vm, head)
+   end
+   
+end
+
+
+# Adds a compute node to the list in the head node.
+def add_compute_node(vm, head)
+
+   command = "hostname"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to obtain hostname for #{vm}"
+      return false
+   end
+   hostname = out
+   command = "qmgr -c 'create node #{hostname}'"
+   out, success = CloudSSH.execute_remote(command, head)
+   unless success
+      err "Impossible to add #{hostname} as a compute node in #{head}"
+      return false
+   end
+   
+end
+
+
+# Deletes a compute node from the list in the head node.
+def del_compute_node(vm, head)
+
+   command = "hostname"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to obtain hostname for #{vm}"
+      return false
+   end
+   hostname = out
+   command = "qmgr -c 'delete node #{hostname}'"
+   out, success = CloudSSH.execute_remote(command, head)
+   unless success
+      err "Impossible to add #{hostname} as a compute node in #{head}"
+      return false
    end
    
 end

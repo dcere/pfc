@@ -363,12 +363,13 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             puts "It is a web cloud"
          elsif resource[:type] == "jobs"
             puts "It is a jobs cloud"
+            vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+            jobs_cloud_stop(vm_ip_roles)
          else
             err "Cloud type undefined: #{resource[:type]}"
             err "Cloud type class: #{resource[:type].class}"
             return
          end
-         
          
          # Get pool of physical machines
          pms = resource[:pool]
