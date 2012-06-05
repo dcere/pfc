@@ -50,9 +50,9 @@ Puppet::Type.newtype(:cloud) do
       desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
    end
    
-   newproperty(:images_path) do
-      desc "The path where all the images are located"
-   end
+#   newproperty(:images_path) do
+#      desc "The path where all the images are located"
+#   end
    
    newproperty(:pool, :array_matching => :all) do
       desc "The pool of physical machines"

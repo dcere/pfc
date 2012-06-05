@@ -1,16 +1,41 @@
 \chapter{Extensión de Puppet para el modelado de una infraestructura distribuida}
 \label{cap:trabajo}
 
+[Revisar]\\
 
-Extensión de Puppet.
+La extensión a la herramienta de configuración Puppet se ha hecho mediante el uso de tipos y proveedores personalizados. Mediante la definición de un nuevo tipo estamos ampliando la cantidad de recursos que Puppet puede administrar; pero para que Puppet sepa cómo administrar ese nuevo recurso debemos proporcionar un proveedor en el que se le indique lo que tiene que hacer.
 
 
 \section{Modelado del recurso \emph{cloud}}
 
-Gramática simple
+Para modelar un recurso \emph{cloud}, se han considerado como indispensables los siguientes parámetros:
+\begin{itemize}
+\item Nombre: Para identificar al \emph{cloud} de manera única.
+\item Tipo: Para describir qué tipo de \emph{cloud} es. [Modificar]
+\item Fichero de direcciones IP: Para describir qué dirección IP está asociada a cada nodo del \emph{cloud}.
+\item Fichero de imágenes de disco: Para asignar a cada nodo la correspondiente imagen de disco duro.
+\item Fichero de dominio: Para definir una máquina virtual especificando sus características \emph{hardware}.
+\item Conjunto de máquinas físicas: Para indicar qué máquinas físicas pueden ejecutar las máquinas virtuales definidas.
+\end{itemize}
 
 
 \section{Funcionamiento del proveedor}
 
-Explicación de lo que hace el proveedor y los problemas que soluciona
+Una vez modelado el recurso \emph{cloud}, queda como tarea proporcionar un proveedor que se encargue de llevar el \emph{cloud} al estado que se le indique desde el manifiesto Puppet. Un \emph{cloud} podrá estar en dos estados: funcionando o parado. Si decidimos que el \emph{cloud} tiene que estar funcionando, el proveedor se encargará de todos los pasos necesarios para llevar al \emph{cloud} a ese estado. A grandes rasgos, estos son los pasos que realiza para ponerlo en marcha:
+\begin{itemize}
+\item Comprobación de la existencia del \emph{cloud}: si existe se realizarán tareas de mantenimiento, si no existe se creará.
+\item Comprobación del estado del conjunto de máquinas físicas: si una máquina física debe ejecutar muchas máquinas virtuales, existe un riesgo de pérdida de rendimiento.
+\item Obtención de las direcciones IP de los nodos y los roles que les han sido asignados.
+\item Comprobación del estado de las máquinas virtuales: si están funcionando se monitorizan, mientras que si no están funcionando hay que definir una nueva máquina virtual y ponerla en funcionamiento.
+\item Cuando todas las máquinas virtuales estén funcionando se procede a inicializar el \emph{cloud}.
+\item Operaciones de puesta en marcha particulares a cada tipo de \emph{cloud}.
+\end{itemize}
 
+De la misma manera, si decidimos que el \emph{cloud} tiene que estar parado, el proveedor se encargará de realizar los pasos necesarios para ello. Estos pasos son:
+\begin{itemize}
+\item Comprobación de la existencia del \emph{cloud}: si existe se procederá a su parada.
+\item Operaciones de parada particulares a cada tipo de \emph{cloud}.
+\item Apagado y borrado de las definiciones de las máquinas virtuales creadas explícitamente para este \emph{cloud}.
+\item Parada de las funciones de automantenimiento de los nodos.
+\item Eliminación de los ficheros internos de gestión del \emph{cloud}.
+\end{itemize}

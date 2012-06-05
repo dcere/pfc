@@ -50,8 +50,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    
    DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
    
-#   TIME = 20      # Start up time for a virtual machine     # TODO Check if it is needed
-   
    CRON_FILE = "/var/spool/cron/crontabs/root"
 
    # Makes sure the cloud is running.
