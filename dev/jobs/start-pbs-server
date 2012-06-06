@@ -1,5 +1,5 @@
 #!/bin/bash
 nohup start-stop-daemon --start --quiet -m \
-  --pidfile /var/run/jobs-pbs-server.pid  \
+  --pidfile /var/spool/torque/server_priv/server.lock \
   --exec /usr/local/sbin/pbs_server \
   > /root/jobs/pbs-server.out 2> /root/jobs/pbs-server.err &

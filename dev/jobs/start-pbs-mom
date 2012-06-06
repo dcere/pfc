@@ -1,5 +1,5 @@
 #!/bin/bash
 nohup start-stop-daemon --start --quiet -m \
-  --pidfile /var/run/jobs-pbs-mom.pid  \
+  --pidfile /var/spool/torque/mom_priv/mom.lock  \
   --exec /usr/local/sbin/pbs_mom \
   > /root/jobs/pbs-mom.out 2> /root/jobs/pbs-mom.err &
