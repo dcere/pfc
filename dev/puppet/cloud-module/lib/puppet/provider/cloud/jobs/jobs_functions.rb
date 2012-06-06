@@ -81,6 +81,7 @@ def jobs_monitor(vm, role)
 
    if role == :head
       puts "[Torque monitor] Monitoring head"
+      start_monitor_head(vm)
       puts "[Torque monitor] Monitored head"
 
    elsif role == :compute
@@ -112,6 +113,9 @@ def jobs_monitor(vm, role)
          add_compute_node(vm, head)
       end
       
+      # Start monitoring
+      start_monitor_compute(vm)
+      
       puts "[Torque monitor] Monitored compute"
 
    else
@@ -133,6 +137,10 @@ def jobs_cloud_stop(jobs_roles)
    
 end
 
+
+################################################################################
+# Auxiliar functions
+################################################################################
 
 # Adds a compute node to the list in the head node.
 def add_compute_node(vm, head)
@@ -171,4 +179,92 @@ def del_compute_node(vm, head)
       return false
    end
    
+end
+
+
+# Starts monitoring on head node.
+def start_monitor_head(vm)
+   
+   # The trqauthd script is intelligent enough to be initiated as many times
+   # as you want without problem: if it is already started it will not be
+   # started again
+   command = "/etc/init.d/trqauthd start"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to run /etc/init.d/trqauthd start at #{vm}"
+      return false
+   end
+   
+   # Monitor head node pbs_* processes with god
+   
+   # pbs_server is up and running
+   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-server.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "[Torque monitor] Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   command = "god -c /etc/god/pbs-server.god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to run god in #{vm}"
+      return false
+   end
+   
+   # pbs_sched is up and running
+   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-sched.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "[Torque monitor] Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   command = "god -c /etc/god/pbs-sched.god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to run god in #{vm}"
+      return false
+   end
+   
+   return true
+
+end
+
+
+# Starts monitoring on compute node.
+def start_monitor_compute(vm)
+   
+   # Monitor compute node with god: pbs_mom is up and running
+   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-server.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "[Torque monitor] Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   command = "god -c /etc/god/pbs-server.god"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to run god in #{vm}"
+      return false
+   end
+   
+   return true
+
 end

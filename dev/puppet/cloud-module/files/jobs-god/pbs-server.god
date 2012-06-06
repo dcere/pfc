@@ -2,7 +2,7 @@ God.watch do |w|
   w.name = "jobs-pbs-server"
   w.interval = 30.seconds # default      
   w.start = "/bin/bash /root/jobs/start-pbs-server"
-  w.pid_file = "/var/run/jobs-pbs-server.pid"
+  w.pid_file = "/var/spool/torque/server_priv/server.lock"
     
   w.behavior(:clean_pid_file)
   

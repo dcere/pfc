@@ -158,6 +158,8 @@ end
 ################################################################################
 # Auxiliar functions
 ################################################################################
+
+# Starts monitoring on load balancer.
 def start_monitor_balancer(vm)
 
    # Copy the puppet manifest
@@ -177,11 +179,13 @@ def start_monitor_balancer(vm)
       err "[Web monitor] Impossible to run puppet in #{vm}"
       return false
    end
+   
    return true
    
 end
 
 
+# Starts monitoring on web server.
 def start_monitor_server(vm)
 
    # Copy the puppet manifest
@@ -219,11 +223,13 @@ def start_monitor_server(vm)
       err "[Web monitor] Impossible to run god in #{vm}"
       return false
    end
+   
    return true
 
 end
 
 
+# Starts monitoring on database.
 def start_monitor_database(vm)
 
    # Monitor database with god due to puppet vs ubuntu mysql bug
@@ -247,6 +253,7 @@ def start_monitor_database(vm)
       err "[Web monitor] Impossible to run god in #{vm}"
       return false
    end
+   
    return true
 
 end
