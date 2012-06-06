@@ -8,15 +8,15 @@ def obtain_vm_data
    vm_ip_roles = []
    vm_img_roles = []
    if resource[:type] == "appscale"
-      puts "It is an appscale cloud"
+      puts "Obtaining appscale cloud data"
       vm_ips, vm_ip_roles = appscale_yaml_ips(resource[:ip_file])
       vm_img_roles = appscale_yaml_images(resource[:img_file])
    elsif resource[:type] == "web"
-      puts "It is a web cloud"
+      puts "Obtaining web cloud data"
       vm_ips, vm_ip_roles = web_yaml_ips(resource[:ip_file])
       vm_img_roles = web_yaml_images(resource[:img_file])
    elsif resource[:type] == "jobs"
-      puts "It is a jobs cloud"
+      puts "Obtaining jobs cloud data"
       vm_ips, vm_ip_roles = jobs_yaml_ips(resource[:ip_file])
       puts "Obtained ip roles"
       vm_img_roles = jobs_yaml_images(resource[:img_file])

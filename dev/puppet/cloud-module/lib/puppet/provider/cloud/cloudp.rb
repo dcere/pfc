@@ -501,13 +501,16 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
    def pool
    end
    
+   def root_password
+   end
+   
+   def starting_mac_address
+   end
+   
    def app_email
    end
    
    def app_password
-   end
-   
-   def root_password
    end
    
    

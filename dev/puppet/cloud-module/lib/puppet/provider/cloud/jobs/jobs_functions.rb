@@ -76,21 +76,24 @@ def jobs_monitor(vm, role)
       head = vm_ip_roles[:head]
       
       # Check if the node is in the list of compute nodes
-      command = "qmgr -c 'list node @localhost'"      # Get a list of all nodes
+      command = "qmgr -c \"list node @localhost\""      # Get a list of all nodes
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "[Torque monitor] Impossible to obtain node list from #{head}"
       end
       
       command = "hostname"
-      hostname, success = CloudSSH.execute_remote(command, vm)
+      out2, success = CloudSSH.execute_remote(command, vm)
       unless success
          err "[Torque monitor] Impossible to obtain hostname for #{vm}"
       end
       
       # Add the node to the list of compute nodes
-      unless out.include? "Node #{hostname}"
-         puts "[Torque monitor] Trying to add #{hostname} to the list of compute nodes"
+      hostname = out2.chomp()
+      if out.include? "Node #{hostname}"
+         puts "[Torque monitor] #{hostname} (#{vm}) already in head's list node"
+      else
+         puts "[Torque monitor] Adding #{hostname} to the list of compute nodes"
          add_compute_node(vm, head)
       end
       
@@ -126,7 +129,7 @@ def add_compute_node(vm, head)
       return false
    end
    hostname = out
-   command = "qmgr -c 'create node #{hostname}'"
+   command = "qmgr -c \"create node #{hostname}\""
    out, success = CloudSSH.execute_remote(command, head)
    unless success
       err "Impossible to add #{hostname} as a compute node in #{head}"
@@ -146,7 +149,7 @@ def del_compute_node(vm, head)
       return false
    end
    hostname = out
-   command = "qmgr -c 'delete node #{hostname}'"
+   command = "qmgr -c \"delete node #{hostname}\""
    out, success = CloudSSH.execute_remote(command, head)
    unless success
       err "Impossible to add #{hostname} as a compute node in #{head}"

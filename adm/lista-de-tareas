@@ -114,3 +114,6 @@
 - (X) Valores de retorno de las funciones de monitorización => Sin valores de retorno. Si hay un fallo se informa al usuario
   - (X) Fallo al aplicar el manifiesto basic.pp => Se le indica al usuario y se muestra la salida que dio puppet en la máquina
 - Uso de monitorización antes del inicio del cloud?
+- (X) El manifiesto de parada del cloud jobs requiere los ficheros de direcciones IP y de imágenes.
+  - (X) Lo ponemos en el manifiesto
+  - Al iniciar el cloud los copiamos a /tmp y nos aseguramos de que siempre estén en todas las máquinas
