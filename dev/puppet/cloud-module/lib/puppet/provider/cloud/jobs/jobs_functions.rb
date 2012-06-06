@@ -23,7 +23,21 @@ def jobs_cloud_start(jobs_roles)
    check_command = "ps aux | grep -v grep | grep pbs_server"
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
-      command = "/usr/local/sbin/pbs_server"
+      #command = "/usr/local/sbin/pbs_server"
+      command = "/bin/bash /root/jobs/start-pbs-server"
+      out, success = CloudSSH.execute_remote(command, head)
+      unless success
+         err "Impossible to start pbs_server in #{head}"
+         return false
+      end
+   end
+   
+   puts "Starting pbs_sched on head node"
+   check_command = "ps aux | grep -v grep | grep pbs_sched"
+   out, success = CloudSSH.execute_remote(check_command, head)
+   unless success
+      #command = "/usr/local/sbin/pbs_server"
+      command = "/bin/bash /root/jobs/start-pbs-sched"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "Impossible to start pbs_server in #{head}"
@@ -34,7 +48,8 @@ def jobs_cloud_start(jobs_roles)
    # Start compute
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
-   command = "/usr/local/sbin/pbs_mom"
+   #command = "/usr/local/sbin/pbs_mom"
+   command = "/bin/bash /root/jobs/start-pbs-mom"
    compute.each do |vm|
       out, success = CloudSSH.execute_remote(check_command, vm)
       unless success
@@ -152,7 +167,7 @@ def del_compute_node(vm, head)
    command = "qmgr -c \"delete node #{hostname}\""
    out, success = CloudSSH.execute_remote(command, head)
    unless success
-      err "Impossible to add #{hostname} as a compute node in #{head}"
+      err "Impossible to delete #{hostname} as a compute node in #{head}"
       return false
    end
    
