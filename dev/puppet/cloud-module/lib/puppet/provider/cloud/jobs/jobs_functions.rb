@@ -188,14 +188,14 @@ def start_monitor_head(vm)
    # The trqauthd script is intelligent enough to be initiated as many times
    # as you want without problem: if it is already started it will not be
    # started again
-   command = "/etc/init.d/trqauthd start"
+   command = "/etc/init.d/trqauthd start > /dev/null 2> /dev/null"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
       err "[Torque monitor] Impossible to run /etc/init.d/trqauthd start at #{vm}"
       return false
    end
    
-   # Monitor head node pbs_* processes with god
+   # Monitor head node pbs_server and pbs_sched processes with god
    
    # pbs_server is up and running
    path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-server.god"
