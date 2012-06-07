@@ -23,7 +23,6 @@ def jobs_cloud_start(jobs_roles)
    check_command = "ps aux | grep -v grep | grep pbs_server"
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
-      #command = "/usr/local/sbin/pbs_server"
       command = "/bin/bash /root/cloud/jobs/start-pbs-server"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
@@ -36,7 +35,6 @@ def jobs_cloud_start(jobs_roles)
    check_command = "ps aux | grep -v grep | grep pbs_sched"
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
-      #command = "/usr/local/sbin/pbs_sched"
       command = "/bin/bash /root/cloud/jobs/start-pbs-sched"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
@@ -48,7 +46,6 @@ def jobs_cloud_start(jobs_roles)
    # Start compute
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
-   #command = "/usr/local/sbin/pbs_mom"
    command = "/bin/bash /root/cloud/jobs/start-pbs-mom"
    compute.each do |vm|
       out, success = CloudSSH.execute_remote(check_command, vm)
@@ -81,7 +78,25 @@ def jobs_monitor(vm, role)
 
    if role == :head
       puts "[Torque monitor] Monitoring head"
-      start_monitor_head(vm)
+      
+      check_command1 = "ps aux | grep -v grep | grep trqauthd"
+      check_command2 = "ps aux | grep -v grep | grep god | grep pbs-server.god"
+      check_command3 = "ps aux | grep -v grep | grep god | grep pbs-sched.god"
+      
+      out1, success1 = CloudSSH.execute_remote(check_command1, vm)
+      out2, success2 = CloudSSH.execute_remote(check_command2, vm)
+      out3, success3 = CloudSSH.execute_remote(check_command3, vm)
+      unless success1 or success2 or success3
+         puts "[Torque monitor] God or trqauthd are not running in #{vm}"
+         
+         # Try to start monitoring again
+         puts "[Torque monitor] Starting monitoring head on #{vm}"
+         if start_monitor_head(vm)
+            puts "[Torque monitor] Successfully started to monitor head on #{vm}"
+         else
+            err "[Torque monitor] Impossible to monitor head on #{vm}"
+         end
+      end
       puts "[Torque monitor] Monitored head"
 
    elsif role == :compute
@@ -114,8 +129,19 @@ def jobs_monitor(vm, role)
       end
       
       # Start monitoring
-      start_monitor_compute(vm)
-      
+      check_command = "ps aux | grep -v grep | grep god | grep pbs-mom.god"
+      out, success = CloudSSH.execute_remote(check_command, vm)
+      unless success
+         puts "[Torque monitor] God is not running in #{vm}"
+         
+         # Try to start monitoring again
+         puts "[Torque monitor] Starting monitoring compute on #{vm}"
+         if start_monitor_compute(vm)
+            puts "[Torque monitor] Successfully started to monitor compute on #{vm}"
+         else
+            err "[Torque monitor] Impossible to monitor compute on #{vm}"
+         end
+      end
       puts "[Torque monitor] Monitored compute"
 
    else
