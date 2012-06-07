@@ -4,7 +4,7 @@ God.watch do |w|
   w.start = "/bin/bash /root/jobs/start-pbs-mom"
   w.pid_file = "/var/spool/torque/mom_priv/mom.lock"
     
-  w.behavior(:clean_pid_file)
+  #w.behavior(:clean_pid_file)
   
   # determine the state on startup    
   w.transition(:init, { true => :up, false => :start }) do |on|      

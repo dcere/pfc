@@ -36,11 +36,11 @@ def jobs_cloud_start(jobs_roles)
    check_command = "ps aux | grep -v grep | grep pbs_sched"
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
-      #command = "/usr/local/sbin/pbs_server"
+      #command = "/usr/local/sbin/pbs_sched"
       command = "/bin/bash /root/jobs/start-pbs-sched"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
-         err "Impossible to start pbs_server in #{head}"
+         err "Impossible to start pbs_sched in #{head}"
          return false
       end
    end
@@ -131,6 +131,8 @@ def jobs_cloud_stop(jobs_roles)
    head    = jobs_roles[:head]
    compute = jobs_roles[:compute]
    
+   # TODO Kill pbs_server, pbs_sched and pbs_mom processes?
+   
    compute.each do |vm|
       del_compute_node(vm, head)
    end
@@ -210,7 +212,8 @@ def start_monitor_head(vm)
       err "[Torque monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
-   command = "god -c /etc/god/pbs-server.god"
+   port = 17165
+   command = "god -c /etc/god/pbs-server.god -p #{port}"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
       err "[Torque monitor] Impossible to run god in #{vm}"
@@ -230,7 +233,8 @@ def start_monitor_head(vm)
       err "[Torque monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
-   command = "god -c /etc/god/pbs-sched.god"
+   port = 17166
+   command = "god -c /etc/god/pbs-sched.god -p #{port}"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
       err "[Torque monitor] Impossible to run god in #{vm}"
@@ -246,7 +250,7 @@ end
 def start_monitor_compute(vm)
    
    # Monitor compute node with god: pbs_mom is up and running
-   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-server.god"
+   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-mom.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
@@ -258,7 +262,7 @@ def start_monitor_compute(vm)
       err "[Torque monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
-   command = "god -c /etc/god/pbs-server.god"
+   command = "god -c /etc/god/pbs-mom.god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
       err "[Torque monitor] Impossible to run god in #{vm}"
