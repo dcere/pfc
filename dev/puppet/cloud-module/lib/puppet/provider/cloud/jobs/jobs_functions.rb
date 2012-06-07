@@ -86,7 +86,7 @@ def jobs_monitor(vm, role)
       out1, success1 = CloudSSH.execute_remote(check_command1, vm)
       out2, success2 = CloudSSH.execute_remote(check_command2, vm)
       out3, success3 = CloudSSH.execute_remote(check_command3, vm)
-      unless success1 or success2 or success3
+      unless success1 && success2 && success3
          puts "[Torque monitor] God or trqauthd are not running in #{vm}"
          
          # Try to start monitoring again
