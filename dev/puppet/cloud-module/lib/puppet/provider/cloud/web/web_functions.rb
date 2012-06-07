@@ -31,7 +31,7 @@ def web_cloud_start(web_roles)
    
    # Start web servers => Start sinatra application
    puts "Starting ruby web3 on web servers"
-   command = "/bin/bash /root/web/start-ruby-web3"
+   command = "/bin/bash /root/cloud/web/server/start-ruby-web3"
    servers.each do |vm|
       if vm == MY_IP
          result = `#{command}`

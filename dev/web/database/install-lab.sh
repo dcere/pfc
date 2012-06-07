@@ -2,44 +2,32 @@
 #   Installs the database files
 #
 # Synopsis:
-#   install-lab.sh <IP> <files>
+#   install-lab.sh <IP>
 #
 # Arguments:
 #   - IP address: IP address of remote host.
-#   - Files: Files to install
-#     - all:  all the files
 #
 # Examples:
-#   _$: install-lab.sh 155.210.155.170 all
+#   _$: install-lab.sh 155.210.155.170
 #
 #
 # Author:
 #   David Ceresuela
 
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
-   echo "Use: $0 <IP address> <set of files>"
+   echo "Use: $0 <IP address>"
    echo "Examples
-$0 155.210.155.170 all
+$0 155.210.155.170
 "
    exit 1
 fi 
 
 SSH="ssh root@$1"
-DB_DST="/root/db"
+DB_DST="/root/cloud/web/db"
 
 # Create directories
 $SSH mkdir -p $DB_DST/
 
-# Copy SQL files
-if [ $2 = "all" ]
-then
-   scp ./create-db.sql           root@$1:$DB_DST/
-   scp ./create-table.sql        root@$1:$DB_DST/
-   scp ./insert-table.sql        root@$1:$DB_DST/
-   scp ./select-table.sql        root@$1:$DB_DST/
-   scp ./create-user.sql         root@$1:$DB_DST/
-   scp ./grant-user-table.sql    root@$1:$DB_DST/
-   scp ./set-db.sh               root@$1:$WEB_DST/
-   scp ./examples.sh             root@$1:$WEB_DST/
-fi
+# Copy database files: SQL files and scripts
+scp ./*     root@$1:$DB_DST/

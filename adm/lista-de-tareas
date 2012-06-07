@@ -117,3 +117,4 @@
 - (X) El manifiesto de parada del cloud jobs requiere los ficheros de direcciones IP y de imágenes.
   - (X) Lo ponemos en el manifiesto
   - Al iniciar el cloud los copiamos a /tmp y nos aseguramos de que siempre estén en todas las máquinas
+- Poner en la wiki / memoria el script set-db.sh y los scripts de SQL para configurar la BD

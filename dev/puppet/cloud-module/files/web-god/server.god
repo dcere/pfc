@@ -1,7 +1,7 @@
 God.watch do |w|
   w.name = "ruby-web3"
   w.interval = 30.seconds # default      
-  w.start = "/bin/bash /root/web/start-ruby-web3"
+  w.start = "/bin/bash /root/cloud/web/server/start-ruby-web3"
   w.pid_file = "/var/run/ruby-web3.pid"
     
   w.behavior(:clean_pid_file)

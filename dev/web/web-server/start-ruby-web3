@@ -1,5 +1,5 @@
 #!/bin/bash
 nohup start-stop-daemon --start --quiet -m \
   --pidfile /var/run/ruby-web3.pid  \
-  --exec /usr/bin/ruby /root/web/web3.rb \
-  > /root/web/web3.out 2> /root/web/web3.err &
+  --exec /usr/bin/ruby /root/cloud/web/server/web3.rb \
+  > /root/cloud/web/server/web3.out 2> /root/cloud/web/server/web3.err &

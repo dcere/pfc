@@ -110,18 +110,12 @@ fi
 if [ $2 = "web" -o $2 = "all" ]
 then
    $SSH mkdir -p $PUPPET_DST/$NAME/files/web-manifests
-   scp ./files/web-manifests/balancer.pp \
-      root@$1:$PUPPET_DST/$NAME/files/web-manifests/balancer.pp
-   scp ./files/web-manifests/server.pp \
-      root@$1:$PUPPET_DST/$NAME/files/web-manifests/server.pp
-   scp ./files/web-manifests/database.pp \
-      root@$1:$PUPPET_DST/$NAME/files/web-manifests/database.pp
+   scp ./files/web-manifests/* \
+      root@$1:$PUPPET_DST/$NAME/files/web-manifests/
 
    $SSH mkdir -p $PUPPET_DST/$NAME/files/web-god
-   scp ./files/web-god/server.god \
-      root@$1:$PUPPET_DST/$NAME/files/web-god/server.god
-   scp ./files/web-god/database.god \
-      root@$1:$PUPPET_DST/$NAME/files/web-god/database.god
+   scp ./files/web-god/*      root@$1:$PUPPET_DST/$NAME/files/web-god/
+
 fi
 
 # Copy jobs monitor files ans start scripts
