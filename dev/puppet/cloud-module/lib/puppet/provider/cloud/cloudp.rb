@@ -128,7 +128,7 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                end
                
                #################################################################
-               # Test area
+               # Test area TODO
                #################################################################
 #               out, success = CloudSSH.execute_remote("god -c /unassg/asdugk", "155.210.155.178")
 #               if success
@@ -145,9 +145,6 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
                
                   # If not already started, start the cloud
                   unless File.exists?("/tmp/cloud-#{resource[:name]}")
-                     
-                     # Check expect is installed
-                     # TODO
                      
                      # Copy important files to all machines
                      puts "Copying important files to all virtual machines"
@@ -457,9 +454,10 @@ Puppet::Type.type(:cloud).provide(:cloudp) do
             end
          end            
          
-         # Note: As they are included in the /tmp directory, only the machines
-         # that are still alive need to delete these files. If the machine was
-         # shut down, these files will not be the next time it is started.
+         # Note: As all the files deleted so far are located in the /tmp directory
+         # only the machines that are still alive need to delete these files.
+         # If the machine was shut down, these files will not be there the next
+         # time it is started, so there is no need to delete them.
          
          puts "==================="
          puts "== Cloud stopped =="
