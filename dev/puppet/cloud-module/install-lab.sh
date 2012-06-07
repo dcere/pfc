@@ -124,5 +124,16 @@ then
       root@$1:$PUPPET_DST/$NAME/files/web-god/database.god
 fi
 
-# Copy jobs local manifests
-# ...
+# Copy jobs monitor files ans start scripts
+JOBS_DST="/root/cloud/jobs"
+if [ $2 = "jobs" -o $2 = "all" ]
+then
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/jobs-god
+   scp ./files/jobs-god/*     root@$1:$PUPPET_DST/$NAME/files/jobs-god/
+   
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/jobs-start
+   scp ./files/jobs-start/*     root@$1:$PUPPET_DST/$NAME/files/jobs-start/
+   
+   $SSH mkdir -p $JOBS_DST
+   scp ./files/jobs-start/*     root@$1:$JOBS_DST/
+fi

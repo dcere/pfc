@@ -2,4 +2,4 @@
 nohup start-stop-daemon --start --quiet -m \
   --pidfile /var/spool/torque/server_priv/server.lock \
   --exec /usr/local/sbin/pbs_server \
-  > /root/jobs/pbs-server.out 2> /root/jobs/pbs-server.err &
+  > /root/cloud/jobs/pbs-server.out 2> /root/cloud/jobs/pbs-server.err &

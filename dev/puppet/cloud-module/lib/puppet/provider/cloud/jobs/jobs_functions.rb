@@ -24,7 +24,7 @@ def jobs_cloud_start(jobs_roles)
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
       #command = "/usr/local/sbin/pbs_server"
-      command = "/bin/bash /root/jobs/start-pbs-server"
+      command = "/bin/bash /root/cloud/jobs/start-pbs-server"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "Impossible to start pbs_server in #{head}"
@@ -37,7 +37,7 @@ def jobs_cloud_start(jobs_roles)
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
       #command = "/usr/local/sbin/pbs_sched"
-      command = "/bin/bash /root/jobs/start-pbs-sched"
+      command = "/bin/bash /root/cloud/jobs/start-pbs-sched"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "Impossible to start pbs_sched in #{head}"
@@ -49,7 +49,7 @@ def jobs_cloud_start(jobs_roles)
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
    #command = "/usr/local/sbin/pbs_mom"
-   command = "/bin/bash /root/jobs/start-pbs-mom"
+   command = "/bin/bash /root/cloud/jobs/start-pbs-mom"
    compute.each do |vm|
       out, success = CloudSSH.execute_remote(check_command, vm)
       unless success
@@ -153,7 +153,7 @@ def add_compute_node(vm, head)
       err "Impossible to obtain hostname for #{vm}"
       return false
    end
-   hostname = out
+   hostname = out.chomp()
    command = "qmgr -c \"create node #{hostname}\""
    out, success = CloudSSH.execute_remote(command, head)
    unless success

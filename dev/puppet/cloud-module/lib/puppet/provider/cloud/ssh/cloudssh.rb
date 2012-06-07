@@ -1,7 +1,7 @@
 # Generic monitor functions for a distributed infrastructure
 module CloudSSH
    
-   SSH_PATH = "/root/cloud"
+   SSH_PATH = "/root/cloud/ssh"
    SSH_KEY = "id_rsa"
 
    # Generates a new ssh key to be used in all machines
