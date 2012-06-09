@@ -1,10 +1,10 @@
-# Generic monitor functions for a distributed infrastructure
+# Generic ssh functions for a distributed infrastructure
 module CloudSSH
    
    SSH_PATH = "/root/cloud/ssh"
    SSH_KEY = "id_rsa"
 
-   # Generates a new ssh key to be used in all machines
+   # Generates a new ssh key to be used in all machines.
    def self.generate_ssh_key(path = SSH_PATH, file = SSH_KEY)
       
       puts "Creating #{path} directory..."
@@ -36,6 +36,7 @@ module CloudSSH
    end
    
    
+   # Copies an ssh key to a machine.
    def self.copy_ssh_key(ip, password, path = SSH_PATH, file = SSH_KEY)
    
       puts "Copying ssh key..."
@@ -52,6 +53,7 @@ module CloudSSH
    end
    
    
+   # Executes a command on a remote machine.
    def self.execute_remote(command, ip, path = SSH_PATH, file = SSH_KEY)
    
       result = `ssh root@#{ip} -i #{SSH_PATH}/#{SSH_KEY} '#{command}'`
@@ -60,6 +62,7 @@ module CloudSSH
    end
    
    
+   # Copies a file to a remote machine.
    def self.copy_remote(src_file, ip, dst_file, path = SSH_PATH, file = SSH_KEY)
    
       result = `scp -i #{SSH_PATH}/#{SSH_KEY} #{src_file} root@#{ip}:#{dst_file}`
