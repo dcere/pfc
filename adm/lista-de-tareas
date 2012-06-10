@@ -86,7 +86,7 @@
   - Instalados los clientes MCollective que vamos a usar: files, leader, cron
   - (X) El archivo /etc/mcollecive/server.cfg
   - (X) El archivo /etc/mcollecive/client.cfg
-  - Instalado expect
+  - Instalado expect => Necesitamos expect para comunicarnos con la MV. Es decir, debe estar instalado ANTES de ejecutar puppet apply init-cloud.pp
   - Configurada la clave /root/.ssh/id_rsa.pub
 - (X) Si las MV ya estaban funcionando, ¿cómo sabemos qué dominios hay que parar y borrar su definición?
   - (X) No lo sabemos, pero a lo mejor no es muy sensato destruir esas máquinas si ya estaban encendidas de antes

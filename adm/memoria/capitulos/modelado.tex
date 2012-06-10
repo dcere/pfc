@@ -30,24 +30,40 @@ La agrupación de uno o más recursos en un fichero de texto da lugar a un manif
 
 \section{Modelado de recursos distribuidos: el recurso \emph{cloud}}
 
-El modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior: se puede pensar que para modelar un recurso distribuido basta con que Puppet envíe a cada nodo la configuración necesaria para garantizar el comportamiento deseado, pero, ¿qué pasa cuando ese nodo falla? Si no hacemos nada el recurso dejará de mantenerse en el estado deseado. A la hora de administrar un recurso distribuido hay que asegurarse por lo tanto de que los nodos están operativos y cumpliendo con su función. Asimismo, un recurso distribuido puede presentar elementos comunes para todos los nodos del sistema.
+El modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior: se puede pensar que para modelar un recurso distribuido basta con que Puppet envíe a cada nodo la configuración necesaria para garantizar el comportamiento deseado, pero, ¿qué pasa cuando ese nodo falla? Si no hacemos nada, el recurso dejará de mantenerse en el estado deseado. Por lo tanto, a la hora de administrar un recurso distribuido hay que asegurarse de que los nodos están operativos y cumpliendo con su función. Asimismo, un recurso distribuido puede presentar elementos comunes para todos los nodos del sistema, a diferencia de un recurso clásico de Puppet en el que el nodo posee o no ese recurso, pero no hay elementos comunes.\\
 
-Un recurso clásico de Puppet no presenta este problema, ya que o el nodo posee ese recurso, o no lo posee. Se puede hacer una analogía con la programación orientada a objetos en la que el recurso distribuido sería una metaclase que proporcionaría los atributos y métodos comunes a todo sistema distribuido: un nombre, una monitorización básica... La instanciación de ese recurso en un recurso distribuido de tipo AppScale, Torque, Web u otros sería similar a la instanciación de una clase a partir de la metaclase. De igual manera, el recurso distribuido instanciado podría añadir nuevos atributos y métodos y modificar el comportamiento de los métodos de la metaclase: no tienen por qué iniciarse de igual manera el recurso AppScale y el recurso Torque.
+Se puede hacer una analogía con la programación orientada a objetos en la que el recurso distribuido sería una metaclase que proporcionaría los atributos y métodos comunes a todo recurso distribuido tales como un nombre o una administración básica. La instanciación de ese recurso en un recurso distribuido de tipo AppScale, Torque, Web u otros sería similar a la instanciación de una clase a partir de la metaclase. De igual manera, el recurso distribuido instanciado podría añadir nuevos atributos y métodos y modificar el comportamiento de los métodos de la metaclase, ya que no tienen por qué iniciarse de igual manera el recurso AppScale y el recurso Torque.\\
 
-Para modelar un recurso \emph{cloud}, se han considerado como indispensables los siguientes parámetros:
+%%% Revisar
+En Puppet cualquier recurso que se define se presupone definido dentro de un ámbito local. Para poder diferenciar los recursos distribuidos de los locales, se ha añadido (al final no) a la gramática de Puppet una palabra reservada. Ya que los ejemplos caen dentro de la categoría de \emph{cloud} la palabra que se ha escogido ha sido \texttt{cloudres}.\\
+
+Para modelar un recurso \emph{cloud}, se han considerado como fundamentales los siguientes parámetros:
 \begin{itemize}
 \item Nombre: Para identificar al \emph{cloud} de manera única.
-\item Tipo: Para describir qué tipo de \emph{cloud} es. [Modificar]
 \item Fichero de direcciones IP: Para describir qué dirección IP está asociada a cada nodo del \emph{cloud}.
 \item Fichero de imágenes de disco: Para asignar a cada nodo la correspondiente imagen de disco duro.
 \item Fichero de dominio: Para definir una máquina virtual especificando sus características \emph{hardware}.
 \item Conjunto de máquinas físicas: Para indicar qué máquinas físicas pueden ejecutar las máquinas virtuales definidas.
 \end{itemize}
 
+%%% Revisar: cloudres, y las rutas de los ficheros
+Para modelar un recurso \emph{cloud} de tipo Torque podríamos usar algo similar a:
+\begin{lstlisting}
+cloudres torque {'torque-cloud':
+   ip_file  => "/etc/puppet/modules/cloud/files/jobs-ip.yaml",
+   img_file => "/etc/puppet/modules/cloud/files/jobs-img.yaml",
+   domain   => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
+   pool     => ["155.210.155.70"],
+   ensure   => running,
+}
+\end{lstlisting}
+
 
 \section{Diseño del proveedor}
 
-Una vez modelado el recurso \emph{cloud}, queda como tarea proporcionar un proveedor que se encargue de llevar el \emph{cloud} al estado que se le indique desde el manifiesto Puppet. Un \emph{cloud} podrá estar en dos estados: funcionando o parado. Si decidimos que el \emph{cloud} tiene que estar funcionando, el proveedor se encargará de todos los pasos necesarios para llevar al \emph{cloud} a ese estado. A grandes rasgos, estos son los pasos que realiza para ponerlo en marcha:
+Puppet puede ser extendido para incluir la definición de nuevos recursos. Para ello hay que proporcinarle, como mínimo, dos ficheros: uno en el que se define el recurso y otro en el que se define cómo gestionar ese recurso. Al fichero en el que se define el recurso se le llama tipo y al fichero en el que se define cómo gestionarlo se le llama proveedor. Es decir, el tipo se encarga del ``qué'' y el proveedor se encarga del ``cómo''.\\
+
+En un recurso cloud la definición en el fichero tipo contendría los parámetros propios de ese tipo de cloud. En el ejemplo anterior éstos serían: \texttt{ip\_file}, \texttt{img\_file}, \texttt{domain} y \texttt{pool} (el parámetro \texttt{ensure} es común a todo recurso puppet y se define automáticamente). Una vez modelado el recurso \emph{cloud}, queda como tarea proporcionar un proveedor que se encargue de llevar el \emph{cloud} al estado que se le indique desde el manifiesto Puppet. Un \emph{cloud} podrá estar en dos estados: funcionando o parado. Si tiene que estar funcionando, el proveedor se encargará de todos los pasos necesarios para llevar al \emph{cloud} a ese estado, que a grandes rasgos son:
 \begin{itemize}
 \item Comprobación de la existencia del \emph{cloud}: si existe se realizarán tareas de mantenimiento, si no existe se creará.
 \item Comprobación del estado del conjunto de máquinas físicas: si una máquina física debe ejecutar muchas máquinas virtuales, existe un riesgo de pérdida de rendimiento.
@@ -65,3 +81,9 @@ De la misma manera, si decidimos que el \emph{cloud} tiene que estar parado, el 
 \item Parada de las funciones de automantenimiento de los nodos.
 \item Eliminación de los ficheros internos de gestión del \emph{cloud}.
 \end{itemize}
+
+Elección de líder y distribución de manifiestos o ficheros de auto-administración.
+
+Fichero de roles
+
+Diferencias entre AppScale y Torque?
