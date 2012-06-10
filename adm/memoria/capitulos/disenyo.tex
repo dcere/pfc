@@ -6,9 +6,9 @@
 [Revisar]\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Uso de la extensión aplicado a la infraestructura AppScale}
+\section{Uso de la extensión aplicado a una infraestructura AppScale}
 
-Una infraestructura AppScale puede ser definida de dos maneras: mediante un despliegue por defecto o uno personalizado. En un despliegue por defecto un nodo es el encargado de controlar la infraestructura y el resto de nodos se encargan de hacer el resto del trabajo. En un despliegue personalizado podemos especificar con mayor grado de precisión qué tipo de trabajo debe hacer cada nodo. Por ejemplo, podemos indicar qué nodos se encargaran de alojar las aplicaciones de los usuarios, qué nodos alojarán la base de datos o qué nodos serán los encargados de ejecutar los trabajos de computación. Para administrar una infraestructura AppScale, sin importar el tipo de despliegue, necesitaremos una cuenta de correo y una contraseña. Este usuario y contraseña son necesarios para poder administrar las aplicaciones alojadas y observar el estado de la infraestructura.
+Una infraestructura AppScale puede ser definida de dos maneras: mediante un despliegue por defecto o uno personalizado. En un despliegue por defecto un nodo es el encargado de controlar la infraestructura y el resto de nodos se encargan de hacer el resto del trabajo. En un despliegue personalizado podemos especificar con mayor grado de precisión qué tipo de trabajo debe hacer cada nodo. Por ejemplo, podemos indicar qué nodos se encargarán de alojar las aplicaciones de los usuarios, qué nodos alojarán la base de datos o qué nodos serán los encargados de ejecutar los trabajos de computación. Para administrar una infraestructura AppScale, sin importar el tipo de despliegue, necesitaremos una cuenta de correo y una contraseña. Este usuario y contraseña son necesarios para poder administrar las aplicaciones alojadas y observar el estado de la infraestructura.
 
 \subsection{Manifiesto de recurso distribuido}
 
@@ -36,7 +36,7 @@ El fichero de roles sí que debe reflejar los dos posibles tipos de despliegue. 
 \item[\texttt{servers}]: La lista de máquinas que desempeñarán el rol de nodos de trabajo.
 \end{description}
 
-Y un fichero de roles para este despliegue sería de esta forma:
+Un fichero de roles para este despliegue sería de esta forma:
 
 \begin{yamlcode}
 --- 
@@ -53,7 +53,7 @@ Por otra parte, los posibles roles que puede desempeñar un nodo en un despliegu
 \item[\texttt{appengine}]: Los servidores para alojar las aplicaciones.
 \item[\texttt{database}]: Las máquinas que contienen la base de datos.
 \item[\texttt{login}]: La máquina encargada de redirigir a los usuarios a sus servidores. Es también la que se le facilita al administrador de la infraestructura para que realice las tareas administrativas.
-\item[\texttt{open}]: Las máquinas de ejecución de trabajos. También pueden ser usadas como nodos de reserva por si falla uno de los anteriores.
+\item[\texttt{open}]: Las máquinas de ejecución de trabajos. También pueden ser usadas como nodos de reserva por si falla algún otro nodo.
 \end{description}
 
 \begin{figure} [!htbp]
@@ -78,7 +78,7 @@ Hay multitud de despliegues posibles combinando estos roles, pero será de espec
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Uso de la extensión aplicado a la infraestructura Torque}
+\section{Uso de la extensión aplicado a una infraestructura Torque}
 
 La infraestructura Torque está formada por un nodo maestro y un conjunto de nodos de computación. El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta.
 
@@ -91,7 +91,7 @@ La infraestructura Torque está formada por un nodo maestro y un conjunto de nod
 
 \subsection{Manifiesto de recurso distribuido}
 
-La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale:
+La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale, sólo que aquí no aparecen los parámetros de administración que aparecían en aquél, ya que Torque no requiere su uso:
 
 \begin{lstlisting}
 cloud {'mycloud':
@@ -106,7 +106,7 @@ cloud {'mycloud':
 
 \subsection{Fichero de roles}
 
-El contenido del fichero de roles sí que será más sencillo que en el caso de AppScale, ya que tenemos únicamente los roles de nodo maestro y nodo de computación. La especificación completa de la sintaxis es la siguiente:
+El contenido del fichero de roles sí que será más sencillo que en el caso de AppScale, ya que en Torque tenemos únicamente los roles de nodo maestro y nodo de computación. La especificación completa de la sintaxis es la siguiente:
 
 \begin{description}
 \item[\texttt{head}]: La máquina que desempeñará el rol de nodo maestro.
@@ -124,9 +124,9 @@ Un fichero de especificación de roles para una infraestructura Torque tendría 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Uso de la extensión aplicado a la infraestructura web de tres niveles}
+\section{Uso de la extensión aplicado a una infraestructura web de tres niveles}
 
-Una típica arquitectura de servicios web consta de al menos tres niveles: balanceo de carga, servidores web y base de datos. Cada uno de estos niveles está compuesto por al menos un elemento clave: el balanceador de carga, el servidor web y el servidor de base de datos, respectivamente. El balanceador de carga es el punto de entrada al sistema y el que se encarga, como su nombre indica, de repartir las peticiones de los clientes a los distintos servidores web. Los servidores web se encargan de servir las páginas web a los clientes y para ello, dependiendo de las peticiones que hagan los clientes, podrán leer o almacenar información en la base de datos. Para manipular dicha información los servidores web tendrán que comunicarse con el servidor de base de datos, que es el que hará efectiva la lectura y modificación de la información. La arquitectura puede complicarse añadiendo más niveles y añadiendo más elementos a los niveles existentes.\\
+Una típica arquitectura de servicios web consta de al menos tres niveles: balanceo de carga, servidores web y base de datos. Cada uno de estos niveles está compuesto por al menos un elemento clave: el balanceador de carga, el servidor web y el servidor de base de datos, respectivamente. El balanceador de carga es el punto de entrada al sistema y el que se encarga, como su nombre indica, de repartir las peticiones de los clientes a los distintos servidores web. Los servidores web se encargan de servir las páginas web a los clientes y para ello, dependiendo de las peticiones que hagan los clientes, podrán leer o almacenar información en la base de datos. Para manipular dicha información los servidores web tendrán que comunicarse con el servidor de base de datos, que es el que hará efectiva la lectura y modificación de la información.\\
 
 \begin{figure} [!htbp]
   \centering
@@ -135,11 +135,14 @@ Una típica arquitectura de servicios web consta de al menos tres niveles: balan
 \label{figure:arquitectura-web}
 \end{figure}
 
-Para demostrar la validez del modelo desarrollado, además de sobre las infraestructuras AppScale y Torque también se puede aplicar sobre una infraestructura que no tiene nada que ver con la ejecución de trabajos: una infraestructura de servicios web. En el ejemplo se ha validado una infraestructura que consta de un balanceador de carga, dos servidores web y un servidor de bases de datos. Como balanceador de carga se ha usado nginx y como servidor de base de datos se ha usado MySQL. La creación de la página web se ha hecho usando el framework Sinatra sobre el servidor web WEBrick. Todos ellos corren sobre máquinas con sistema operativo Ubuntu.\\
+Para demostrar la validez del modelo desarrollado se verá como, además de sobre las infraestructuras AppScale y Torque, también se puede aplicar dicho modelo sobre una infraestructura que no tiene nada que ver con la ejecución de trabajos: una infraestructura de servicios web. En el ejemplo se ha validado una infraestructura que consta de un balanceador de carga, dos servidores web y un servidor de bases de datos (Figura \ref{figure:arquitectura-web}).
+
+%%% Revisar
+%%% Como balanceador de carga se ha usado nginx y como servidor de base de datos se ha usado MySQL. La creación de la página web se ha hecho usando el framework Sinatra sobre el servidor web WEBrick. Todos ellos corren sobre máquinas con sistema operativo Ubuntu.\\
 
 \subsection{Manifiesto de recurso distribuido}
 
-La sintaxis en el manifiesto es fundamentalmente similar a la utilizada en el ejemplo de AppScale: el único campo que cambia sustancialmente es el type, que pasa de tener valor \texttt{appscale} a tener valor \texttt{web}. El resto de campos se comportan como lo hacían en el ejemplo de AppScale: el campo file contiene el fichero de descripción de roles, el campo images contiene los discos duros de las máquinas virtuales, el campo domain contiene el fichero de descripción de la máquina virtual, el campo pool contiene el conjunto de máquinas físicas a usar y el campo ensure contiene el estado en el que queremos que quede el cloud.
+La sintaxis en el manifiesto es fundamentalmente similar a la utilizada en el ejemplo de Torque, ya que tampoco en este caso tenemos parámetros de administración de la infraestructura:
 
 \begin{lstlisting}
 cloud {'mycloud':
@@ -154,7 +157,7 @@ cloud {'mycloud':
 
 \subsection{Fichero de roles}
 
-El contenido del fichero de especificación de roles sí que poseerá valores distintos a los que tenía cualquiera de los dos ejemplos anteriores ya que estamos describiendo una infraestructura distribuida distinta. Los nuevos roles que pueden desempeñar las máquinas son:
+El contenido del fichero de especificación de roles sí que poseerá valores distintos a los que tenía cualquiera de los dos ejemplos anteriores ya que estamos describiendo una infraestructura distinta. Los roles que pueden desempeñar los nodos dentro de una infraestructura web son:
 \begin{description}
 \item[\texttt{balancer}]: La máquina que desempeñará el rol de balanceador de carga.
 \item[\texttt{server}]: La lista de máquinas que desempeñarán el rol de servidor web.
