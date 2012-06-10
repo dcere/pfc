@@ -3,7 +3,7 @@
 
 [Revisar]\\
 
-La extensión a la herramienta de configuración Puppet se ha hecho mediante el uso de tipos y proveedores personalizados. Mediante la definición de un nuevo tipo estamos ampliando la cantidad de recursos que Puppet puede administrar; pero para que Puppet sepa cómo administrar ese nuevo recurso debemos proporcionar un proveedor en el que se le indique lo que tiene que hacer.
+La extensión a la herramienta de configuración Puppet se ha hecho mediante el uso de tipos y proveedores personalizados. Mediante la definición de un nuevo tipo estamos añadiendo un nuevo recurso que Puppet puede administrar; pero para que Puppet sepa cómo administrar ese nuevo recurso debemos proporcionar un proveedor en el que se le indique lo que tiene que hacer.
 
 
 \section{Modelado de recursos y configuración en Puppet}
@@ -49,6 +49,7 @@ Para modelar un recurso \emph{cloud}, se han considerado como fundamentales los 
 
 %%% Revisar: cloudres, y las rutas de los ficheros
 Para modelar un recurso \emph{cloud} de tipo Torque podríamos usar algo similar a:
+
 \begin{lstlisting}
 cloudres torque {'torque-cloud':
    ip_file  => "/etc/puppet/modules/cloud/files/jobs-ip.yaml",

@@ -7,8 +7,74 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uso de la extensión aplicado a la infraestructura AppScale}
+
+Una infraestructura AppScale puede ser definida de dos maneras: mediante un despliegue por defecto o uno personalizado. En un despliegue por defecto un nodo es el encargado de controlar la infraestructura y el resto de nodos se encargan de hacer el resto del trabajo. En un despliegue personalizado podemos especificar con mayor grado de precisión qué tipo de trabajo debe hacer cada nodo. Por ejemplo, podemos indicar qué nodos se encargaran de alojar las aplicaciones de los usuarios, qué nodos alojarán la base de datos o qué nodos serán los encargados de ejecutar los trabajos de computación. Para administrar una infraestructura AppScale, sin importar el tipo de despliegue, necesitaremos una cuenta de correo y una contraseña. Este usuario y contraseña son necesarios para poder administrar las aplicaciones alojadas y observar el estado de la infraestructura.
+
 \subsection{Manifiesto de recurso distribuido}
+
+La sintaxis del manifiesto distribuido no se verá afectada por los dos tipos de despliegue posibles, pero sí que tendrá que reflejar los parámetros necesarios para realizar las tareas de administración de la infraestructura. Éste podría ser un ejemplo de un manifiesto para una infraestructura de tipo AppScale:
+
+\begin{lstlisting}
+cloud {'mycloud':
+   type         => "appscale",
+   ip_file      => "/etc/puppet/modules/cloud/files/appscale-ip.yaml",
+   img_file     => "/etc/puppet/modules/cloud/files/appscale-img.yaml",
+   domain       => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
+   pool         => ["155.210.155.70"],
+   app_email    => "user@mail.com"
+   app_password => "password"
+   ensure       => running,
+}
+\end{lstlisting}
+
 \subsection{Fichero de roles}
+
+El fichero de roles sí que debe reflejar los dos posibles tipos de despliegue. En un despliegue por defecto los posibles roles que puede tomar un nodo son:
+
+\begin{description}
+\item[\texttt{controller}]: La máquina que desempeñará el rol de nodo controlador.
+\item[\texttt{servers}]: La lista de máquinas que desempeñarán el rol de nodos de trabajo.
+\end{description}
+
+Y un fichero de roles para este despliegue sería de esta forma:
+
+\begin{yamlcode}
+--- 
+:controller: 155.210.155.73
+:servers: 
+- 155.210.155.177
+- 155.210.155.178
+\end{yamlcode}
+
+Por otra parte, los posibles roles que puede desempeñar un nodo en un despliegue personalizado y que resultan interesantes desde nuestro punto de vista son:
+
+\begin{description}
+\item[\texttt{master}]: La máquina que desempeñará el rol de nodo maestro.
+\item[\texttt{appengine}]: Los servidores para alojar las aplicaciones.
+\item[\texttt{database}]: Las máquinas que contienen la base de datos.
+\item[\texttt{login}]: La máquina encargada de redirigir a los usuarios a sus servidores. Es también la que se le facilita al administrador de la infraestructura para que realice las tareas administrativas.
+\item[\texttt{open}]: Las máquinas de ejecución de trabajos. También pueden ser usadas como nodos de reserva por si falla uno de los anteriores.
+\end{description}
+
+\begin{figure} [!htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figuras/Arquitectura_AppScale.eps}
+  \caption{Infraestructura AppScale en despliegue personalizado.}
+\label{figure:arquitectura-appscale}
+\end{figure}
+
+Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés para nosotros el que permite ejecutar trabajos de computación en AppScale (Figura \ref{figure:arquitectura-appscale}). Un despliegue de este tipo podría conseguirse con un fichero similar a éste:
+
+\begin{yamlcode}
+---
+:master:    155.210.155.73
+:appengine: 155.210.155.73
+:database:  155.210.155.73
+:login:     155.210.155.73
+:open:
+- 155.210.155.177
+- 155.210.155.178
+\end{yamlcode}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -19,7 +85,7 @@ La infraestructura Torque está formada por un nodo maestro y un conjunto de nod
 \begin{figure} [!htbp]
   \centering
   \includegraphics[width=13.5cm]{figuras/Arquitectura_Torque.eps}
-  \caption{Arquitectura Torque.}
+  \caption{Infraestructura Torque.}
 \label{figure:arquitectura-torque}
 \end{figure}
 
@@ -47,6 +113,16 @@ El contenido del fichero de roles sí que será más sencillo que en el caso de 
 \item[\texttt{compute}]: La lista de máquinas que desempeñarán el rol de nodos de computación.
 \end{description}
 
+Un fichero de especificación de roles para una infraestructura Torque tendría un contenido similar a éste:
+\begin{yamlcode}
+--- 
+:head: 155.210.155.73
+:compute:
+- 155.210.155.177
+- 155.210.155.178
+\end{yamlcode}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uso de la extensión aplicado a la infraestructura web de tres niveles}
 
@@ -55,11 +131,11 @@ Una típica arquitectura de servicios web consta de al menos tres niveles: balan
 \begin{figure} [!htbp]
   \centering
   \includegraphics[width=0.5\textwidth]{figuras/Arquitectura_web2.eps}
-  \caption{Arquitectura web de tres niveles.}
+  \caption{Infraestructura web de tres niveles.}
 \label{figure:arquitectura-web}
 \end{figure}
 
-Para demostrar la validez del modelo desarrollado, además de AppScale también se puede controlar una infraestructura de servicios web. En el ejemplo se ha validado una arquitectura que consta de un balanceador de carga, dos servidores web y un servidor de bases de datos. Como balanceador de carga se ha usado nginx y como servidor de base de datos se ha usado MySQL. La creación de la página web se ha hecho usando el framework Sinatra sobre el servidor web WEBrick. Todos ellos corren sobre máquinas con sistema operativo Ubuntu.\\
+Para demostrar la validez del modelo desarrollado, además de sobre las infraestructuras AppScale y Torque también se puede aplicar sobre una infraestructura que no tiene nada que ver con la ejecución de trabajos: una infraestructura de servicios web. En el ejemplo se ha validado una infraestructura que consta de un balanceador de carga, dos servidores web y un servidor de bases de datos. Como balanceador de carga se ha usado nginx y como servidor de base de datos se ha usado MySQL. La creación de la página web se ha hecho usando el framework Sinatra sobre el servidor web WEBrick. Todos ellos corren sobre máquinas con sistema operativo Ubuntu.\\
 
 \subsection{Manifiesto de recurso distribuido}
 
@@ -78,7 +154,7 @@ cloud {'mycloud':
 
 \subsection{Fichero de roles}
 
-El contenido del fichero de especificación de roles sí que poseerá valores distintos a los que tenía el ejemplo de AppScale ya que estamos describiendo una arquitectura distribuida distinta. Los nuevos roles que pueden desempeñar las máquinas son:
+El contenido del fichero de especificación de roles sí que poseerá valores distintos a los que tenía cualquiera de los dos ejemplos anteriores ya que estamos describiendo una infraestructura distribuida distinta. Los nuevos roles que pueden desempeñar las máquinas son:
 \begin{description}
 \item[\texttt{balancer}]: La máquina que desempeñará el rol de balanceador de carga.
 \item[\texttt{server}]: La lista de máquinas que desempeñarán el rol de servidor web.

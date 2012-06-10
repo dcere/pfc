@@ -48,7 +48,12 @@ Notas:
   - Anglicismos: \emph{a} (en cursiva)
   - Citas, valores: \texttt{a} (en courier)
 Caracteres reservados: & % $ # _ { } ~ ^ \
-  
+
+-----------
+Figuras:
+- Hacerlas en dia
+- Exportarlas a formato eps con tipografía pango
+
 -----------
 Dudas:
 - Explicación de las infraestructuras distribuidas en la intro o en el capítulo correspondiente?
