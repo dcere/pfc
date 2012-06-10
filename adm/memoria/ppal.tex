@@ -10,7 +10,9 @@
 \fi
 
 %\usepackage[cp1252]{inputenc} % soportes para acentos 
-\usepackage[spanish,activeacute,english]{babel}  % texto autogenerado en espaol
+% Hace falta instalar el paquete texlive-lang-spanish para que las palabras se
+% partan de manera correcta.
+\usepackage[spanish,activeacute,english]{babel}  % texto autogenerado en español
 %\usepackage[latin1]{inputenc}
 \usepackage{ucs}
 \usepackage[utf8]{inputenc} % Para linux, utf8
@@ -146,7 +148,7 @@
 
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \newminted{ruby}{linenos,frame=single}
-\newminted{yaml}{frame=lines}
+\newminted{yaml}{frame=leftline}
 \newminted{bash}{bgcolor=bg,frame=single}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

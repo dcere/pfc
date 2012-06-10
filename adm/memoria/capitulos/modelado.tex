@@ -38,6 +38,7 @@ Se puede hacer una analogía con la programación orientada a objetos en la que 
 En Puppet cualquier recurso que se define se presupone definido dentro de un ámbito local. Para poder diferenciar los recursos distribuidos de los locales, se ha añadido (al final no) a la gramática de Puppet una palabra reservada. Ya que los ejemplos caen dentro de la categoría de \emph{cloud} la palabra que se ha escogido ha sido \texttt{cloudres}.\\
 
 Para modelar un recurso \emph{cloud}, se han considerado como fundamentales los siguientes parámetros:
+
 \begin{itemize}
 \item Nombre: Para identificar al \emph{cloud} de manera única.
 \item Fichero de direcciones IP: Para describir qué dirección IP está asociada a cada nodo del \emph{cloud}.
@@ -64,16 +65,18 @@ cloudres torque {'torque-cloud':
 Puppet puede ser extendido para incluir la definición de nuevos recursos. Para ello hay que proporcinarle, como mínimo, dos ficheros: uno en el que se define el recurso y otro en el que se define cómo gestionar ese recurso. Al fichero en el que se define el recurso se le llama tipo y al fichero en el que se define cómo gestionarlo se le llama proveedor. Es decir, el tipo se encarga del ``qué'' y el proveedor se encarga del ``cómo''.\\
 
 En un recurso cloud la definición en el fichero tipo contendría los parámetros propios de ese tipo de cloud. En el ejemplo anterior éstos serían: \texttt{ip\_file}, \texttt{img\_file}, \texttt{domain} y \texttt{pool} (el parámetro \texttt{ensure} es común a todo recurso puppet y se define automáticamente). Una vez modelado el recurso \emph{cloud}, queda como tarea proporcionar un proveedor que se encargue de llevar el \emph{cloud} al estado que se le indique desde el manifiesto Puppet. Un \emph{cloud} podrá estar en dos estados: funcionando o parado. Si tiene que estar funcionando, el proveedor se encargará de todos los pasos necesarios para llevar al \emph{cloud} a ese estado, que a grandes rasgos son:
+
 \begin{itemize}
 \item Comprobación de la existencia del \emph{cloud}: si existe se realizarán tareas de mantenimiento, si no existe se creará.
-\item Comprobación del estado del conjunto de máquinas físicas: si una máquina física debe ejecutar muchas máquinas virtuales, existe un riesgo de pérdida de rendimiento.
+\item Comprobación del estado del conjunto de máquinas físicas.
 \item Obtención de las direcciones IP de los nodos y los roles que les han sido asignados.
-\item Comprobación del estado de las máquinas virtuales: si están funcionando se monitorizan, mientras que si no están funcionando hay que definir una nueva máquina virtual y ponerla en funcionamiento.
+\item Comprobación del estado de las máquinas virtuales: si están funcionando se monitorizan, mientras que si no están funcionando hay que definir una nueva máquina virtual y ponerla en funcionamiento. Las funciones de monitorización incluyen el envío de un fichero mediante el cual cada nodo se autoadministre la mayor parte posible.
 \item Cuando todas las máquinas virtuales estén funcionando se procede a inicializar el \emph{cloud}.
 \item Operaciones de puesta en marcha particulares a cada tipo de \emph{cloud}.
 \end{itemize}
 
 De la misma manera, si decidimos que el \emph{cloud} tiene que estar parado, el proveedor se encargará de realizar los pasos necesarios para ello. Estos pasos son:
+
 \begin{itemize}
 \item Comprobación de la existencia del \emph{cloud}: si existe se procederá a su parada.
 \item Operaciones de parada particulares a cada tipo de \emph{cloud}.
@@ -82,8 +85,12 @@ De la misma manera, si decidimos que el \emph{cloud} tiene que estar parado, el 
 \item Eliminación de los ficheros internos de gestión del \emph{cloud}.
 \end{itemize}
 
-Elección de líder y distribución de manifiestos o ficheros de auto-administración.
+Una parte muy importante del proveedor es el parámetro \texttt{ip\_file}. En este fichero se define una asociación entre la dirección IP del nodo y el rol que cumplirá dentro del \emph{cloud}. Así pues, es en este fichero en el que se especifica qué rol cumple cada nodo. Siguiendo con el ejemplo del recurso \emph{cloud} de tipo Torque, el fichero de roles en el que se especifica quién es el nodo \emph{head} y la lista de nodos \emph{compute} sería similar a este:
 
-Fichero de roles
+\begin{yamlcode}
+--- 
+:head: 155.210.155.73
+:compute:
+- 155.210.155.177
+\end{yamlcode}
 
-Diferencias entre AppScale y Torque?
