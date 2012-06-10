@@ -1,6 +1,10 @@
 \chapter{Diseño de recursos distribuidos específicos}
 \label{cap:disenyo}
 
+%%% Revisar: Manifiestos distribuidos: tipo, rutas, etc
+
+[Revisar]\\
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uso de la extensión aplicado a la infraestructura AppScale}
 \subsection{Manifiesto de recurso distribuido}
@@ -9,14 +13,42 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uso de la extensión aplicado a la infraestructura Torque}
+
+La infraestructura Torque está formada por un nodo maestro y un conjunto de nodos de computación. El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta.
+
+\begin{figure} [!htbp]
+  \centering
+  \includegraphics[width=13.5cm]{figuras/Arquitectura_Torque.eps}
+  \caption{Arquitectura Torque.}
+\label{figure:arquitectura-torque}
+\end{figure}
+
 \subsection{Manifiesto de recurso distribuido}
+
+La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale:
+
+\begin{lstlisting}
+cloud {'mycloud':
+   type     => "jobs",
+   ip_file  => "/etc/puppet/modules/cloud/files/jobs-ip.yaml",
+   img_file => "/etc/puppet/modules/cloud/files/jobs-img.yaml",
+   domain   => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
+   pool     => ["155.210.155.70"],
+   ensure   => running,
+}
+\end{lstlisting}
+
 \subsection{Fichero de roles}
 
+El contenido del fichero de roles sí que será más sencillo que en el caso de AppScale, ya que tenemos únicamente los roles de nodo maestro y nodo de computación. La especificación completa de la sintaxis es la siguiente:
+
+\begin{description}
+\item[\texttt{head}]: La máquina que desempeñará el rol de nodo maestro.
+\item[\texttt{compute}]: La lista de máquinas que desempeñarán el rol de nodos de computación.
+\end{description}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uso de la extensión aplicado a la infraestructura web de tres niveles}
-
-[Revisar]\\
 
 Una típica arquitectura de servicios web consta de al menos tres niveles: balanceo de carga, servidores web y base de datos. Cada uno de estos niveles está compuesto por al menos un elemento clave: el balanceador de carga, el servidor web y el servidor de base de datos, respectivamente. El balanceador de carga es el punto de entrada al sistema y el que se encarga, como su nombre indica, de repartir las peticiones de los clientes a los distintos servidores web. Los servidores web se encargan de servir las páginas web a los clientes y para ello, dependiendo de las peticiones que hagan los clientes, podrán leer o almacenar información en la base de datos. Para manipular dicha información los servidores web tendrán que comunicarse con el servidor de base de datos, que es el que hará efectiva la lectura y modificación de la información. La arquitectura puede complicarse añadiendo más niveles y añadiendo más elementos a los niveles existentes.\\
 
@@ -31,16 +63,16 @@ Para demostrar la validez del modelo desarrollado, además de AppScale también 
 
 \subsection{Manifiesto de recurso distribuido}
 
-La sintaxis en el metamanifiesto es fundamentalmente similar a la utilizada en el ejemplo de AppScale: el único campo que cambia sustancialmente es el type, que pasa de tener valor \texttt{appscale} a tener valor \texttt{web}. El resto de campos se comportan como lo hacían en el ejemplo de AppScale: el campo file contiene el fichero de descripción de roles, el campo images contiene los discos duros de las máquinas virtuales, el campo domain contiene el fichero de descripción de la máquina virtual, el campo pool contiene el conjunto de máquinas físicas a usar y el campo ensure contiene el estado en el que queremos que quede el cloud.
+La sintaxis en el manifiesto es fundamentalmente similar a la utilizada en el ejemplo de AppScale: el único campo que cambia sustancialmente es el type, que pasa de tener valor \texttt{appscale} a tener valor \texttt{web}. El resto de campos se comportan como lo hacían en el ejemplo de AppScale: el campo file contiene el fichero de descripción de roles, el campo images contiene los discos duros de las máquinas virtuales, el campo domain contiene el fichero de descripción de la máquina virtual, el campo pool contiene el conjunto de máquinas físicas a usar y el campo ensure contiene el estado en el que queremos que quede el cloud.
 
 \begin{lstlisting}
 cloud {'mycloud':
-   type    => "web",
-   file    => "/etc/puppet/modules/cloud/files/web-simple.yaml",
-   images  => ["/var/tmp/dceresuela/lucid-web.img", "/var/tmp/dceresuela/lucid-db.img"],
-   domain  => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
-   pool    => ["155.210.155.70"],
-   ensure  => running,
+   type     => "web",
+   ip_file  => "/etc/puppet/modules/cloud/files/web-ip.yaml",
+   img_file => "/etc/puppet/modules/cloud/files/web-img.yaml",
+   domain   => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
+   pool     => ["155.210.155.70"],
+   ensure   => running,
 }
 \end{lstlisting}
 
@@ -48,9 +80,9 @@ cloud {'mycloud':
 
 El contenido del fichero de especificación de roles sí que poseerá valores distintos a los que tenía el ejemplo de AppScale ya que estamos describiendo una arquitectura distribuida distinta. Los nuevos roles que pueden desempeñar las máquinas son:
 \begin{description}
-\item[\texttt{balancer}] La máquina que desempeñará el rol de balanceador de carga.
-\item[\texttt{server}] La lista de máquinas que desempeñarán el rol de servidor web.
-\item[\texttt{database}] La máquina que desempeñará el rol de servidor de base de datos.
+\item[\texttt{balancer}]: La máquina que desempeñará el rol de balanceador de carga.
+\item[\texttt{server}]: La lista de máquinas que desempeñarán el rol de servidor web.
+\item[\texttt{database}]: La máquina que desempeñará el rol de servidor de base de datos.
 \end{description}
 
 Un ejemplo completo del fichero de especificación de roles tendría un contenido similar a éste:
@@ -62,20 +94,3 @@ Un ejemplo completo del fichero de especificación de roles tendría un contenid
 - 155.210.155.178
 :database: 155.210.155.177
 \end{yamlcode}
-
-
-
-%%% Tests
-%Tests
-%\begin{rubycode}
-%class MAC_Address
-%   
-%   attr_reader :mac
-%   
-%   def initialize(value=nil)
-%      @mac = value ? value: "52:54:00:00:00:00"
-%   end
-%   
-%   
-%end
-%\end{rubycode}
