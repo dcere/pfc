@@ -6,7 +6,7 @@
 La extensión a la herramienta de configuración Puppet se ha hecho mediante el uso de tipos y proveedores personalizados. Mediante la definición de un nuevo tipo estamos añadiendo un nuevo recurso que Puppet puede administrar; pero para que Puppet sepa cómo administrar ese nuevo recurso debemos proporcionar un proveedor en el que se le indique lo que tiene que hacer.
 
 
-\section{Modelado de recursos y configuración en Puppet}
+\section{Modelado de recursos y configuración automática en Puppet}
 
 Puppet usa un lenguaje declarativo para modelar los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). Por ejemplo, para modelar un recurso de tipo fichero podríamos usar algo similar a:
 
@@ -61,7 +61,7 @@ cloudres torque {'torque-cloud':
 \end{lstlisting}
 
 
-\section{Diseño del proveedor}
+\section{Diseño del proveedor de recursos distribuidos}
 
 Puppet puede ser extendido para incluir la definición de nuevos recursos. Para ello hay que proporcinarle, como mínimo, dos ficheros: uno en el que se define el recurso y otro en el que se define cómo gestionar ese recurso. Al fichero en el que se define el recurso se le llama tipo y al fichero en el que se define cómo gestionarlo se le llama proveedor. Es decir, el tipo se encarga del ``qué'' y el proveedor se encarga del ``cómo''.\\
 
