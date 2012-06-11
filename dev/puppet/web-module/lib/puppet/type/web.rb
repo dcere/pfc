@@ -1,5 +1,5 @@
-Puppet::Type.newtype(:cloud) do
-   @doc = "Manages clouds formed by KVM virtual machines."
+Puppet::Type.newtype(:web) do
+   @doc = "Manages web clouds formed by KVM virtual machines."
 
    feature :start,
       "Starts a cloud."
@@ -42,7 +42,6 @@ Puppet::Type.newtype(:cloud) do
       desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
    end
    
-   
    newproperty(:pool, :array_matching => :all) do
       desc "The pool of physical machines"
    end
@@ -59,18 +58,5 @@ Puppet::Type.newtype(:cloud) do
       desc "Virtual machines' root password"
       defaultto "root"
    end
-   
-   
-   # AppScale parameters
-   
-   newproperty(:app_email) do
-      desc "AppScale administrator e-mail"
-      defaultto "david@gmail.com"
-   end
-   
-   newproperty(:app_password) do
-      desc "AppScale administrator password"
-      defaultto "appscale"
-   end
-   
+
 end

@@ -17,9 +17,6 @@ Puppet::Type.type(:torque).provide(:torquep) do
    # Require ssh files
    require File.dirname(__FILE__) + '/ssh/cloudssh.rb'
    
-#   Dir[File.dirname(__FILE__) + '/../lib/*.rb'].each do |file| 
-#      require File.basename(file, File.extname(file))
-#   end
 
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"

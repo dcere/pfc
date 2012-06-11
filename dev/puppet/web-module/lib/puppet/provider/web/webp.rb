@@ -1,9 +1,9 @@
-Puppet::Type.type(:appscale).provide(:appscalep) do
-   desc "Manages appscale clouds formed by KVM virtual machines"
+Puppet::Type.type(:web).provide(:webp) do
+   desc "Manages web clouds formed by KVM virtual machines"
 
-   # Require appscale auxiliar files
-   require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
-   require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
+   # Require web auxiliar files
+   require File.dirname(__FILE__) + '/web/web_yaml.rb'
+   require File.dirname(__FILE__) + '/web/web_functions.rb'
    
    # Require MCollective files
    require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
@@ -115,6 +115,19 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
                      deads = true
                   end
                end
+               
+               #################################################################
+               # Test area TODO
+               #################################################################
+#               out, success = CloudSSH.execute_remote("god -c /unassg/asdugk", "155.210.155.178")
+#               if success
+#                  puts "Remote command executed"
+#               else
+#                  puts "Remote command not executed"
+#               end
+#               return
+               
+               
                
                # Wait for all machines to be started
                unless deads
@@ -328,10 +341,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
       end
       if exists? && status == :running
          
-         # Stop cloud infrastructure
-
-         puts "It is an appscale cloud"
-         appscale_cloud_stop(MY_IP)    # TODO What if we run stop on a different machine than start?
+         puts "It is a web cloud"
          
          # Get pool of physical machines
          pms = resource[:pool]
@@ -390,7 +400,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
          mcc = MCollectiveCronClient.new("cronos")
-         string = "init-appscale"
+         string = "init-web"
          mcc.delete_line(CRON_FILE, string)
          # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
          
