@@ -1,4 +1,4 @@
-# Auxiliar functions for torque provider
+# Auxiliar functions for appscale provider
 
 
 # Obtains virtual machines' IP addresses, image disks and roles.
@@ -7,11 +7,9 @@ def obtain_vm_data
    vm_ips = []
    vm_ip_roles = []
    vm_img_roles = []
-   puts "Obtaining jobs cloud data"
-   vm_ips, vm_ip_roles = jobs_yaml_ips(resource[:ip_file])
-   puts "Obtained ip roles"
-   vm_img_roles = jobs_yaml_images(resource[:img_file])
-   puts "Obtained img roles"
+   puts "Obtaining appscale cloud data"
+   vm_ips, vm_ip_roles = appscale_yaml_ips(resource[:ip_file])
+   vm_img_roles = appscale_yaml_images(resource[:img_file])
    return vm_ips, vm_ip_roles, vm_img_roles
          
 end
@@ -95,7 +93,7 @@ def monitor_vm(vm, ip_roles)
    # Use copy_cloud_files if we copy no matter what. Modify it if we check
    
    # Depending on the type of cloud we will have to monitor different components
-   jobs_monitor(vm, role)
+   appscale_monitor(vm, role)
    
    return true
    
@@ -157,7 +155,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    template = File.open(resource[:domain], 'r').read()
    erb = ERB.new(template)
    domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
-   domain_file = File.open("/etc/puppet/modules/torque/files/#{domain_file_name}", 'w')
+   domain_file = File.open("/etc/puppet/modules/appscale/files/#{domain_file_name}", 'w')
    debug "[DBG] Domain file created"
    domain_file.write(erb.result(myvm.get_binding))
    domain_file.close
@@ -169,7 +167,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Copy the domain definition file to the physical machine
    puts "Copying the domain definition file to the physical machine..."
    domain_file_path = "/tmp/" + domain_file_name
-   command = "scp /etc/puppet/modules/torque/files/#{domain_file_name}" +
+   command = "scp /etc/puppet/modules/appscale/files/#{domain_file_name}" +
                 " dceresuela@#{pm}:#{domain_file_path}"
    result = `#{command}`
    if $?.exitstatus == 0
@@ -217,8 +215,8 @@ def copy_cloud_files(ips)
       if vm != MY_IP
          # Cloud manifest
          # FIXME : Check 'source' attribute in manifest to avoid scp
-         file = "init-jobs.pp"
-         path = "/etc/puppet/modules/torque/manifests/#{file}"
+         file = "init-appscale.pp"
+         path = "/etc/puppet/modules/appscale/manifests/#{file}"
          out, success = CloudSSH.copy_remote(path, vm, path)
          unless success
             err "Impossible to copy #{file} to #{vm}"
@@ -245,7 +243,21 @@ end
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-   return jobs_cloud_start(vm_ip_roles)
+   if (resource[:app_email] == nil) || (resource[:app_password] == nil)
+      err "Need an AppScale user and password"
+      exit
+   else
+      puts "app_email = #{resource[:app_email]}"
+      puts "app_password = #{resource[:app_password]}"
+   end
+   puts  "Starting an appscale cloud"
+   
+   # Start appscale cloud
+   return appscale_cloud_start(vm_ips, vm_ip_roles,
+                               resource[:app_email], resource[:app_password],
+                               resource[:root_password])
+
+
 
 end
 
@@ -253,8 +265,8 @@ end
 # Makes the cloud auto-manageable through crontab files.
 def auto_manage()
 
-   cron_file = "crontab-jobs"
-   path = "/etc/puppet/modules/torque/files/cron/#{cron_file}"
+   cron_file = "crontab-appscale"
+   path = "/etc/puppet/modules/appscale/files/cron/#{cron_file}"
    
    if File.exists?(path)
       file = File.open(path, 'r')

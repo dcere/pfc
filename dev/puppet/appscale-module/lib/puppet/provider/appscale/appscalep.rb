@@ -1,9 +1,9 @@
-Puppet::Type.type(:torque).provide(:torquep) do
-   desc "Manages torque clouds formed by KVM virtual machines"
+Puppet::Type.type(:appscale).provide(:appscalep) do
+   desc "Manages appscale clouds formed by KVM virtual machines"
 
-   # Require jobs auxiliar files
-   require File.dirname(__FILE__) + '/jobs/jobs_yaml.rb'
-   require File.dirname(__FILE__) + '/jobs/jobs_functions.rb'
+   # Require appscale auxiliar files
+   require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
+   require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
    
    # Require MCollective files
    require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
@@ -332,8 +332,9 @@ Puppet::Type.type(:torque).provide(:torquep) do
       if exists? && status == :running
          
          # Stop cloud infrastructure
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-         jobs_cloud_stop(vm_ip_roles)
+
+         puts "It is an appscale cloud"
+         appscale_cloud_stop(MY_IP)    # TODO What if we run stop on a different machine than start?
          
          # Get pool of physical machines
          pms = resource[:pool]
@@ -392,7 +393,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
          mcc = MCollectiveCronClient.new("cronos")
-         string = "init-jobs"
+         string = "init-appscale"
          mcc.delete_line(CRON_FILE, string)
          # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
          
