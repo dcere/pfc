@@ -10,6 +10,8 @@
 #     - all:   all the modules
 #     - cloud: cloud module
 #     - app:   AppScale module
+#     - tor:   Torque module
+#     - web:   Web module
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
@@ -46,6 +48,26 @@ echo "Installing AppScale module..."
 if [ $2 = "app" -o $2 = "all" ]
 then
    cd ./appscale-module
+   ./install-lab.sh $1 all
+   cd ..
+fi
+echo "...installed"
+
+# Copy Torque module
+echo "Installing Torque module..."
+if [ $2 = "tor" -o $2 = "all" ]
+then
+   cd ./torque-module
+   ./install-lab.sh $1 all
+   cd ..
+fi
+echo "...installed"
+
+# Copy Web module
+echo "Installing Web module..."
+if [ $2 = "web" -o $2 = "all" ]
+then
+   cd ./web-module
    ./install-lab.sh $1 all
    cd ..
 fi
