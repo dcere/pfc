@@ -3,7 +3,55 @@
 
 x Máquinas físicas\\
 y Máquinas virtuales\\
-Servidor DNS\\
 AppScale: 1 maestro, dos esclavos\\
-Torque: 1 maestro, dos esclavos\\
-Web: 1 balanceador de carga, 2 servidores web, 1 base de datos\\
+
+
+Para validar la solución desarrollada, se ha hecho uso del laboratorio 1.03b que el Departamento de Informática e Ingeniería de Sistemas posee en la Escuela de Ingeniería y Arquitectura de la Universidad de Zaragoza. Los ordenadores de este laboratorio poseen procesadores con soporte para virtualización, lo que hace posible la creación de máquinas virtuales para simular los nodos que forman cada una de las infraestructuras distribuidas.
+
+Antes de empezar con las pruebas hay que configurar el entorno en el que se realizarán. En particular, y dado que las máquinas virtuales necesitan conectarse a internet para la descarga e instalación de paquetes, el uso de un servidor de DNS es bastante recomendable. De este modo, podemos usar direcciones IP públicas (que no se estén usando en ese momento) para nuestras máquinas virtuales. El servidor DNS se usa también para hacer la resolución de nombres, tanto normal como inversa, que requieren AppScale y Torque para su correcto funcionamiento.
+
+
+\section{Pruebas comunes a todas las infraestructuras}
+
+En todas y cada una de las infraestructuras se han realizado las siguientes pruebas para comprobar el correcto funcionamiento del proveedor distribuido:
+
+\begin{itemize}
+\item Apagado de una máquina virtual que había empezado encendida y no era líder.
+\item Apagado de una máquina virtual que no había empezado encendida y no era líder.
+\item Apagado de una máquina virtual que había empezado encendida y era líder.
+\item Puesta en marcha de la infraestructura desde una máquina que no pertenece al \emph{cloud}.
+\item Puesta en marcha de la infraestructura desde una máquina que pertenece al \emph{cloud}.
+\end{itemize}
+
+
+\section{Prueba de infraestructura AppScale}
+
+
+\section{Prueba de infraestructura Torque}
+
+Para probar la infraestructura Torque se han usado cuatro (de momento) máquinas virtuales alojadas en X máquinas físicas. Una de las máquinas virtuales actúa como nodo maestro y las otras tres (de momento) actúan como nodos de computación. Además de las pruebas comunes, para comprobar el provedor de la infraestructura Torque se han realizado las siguientes pruebas:
+
+\begin{itemize}
+\item Parada del proceso de autenticación (trqauthd) en el nodo maestro.
+\item Parada del proceso servidor (pbs\_server) en el nodo maestro.
+\item Parada del proceso planificador (pbs\_sched) en el nodo maestro.
+\item Parada del proceso de ejecución de trabajos (pbs\_mom) en un nodo de computación.
+\item Parada del proceso que monitoriza al proceso de autenticación en el nodo maestro.
+\item Parada del proceso que monitoriza al proceso servidor en el nodo maestro.
+\item Parada del proceso que monitoriza al proceso planificador en el nodo maestro.
+\item Parada del proceso que monitoriza al proceso de ejecución de trabajos en un nodo de computación.
+\end{itemize}
+
+
+\section{Prueba de infraestructura web de tres niveles}
+
+Para probar la infraestructura web se han usado cuatro máquinas virtuales repartidas entre X máquinas físicas. Una máquina virtual actúa como balanceador de carga, dos actúan como servidores web y la última actúa como base de datos. Las pruebas que se han realizado para comprobar el correcto funcinamiento del proveedor de la infraestructura web han sido:
+
+\begin{itemize}
+\item Parada del proceso balanceador de carga.
+\item Parada del proceso servidor web.
+\item Parada del proceso base de datos.
+\item Parada del proceso que monitoriza al proceso balanceador de carga.
+\item Parada del proceso que monitoriza al proceso servidor web.
+\item Parada del proceso que monitoriza al base de datos.
+\end{itemize}
