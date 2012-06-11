@@ -1,5 +1,0 @@
----
-instances: 4
-node: virtual-machine
-img: image.img
-path: /home/david/Escritorio/PFC/dev/puppet/faces
