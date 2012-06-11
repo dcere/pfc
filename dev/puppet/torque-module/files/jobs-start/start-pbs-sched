@@ -1,0 +1,5 @@
+#!/bin/bash
+nohup start-stop-daemon --start --quiet -m \
+  --pidfile /var/spool/torque/sched_priv/sched.lock  \
+  --exec /usr/local/sbin/pbs_sched \
+  > /root/cloud/jobs/pbs-sched.out 2> /root/cloud/jobs/pbs-sched.err &
