@@ -17,9 +17,17 @@ La virtualización nativa permite hacer una virtualización \emph{hardware} comp
 
 Como los ordenadores del laboratorio poseen procesadores con extensiones de soporte para virtualización se eligió KVM para dar soporte a las máquinas virtuales. Esto significa que podemos usar cualquier sistema operativo, sin hacer ninguna modificación, para las máquinas virtuales.
 
+
 \section{Análisis de las infraestructuras de ejecución de trabajos distribuidos}
 
-AppScale, Torque
+%%% Revisar
+[Revisar]
+AppScale es una implementación \emph{open source} del App Engine de Google. Al igual que App Engine, AppScale permite alojar aplicaciones web; a diferencia de App Engine, las aplicaciones no serán alojadas en la infraestructura que Google posee, sino que serán alojadas en una infraestructura que el usuario posea. Además de permitir alojar aplicaciones web AppScale también ofrece las APIs de MapReduce y Neptune. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La API de Neptune añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI, aunque también se pueden ejecutar trabajos UPC (\emph{Berkeley UPC - Unified Parallel C}), X10, R y Go. Esta capacidad de ejecutar trabajos en la nube convierte a AppScale en una aplicación muy interesante.
+
+%%% Revisar
+[Revisar]
+La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido ha sido Torque. Torque entra en la categoría de las infraestructuras clásicas de ejecución de trabajos. Comprobar que el concepto de gestión de infraestructuras distribuidas podía aplicarse a una infraestructura de ejecución de trabajos ya establecida también era algo interesante, y Torque era un candidato idóneo para ello.
+
 
 \section{Elección de la herramienta de gestión de configuración}
 
