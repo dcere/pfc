@@ -54,11 +54,6 @@ then
    scp ./manifests/*    root@$1:$PUPPET_DST/$NAME/manifests/
 fi
 
-if [ $2 = "test" -o $2 = "all" ]
-then
-   scp ./manifests/test.pp root@$1:$PUPPET_DST/$NAME/manifests/test.pp
-fi
-
 # Copy type and provider
 TYPE_SRC="./lib/puppet/type"
 TYPE_DST="$PUPPET_DST/$NAME/lib/puppet/type"
