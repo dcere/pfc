@@ -15,11 +15,10 @@ Una infraestructura AppScale puede ser definida de dos maneras: mediante un desp
 La sintaxis del manifiesto distribuido no se verá afectada por los dos tipos de despliegue posibles, pero sí que tendrá que reflejar los parámetros necesarios para realizar las tareas de administración de la infraestructura. Éste podría ser un ejemplo de un manifiesto para una infraestructura de tipo AppScale:
 
 \begin{lstlisting}
-cloud {'mycloud':
-   type         => "appscale",
-   ip_file      => "/etc/puppet/modules/cloud/files/appscale-ip.yaml",
-   img_file     => "/etc/puppet/modules/cloud/files/appscale-img.yaml",
-   domain       => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
+appscale {'mycloud':
+   ip_file      => "/etc/puppet/modules/appscale/files/appscale-ip.yaml",
+   img_file     => "/etc/puppet/modules/appscale/files/appscale-img.yaml",
+   domain       => "/etc/puppet/modules/appscale/files/mycloud-template.xml",
    pool         => ["155.210.155.70"],
    app_email    => "user@mail.com"
    app_password => "password"
@@ -94,11 +93,10 @@ Una infraestructura Torque está formada por un nodo maestro y un conjunto de no
 La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale, sólo que aquí no aparecen los parámetros de administración que aparecían en aquél, ya que Torque no requiere su uso:
 
 \begin{lstlisting}
-cloud {'mycloud':
-   type     => "jobs",
-   ip_file  => "/etc/puppet/modules/cloud/files/jobs-ip.yaml",
-   img_file => "/etc/puppet/modules/cloud/files/jobs-img.yaml",
-   domain   => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
+torque {'mycloud':
+   ip_file  => "/etc/puppet/modules/torque/files/jobs-ip.yaml",
+   img_file => "/etc/puppet/modules/torque/files/jobs-img.yaml",
+   domain   => "/etc/puppet/modules/torque/files/mycloud-template.xml",
    pool     => ["155.210.155.70"],
    ensure   => running,
 }
@@ -145,11 +143,10 @@ Para demostrar la validez del modelo desarrollado se verá como, además de sobr
 La sintaxis en el manifiesto es fundamentalmente similar a la utilizada en el ejemplo de Torque, ya que tampoco en este caso tenemos parámetros de administración de la infraestructura:
 
 \begin{lstlisting}
-cloud {'mycloud':
-   type     => "web",
-   ip_file  => "/etc/puppet/modules/cloud/files/web-ip.yaml",
-   img_file => "/etc/puppet/modules/cloud/files/web-img.yaml",
-   domain   => "/etc/puppet/modules/cloud/files/mycloud-template.xml",
+web {'mycloud':
+   ip_file  => "/etc/puppet/modules/web/files/web-ip.yaml",
+   img_file => "/etc/puppet/modules/web/files/web-img.yaml",
+   domain   => "/etc/puppet/modules/web/files/mycloud-template.xml",
    pool     => ["155.210.155.70"],
    ensure   => running,
 }
