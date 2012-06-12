@@ -186,6 +186,12 @@ def add_compute_node(vm, head)
       err "Impossible to add #{hostname} as a compute node in #{head}"
       return false
    end
+   command = "pbsnodes -c #{hostname}"
+   out, success = CloudSSH.execute_remote(command, head)
+   unless success
+      err "Impossible to clear offline from #{hostname} in #{head}"
+      return false
+   end
    
 end
 

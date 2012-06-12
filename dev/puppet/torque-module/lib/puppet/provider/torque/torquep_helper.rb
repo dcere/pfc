@@ -9,9 +9,7 @@ def obtain_vm_data
    vm_img_roles = []
    puts "Obtaining jobs cloud data"
    vm_ips, vm_ip_roles = jobs_yaml_ips(resource[:ip_file])
-   puts "Obtained ip roles"
    vm_img_roles = jobs_yaml_images(resource[:img_file])
-   puts "Obtained img roles"
    return vm_ips, vm_ip_roles, vm_img_roles
          
 end

@@ -43,7 +43,10 @@ El objetivo de este proyecto es proporcionar una herramienta que facilite la pue
 
 \section{Trabajos previos}
 
-La modificación que se ha hecho de la herramienta de configuración Puppet puede considerarse como un concepto novedoso en el campo de las herramientas de configuración. El funcionamiento habitual de este tipo de herramientas consiste en la administración de los recursos de un nodo; el concepto de la administración de un recurso distribuido entre varios nodos no se ha introducido de momento en este tipo de herramientas.
+Desde un primer momento se decidió trabajar con la herramienta de configuración Puppet para la realización de este proyecto. 
+
+%%% Revisar
+% La modificación que se ha hecho de la herramienta de configuración Puppet puede considerarse como un concepto novedoso en el campo de las herramientas de configuración. El funcionamiento habitual de este tipo de herramientas consiste en la administración de los recursos de un nodo; el concepto de la administración de un recurso distribuido entre varios nodos no se ha introducido de momento en este tipo de herramientas.
 
 
 \section{Tecnología utilizada}
@@ -51,7 +54,10 @@ La modificación que se ha hecho de la herramienta de configuración Puppet pued
 Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnologías:
 \begin{itemize}
 \item KVM, QEMU, libvirt y virsh para el soporte y la gestión de las máquinas virtuales.
+\item Puppet como herramienta de configuración automática.
 \item Ruby como lenguaje de programación para la extensión de Puppet.
+\item AppScale y Torque como infraestructuras de ejecución de trabajos distribuidos en las que validar la extensión.
+\item Nginx, WEBrick y MySQL como balanceador de carga, servidor web y base de datos para la infraestructura web de tres niveles en la que se valida la extensión.
 \item Shell como lenguaje de programación de los \emph{scripts} de configuración de las máquinas virtuales.
 \item Sistema operativo Debian para las máquinas del laboratorio y Ubuntu para las máquinas virtuales.
 \item \LaTeX{} \cite{manual:latex} para la redacción de esta memoria.
