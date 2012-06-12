@@ -8,26 +8,27 @@ La extensión a la herramienta de configuración Puppet se ha hecho mediante el 
 
 \section{Modelado de recursos y configuración automática en Puppet}
 
-Puppet usa un lenguaje declarativo para modelar los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). Por ejemplo, para modelar un recurso de tipo fichero podríamos usar algo similar a:
+%%% Revisar: Movido aprox. a sección 2.3
+%Puppet usa un lenguaje declarativo para modelar los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). Por ejemplo, para modelar un recurso de tipo fichero podríamos usar algo similar a:
 
-\begin{lstlisting}
-file {'testfile':
-  path    => '/tmp/testfile',
-  ensure  => present,
-  mode    => 0640,
-  content => "I'm a test file.",
-}
-\end{lstlisting}
+%\begin{lstlisting}
+%file {'testfile':
+%  path    => '/tmp/testfile',
+%  ensure  => present,
+%  mode    => 0640,
+%  content => "I'm a test file.",
+%}
+%\end{lstlisting}
 
-La agrupación de uno o más recursos en un fichero de texto da lugar a un manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Cuando a Puppet se le da la orden de aplicar un manifiesto los pasos que hace son:
-\begin{itemize}
-\item Interpretar y compilar la configuración.
-\item Comunicar la configuración compilada al nodo.
-\item Aplicar la configuración en el nodo.
-\item Enviar un informe con los resultados.
-\end{itemize}
+%La agrupación de uno o más recursos en un fichero de texto da lugar a un manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Cuando a Puppet se le da la orden de aplicar un manifiesto los pasos que hace son:
+%\begin{itemize}
+%\item Interpretar y compilar la configuración.
+%\item Comunicar la configuración compilada al nodo.
+%\item Aplicar la configuración en el nodo.
+%\item Enviar un informe con los resultados.
+%\end{itemize}
 
-Normalment Puppet se ejecuta de manera periódica mediante un planificador de trabajos (por ejemplo, cron). Cada cierto tiempo contactará con el nodo que debe ser administrado y volverá a repetir los pasos anteriores. Es decir, Puppet está continuamente intentando llevar al nodo al estado especificado en el manifiesto. Si entre una ejecución y otra algo cambiara en el nodo, Puppet se daría cuenta e intentaría llevar al nodo al estado especificado en el manifiesto.
+%Normalment Puppet se ejecuta de manera periódica mediante un planificador de trabajos (por ejemplo, cron). Cada cierto tiempo contactará con el nodo que debe ser administrado y volverá a repetir los pasos anteriores. Es decir, Puppet está continuamente intentando llevar al nodo al estado especificado en el manifiesto. Si entre una ejecución y otra algo cambiara en el nodo, Puppet se daría cuenta e intentaría llevar al nodo al estado especificado en el manifiesto.
 
 
 \section{Modelado de recursos distribuidos: el recurso \emph{cloud}}
@@ -106,3 +107,8 @@ Una parte muy importante del proveedor es el parámetro \texttt{ip\_file}. En es
 - 155.210.155.177
 \end{yamlcode}
 
+
+\section{Implementación del proveedor [Temporal]}
+La primera opción que se barajó fue la de usar \emph{Faces} de Puppet. \emph{Faces} es una API para crear subcomandos y acciones dentro de Puppet. Analizada a fondo, esta API no proporcionaba una ventaja muy superior a la ejecución de comandos desde la consola del sistema operativo, y no interesaba crear una abstracción que facilitara el trabajo para posteriormente estar usando continuamente la línea de comandos.
+
+La segunda opción que se barajó fue la de la creación de un tipo y un proveedor para ese tipo. Esta opción sí que presenta una ventaja considerable: podemos usar el tipo para modelar la infraestructura distribuida y podemos usar el proveedor para indicar cómo iniciar y mantener esa infraestructura. Esta aproximación se acerca más al modelo que usa Puppet, ya que definimos la infraestructura como si fuera un recurso más de los que posee Puppet. Así pues, esta es la aproximación que se tomó para realizar la extensión.

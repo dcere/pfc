@@ -13,9 +13,6 @@ Teniendo en cuenta el considerable avance de la computación en la nube, parece 
 
 La primera de ellas es AppScale \cite{appscale}, una implementación \emph{open source} del App Engine de Google \cite{appengine}. App Engine permite alojar aplicaciones web en la infraestructura que Google posee. Además del alojamiento de aplicaciones web, AppScale también ofrece las APIs \footnote[1]{API (del inglés \emph{Application Programming Interface}, Interfaz de programación de aplicaciones) es el conjunto de funciones y procedimientos que ofrece una biblioteca para ser utilizado por otro \emph{software} como una capa de abstracción.} de EC2 \cite{appscale-ec2}, MapReduce \cite{appscale-mapreduce} y Neptune \cite{appscale-neptune}. La API de EC2 añade a las aplicaciones la capacidad de interactuar con máquinas alojadas en Amazon EC2 \cite{amazon-ec2}. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La última API, Neptune, añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI \footnote[2]{MPI (del inglés \emph{Message Passing Interface}, Interfaz de Paso de Mensajes) es un estándar que define la sintaxis y la semántica de las funciones de una biblioteca de paso de mensajes diseñada para ser usada en programas que exploten la existencia de múltiples procesadores.}. El trabajo de entrada sirve para subir ficheros (generalmente el código que se ejecutará) a la infraestructura, el de salida para traer ficheros (generalmente los resultados obtenidos después de la ejecución) y el de MPI para ejecutar un trabajo MPI.
 
-%%% Revisar
-% Hay dos maneras de definir la infraestructura de AppScale. En la primera de ellas se define un despliegue por defecto, en el que un nodo toma el rol de \emph{controller} y el resto de nodos toman el rol de \emph{servers}. El nodo \emph{controller} es el que carga con la responsabilidad de la coordinación y los nodos \emph{servers} son los que llevan cabo la mayor parte del trabajo. La segunda manera de definir la infraestructura es hacerlo a través de un despliegue personalizado. En este despliegue podemos definir con más precisión los roles que queremos que desempeñe un nodo. Entre todos los posibles roles que AppScale ofrece, los más interesantes desde nuestro punto de vista son: \emph{master}, \emph{appengine}, \emph{database}, \emph{login} y \emph{open}.
-
 La segunda infraestructura es una infraestructura de ejecución de trabajos. Este tipo de infraestructuras está especializada en la ejecución de grandes cargas de trabajo paralelizable e intensivo en computación. Son por lo tanto idóneas para ser usadas en la computación de altas prestaciones. Dentro de esta infraestructura distribuida los ejemplos más claros que podemos encontrar son Condor y Torque.
 
 La tercera y última es la de servicios web en tres capas. Este tipo de infraestructura tiene tres niveles claramente diferenciados: balanceo o distribución de carga, servidor web y base de datos. El balanceador de carga es el encargado de distribuir las peticiones web a los servidores web que se encuentran en el segundo nivel de la infraestructura. Éstos procesarán las peticiones web y para responder a los clientes puede que tengan que consultar o modificar ciertos datos. Los datos de la aplicación se encuentran en la base de datos, el tercer nivel de la estructura, y por consiguiente, cada vez que uno de los elementos del segundo nivel necesite leer información o modificarla, accederá a este nivel. Para esta infraestructura no se puede elegir un ejemplo que destaque sobre los demás porque es tan común que cualquier página web profesional de hoy en día se sustenta en una infraestructura similar a ésta.\\
@@ -43,8 +40,11 @@ El objetivo de este proyecto es proporcionar una herramienta que facilite la pue
 
 \section{Trabajos previos}
 
-Desde un primer momento se decidió trabajar con la herramienta de configuración Puppet para la realización de este proyecto. 
+Desde un primer momento se decidió trabajar con la herramienta de configuración Puppet para la realización de este proyecto. La otra alternativa posible era CFEngine, pero a diferencia de ésta, Puppet posee un nivel mayor de abstracción que permite un mejor modelado de los recursos de un sistema. Además, el hecho de que Puppet esté programado en Ruby hace que sea más fácil trabajar y realizar abstracciones de alto nivel en él que en CFEngine, que está programado en C.
 
+También se decidió desde el principio trabajar con la infraestructura de ejecución de trabajos que proporciona AppScale. AppScale combina la capacidad de ejecutar trabajos con el alojamiento de aplicaciones web. Esta dualidad la convierte en una infraestructura muy interesante para trabajar con ella.
+
+La infraestructura de ejecución de trabajos Torque se eligió desde el inicio, sobre Condor, porque ...
 %%% Revisar
 % La modificación que se ha hecho de la herramienta de configuración Puppet puede considerarse como un concepto novedoso en el campo de las herramientas de configuración. El funcionamiento habitual de este tipo de herramientas consiste en la administración de los recursos de un nodo; el concepto de la administración de un recurso distribuido entre varios nodos no se ha introducido de momento en este tipo de herramientas.
 
@@ -69,7 +69,7 @@ Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnolog
 
 El resto de este documento queda organizado de la siguiente manera:
 \begin{description}
-\item[Capítulo \ref{cap:estudio}] Estudio de las herramientas e infraestructuras disponibles.
+\item[Capítulo \ref{cap:analisis}] Análisis de las herramientas e infraestructuras utilizadas.
 \item[Capítulo \ref{cap:modelado}] Extensión de Puppet para gestión de infraestructuras distribuidas.
 \item[Capítulo \ref{cap:disenyo}] Diseño de recursos distribuidos específicos.
 \item[Capítulo \ref{cap:validacion}] Validación de la solución planteada.
