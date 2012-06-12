@@ -27,12 +27,24 @@ La agrupación de uno o más recursos en un fichero de texto da lugar a un manif
 \item Enviar un informe con los resultados.
 \end{itemize}
 
+Normalment Puppet se ejecuta de manera periódica mediante un planificador de trabajos (por ejemplo, cron). Cada cierto tiempo contactará con el nodo que debe ser administrado y volverá a repetir los pasos anteriores. Es decir, Puppet está continuamente intentando llevar al nodo al estado especificado en el manifiesto. Si entre una ejecución y otra algo cambiara en el nodo, Puppet se daría cuenta e intentaría llevar al nodo al estado especificado en el manifiesto.
+
 
 \section{Modelado de recursos distribuidos: el recurso \emph{cloud}}
 
-El modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior: se puede pensar que para modelar un recurso distribuido basta con que Puppet envíe a cada nodo la configuración necesaria para garantizar el comportamiento deseado, pero, ¿qué pasa cuando ese nodo falla? Si no hacemos nada, el recurso dejará de mantenerse en el estado deseado. Por lo tanto, a la hora de administrar un recurso distribuido hay que asegurarse de que los nodos están operativos y cumpliendo con su función. Asimismo, un recurso distribuido puede presentar elementos comunes para todos los nodos del sistema, a diferencia de un recurso clásico de Puppet en el que el nodo posee o no ese recurso, pero no hay elementos comunes.\\
+El modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior: se puede pensar que para modelar un recurso distribuido basta con que Puppet envíe a cada nodo la configuración necesaria para garantizar el comportamiento deseado, pero, ¿qué pasa cuando ese nodo falla? Si no hacemos nada, el recurso dejará de mantenerse en el estado deseado. Por lo tanto, a la hora de administrar un recurso distribuido hay que asegurarse de que los nodos están operativos y cumpliendo con su función. Asimismo, un recurso distribuido puede presentar elementos comunes con otros recursos distribuidos, tales como una monitorización básica. Entre los recursos de Puppet, por ejemplo un usuario y un paquete, no hay tantos elementos comunes. \\
 
-Se puede hacer una analogía con la programación orientada a objetos en la que el recurso distribuido sería una metaclase que proporcionaría los atributos y métodos comunes a todo recurso distribuido tales como un nombre o una administración básica. La instanciación de ese recurso en un recurso distribuido de tipo AppScale, Torque, web u otros sería similar a la instanciación de una clase a partir de la metaclase. De igual manera, el recurso distribuido instanciado podría añadir nuevos atributos y métodos y modificar el comportamiento de los métodos de la metaclase, ya que no tienen por qué iniciarse de igual manera el recurso AppScale y el recurso Torque.\\
+Tenemos, pues, dos tipos de recursos claramente diferenciados: los recursos clásicos de Puppet (a los que llamaremos recursos locales) y los recursos distribuidos. Para entender mejor el modelado de estos recursos se puede hacer una analogía con la programación orientada a objetos (Figura \ref{figure:puppet-modelo-teorico}). En esta analogía el recurso distribuido sería una instancia de una metaclase que proporcionaría los atributos y métodos comunes a todo recurso distribuido. La instanciación de ese recurso en un recurso distribuido de tipo AppScale, Torque, web u otros sería similar a la instanciación de una clase a partir de la metaclase. De igual manera, el recurso distribuido instanciado podría añadir nuevos atributos y métodos y modificar el comportamiento de los métodos de la metaclase, ya que no tienen por qué iniciarse de igual manera el recurso AppScale y el recurso Torque. Los recursos locales de Puppet quedarían como clases que se instanciarían a partir de una metaclase de recursos locales.
+
+\begin{figure} [!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figuras/Modelo_Teorico_Puppet.eps}
+  \caption{Modelado teórico de recursos en Puppet .}
+\label{figure:puppet-modelo-teorico}
+\end{figure}
+
+%%% Revisar
+% Se puede hacer una analogía con la programación orientada a objetos en la que el recurso distribuido sería una metaclase que proporcionaría los atributos y métodos comunes a todo recurso distribuido tales como un nombre o una administración básica. La instanciación de ese recurso en un recurso distribuido de tipo AppScale, Torque, web u otros sería similar a la instanciación de una clase a partir de la metaclase. De igual manera, el recurso distribuido instanciado podría añadir nuevos atributos y métodos y modificar el comportamiento de los métodos de la metaclase, ya que no tienen por qué iniciarse de igual manera el recurso AppScale y el recurso Torque.\\
 
 %%% Revisar
 % En Puppet cualquier recurso que se define se presupone definido dentro de un ámbito local. Para poder diferenciar los recursos distribuidos de los locales, se ha añadido (al final no) a la gramática de Puppet una palabra reservada. Ya que los ejemplos caen dentro de la categoría de \emph{cloud} la palabra que se ha escogido ha sido \texttt{cloudres}.\\
