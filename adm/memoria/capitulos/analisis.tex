@@ -32,13 +32,21 @@ La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido
 
 Puppet es una herramienta de gestión de configuración basada en un lenguaje declarativo. A través de este lenguaje se modelan los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). 
 
-La agrupación de uno o más recursos en un fichero de texto da lugar a un manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Cuando a Puppet se le da la orden de aplicar un manifiesto los pasos que hace son:
+La agrupación de uno o más recursos en un fichero de texto da lugar a un manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Cuando a Puppet se le da la orden de aplicar un manifiesto los pasos que hace son (Figura \ref{figure:puppet-dataflow}):
+
 \begin{itemize}
 \item Interpretar y compilar la configuración.
 \item Comunicar la configuración compilada al nodo.
 \item Aplicar la configuración en el nodo.
 \item Enviar un informe con los resultados.
 \end{itemize}
+
+\begin{figure} [!htbp]
+  \centering
+  \includegraphics[width=13.5cm]{figuras/Puppet_Dataflow.png}
+  \caption{Flujo de datos en Puppet.}
+\label{figure:puppet-dataflow}
+\end{figure}
 
 Normalment Puppet se ejecuta de manera periódica mediante un planificador de trabajos (por ejemplo, cron). Cada cierto tiempo contactará con el nodo que debe ser administrado y volverá a repetir los pasos anteriores. Es decir, Puppet está continuamente intentando llevar al nodo al estado especificado en el manifiesto. Si entre una ejecución y otra algo cambiara en el nodo, Puppet se daría cuenta e intentaría llevar al nodo al estado especificado en el manifiesto.
 
