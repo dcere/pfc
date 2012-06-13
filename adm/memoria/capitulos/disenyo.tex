@@ -2,8 +2,6 @@
 \label{cap:disenyo}
 
 
-[Revisar]\\
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diseño y uso de un recurso distribuido para una infraestructura AppScale}
 
@@ -11,7 +9,7 @@ Una infraestructura AppScale puede ser definida de dos maneras: mediante un desp
 
 \subsection{Manifiesto de recurso distribuido}
 
-La sintaxis del manifiesto distribuido no se verá afectada por los dos tipos de despliegue posibles, pero sí que tendrá que reflejar los parámetros necesarios para realizar las tareas de administración de la infraestructura. Éste podría ser un ejemplo de un manifiesto para una infraestructura de tipo AppScale:
+La sintaxis del manifiesto distribuido no se verá afectada por los dos tipos de despliegue posibles, pero sí que tendrá que reflejar los parámetros necesarios para realizar las tareas de administración de la infraestructura. Éste podría ser un ejemplo de un manifiesto para la puesta en marcha de una infraestructura de tipo AppScale:
 
 \begin{lstlisting}
 appscale {'mycloud':
@@ -22,6 +20,15 @@ appscale {'mycloud':
    app_email    => "user@mail.com"
    app_password => "password"
    ensure       => running,
+}
+\end{lstlisting}
+
+La parada de una infraestructura AppScale es más sencilla, y por tanto también lo es su manifiesto:
+
+\begin{lstlisting}
+appscale {'mycloud':
+   pool   => ["155.210.155.70"],
+   ensure => stopped,
 }
 \end{lstlisting}
 
@@ -89,7 +96,7 @@ Una infraestructura Torque está formada por un nodo maestro y un conjunto de no
 
 \subsection{Manifiesto de recurso distribuido}
 
-La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale, sólo que aquí no aparecen los parámetros de administración que aparecían en aquél, ya que Torque no requiere su uso:
+La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale, sólo que aquí no aparecen los parámetros de administración que aparecían en aquél, ya que Torque no requiere su uso. Un ejemplo para la puesta en marcha de una infraestructura Torque sería similar a éste:
 
 \begin{lstlisting}
 torque {'mycloud':
@@ -98,6 +105,17 @@ torque {'mycloud':
    domain   => "/etc/puppet/modules/torque/files/mycloud-template.xml",
    pool     => ["155.210.155.70"],
    ensure   => running,
+}
+\end{lstlisting}
+
+En este caso, la parada de la infraestructura es algo más compleja que en el ejemplo de AppScale. Un posible manifiesto de parada sería similar a éste:
+
+\begin{lstlisting}
+torque {'mycloud':
+   ip_file  => "/etc/puppet/modules/torque/files/jobs-ip.yaml",
+   img_file => "/etc/puppet/modules/torque/files/jobs-img.yaml",
+   pool     => ["155.210.155.70"],
+   ensure   => stopped,
 }
 \end{lstlisting}
 
@@ -139,7 +157,7 @@ Para demostrar la validez del modelo desarrollado se verá como, además de sobr
 
 \subsection{Manifiesto de recurso distribuido}
 
-La sintaxis en el manifiesto es fundamentalmente similar a la utilizada en el ejemplo de Torque, ya que tampoco en este caso tenemos parámetros de administración de la infraestructura:
+La sintaxis del manifiesto de puesta en marcha es fundamentalmente similar a la utilizada en el ejemplo de Torque, ya que tampoco en este caso tenemos parámetros de administración de la infraestructura. Así pues, si se quiere poner en marcha una infraestructura web de tres niveles podemos usar un manifiesto similar a éste:
 
 \begin{lstlisting}
 web {'mycloud':
@@ -148,6 +166,15 @@ web {'mycloud':
    domain   => "/etc/puppet/modules/web/files/mycloud-template.xml",
    pool     => ["155.210.155.70"],
    ensure   => running,
+}
+\end{lstlisting}
+
+En este caso, el manifiesto de parada vuelve a ser sencillo. Un posible ejemplo es éste:
+
+\begin{lstlisting}
+web {'mycloud':
+   pool   => ["155.210.155.70"],
+   ensure => stopped,
 }
 \end{lstlisting}
 
