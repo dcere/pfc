@@ -40,13 +40,11 @@ El objetivo de este proyecto es proporcionar una herramienta que facilite la pue
 
 \section{Trabajos previos}
 
-Desde un primer momento se decidió trabajar con la herramienta de configuración Puppet para la realización de este proyecto. La otra alternativa posible era CFEngine, pero a diferencia de ésta, Puppet posee un nivel mayor de abstracción que permite un mejor modelado de los recursos de un sistema. Además, el hecho de que Puppet esté programado en Ruby hace que sea más fácil trabajar y realizar abstracciones de alto nivel en él que en CFEngine, que está programado en C.
+Desde un primer momento se decidió trabajar con la herramienta de configuración Puppet para la realización de este proyecto. La otra alternativa posible era CFEngine, pero a diferencia de ésta, Puppet posee un nivel mayor de abstracción que permite un mejor modelado de los recursos de un sistema. Además, el hecho de que Puppet esté programado en Ruby hace que sea más fácil trabajar y realizar abstracciones de alto nivel en él que en CFEngine, que está programado en el lenguaje C.
 
 También se decidió desde el principio trabajar con la infraestructura de ejecución de trabajos que proporciona AppScale. AppScale combina la capacidad de ejecutar trabajos con el alojamiento de aplicaciones web. Esta dualidad la convierte en una infraestructura muy interesante para trabajar con ella.
 
-La infraestructura de ejecución de trabajos Torque se eligió desde el inicio, sobre Condor, porque ...
-%%% Revisar
-% La modificación que se ha hecho de la herramienta de configuración Puppet puede considerarse como un concepto novedoso en el campo de las herramientas de configuración. El funcionamiento habitual de este tipo de herramientas consiste en la administración de los recursos de un nodo; el concepto de la administración de un recurso distribuido entre varios nodos no se ha introducido de momento en este tipo de herramientas.
+La infraestructura de ejecución de trabajos Torque también se eligió desde el inicio.
 
 
 \section{Tecnología utilizada}
