@@ -29,7 +29,8 @@ PUPPET_DST="/etc/puppet/modules"
 SSH="ssh root@$1"
 
 # Create directories
-$SSH mkdir -p $PUPPET_DST/$NAME/provider
+$SSH mkdir -p $PUPPET_DST/$NAME/{type,provider}
 
 # Copy files
+scp ./type/*         root@$1:$PUPPET_DST/$NAME/type/         
 scp ./provider/*     root@$1:$PUPPET_DST/$NAME/provider/
