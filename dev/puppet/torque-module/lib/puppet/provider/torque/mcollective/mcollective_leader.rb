@@ -28,7 +28,7 @@ class MCollectiveLeaderClient < MCollectiveClient
       output.each_line do |line|
          m = line.match(regex)
          if m
-            ids << m[1]
+            ids << m[1].to_i()      # Send them as integers
          end
       end
       

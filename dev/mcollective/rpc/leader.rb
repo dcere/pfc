@@ -12,10 +12,9 @@ module MCollective
          # Leader election algorithm actions
          action "ask_id" do
             file = File.open("/tmp/cloud-id", 'r')
-            node_id = file.read()
+            node_id = file.read().chomp()
             file.close
             
-            node_id.chomp!
             reply[:node_id] = node_id
          end
          

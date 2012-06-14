@@ -67,20 +67,18 @@ def monitor_vm(vm, ip_roles)
    # If they are running, but they do not have their ID:
    #   - Set their ID before they can become another leader.
    #   - Set also the leader's ID.
-   command = "cat #{ID_FILE} > /dev/null 2> /dev/null"
-   out, success = CloudSSH.execute_remote(command, vm)
+   success = CloudLeader.vm_check_id(vm)
    unless success
-      le = LeaderElection.new()
    
       # Set their ID (based on the last ID we defined)
       id = get_last_id()
       id += 1
-      le.vm_set_id(vm, id)
+      CloudLeader.vm_set_id(vm, id)
       set_last_id(id)
       
       # Set the leader's ID
-      leader = le.get_leader()
-      le.vm_set_leader(vm, leader)
+      leader = CloudLeader.get_leader()
+      CloudLeader.vm_set_leader(vm, leader)
       
       # Send the last ID to all nodes
       mcc = MCollectiveFilesClient.new("files")
@@ -213,8 +211,8 @@ def copy_cloud_files(ips)
    ips.each do |vm|
    
       if vm != MY_IP
+         
          # Cloud manifest
-         # FIXME : Check 'source' attribute in manifest to avoid scp
          file = "init-jobs.pp"
          path = "/etc/puppet/modules/torque/manifests/#{file}"
          out, success = CloudSSH.copy_remote(path, vm, path)
@@ -350,11 +348,11 @@ def get_last_id()
 
    if File.exists?(LAST_ID_FILE)
       file = File.open(LAST_ID_FILE, 'r')
+      id = file.read().chomp().to_i
+      file.close
    else
-      file = File.open(ID_FILE, 'r')
+      id = CloudLeader.get_id()
    end
-   id = file.read().chomp().to_i
-   file.close
    return id
 
 end
