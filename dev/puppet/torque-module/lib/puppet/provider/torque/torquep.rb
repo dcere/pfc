@@ -326,10 +326,11 @@ Puppet::Type.type(:torque).provide(:torquep) do
          # Shutdown and undefine all virtual machines explicitly created for this cloud
          pms.each do |pm|
          
-            ssh_connect = "ssh dceresuela@#{pm}"
+            pm_user = resource[:pm_user]
+            ssh_connect = "ssh #{pm_user}@#{pm}"
             
             # Bring the defined domains file from the physical machine to this one
-            result = `scp dceresuela@#{pm}:#{DOMAINS_FILE} #{DOMAINS_FILE}`
+            result = `scp #{pm_user}@#{pm}:#{DOMAINS_FILE} #{DOMAINS_FILE}`
             if $?.exitstatus == 0
             
                puts "#{DOMAINS_FILE} exists in #{pm}"
@@ -451,10 +452,13 @@ Puppet::Type.type(:torque).provide(:torquep) do
    def pool
    end
    
-   def root_password
+   def pm_user
    end
    
    def starting_mac_address
+   end
+   
+   def root_password
    end
    
    def app_email

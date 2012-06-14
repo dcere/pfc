@@ -165,8 +165,9 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Copy the domain definition file to the physical machine
    puts "Copying the domain definition file to the physical machine..."
    domain_file_path = "/tmp/" + domain_file_name
+   pm_user = resource[:pm_user]
    command = "scp /etc/puppet/modules/torque/files/#{domain_file_name}" +
-                " dceresuela@#{pm}:#{domain_file_path}"
+                " #{pm_user}@#{pm}:#{domain_file_path}"
    result = `#{command}`
    if $?.exitstatus == 0
       debug "[DBG] domain definition file copied"
@@ -175,7 +176,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
       err   "#{vm_name} impossible to copy domain definition file"
    end
    
-   ssh_connect = "ssh dceresuela@#{pm}"
+   ssh_connect = "ssh #{pm_user}@#{pm}"
    
    # Define the domain in the physical machine
    puts "Defining the domain in the physical machine..."

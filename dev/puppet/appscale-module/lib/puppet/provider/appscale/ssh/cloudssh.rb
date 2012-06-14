@@ -40,7 +40,7 @@ module CloudSSH
    def self.copy_ssh_key(ip, password, path = SSH_PATH, file = SSH_KEY)
    
       puts "Copying ssh key..."
-      command_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud/ssh"
+      command_path = "/etc/puppet/modules/appscale/lib/puppet/provider/appscale/ssh"
       identity_file = "#{SSH_PATH}/#{SSH_KEY}"
       if password
          result = `#{command_path}/ssh_copy_id.sh root@#{ip} #{identity_file} #{password}`

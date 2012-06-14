@@ -232,7 +232,7 @@ def start_monitor_head(vm)
    # Monitor head node pbs_server and pbs_sched processes with god
    
    # pbs_server is up and running
-   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-server.god"
+   path = "/etc/puppet/modules/torque/files/jobs-god/pbs-server.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
@@ -253,7 +253,7 @@ def start_monitor_head(vm)
    end
    
    # pbs_sched is up and running
-   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-sched.god"
+   path = "/etc/puppet/modules/torque/files/jobs-god/pbs-sched.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
@@ -282,7 +282,7 @@ end
 def start_monitor_compute(vm)
    
    # Monitor compute node with god: pbs_mom is up and running
-   path = "/etc/puppet/modules/cloud/files/jobs-god/pbs-mom.god"
+   path = "/etc/puppet/modules/torque/files/jobs-god/pbs-mom.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success

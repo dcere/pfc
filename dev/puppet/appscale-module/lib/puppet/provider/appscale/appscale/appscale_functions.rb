@@ -13,7 +13,7 @@ def appscale_cloud_start(app_ips, app_roles,
    script_keys = "appscale-add-keypair.tcl"
    script_run  = "appscale-run-instances.tcl"
    ips_yaml = resource[:ip_file]
-   script_path = "/etc/puppet/modules/cloud/lib/puppet/provider/cloud/appscale"
+   script_path = "/etc/puppet/modules/appscale/lib/puppet/provider/appscale/appscale"
    
    # Add key pairs
    puts "About to add key pairs"
@@ -132,7 +132,7 @@ def appscale_monitor(vm, role)
    
    # Copy the manifest
    puts "Copying manifest"
-   path = "/etc/puppet/modules/cloud/files/appscale-manifests/basic.pp"
+   path = "/etc/puppet/modules/appscale/files/appscale-manifests/basic.pp"
    out, success = CloudSSH.copy_remote(path, vm, "/tmp")
    unless success
       err "[AppScale monitor] Impossible to copy basic manifest to #{vm}"

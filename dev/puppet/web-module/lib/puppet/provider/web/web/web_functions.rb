@@ -163,7 +163,7 @@ end
 def start_monitor_balancer(vm)
 
    # Copy the puppet manifest
-   path = "/etc/puppet/modules/cloud/files/web-manifests/balancer.pp"
+   path = "/etc/puppet/modules/web/files/web-manifests/balancer.pp"
    out, success = CloudSSH.copy_remote(path, vm, "/tmp")
    unless success
       err "[Web monitor] Impossible to copy balancer manifest to #{vm}"
@@ -189,7 +189,7 @@ end
 def start_monitor_server(vm)
 
    # Copy the puppet manifest
-   path = "/etc/puppet/modules/cloud/files/web-manifests/server.pp"
+   path = "/etc/puppet/modules/web/files/web-manifests/server.pp"
    out, success = CloudSSH.copy_remote(path, vm, "/tmp")
    unless success
       err "[Web monitor] Impossible to copy server manifest to #{vm}"
@@ -205,7 +205,7 @@ def start_monitor_server(vm)
    end
    
    # Monitor web servers with god: web server is up and running
-   path = "/etc/puppet/modules/cloud/files/web-god/server.god"
+   path = "/etc/puppet/modules/web/files/web-god/server.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
@@ -235,7 +235,7 @@ def start_monitor_database(vm)
    # Monitor database with god due to puppet vs ubuntu mysql bug
    # http://projects.puppetlabs.com/issues/12773
    # Therefore there is no puppet monitoring, only god
-   path = "/etc/puppet/modules/cloud/files/web-god/database.god"
+   path = "/etc/puppet/modules/web/files/web-god/database.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success

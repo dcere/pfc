@@ -49,6 +49,11 @@ Puppet::Type.newtype(:torque) do
    
    # Infrastructure parameters
 
+   newproperty(:pm_user) do
+      desc "The physical machine user. It must have proper permissions"
+      defaultto "dceresuela"
+   end
+
    newproperty(:starting_mac_address) do
       desc "Starting MAC address for new virtual machines"
       defaultto "52:54:00:01:00:00"
