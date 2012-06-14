@@ -5,19 +5,10 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
    require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
    
-   # Require MCollective files
-   require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
+   # Require generic files
+   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
+   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
    
-   # Require monitoring files
-   require File.dirname(__FILE__) + '/monitor/cloudmonitor.rb'
-   
-   # Require ssh files
-   require File.dirname(__FILE__) + '/ssh/cloudssh.rb'
-   
-
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"
    #commands :grep => "/bin/grep"
@@ -30,9 +21,6 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    VIRSH_CONNECT = "virsh -c qemu:///system"
    MY_IP = Facter.value(:ipaddress)
    PING = "ping -q -c 1 -w 4"
-
-   ID_FILE     = "/tmp/cloud-id"
-   LEADER_FILE = "/tmp/cloud-leader"
 
    LAST_MAC_FILE = "/tmp/cloud-last-mac"
    LAST_ID_FILE  = "/tmp/cloud-last-id"
@@ -72,11 +60,10 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
             
             # Check if you are the leader
             puts "Checking whether we are the leader..."
-            le = LeaderElection.new()
-            my_id = le.get_id()
-            leader = le.get_leader()
+            my_id = CloudLeader.get_id()
+            leader = CloudLeader.get_leader()
  
-            if my_id != -1 && my_id == leader
+            if my_id == leader && my_id != -1
             
                # We are the leader
                puts "#{MY_IP} is the leader"
@@ -157,12 +144,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
                if my_id == -1
                   
                   # If we have not received our ID, let's assume we will be the leader
-                  id_file = File.open(ID_FILE, 'w')
-                  id_file.puts("0")
-                  id_file.close
-                  leader_file = File.open(LEADER_FILE, 'w')
-                  leader_file.puts("0")
-                  leader_file.close
+                  CloudLeader.set_id(0)
+                  CloudLeader.set_leader(0)
                   
                   puts "#{MY_IP} will be the leader"
                   
@@ -175,8 +158,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
                   puts "Trying to become leader..."
                   
                   # Get your ID
-                  le = LeaderElection.new()
-                  my_id = le.get_id()
+                  my_id = CloudLeader.get_id()
                   
                   # Get all machines' IDs
                   mcc = MCollectiveLeaderClient.new("leader")
@@ -259,25 +241,19 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          puts "Cloud already started"
          
          # Get your ID
-         id_file = File.open(ID_FILE,'r')
-         if id_file
-            id = id_file.read().chomp()
-            id_file.close
-         else
-            err "File #{ID_FILE} does not exist"
+         my_id = CloudLeader.get_id()
+         if my_id == -1
+            err "ID file does not exist"
          end
          
          # Get leader's ID
-         leader_file = File.open(LEADER_FILE,'r')
-         if leader_file
-            leader = leader_file.read().chomp()
-            leader_file.close
-         else
-            err "File #{LEADER_FILE} does not exist"
+         leader = CloudLeader.get_leader()
+         if leader == -1
+            err "LEADER file does not exist"
          end
 
          # Check if you are the leader
-         if id == leader
+         if my_id == leader && my_id != -1
             puts "#{MY_IP} is the leader"
             
             # Do monitoring
@@ -402,8 +378,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          mcc = MCollectiveFilesClient.new("files")
          
          # Delete leader, id, last_id and last_mac files on all machines (leader included)
-         mcc.delete_file(LEADER_FILE)                          # Leader ID
-         mcc.delete_file(ID_FILE)                              # ID
+         mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
+         mcc.delete_file(CloudLeader::ID_FILE)                 # ID
          mcc.delete_file(LAST_ID_FILE)                         # Last ID
          mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
          mcc.disconnect       # Now it can be disconnected
@@ -464,10 +440,13 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    def pool
    end
    
-   def root_password
+   def pm_user
    end
    
    def starting_mac_address
+   end
+   
+   def root_password
    end
    
    def app_email

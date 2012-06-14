@@ -42,13 +42,17 @@ Puppet::Type.newtype(:cloud) do
       desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
    end
    
-   
    newproperty(:pool, :array_matching => :all) do
       desc "The pool of physical machines"
    end
 
    
    # Infrastructure parameters
+
+   newproperty(:pm_user) do
+      desc "The physical machine user. It must have proper permissions"
+      defaultto "dceresuela"
+   end
 
    newproperty(:starting_mac_address) do
       desc "Starting MAC address for new virtual machines"

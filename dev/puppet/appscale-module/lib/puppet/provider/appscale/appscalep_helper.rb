@@ -67,20 +67,18 @@ def monitor_vm(vm, ip_roles)
    # If they are running, but they do not have their ID:
    #   - Set their ID before they can become another leader.
    #   - Set also the leader's ID.
-   command = "cat #{ID_FILE} > /dev/null 2> /dev/null"
-   out, success = CloudSSH.execute_remote(command, vm)
+   success = CloudLeader.vm_check_id(vm)
    unless success
-      le = LeaderElection.new()
    
       # Set their ID (based on the last ID we defined)
       id = get_last_id()
       id += 1
-      le.vm_set_id(vm, id)
+      CloudLeader.vm_set_id(vm, id)
       set_last_id(id)
       
       # Set the leader's ID
-      leader = le.get_leader()
-      le.vm_set_leader(vm, leader)
+      leader = CloudLeader.get_leader()
+      CloudLeader.vm_set_leader(vm, leader)
       
       # Send the last ID to all nodes
       mcc = MCollectiveFilesClient.new("files")

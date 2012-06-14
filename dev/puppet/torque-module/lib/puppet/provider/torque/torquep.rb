@@ -63,7 +63,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
             my_id = CloudLeader.get_id()
             leader = CloudLeader.get_leader()
  
-            if my_id != -1 && my_id == leader
+            if my_id == leader && my_id != -1
             
                # We are the leader
                puts "#{MY_IP} is the leader"
@@ -253,7 +253,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          end
 
          # Check if you are the leader
-         if my_id == leader
+         if my_id == leader && my_id != -1
             puts "#{MY_IP} is the leader"
             
             # Do monitoring
