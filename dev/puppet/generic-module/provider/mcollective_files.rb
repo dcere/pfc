@@ -1,4 +1,5 @@
 require 'mcollective'
+require './mcollective_client.rb'
 include MCollective::RPC
 
 # MCollective files client used to manage files

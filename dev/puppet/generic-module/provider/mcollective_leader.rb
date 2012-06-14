@@ -1,4 +1,5 @@
 require 'mcollective'
+require './mcollective_client.rb'
 include MCollective::RPC
 
 # MCollective leader client used to help with leader election algorithm
