@@ -6,6 +6,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
    require File.dirname(__FILE__) + '/torque/torque_functions.rb'
    
    # Require generic files
+   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
    Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
 
    # Commands needed to make the provider suitable
