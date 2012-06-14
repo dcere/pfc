@@ -11,15 +11,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
    require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
    require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
    
-   # Require monitoring files
-   require File.dirname(__FILE__) + '/monitor/cloudmonitor.rb'
-   
-   # Require leader election files
-   require File.dirname(__FILE__) + '/leader/cloudleader.rb'
-   
-   # Require ssh files
-   require File.dirname(__FILE__) + '/ssh/cloudssh.rb'
-   
+   # Require generic files
+   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
 
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"
