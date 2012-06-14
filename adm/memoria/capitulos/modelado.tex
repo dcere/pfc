@@ -8,7 +8,7 @@ La extensión a la herramienta de configuración Puppet se ha hecho mediante el 
 
 \section{Modelado de recursos distribuidos: el recurso \emph{cloud}}
 
-En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener. Sin embargo, el modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior, ya que dicho modelo no está pensado teniendo en cuenta la problemática asociada a los sistemas distribuidos. \\
+En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener y cuál debe ser su estado. Sin embargo, el modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior, ya que dicho modelo no está pensado teniendo en cuenta la problemática asociada a los sistemas distribuidos. \\
 
 %En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener. Sin embargo, el modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior: se puede pensar que para modelar un recurso distribuido basta con que Puppet envíe a cada nodo la configuración necesaria para garantizar el comportamiento deseado, pero, ¿qué pasa cuando ese nodo falla? Si no hacemos nada, el recurso dejará de mantenerse en el estado deseado. Por lo tanto, a la hora de administrar un recurso distribuido hay que asegurarse de que los nodos están operativos y cumpliendo con su función. Asimismo, un recurso distribuido puede presentar elementos comunes con otros recursos distribuidos, tales como una monitorización básica. Entre los recursos clásicos de Puppet, por ejemplo un usuario y un paquete, no hay tantos elementos comunes. \\
 
@@ -85,13 +85,4 @@ Para parar un \emph{cloud} los pasos que el proveedor realiza son:
 \item Eliminación de los ficheros internos de gestión del \emph{cloud}.
 \end{itemize}
 
-
-\section{Implementación del proveedor [Temporal]}
-
-La primera opción que se barajó para realizar el modelado del recurso distribuido no fue la creación de un tipo y un proveedor para el recurso distribuido, sino que fue la de usar \emph{Faces} de Puppet. \emph{Faces} es una API para crear subcomandos y acciones dentro de Puppet. Analizada a fondo, esta API no proporcionaba una ventaja muy superior a la ejecución de comandos desde la consola del sistema operativo. Esta opción se acabó descartando ya que no era interesante que un recurso distribuido requiriera tener a una persona usando continuamente la línea de comandos.
-
-El modelado de un recurso distribuido mediante un proveedor sí que soluciona de manera elegante el problema.
-
-%La primera opción que se barajó fue la de usar \emph{Faces} de Puppet. \emph{Faces} es una API para crear subcomandos y acciones dentro de Puppet. Analizada a fondo, esta API no proporcionaba una ventaja muy superior a la ejecución de comandos desde la consola del sistema operativo, y no interesaba crear una abstracción que facilitara el trabajo para posteriormente estar usando continuamente la línea de comandos.
-
-%La segunda opción que se barajó fue la de la creación de un tipo y un proveedor para ese tipo. Esta opción sí que presenta una ventaja considerable: podemos usar el tipo para modelar la infraestructura distribuida y podemos usar el proveedor para indicar cómo iniciar y mantener esa infraestructura. Esta aproximación se acerca más al modelo que usa Puppet, ya que definimos la infraestructura como si fuera un recurso más de los que posee Puppet. Así pues, esta es la aproximación que se tomó para realizar la extensión.
+La creación de un tipo y un proveedor no fue la primera opción que se barajó para realizar el modelado del recurso distribuido, sino que fue la de usar la API \emph{Faces} de Puppet. \emph{Faces} es una API para crear subcomandos y acciones dentro de Puppet. Después de analizar esta API a fondo se vio que las opciones que ofrecía no permitían la integración del recurso distribuido dentro del modelo de Puppet. Como lo que interesaba era crear una abstracción del recurso distribuido esta opción se acabó descartando en favor de la creación de un tipo y un proveedor, que soluciona el problema de una manera más elegante.
