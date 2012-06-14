@@ -1,8 +1,8 @@
 God.watch do |w|
-  w.name = "jobs-pbs-sched"
+  w.name = "torque-pbs-server"
   w.interval = 30.seconds # default      
-  w.start = "/bin/bash /root/cloud/jobs/start-pbs-sched"
-  w.pid_file = "/var/spool/torque/sched_priv/sched.lock"
+  w.start = "/bin/bash /root/cloud/torque/start-pbs-server"
+  w.pid_file = "/var/spool/torque/server_priv/server.lock"
     
   #w.behavior(:clean_pid_file)
   

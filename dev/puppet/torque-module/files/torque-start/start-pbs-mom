@@ -2,4 +2,4 @@
 nohup start-stop-daemon --start --quiet -m \
   --pidfile /var/spool/torque/mom_priv/mom.lock  \
   --exec /usr/local/sbin/pbs_mom \
-  > /root/cloud/jobs/pbs-mom.out 2> /root/cloud/jobs/pbs-mom.err &
+  > /root/cloud/torque/pbs-mom.out 2> /root/cloud/torque/pbs-mom.err &

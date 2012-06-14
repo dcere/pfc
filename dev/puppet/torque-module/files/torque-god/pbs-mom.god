@@ -1,7 +1,7 @@
 God.watch do |w|
-  w.name = "jobs-pbs-mom"
+  w.name = "torque-pbs-mom"
   w.interval = 30.seconds # default      
-  w.start = "/bin/bash /root/cloud/jobs/start-pbs-mom"
+  w.start = "/bin/bash /root/cloud/torque/start-pbs-mom"
   w.pid_file = "/var/spool/torque/mom_priv/mom.lock"
     
   #w.behavior(:clean_pid_file)

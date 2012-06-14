@@ -1,8 +1,8 @@
-# Starts a jobs cloud.
-def jobs_cloud_start(jobs_roles)
+# Starts a torque cloud.
+def torque_cloud_start(torque_roles)
 
-   head    = jobs_roles[:head]
-   compute = jobs_roles[:compute]
+   head    = torque_roles[:head]
+   compute = torque_roles[:compute]
 
    # Start services
    
@@ -23,7 +23,7 @@ def jobs_cloud_start(jobs_roles)
    check_command = "ps aux | grep -v grep | grep pbs_server"
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
-      command = "/bin/bash /root/cloud/jobs/start-pbs-server"
+      command = "/bin/bash /root/cloud/torque/start-pbs-server"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "Impossible to start pbs_server in #{head}"
@@ -35,7 +35,7 @@ def jobs_cloud_start(jobs_roles)
    check_command = "ps aux | grep -v grep | grep pbs_sched"
    out, success = CloudSSH.execute_remote(check_command, head)
    unless success
-      command = "/bin/bash /root/cloud/jobs/start-pbs-sched"
+      command = "/bin/bash /root/cloud/torque/start-pbs-sched"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "Impossible to start pbs_sched in #{head}"
@@ -46,7 +46,7 @@ def jobs_cloud_start(jobs_roles)
    # Start compute
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
-   command = "/bin/bash /root/cloud/jobs/start-pbs-mom"
+   command = "/bin/bash /root/cloud/torque/start-pbs-mom"
    compute.each do |vm|
       out, success = CloudSSH.execute_remote(check_command, vm)
       unless success
@@ -63,9 +63,9 @@ def jobs_cloud_start(jobs_roles)
    
    
    # Start monitoring
-   jobs_monitor(head, :head)
+   torque_monitor(head, :head)
    compute.each do |vm|
-      jobs_monitor(vm, :compute)
+      torque_monitor(vm, :compute)
    end
    
    return true
@@ -73,8 +73,8 @@ def jobs_cloud_start(jobs_roles)
 end
 
 
-# Monitors a virtual machine belonging to a jobs cloud.
-def jobs_monitor(vm, role)
+# Monitors a virtual machine belonging to a torque cloud.
+def torque_monitor(vm, role)
 
    if role == :head
       puts "[Torque monitor] Monitoring head"
@@ -103,7 +103,7 @@ def jobs_monitor(vm, role)
       puts "[Torque monitor] Monitoring compute"
       
       # Obtain head node's IP
-      vm_ips, vm_ip_roles = jobs_yaml_ips(resource[:ip_file])
+      vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
       head = vm_ip_roles[:head]
       
       # Check if the node is in the list of compute nodes
@@ -151,11 +151,11 @@ def jobs_monitor(vm, role)
 end
 
 
-# Stops a jobs cloud.
-def jobs_cloud_stop(jobs_roles)
+# Stops a torque cloud.
+def torque_cloud_stop(torque_roles)
 
-   head    = jobs_roles[:head]
-   compute = jobs_roles[:compute]
+   head    = torque_roles[:head]
+   compute = torque_roles[:compute]
    
    # TODO Kill pbs_server, pbs_sched and pbs_mom processes?
    
@@ -232,7 +232,7 @@ def start_monitor_head(vm)
    # Monitor head node pbs_server and pbs_sched processes with god
    
    # pbs_server is up and running
-   path = "/etc/puppet/modules/torque/files/jobs-god/pbs-server.god"
+   path = "/etc/puppet/modules/torque/files/torque-god/pbs-server.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
@@ -253,7 +253,7 @@ def start_monitor_head(vm)
    end
    
    # pbs_sched is up and running
-   path = "/etc/puppet/modules/torque/files/jobs-god/pbs-sched.god"
+   path = "/etc/puppet/modules/torque/files/torque-god/pbs-sched.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
@@ -282,7 +282,7 @@ end
 def start_monitor_compute(vm)
    
    # Monitor compute node with god: pbs_mom is up and running
-   path = "/etc/puppet/modules/torque/files/jobs-god/pbs-mom.god"
+   path = "/etc/puppet/modules/torque/files/torque-god/pbs-mom.god"
    command = "mkdir -p /etc/god"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success

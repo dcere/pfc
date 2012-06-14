@@ -1,15 +1,9 @@
 Puppet::Type.type(:torque).provide(:torquep) do
    desc "Manages torque clouds formed by KVM virtual machines"
 
-   # Require jobs auxiliar files
-   require File.dirname(__FILE__) + '/jobs/jobs_yaml.rb'
-   require File.dirname(__FILE__) + '/jobs/jobs_functions.rb'
-   
-   # Require MCollective files
-   require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
+   # Require torque auxiliar files
+   require File.dirname(__FILE__) + '/torque/torque_yaml.rb'
+   require File.dirname(__FILE__) + '/torque/torque_functions.rb'
    
    # Require generic files
    Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
@@ -311,7 +305,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          
          # Stop cloud infrastructure
          vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-         jobs_cloud_stop(vm_ip_roles)
+         torque_cloud_stop(vm_ip_roles)
          
          # Get pool of physical machines
          pms = resource[:pool]
@@ -371,7 +365,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
          mcc = MCollectiveCronClient.new("cronos")
-         string = "init-jobs"
+         string = "init-torque"
          mcc.delete_line(CRON_FILE, string)
          # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
          

@@ -7,9 +7,9 @@ def obtain_vm_data
    vm_ips = []
    vm_ip_roles = []
    vm_img_roles = []
-   puts "Obtaining jobs cloud data"
-   vm_ips, vm_ip_roles = jobs_yaml_ips(resource[:ip_file])
-   vm_img_roles = jobs_yaml_images(resource[:img_file])
+   puts "Obtaining torque cloud data"
+   vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
+   vm_img_roles = torque_yaml_images(resource[:img_file])
    return vm_ips, vm_ip_roles, vm_img_roles
          
 end
@@ -91,7 +91,7 @@ def monitor_vm(vm, ip_roles)
    # Use copy_cloud_files if we copy no matter what. Modify it if we check
    
    # Depending on the type of cloud we will have to monitor different components
-   jobs_monitor(vm, role)
+   torque_monitor(vm, role)
    
    return true
    
@@ -214,7 +214,7 @@ def copy_cloud_files(ips)
       if vm != MY_IP
          
          # Cloud manifest
-         file = "init-jobs.pp"
+         file = "init-torque.pp"
          path = "/etc/puppet/modules/torque/manifests/#{file}"
          out, success = CloudSSH.copy_remote(path, vm, path)
          unless success
@@ -242,7 +242,7 @@ end
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-   return jobs_cloud_start(vm_ip_roles)
+   return torque_cloud_start(vm_ip_roles)
 
 end
 
@@ -250,7 +250,7 @@ end
 # Makes the cloud auto-manageable through crontab files.
 def auto_manage()
 
-   cron_file = "crontab-jobs"
+   cron_file = "crontab-torque"
    path = "/etc/puppet/modules/torque/files/cron/#{cron_file}"
    
    if File.exists?(path)

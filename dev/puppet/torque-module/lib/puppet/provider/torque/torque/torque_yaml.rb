@@ -3,7 +3,7 @@ require 'yaml'
 
 # Obtains the IP addresses from the ip_file file. It does NOT check whether
 # the file has the proper format.
-def jobs_yaml_ips(path)
+def torque_yaml_ips(path)
 
    ips = []
    ip_roles = {}
@@ -38,7 +38,7 @@ end
 
 
 # Obtains the disk images from the img_file file.
-def jobs_yaml_images(path)
+def torque_yaml_images(path)
 
    img_roles = {}
 

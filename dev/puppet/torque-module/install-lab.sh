@@ -12,7 +12,7 @@
 #     - tp:    only type and provider
 #     - files: only type and provider files directory
 #     - test:  only test files
-#     - jobs:  Jobs local manifests and monitor files
+#     - trq:   Torque local manifests and monitor files
 #
 # Examples:
 #   _$: install-lab.sh 155.210.155.170 all
@@ -40,12 +40,12 @@ PUPPET_DST="/etc/puppet/modules"
 SSH="ssh root@$1"
 
 # Create directories
-if [ $2 != "jobs" ]
+if [ $2 != "trq" ]
 then
    $SSH mkdir -p $PUPPET_DST/$NAME/{files,templates,manifests}
    $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/type
    $SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME
-   $SSH mkdir -p $PUPPET_DST/$NAME/files/{cron,jobs-god,jobs-start}
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/{cron,torque-god,torque-start}
 fi
 
 # Copy manifests
@@ -87,16 +87,16 @@ then
 
 fi
 
-# Copy jobs monitor files ans start scripts
-JOBS_DST="/root/cloud/jobs"
-if [ $2 = "jobs" -o $2 = "all" ]
+# Copy Torque monitor files ans start scripts
+TORQUE_DST="/root/cloud/torque"
+if [ $2 = "trq" -o $2 = "all" ]
 then
-   $SSH mkdir -p $PUPPET_DST/$NAME/files/jobs-god
-   scp ./files/jobs-god/*     root@$1:$PUPPET_DST/$NAME/files/jobs-god/
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/torque-god
+   scp ./files/torque-god/*     root@$1:$PUPPET_DST/$NAME/files/torque-god/
    
-   $SSH mkdir -p $PUPPET_DST/$NAME/files/jobs-start
-   scp ./files/jobs-start/*     root@$1:$PUPPET_DST/$NAME/files/jobs-start/
+   $SSH mkdir -p $PUPPET_DST/$NAME/files/torque-start
+   scp ./files/torque-start/*     root@$1:$PUPPET_DST/$NAME/files/torque-start/
    
-   $SSH mkdir -p $JOBS_DST
-   scp ./files/jobs-start/*     root@$1:$JOBS_DST/
+   $SSH mkdir -p $TORQUE_DST
+   scp ./files/torque-start/*     root@$1:$TORQUE_DST/
 fi
