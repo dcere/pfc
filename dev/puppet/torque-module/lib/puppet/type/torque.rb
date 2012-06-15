@@ -18,9 +18,13 @@ Puppet::Type.newtype(:torque) do
 
 
    # General parameters   
-   #require '/etc/puppet/modules/generic-module/type/generic'
    # 1 include
+   #require '/etc/puppet/modules/generic-module/type/generic'
+   #include GenericType
+   #GenericType.define_parameters(:torque)
+   #
    # 2 generic params do end
+
    newparam(:name) do
       desc "The cloud name"
       isnamevar
@@ -43,7 +47,7 @@ Puppet::Type.newtype(:torque) do
    newproperty(:pool, :array_matching => :all) do
       desc "The pool of physical machines"
    end
-
+   
    
    # Infrastructure parameters
 
