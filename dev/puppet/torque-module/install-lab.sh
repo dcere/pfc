@@ -32,7 +32,7 @@ $0 155.210.155.170 all
 $0 155.210.155.170 tp
 "
    exit 1
-fi 
+fi
 
 NAME="torque"
 PUPPET_DST="/etc/puppet/modules"
@@ -62,7 +62,7 @@ PROVIDER_DST="$PUPPET_DST/$NAME/lib/puppet/provider/$NAME"
 
 if [ $2 = "tp" -o $2 = "all" ]
 then
-   scp $TYPE_SRC/torque.rb        root@$1:$TYPE_DST/torque.rb
+   scp $TYPE_SRC/torque.rb          root@$1:$TYPE_DST/torque.rb
 
    # All provider files
    scp -r $PROVIDER_SRC/$NAME/*     root@$1:$PROVIDER_DST/
@@ -77,14 +77,13 @@ fi
 # Copy test
 if [ $2 = "test" -o $2 = "all" ]
 then
-   scp ./test.rb root@$1:$PUPPET_DST/$NAME
+   scp ./test.rb     root@$1:$PUPPET_DST/$NAME
 fi
 
 # Copy validation script
 if [ $2 = "test" -o $2 = "all" ]
 then
    scp ./validate.sh    root@$1:$PUPPET_DST/$NAME
-
 fi
 
 # Copy Torque monitor files ans start scripts
@@ -92,11 +91,11 @@ TORQUE_DST="/root/cloud/torque"
 if [ $2 = "trq" -o $2 = "all" ]
 then
    $SSH mkdir -p $PUPPET_DST/$NAME/files/torque-god
-   scp ./files/torque-god/*     root@$1:$PUPPET_DST/$NAME/files/torque-god/
+   scp ./files/torque-god/*      root@$1:$PUPPET_DST/$NAME/files/torque-god/
    
    $SSH mkdir -p $PUPPET_DST/$NAME/files/torque-start
-   scp ./files/torque-start/*     root@$1:$PUPPET_DST/$NAME/files/torque-start/
+   scp ./files/torque-start/*    root@$1:$PUPPET_DST/$NAME/files/torque-start/
    
    $SSH mkdir -p $TORQUE_DST
-   scp ./files/torque-start/*     root@$1:$TORQUE_DST/
+   scp ./files/torque-start/*    root@$1:$TORQUE_DST/
 fi
