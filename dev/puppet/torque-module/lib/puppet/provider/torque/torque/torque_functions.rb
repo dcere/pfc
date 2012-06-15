@@ -7,6 +7,30 @@ def torque_cloud_start(torque_roles)
    # Start services
    
    # Start head
+   start_head(head)
+   
+   # Start compute
+   start_compute(head, compute)
+   
+   
+   # Start monitoring
+   torque_monitor(head, :head)
+   compute.each do |vm|
+      torque_monitor(vm, :compute)
+   end
+   
+   return true
+   
+end
+
+
+################################################################################
+# Start functions
+################################################################################
+
+# Starts a head node
+def start_head(head)
+   
    puts "Starting trqauthd on head node"
    check_command = "ps aux | grep -v grep | grep trqauthd"
    out, success = CloudSSH.execute_remote(check_command, head)
@@ -42,8 +66,13 @@ def torque_cloud_start(torque_roles)
          return false
       end
    end
-   
-   # Start compute
+
+end
+
+
+# Starts a compute node
+def start_compute(head, compute)
+
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
    command = "/bin/bash /root/cloud/torque/start-pbs-mom"
@@ -60,88 +89,25 @@ def torque_cloud_start(torque_roles)
          add_compute_node(vm, head)
       end
    end
-   
-   
-   # Start monitoring
-   torque_monitor(head, :head)
-   compute.each do |vm|
-      torque_monitor(vm, :compute)
-   end
-   
-   return true
-   
+
 end
 
+
+################################################################################
+# Monitor functions
+################################################################################
 
 # Monitors a virtual machine belonging to a torque cloud.
 def torque_monitor(vm, role)
 
    if role == :head
       puts "[Torque monitor] Monitoring head"
-      
-      check_command1 = "ps aux | grep -v grep | grep trqauthd"
-      check_command2 = "ps aux | grep -v grep | grep god | grep pbs-server.god"
-      check_command3 = "ps aux | grep -v grep | grep god | grep pbs-sched.god"
-      
-      out1, success1 = CloudSSH.execute_remote(check_command1, vm)
-      out2, success2 = CloudSSH.execute_remote(check_command2, vm)
-      out3, success3 = CloudSSH.execute_remote(check_command3, vm)
-      unless success1 && success2 && success3
-         puts "[Torque monitor] God or trqauthd are not running in #{vm}"
-         
-         # Try to start monitoring again
-         puts "[Torque monitor] Starting monitoring head on #{vm}"
-         if start_monitor_head(vm)
-            puts "[Torque monitor] Successfully started to monitor head on #{vm}"
-         else
-            err "[Torque monitor] Impossible to monitor head on #{vm}"
-         end
-      end
+      monitor_head(vm)
       puts "[Torque monitor] Monitored head"
 
    elsif role == :compute
       puts "[Torque monitor] Monitoring compute"
-      
-      # Obtain head node's IP
-      vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
-      head = vm_ip_roles[:head]
-      
-      # Check if the node is in the list of compute nodes
-      command = "qmgr -c \"list node @localhost\""      # Get a list of all nodes
-      out, success = CloudSSH.execute_remote(command, head)
-      unless success
-         err "[Torque monitor] Impossible to obtain node list from #{head}"
-      end
-      
-      command = "hostname"
-      out2, success = CloudSSH.execute_remote(command, vm)
-      unless success
-         err "[Torque monitor] Impossible to obtain hostname for #{vm}"
-      end
-      
-      # Add the node to the list of compute nodes
-      hostname = out2.chomp()
-      if out.include? "Node #{hostname}"
-         puts "[Torque monitor] #{hostname} (#{vm}) already in head's list node"
-      else
-         puts "[Torque monitor] Adding #{hostname} to the list of compute nodes"
-         add_compute_node(vm, head)
-      end
-      
-      # Start monitoring
-      check_command = "ps aux | grep -v grep | grep god | grep pbs-mom.god"
-      out, success = CloudSSH.execute_remote(check_command, vm)
-      unless success
-         puts "[Torque monitor] God is not running in #{vm}"
-         
-         # Try to start monitoring again
-         puts "[Torque monitor] Starting monitoring compute on #{vm}"
-         if start_monitor_compute(vm)
-            puts "[Torque monitor] Successfully started to monitor compute on #{vm}"
-         else
-            err "[Torque monitor] Impossible to monitor compute on #{vm}"
-         end
-      end
+      monitor_compute(vm)
       puts "[Torque monitor] Monitored compute"
 
    else
@@ -150,6 +116,83 @@ def torque_monitor(vm, role)
    
 end
 
+
+# Monitors a head node.
+def monitor_head(vm)
+
+   monitor_head(vm)
+   check_command1 = "ps aux | grep -v grep | grep trqauthd"
+   check_command2 = "ps aux | grep -v grep | grep god | grep pbs-server.god"
+   check_command3 = "ps aux | grep -v grep | grep god | grep pbs-sched.god"
+   
+   out1, success1 = CloudSSH.execute_remote(check_command1, vm)
+   out2, success2 = CloudSSH.execute_remote(check_command2, vm)
+   out3, success3 = CloudSSH.execute_remote(check_command3, vm)
+   unless success1 && success2 && success3
+      puts "[Torque monitor] God or trqauthd are not running in #{vm}"
+      
+      # Try to start monitoring again
+      puts "[Torque monitor] Starting monitoring head on #{vm}"
+      if start_monitor_head(vm)
+         puts "[Torque monitor] Successfully started to monitor head on #{vm}"
+      else
+         err "[Torque monitor] Impossible to monitor head on #{vm}"
+      end
+   end
+   
+end
+
+
+# Monitors a compute node.
+def monitor_compute(vm)
+
+   # Obtain head node's IP
+   vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
+   head = vm_ip_roles[:head]
+
+   # Check if the node is in the list of compute nodes
+   command = "qmgr -c \"list node @localhost\""      # Get a list of all nodes
+   out, success = CloudSSH.execute_remote(command, head)
+   unless success
+      err "[Torque monitor] Impossible to obtain node list from #{head}"
+   end
+
+   command = "hostname"
+   out2, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "[Torque monitor] Impossible to obtain hostname for #{vm}"
+   end
+
+   # Add the node to the list of compute nodes
+   hostname = out2.chomp()
+   if out.include? "Node #{hostname}"
+      puts "[Torque monitor] #{hostname} (#{vm}) already in head's list node"
+   else
+      puts "[Torque monitor] Adding #{hostname} to the list of compute nodes"
+      add_compute_node(vm, head)
+   end
+
+   # Start monitoring
+   check_command = "ps aux | grep -v grep | grep god | grep pbs-mom.god"
+   out, success = CloudSSH.execute_remote(check_command, vm)
+   unless success
+      puts "[Torque monitor] God is not running in #{vm}"
+      
+      # Try to start monitoring again
+      puts "[Torque monitor] Starting monitoring compute on #{vm}"
+      if start_monitor_compute(vm)
+         puts "[Torque monitor] Successfully started to monitor compute on #{vm}"
+      else
+         err "[Torque monitor] Impossible to monitor compute on #{vm}"
+      end
+   end
+   
+end
+
+
+################################################################################
+# Stop functions
+################################################################################
 
 # Stops a torque cloud.
 def torque_cloud_stop(torque_roles)

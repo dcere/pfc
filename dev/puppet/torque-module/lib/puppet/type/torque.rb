@@ -24,6 +24,8 @@ Puppet::Type.newtype(:torque) do
 
    # General parameters   
    #require '/etc/puppet/modules/generic-module/type/generic'
+   # 1 include
+   # 2 generic params do end
    newparam(:name) do
       desc "The cloud name"
    end
