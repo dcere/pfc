@@ -80,7 +80,7 @@ end
 
 
 # Starting function for common (non-leader) nodes.
-def common_start()
+def common_start(my_id)
 
    # We are not the leader or we have not received our ID yet
    puts "#{MY_IP} is not the leader"
@@ -102,7 +102,7 @@ def common_start()
       puts "Trying to become leader..."
       
       # Get your ID
-      my_id = CloudLeader.get_id()
+      #my_id = CloudLeader.get_id()
       
       # Get all machines' IDs
       mcc = MCollectiveLeaderClient.new("leader")
@@ -137,9 +137,6 @@ end
 
 # Starting function for cloudes which do not belong to the cloud.
 def not_cloud_start()
-     
-   # We are not part of the cloud
-   puts "#{MY_IP} is not part of the cloud"
    
    # Try to find one virtual machine that is already running
    alive = false
@@ -216,9 +213,91 @@ end
 # Stop cloud functions
 ################################################################################
 
+# Shuts down physical machines
+def shutdown_pms(pms)
+
+   pms.each do |pm|
+   
+      pm_user = resource[:pm_user]
+      ssh_connect = "ssh #{pm_user}@#{pm}"
+      
+      # Bring the defined domains file from the physical machine to this one
+      result = `scp #{pm_user}@#{pm}:#{DOMAINS_FILE} #{DOMAINS_FILE}`
+      if $?.exitstatus == 0
+      
+         puts "#{DOMAINS_FILE} exists in #{pm}"
+         
+         # Open files
+         defined_domains = File.open(DOMAINS_FILE, 'r')
+      
+         # Stop nodes
+         defined_domains.each_line do |domain|
+            domain.chomp!
+            result = `#{ssh_connect} '#{VIRSH_CONNECT} shutdown #{domain}'`
+            if $?.exitstatus == 0
+               debug "[DBG] #{domain} was shutdown"
+            else
+               debug "[DBG] #{domain} impossible to shutdown"
+               err "#{domain} impossible to shutdown"
+            end
+         end
+         
+         # Undefine local domains
+         defined_domains.rewind
+         defined_domains.each_line do |domain|
+            domain.chomp!
+            result = `#{ssh_connect} '#{VIRSH_CONNECT} undefine #{domain}'`
+            if $?.exitstatus == 0
+               debug "[DBG] #{domain} was undefined"
+            else
+               debug "[DBG] #{domain} impossible to undefine"
+               err "#{domain} impossible to undefine"
+            end
+         end
+         
+         # Delete the defined domains file on the physical machine
+         result = `#{ssh_connect} 'rm -rf #{DOMAINS_FILE}'`
+      
+      else
+         # Some physical machines might not have any virtual machine defined.
+         # For instance, if they were already defined and running when we
+         # started the cloud.
+         puts "No #{DOMAINS_FILE} file found in #{pm}"
+      end
+      
+   end   # pms.each
+
+end
 
 
+# Deletes cloud files on all machines.
+def delete_files()
 
+   puts "Deleting cloud files on all machines..."
+   
+   # Create an MCollective client so that we avoid errors that appear
+   # when you create more than one client in a short time
+   mcc = MCollectiveFilesClient.new("files")
+   
+   # Delete leader, id, last_id and last_mac files on all machines (leader included)
+   mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
+   mcc.delete_file(CloudLeader::ID_FILE)                 # ID
+   mcc.delete_file(LAST_ID_FILE)                         # Last ID
+   mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
+   mcc.disconnect       # Now it can be disconnected
+   
+   # Delete rest of regular files on leader machine
+   files = [DOMAINS_FILE,                                # Domains file
+            "/tmp/cloud-#{resource[:name]}"]             # Cloud file
+   files.each do |file|
+      if File.exists?(file)
+         File.delete(file)
+      else
+         puts "File #{file} does not exist"
+      end
+   end
+
+end
 
 
 ################################################################################
@@ -322,7 +401,7 @@ def monitor_vm(vm, ip_roles)
 end
 
 
-# Starts a cloud formed by <vm_ips> performing <vm_ip_roles>
+# Starts a cloud formed by <vm_ips> performing <vm_ip_roles>.
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
@@ -331,7 +410,7 @@ def start_cloud(vm_ips, vm_ip_roles)
 end
 
 
-# Copies important files to all machines inside <ips>
+# Copies important files to all machines inside <ips>.
 def copy_cloud_files(ips, cloud_type)
 # Use MCollective?
 #  - Without MCollective we are able to send it to both one machine or multiple
@@ -385,13 +464,4 @@ def auto_manage(cloud_type)
       err "Impossible to find cron file at #{path}"
    end
    
-end
-
-
-# Starts a cloud formed by <vm_ips> performing <vm_ip_roles>
-def start_cloud(vm_ips, vm_ip_roles)
-
-   puts "Starting the cloud"
-   return torque_cloud_start(vm_ip_roles)
-
 end

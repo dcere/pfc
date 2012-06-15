@@ -25,7 +25,7 @@ end
 
 
 ################################################################################
-# Start functions
+# Start node functions
 ################################################################################
 
 # Starts a head node
@@ -94,7 +94,7 @@ end
 
 
 ################################################################################
-# Monitor functions
+# Monitor node functions
 ################################################################################
 
 # Monitors a virtual machine belonging to a torque cloud.
@@ -120,7 +120,6 @@ end
 # Monitors a head node.
 def monitor_head(vm)
 
-   monitor_head(vm)
    check_command1 = "ps aux | grep -v grep | grep trqauthd"
    check_command2 = "ps aux | grep -v grep | grep god | grep pbs-server.god"
    check_command3 = "ps aux | grep -v grep | grep god | grep pbs-sched.god"
@@ -210,7 +209,7 @@ end
 
 
 ################################################################################
-# Auxiliar functions
+# Auxiliar start and stop node functions
 ################################################################################
 
 # Adds a compute node to the list in the head node.
@@ -258,6 +257,10 @@ def del_compute_node(vm, head)
    
 end
 
+
+################################################################################
+# Auxiliar monitor node functions
+################################################################################
 
 # Starts monitoring on head node.
 def start_monitor_head(vm)
