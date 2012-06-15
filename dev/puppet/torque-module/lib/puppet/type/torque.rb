@@ -1,11 +1,6 @@
 Puppet::Type.newtype(:torque) do
    @doc = "Manages torque clouds formed by KVM virtual machines."
 
-   feature :start,
-      "Starts a cloud."
-
-   feature :stop,
-      "Stops a cloud."
 
    ensurable do
       desc "The cloud's ensure field can assume one of the following values:
@@ -28,6 +23,7 @@ Puppet::Type.newtype(:torque) do
    # 2 generic params do end
    newparam(:name) do
       desc "The cloud name"
+      isnamevar
    end
 
    newparam(:ip_file) do
