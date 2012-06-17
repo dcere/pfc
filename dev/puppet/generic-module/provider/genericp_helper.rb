@@ -110,7 +110,6 @@ end
 # Checks the pool of physical machines are OK.
 def check_pool
 
-   all_up = true
    machines_up = []
    machines_down = []
    machines = resource[:pool]
@@ -121,11 +120,11 @@ def check_pool
          machines_up << machine
       else
          debug "[DBG] #{machine} (PM) is down"
-         all_up = false
          machines_down << machine
       end
    end
-   return all_up, machines_up, machines_down
+   return machines_up, machines_down
+   
 end
 
 
@@ -141,6 +140,7 @@ def define_domain(ssh_connect, vm_name, domain_file_name)
       err   "#impossible to define #{vm_name} domain"
       return false
    end
+   
 end
 
 
@@ -156,6 +156,7 @@ def start_domain(ssh_connect, vm_name)
       err   "#{vm_name} impossible to start"
       return false
    end
+   
 end
 
 
@@ -171,6 +172,7 @@ def save_domain_name(ssh_connect, vm_name)
       err   "#{vm_name} name impossible to save"
       return false
    end
+   
 end
 
 

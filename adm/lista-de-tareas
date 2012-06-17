@@ -121,4 +121,4 @@
 - Borrar los archivos del tipo cloud-mycloud-myvm-XXXX.xml de /cloud/
 - (X) Poner el código de la elección de líder como un módulo más: cloudleader
 - Descomentar la parte de autogestión de los proveedores!!!
-- Renombrar *jobs* por *torque*
+- (X) Renombrar *jobs* por *torque*

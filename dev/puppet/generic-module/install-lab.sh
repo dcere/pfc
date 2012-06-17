@@ -34,3 +34,17 @@ $SSH mkdir -p $PUPPET_DST/$NAME/{type,provider}
 # Copy files
 scp ./type/*         root@$1:$PUPPET_DST/$NAME/type/         
 scp ./provider/*     root@$1:$PUPPET_DST/$NAME/provider/
+
+################################################################################
+
+# Copy type and provider
+NAME="generic_cloud"
+TYPE_SRC="./lib/puppet/type"
+TYPE_DST="$PUPPET_DST/$NAME/lib/puppet/type"
+PROVIDER_SRC="./lib/puppet/provider"
+PROVIDER_DST="$PUPPET_DST/$NAME/lib/puppet/provider/$NAME"
+
+scp $TYPE_SRC/generic_cloud.rb      root@$1:$TYPE_DST/generic_cloud.rb
+
+# All provider files
+scp -r $PROVIDER_SRC/$NAME/*        root@$1:$PROVIDER_DST/

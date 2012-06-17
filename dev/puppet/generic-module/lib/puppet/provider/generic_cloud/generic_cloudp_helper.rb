@@ -1,4 +1,4 @@
-# Auxiliar functions for torque provider
+# Auxiliar functions for generic cloud provider
 
 ################################################################################
 # Start cloud functions
@@ -53,7 +53,7 @@ def leader_start(vm_ips, vm_ip_roles, vm_img_roles, pm_up)
          
          # Copy important files to all machines
          puts "Copying important files to all virtual machines"
-         copy_cloud_files(vm_ips, "torque")      # TODO Move it to monitor and call it each time for one vm?
+         #copy_cloud_files(vm_ips, "torque")      # TODO Move it to monitor and call it each time for one vm?
       
          # Start the cloud
          if start_cloud(vm_ips, vm_ip_roles)
@@ -305,17 +305,21 @@ end
 ################################################################################
 
 # Obtains virtual machines' IP addresses, image disks and roles.
-#def obtain_vm_data
-#   
-#   vm_ips = []
-#   vm_ip_roles = []
-#   vm_img_roles = []
-#   puts "Obtaining torque cloud data"
-#   vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
-#   vm_img_roles = torque_yaml_images(resource[:img_file])
-#   return vm_ips, vm_ip_roles, vm_img_roles
-#         
-#end
+def obtain_vm_data(ip_yaml_function = nil, img_yaml_function = nil)
+   
+   vm_ips = []
+   vm_ip_roles = []
+   vm_img_roles = []
+   puts "Obtaining cloud data"
+   unless ip_yaml_function == nil
+      vm_ips, vm_ip_roles = ip_yaml_function.call(resource[:ip_file])
+   end
+   unless img_yaml_function == nil
+      vm_img_roles = img_yaml_function.call(resource[:img_file])
+   end
+   return vm_ips, vm_ip_roles, vm_img_roles
+         
+end
 
 
 # Monitors a virtual machine.

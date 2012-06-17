@@ -1,18 +1,9 @@
-Puppet::Type.type(:torque).provide(:torquep, :parent => :generic_cloudp) do
-   desc "Manages torque clouds formed by KVM virtual machines"
-
-   # Require torque auxiliar files
-   require File.dirname(__FILE__) + '/torque/torque_yaml.rb'
-   require File.dirname(__FILE__) + '/torque/torque_functions.rb'
+Puppet::Type.type(:generic_cloud).provide(:generic_cloudp) do
+   desc "Generic cloud provider"
    
    # Require generic files
    require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
    Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
-
-   # Commands needed to make the provider suitable
-   commands :ping => "/bin/ping"
-   #commands :grep => "/bin/grep"
-   #commands :ps   => "/bin/ps"
    
    # Operating system restrictions
    confine :osfamily => "Debian"
@@ -50,7 +41,7 @@ Puppet::Type.type(:torque).provide(:torquep, :parent => :generic_cloudp) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips), method(:torque_yaml_imgs))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -181,20 +172,6 @@ Puppet::Type.type(:torque).provide(:torquep, :parent => :generic_cloudp) do
    def pool
    end
    
-   def pm_user
-   end
-   
-   def starting_mac_address
-   end
-   
-   def root_password
-   end
-   
-   def app_email
-   end
-   
-   def app_password
-   end
    
    
 end
