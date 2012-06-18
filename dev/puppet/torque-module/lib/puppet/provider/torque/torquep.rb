@@ -1,5 +1,5 @@
 Puppet::Type.type(:torque).provide(:torquep) do
-   desc "Manages torque clouds formed by KVM virtual machines"
+   desc "Manages Torque clouds formed by KVM virtual machines"
 
    # Require torque auxiliar files
    require File.dirname(__FILE__) + '/torque/torque_yaml.rb'
@@ -119,6 +119,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
          return
       end
       if exists? && status == :running
+         
+         puts "It is a torque cloud"
          
          # Stop cloud infrastructure
          vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),

@@ -1,8 +1,8 @@
 ################################################################################
-# Auxiliar functions
+# Auxiliar functions for torque provider
 ################################################################################
 
-# Starts a cloud formed by <vm_ips> performing <vm_ip_roles>.
+# Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"

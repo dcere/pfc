@@ -1,5 +1,5 @@
 Puppet::Type.type(:appscale).provide(:appscalep) do
-   desc "Manages appscale clouds formed by KVM virtual machines"
+   desc "Manages AppScale clouds formed by KVM virtual machines"
 
    # Require appscale auxiliar files
    require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
@@ -11,8 +11,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"
-   #commands :grep => "/bin/grep"
-   #commands :ps   => "/bin/ps"
+   commands :grep => "/bin/grep"
+   commands :ps   => "/bin/ps"
    
    # Operating system restrictions
    confine :osfamily => "Debian"
@@ -50,10 +50,11 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:appscale_yaml_ips),
+                                                            method(:appscale_yaml_images))
          
          # Check whether you are one of the virtual machines
-         puts "Checking whether we are one of the virtual machines..."
+         puts "Checking whether this machine is part of the cloud..."
          part_of_cloud = vm_ips.include?(MY_IP)
          if part_of_cloud
             puts "#{MY_IP} is part of the cloud"
@@ -64,180 +65,19 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
             leader = CloudLeader.get_leader()
  
             if my_id == leader && my_id != -1
-            
-               # We are the leader
-               puts "#{MY_IP} is the leader"
-               
-               # Check wether virtual machines are alive or not
-               alive = {}
-               vm_ips.each do |vm|
-                  alive[vm] = false
-               end
-               
-               puts "Checking whether virtual machines are alive..."
-               vm_ips.each do |vm|
-                  result = `#{PING} #{vm}`
-                  if $?.exitstatus == 0
-                     debug "[DBG] #{vm} is up"
-                     alive[vm] = true
-                  else
-                     debug "[DBG] #{vm} is down"
-                     puts "#{vm} is down"
-                  end
-               end
-               
-               # Monitor the alive machines. Start and configure the dead ones.
-               deads = false
-               vm_ips.each do |vm|
-                  if alive[vm]
-                     # If they are alive, monitor them
-                     puts "Monitoring #{vm}..."
-                     monitor_vm(vm, vm_ip_roles)
-                     puts "...Monitored"
-                  else
-                     # If they are not alive, start and configure them
-                     puts "Starting #{vm}..."
-                     start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-                     puts "...Started"
-                     deads = true
-                  end
-               end
-               
-               # Wait for all machines to be started
-               unless deads
-               
-                  # If not already started, start the cloud
-                  unless File.exists?("/tmp/cloud-#{resource[:name]}")
-                     
-                     # Copy important files to all machines
-                     puts "Copying important files to all virtual machines"
-                     copy_cloud_files(vm_ips)      # TODO Move it to monitor and call it each time for one vm?
-                  
-                     # Start the cloud
-                     if start_cloud(vm_ips, vm_ip_roles)
-                        
-                        # Make cloud nodes manage themselves
-                        #auto_manage()     # Only if cloud was started properly FIXME Uncomment after tests
-                        
-                        # Create file
-                        cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
-                        cloud_file.puts(resource[:name])
-                        cloud_file.close
-                        
-                        puts "==================="
-                        puts "== Cloud started =="
-                        puts "==================="
-                     else
-                        puts "Impossible to start cloud"
-                     end
-                  end      # unless File
-                  
-               end      # unless deads
-               
-               
-               
+               leader_start("appscale", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                            method(:appscale_monitor))
             else
-               
-               # We are not the leader or we have not received our ID yet
-               puts "#{MY_IP} is not the leader"
-            
-               if my_id == -1
-                  
-                  # If we have not received our ID, let's assume we will be the leader
-                  CloudLeader.set_id(0)
-                  CloudLeader.set_leader(0)
-                  
-                  puts "#{MY_IP} will be the leader"
-                  
-                  # Create your ssh key
-                  CloudSSH.generate_ssh_key()
-                  
-               else
-                  
-                  # If we have received our ID, try to become leader
-                  puts "Trying to become leader..."
-                  
-                  # Get your ID
-                  my_id = CloudLeader.get_id()
-                  
-                  # Get all machines' IDs
-                  mcc = MCollectiveLeaderClient.new("leader")
-                  ids = mcc.ask_id()
-                  
-                  # See if some other machine is leader
-                  exists_leader = false
-                  ids.each do |id|
-                     if id < my_id
-                        exists_leader = true 
-                        break
-                     end
-                  end
-                  
-                  # If there is no leader, we will be the new leader
-                  if !exists_leader
-                     mcc.new_leader(my_id)
-                     puts "...#{MY_IP} will be leader"
-                     
-                     # Create your ssh key
-                     CloudSSH.generate_ssh_key()
-                  else
-                     puts "...Some other machine is/should be leader"
-                  end
-                  mcc.disconnect
-                  
-                  return
-               end
-               
+               common_start(my_id)
             end
-            
          else
-            
-            # We are not part of the cloud
             puts "#{MY_IP} is not part of the cloud"
-            
-            # Try to find one virtual machine that is already running
-            alive = false
-            vm_leader = ""
-            vm_ips.each do |vm|
-               result = `#{PING} #{vm}`
-               if $?.exitstatus == 0
-                  puts "#{vm} is up"
-                  alive = true
-                  vm_leader = vm
-                  break
-               end
-            end
-            
-            if !alive
-               puts "All virtual machines are stopped"
-               puts "Starting one of them..."
-            
-               # Start one of the virtual machines
-               vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
-               puts "Starting #{vm} ..."
-               
-               start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-               
-               # That virtual machine will be the "leader" (actually the chosen one)
-               vm_leader = vm
-               
-               # Copy important files to it
-               #copy_cloud_files(vm_leader)
-               
-               puts "#{vm_leader} is being started"
-               puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}" 
-            else
-               puts "#{vm_leader} is already running"
-               puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
-            end 
-            
+            not_cloud_start("appscale", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
          end
-         
-         
          
       else
          
-         # Cloud exists => Management operations
+         # Cloud exists => Monitoring operations
          puts "Cloud already started"
          
          # Get your ID
@@ -254,33 +94,9 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
 
          # Check if you are the leader
          if my_id == leader && my_id != -1
-            puts "#{MY_IP} is the leader"
-            
-            # Do monitoring
-            deads = []
-            vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-            vm_ips.each do |vm|
-               puts "Monitoring #{vm}..."
-               unless monitor_vm(vm, vm_ip_roles)
-                  deads << vm
-               end
-               puts "...Monitored"
-            end
-            
-            # Check pool of physical machines
-            pm_all_up, pm_up, pm_down = check_pool()
-            
-            if deads.count == 0
-               puts "=========================="
-               puts "== Cloud up and running =="
-               puts "=========================="
-            else
-               # Raise again the dead machines
-               deads.each do |vm|
-                  start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-               end
-            end
-            
+            leader_monitoring(method(:appscale_yaml_ips),
+                              method(:appscale_yaml_images),
+                              method(:appscale_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -304,64 +120,16 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
       end
       if exists? && status == :running
          
-         # Stop cloud infrastructure
-
          puts "It is an appscale cloud"
+         
+         # Stop cloud infrastructure
          appscale_cloud_stop(MY_IP)    # TODO What if we run stop on a different machine than start?
          
          # Get pool of physical machines
          pms = resource[:pool]
          
          # Shutdown and undefine all virtual machines explicitly created for this cloud
-         pms.each do |pm|
-         
-            ssh_connect = "ssh dceresuela@#{pm}"
-            
-            # Bring the defined domains file from the physical machine to this one
-            result = `scp dceresuela@#{pm}:#{DOMAINS_FILE} #{DOMAINS_FILE}`
-            if $?.exitstatus == 0
-            
-               puts "#{DOMAINS_FILE} exists in #{pm}"
-               
-               # Open files
-               defined_domains = File.open(DOMAINS_FILE, 'r')
-            
-               # Stop nodes
-               defined_domains.each_line do |domain|
-                  domain.chomp!
-                  result = `#{ssh_connect} '#{VIRSH_CONNECT} shutdown #{domain}'`
-                  if $?.exitstatus == 0
-                     debug "[DBG] #{domain} was shutdown"
-                  else
-                     debug "[DBG] #{domain} impossible to shutdown"
-                     err "#{domain} impossible to shutdown"
-                  end
-               end
-               
-               # Undefine local domains
-               defined_domains.rewind
-               defined_domains.each_line do |domain|
-                  domain.chomp!
-                  result = `#{ssh_connect} '#{VIRSH_CONNECT} undefine #{domain}'`
-                  if $?.exitstatus == 0
-                     debug "[DBG] #{domain} was undefined"
-                  else
-                     debug "[DBG] #{domain} impossible to undefine"
-                     err "#{domain} impossible to undefine"
-                  end
-               end
-               
-               # Delete the defined domains file on the physical machine
-               result = `#{ssh_connect} 'rm -rf #{DOMAINS_FILE}'`
-            
-            else
-               # Some physical machines might not have any virtual machine defined.
-               # For instance, if they were already defined and running when we
-               # started the cloud.
-               puts "No #{DOMAINS_FILE} file found in #{pm}"
-            end
-            
-         end   # pms.each
+         shutdown_pms(pms)
          
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
@@ -371,29 +139,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
          
          # Delete files
-         puts "Deleting cloud files on all machines..."
-         
-         # Create an MCollective client so that we avoid errors that appear
-         # when you create more than one client in a short time
-         mcc = MCollectiveFilesClient.new("files")
-         
-         # Delete leader, id, last_id and last_mac files on all machines (leader included)
-         mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
-         mcc.delete_file(CloudLeader::ID_FILE)                 # ID
-         mcc.delete_file(LAST_ID_FILE)                         # Last ID
-         mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
-         mcc.disconnect       # Now it can be disconnected
-         
-         # Delete rest of regular files on leader machine
-         files = [DOMAINS_FILE,                                # Domains file
-                  "/tmp/cloud-#{resource[:name]}"]             # Cloud file
-         files.each do |file|
-            if File.exists?(file)
-               File.delete(file)
-            else
-               puts "File #{file} does not exist"
-            end
-         end            
+         delete_files()
          
          # Note: As all the files deleted so far are located in the /tmp directory
          # only the machines that are still alive need to delete these files.

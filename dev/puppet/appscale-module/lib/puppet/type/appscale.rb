@@ -1,11 +1,5 @@
-Puppet::Type.newtype(:cloud) do
-   @doc = "Manages clouds formed by KVM virtual machines."
-
-   feature :start,
-      "Starts a cloud."
-
-   feature :stop,
-      "Stops a cloud."
+Puppet::Type.newtype(:appscale) do
+   @doc = "Manages AppScale clouds formed by KVM virtual machines."
 
    
    ensurable do
@@ -23,9 +17,11 @@ Puppet::Type.newtype(:cloud) do
    end
 
 
-   # General parameters   
+   # General parameters
+   
    newparam(:name) do
       desc "The cloud name"
+      isnamevar
    end
 
    newparam(:ip_file) do

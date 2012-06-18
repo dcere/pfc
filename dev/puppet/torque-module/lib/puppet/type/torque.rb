@@ -1,7 +1,6 @@
 Puppet::Type.newtype(:torque) do
-   @doc = "Manages torque clouds formed by KVM virtual machines."
+   @doc = "Manages Torque clouds formed by KVM virtual machines."
 
-   # General parameters
    
    ensurable do
       desc "The cloud's ensure field can assume one of the following values:
@@ -16,6 +15,9 @@ Puppet::Type.newtype(:torque) do
       end
 
    end
+
+
+   # General parameters
 
    newparam(:name) do
       desc "The cloud name"
