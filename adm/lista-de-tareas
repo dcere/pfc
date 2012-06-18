@@ -122,3 +122,4 @@
 - (X) Poner el código de la elección de líder como un módulo más: cloudleader
 - Descomentar la parte de autogestión de los proveedores!!!
 - (X) Renombrar *jobs* por *torque*
+- Mover los ficheros X_functions y X_yaml al directorio de Xp.rb y Xp_helper.rb

@@ -1,13 +1,6 @@
 Puppet::Type.newtype(:web) do
    @doc = "Manages web clouds formed by KVM virtual machines."
-
-   feature :start,
-      "Starts a cloud."
-
-   feature :stop,
-      "Stops a cloud."
-
-
+   
    # General parameters
    
    ensurable do
@@ -26,6 +19,7 @@ Puppet::Type.newtype(:web) do
 
    newparam(:name) do
       desc "The cloud name"
+      isnamevar
    end
    
    newparam(:ip_file) do
@@ -48,6 +42,11 @@ Puppet::Type.newtype(:web) do
 
    
    # Infrastructure parameters
+
+   newproperty(:pm_user) do
+      desc "The physical machine user. It must have proper permissions"
+      defaultto "dceresuela"
+   end
 
    newproperty(:starting_mac_address) do
       desc "Starting MAC address for new virtual machines"

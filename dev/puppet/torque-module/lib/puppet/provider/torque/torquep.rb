@@ -44,7 +44,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          unless pm_down.empty?
             puts "Some physical machines are down"
             pm_down.each do |pm|
-               debug "[DBG] - #{pm}"
+               puts " - #{pm}"
             end
          end
          
@@ -193,12 +193,6 @@ Puppet::Type.type(:torque).provide(:torquep) do
    end
    
    def root_password
-   end
-   
-   def app_email
-   end
-   
-   def app_password
    end
    
    
