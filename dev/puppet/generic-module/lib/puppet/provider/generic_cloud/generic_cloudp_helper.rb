@@ -53,13 +53,13 @@ def leader_start(vm_ips, vm_ip_roles, vm_img_roles, pm_up)
          
          # Copy important files to all machines
          puts "Copying important files to all virtual machines"
-         #copy_cloud_files(vm_ips, "torque")      # TODO Move it to monitor and call it each time for one vm?
+         #copy_cloud_files(vm_ips, "...")      # TODO Move it to monitor and call it each time for one vm?
       
          # Start the cloud
          if start_cloud(vm_ips, vm_ip_roles)
             
             # Make cloud nodes manage themselves
-            #auto_manage("torque")     # Only if cloud was started properly FIXME Uncomment after tests
+            #auto_manage("...")     # Only if cloud was started properly
             
             # Create file
             cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
@@ -165,7 +165,7 @@ def not_cloud_start()
       vm_leader = vm
       
       # Copy important files to it
-      #copy_cloud_files(vm_leader, "torque")
+      #copy_cloud_files(vm_leader, "...")
       
       puts "#{vm_leader} is being started"
       puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}" 
@@ -399,7 +399,7 @@ def monitor_vm(vm, ip_roles)
    # We should copy no matter what in case they have changed
    
    # Depending on the type of cloud we will have to monitor different components
-   torque_monitor(vm, role)
+   # ...
    
    return true
    
@@ -410,7 +410,7 @@ end
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-   return torque_cloud_start(vm_ip_roles)
+   return # ...
 
 end
 

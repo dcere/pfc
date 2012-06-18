@@ -109,7 +109,7 @@ Puppet::Type.type(:generic_cloud).provide(:generic_cloudp) do
          
          # Stop cloud infrastructure
          vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-         torque_cloud_stop(vm_ip_roles)
+         # ..._cloud_stop(vm_ip_roles)
          
          # Get pool of physical machines
          pms = resource[:pool]
@@ -120,7 +120,7 @@ Puppet::Type.type(:generic_cloud).provide(:generic_cloudp) do
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
          mcc = MCollectiveCronClient.new("cronos")
-         string = "init-torque"
+         string = "init-..."
          mcc.delete_line(CRON_FILE, string)
          # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
          
