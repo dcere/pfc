@@ -1,1 +1,0 @@
-*/1 * * * * puppet apply /etc/puppet/modules/cloud/manifests/init-appscale.pp > /root/puppet.out 2> /root/puppet.err

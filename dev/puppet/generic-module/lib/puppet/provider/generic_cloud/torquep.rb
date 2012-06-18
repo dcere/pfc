@@ -1,4 +1,4 @@
-Puppet::Type.type(:torque).provide(:torquep) do
+Puppet::Type.type(:generic_cloud).provide(:torque, :parent => :generic_cloudp) do
    desc "Manages Torque clouds formed by KVM virtual machines"
 
    # Require torque auxiliar files
