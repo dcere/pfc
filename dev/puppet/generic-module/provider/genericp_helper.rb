@@ -107,26 +107,6 @@ end
 # Auxiliar functions
 ################################################################################
 
-# Checks the pool of physical machines are OK.
-def check_pool
-
-   machines_up = []
-   machines_down = []
-   machines = resource[:pool]
-   machines.each do |machine|
-      result = `#{PING} #{machine}`
-      if $?.exitstatus == 0
-         debug "[DBG] #{machine} (PM) is up"
-         machines_up << machine
-      else
-         debug "[DBG] #{machine} (PM) is down"
-         machines_down << machine
-      end
-   end
-   return machines_up, machines_down
-   
-end
-
 
 # Define a domain for a virtual machine on a physical machine.
 def define_domain(ssh_connect, vm_name, domain_file_name)
@@ -202,41 +182,4 @@ def set_last_id(id)
    file.puts(id)
    file.close
    
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def obtain_vm_data(ip_function, img_function)
-   
-   vm_ips = []
-   vm_ip_roles = []
-   vm_img_roles = []
-   puts "Obtaining torque cloud data"
-   vm_ips, vm_ip_roles = ip_function.call(resource[:ip_file])
-   vm_img_roles = img_function.call(resource[:img_file])
-   return vm_ips, vm_ip_roles, vm_img_roles
-         
 end

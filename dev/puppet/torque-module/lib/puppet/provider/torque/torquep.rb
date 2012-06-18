@@ -93,7 +93,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
 
          # Check if you are the leader
          if my_id == leader && my_id != -1
-            leader_monitoring()
+            leader_monitoring(method(:torque_yaml_ips),
+                              method(:torque_yaml_images))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -118,7 +119,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
       if exists? && status == :running
          
          # Stop cloud infrastructure
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
+                                                            method(:torque_yaml_images))
          torque_cloud_stop(vm_ip_roles)
          
          # Get pool of physical machines
