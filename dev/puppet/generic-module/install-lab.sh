@@ -44,6 +44,9 @@ TYPE_DST="$PUPPET_DST/$NAME/lib/puppet/type"
 PROVIDER_SRC="./lib/puppet/provider"
 PROVIDER_DST="$PUPPET_DST/$NAME/lib/puppet/provider/$NAME"
 
+$SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/type
+$SSH mkdir -p $PUPPET_DST/$NAME/lib/puppet/provider/$NAME
+
 scp $TYPE_SRC/generic_cloud.rb      root@$1:$TYPE_DST/generic_cloud.rb
 
 # All provider files

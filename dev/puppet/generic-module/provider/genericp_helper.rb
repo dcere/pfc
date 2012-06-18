@@ -203,3 +203,40 @@ def set_last_id(id)
    file.close
    
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def obtain_vm_data(ip_function, img_function)
+   
+   vm_ips = []
+   vm_ip_roles = []
+   vm_img_roles = []
+   puts "Obtaining torque cloud data"
+   vm_ips, vm_ip_roles = ip_function.call(resource[:ip_file])
+   vm_img_roles = img_function.call(resource[:img_file])
+   return vm_ips, vm_ip_roles, vm_img_roles
+         
+end

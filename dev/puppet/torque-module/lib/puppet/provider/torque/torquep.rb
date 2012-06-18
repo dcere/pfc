@@ -1,4 +1,4 @@
-Puppet::Type.type(:torque).provide(:torquep, :parent => :generic_cloudp) do
+Puppet::Type.type(:torque).provide(:torquep) do
    desc "Manages torque clouds formed by KVM virtual machines"
 
    # Require torque auxiliar files
@@ -11,8 +11,8 @@ Puppet::Type.type(:torque).provide(:torquep, :parent => :generic_cloudp) do
 
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"
-   #commands :grep => "/bin/grep"
-   #commands :ps   => "/bin/ps"
+   commands :grep => "/bin/grep"
+   commands :ps   => "/bin/ps"
    
    # Operating system restrictions
    confine :osfamily => "Debian"
@@ -50,7 +50,8 @@ Puppet::Type.type(:torque).provide(:torquep, :parent => :generic_cloudp) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips), method(:torque_yaml_imgs))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
+                                                            method(:torque_yaml_images))
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."

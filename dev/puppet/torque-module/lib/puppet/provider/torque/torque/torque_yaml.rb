@@ -60,7 +60,7 @@ def torque_yaml_images(path)
          img_roles[:head]      = get_elements(head)
          img_roles[:compute]   = get_elements(compute)
       else
-         img_roles[:all]      = get_elements(all)
+         img_roles[:all]       = get_elements(all)
       end
       
       file.close
