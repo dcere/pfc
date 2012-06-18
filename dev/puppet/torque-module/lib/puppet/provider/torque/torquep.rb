@@ -65,13 +65,14 @@ Puppet::Type.type(:torque).provide(:torquep) do
             leader = CloudLeader.get_leader()
  
             if my_id == leader && my_id != -1
-               leader_start(vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+               leader_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                            method(:torque_monitor))
             else
                common_start(my_id)
             end
          else
             puts "#{MY_IP} is not part of the cloud"
-            not_cloud_start(vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+            not_cloud_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
          end
          
       else
@@ -94,7 +95,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
          # Check if you are the leader
          if my_id == leader && my_id != -1
             leader_monitoring(method(:torque_yaml_ips),
-                              method(:torque_yaml_images))
+                              method(:torque_yaml_images),
+                              method(:torque_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
