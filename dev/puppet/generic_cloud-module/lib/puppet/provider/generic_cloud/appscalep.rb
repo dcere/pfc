@@ -1,13 +1,11 @@
-Puppet::Type.type(:appscale).provide(:appscalep) do
+Puppet::Type.type(:generic_cloud).provide(:appscale, :parent => :generic_cloudp) do
    desc "Manages AppScale clouds formed by KVM virtual machines"
+
 
    # Require appscale auxiliar files
    require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
    require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
    
-   # Require generic files
-   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
-   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
    
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"
@@ -17,7 +15,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    # Operating system restrictions
    confine :osfamily => "Debian"
 
-   # Some constants
+   # Some constants     TODO Why cannot be commented here and they can in torque and web?
    VIRSH_CONNECT = "virsh -c qemu:///system"
    MY_IP = Facter.value(:ipaddress)
    PING = "ping -q -c 1 -w 4"

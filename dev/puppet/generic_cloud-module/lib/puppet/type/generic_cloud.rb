@@ -71,6 +71,15 @@ Puppet::Type.newtype(:generic_cloud) do
    
    
    # AppScale parameters
-   # ...
+   
+   newproperty(:app_email) do
+      desc "AppScale administrator e-mail"
+      defaultto "david@gmail.com"
+   end
+   
+   newproperty(:app_password) do
+      desc "AppScale administrator password"
+      defaultto "appscale"
+   end
 
 end
