@@ -191,7 +191,7 @@ def leader_monitoring(ip_function, img_function, monitor_function)
    end
    
    # Check pool of physical machines
-   pm_all_up, pm_up, pm_down = check_pool()
+   pm_up, pm_down = check_pool()
    
    if deads.count == 0
       puts "=========================="
