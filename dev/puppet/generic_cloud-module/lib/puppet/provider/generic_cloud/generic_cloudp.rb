@@ -1,9 +1,11 @@
 Puppet::Type.type(:generic_cloud).provide(:generic_cloudp) do
    desc "Generic cloud provider"
    
-   # Require generic files
-   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
-   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
+   # Require MCollective files
+   require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
    
    # Operating system restrictions
    confine :osfamily => "Debian"

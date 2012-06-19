@@ -1,1 +1,0 @@
-gedit genericp_*.rb &

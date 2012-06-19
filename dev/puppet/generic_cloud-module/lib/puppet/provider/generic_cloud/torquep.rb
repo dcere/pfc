@@ -1,13 +1,16 @@
 Puppet::Type.type(:generic_cloud).provide(:torque, :parent => :generic_cloudp) do
    desc "Manages Torque clouds formed by KVM virtual machines"
 
+   # Require MCollective files
+   require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
+   require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
+   
    # Require torque auxiliar files
    require File.dirname(__FILE__) + '/torque/torque_yaml.rb'
    require File.dirname(__FILE__) + '/torque/torque_functions.rb'
    
-   # Require generic files
-   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
-   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
 
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"
@@ -18,16 +21,16 @@ Puppet::Type.type(:generic_cloud).provide(:torque, :parent => :generic_cloudp) d
    confine :osfamily => "Debian"
 
    # Some constants
-   VIRSH_CONNECT = "virsh -c qemu:///system"
-   MY_IP = Facter.value(:ipaddress)
-   PING = "ping -q -c 1 -w 4"
+   #VIRSH_CONNECT = "virsh -c qemu:///system"
+   #MY_IP = Facter.value(:ipaddress)
+   #PING = "ping -q -c 1 -w 4"
 
-   LAST_MAC_FILE = "/tmp/cloud-last-mac"
-   LAST_ID_FILE  = "/tmp/cloud-last-id"
+   #LAST_MAC_FILE = "/tmp/cloud-last-mac"
+   #LAST_ID_FILE  = "/tmp/cloud-last-id"
    
-   DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
+   #DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
    
-   CRON_FILE = "/var/spool/cron/crontabs/root"
+   #CRON_FILE = "/var/spool/cron/crontabs/root"
 
    # Makes sure the cloud is running.
    def start
