@@ -16,8 +16,20 @@ Puppet::Type.newtype(:generic_cloud) do
 
    end
 
-   newparam(:name) do
+   newparam(:name) do      # TODO Why do I have to force it here instead of in
+                           # the manifest with 'provider => web' ?
       desc "The cloud name"
+      
+      validate do |value|
+         if value =~ /.*appscale.*/
+            resource[:provider] = :appscale
+         elsif value =~ /.*torque.*/
+            resource[:provider] = :torque
+         elsif value =~ /.*web.*/
+            resource[:provider] = :web
+         end
+      end
+      
       isnamevar
    end
 

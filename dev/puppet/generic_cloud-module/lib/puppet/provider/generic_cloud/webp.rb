@@ -1,13 +1,11 @@
-Puppet::Type.type(:web).provide(:webp) do
+Puppet::Type.type(:generic_cloud).provide(:web, :parent => :generic_cloudp) do
    desc "Manages web clouds formed by KVM virtual machines"
+
 
    # Require web auxiliar files
    require File.dirname(__FILE__) + '/web/web_yaml.rb'
    require File.dirname(__FILE__) + '/web/web_functions.rb'
    
-   # Require generic files
-   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
-   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
    
    # Commands needed to make the provider suitable
    commands :ping => "/bin/ping"
@@ -17,17 +15,7 @@ Puppet::Type.type(:web).provide(:webp) do
    # Operating system restrictions
    confine :osfamily => "Debian"
 
-   # Some constants
-   VIRSH_CONNECT = "virsh -c qemu:///system"
-   MY_IP = Facter.value(:ipaddress)
-   PING = "ping -q -c 1 -w 4"
-
-   LAST_MAC_FILE = "/tmp/cloud-last-mac"
-   LAST_ID_FILE  = "/tmp/cloud-last-id"
-   
-   DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
-   
-   CRON_FILE = "/var/spool/cron/crontabs/root"
+   # Some constants (defined on generic_cloudp)
 
    # Makes sure the cloud is running.
    def start

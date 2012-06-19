@@ -1,4 +1,4 @@
-generic_cloud {'mycloud':
+generic_cloud {'mycloud-torque':
    ip_file  => "/etc/puppet/modules/torque/files/torque-ip.yaml",
    img_file => "/etc/puppet/modules/torque/files/torque-img.yaml",
    domain   => "/etc/puppet/modules/torque/files/mycloud-template.xml",
