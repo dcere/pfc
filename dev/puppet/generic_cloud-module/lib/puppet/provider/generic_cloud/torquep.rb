@@ -1,11 +1,6 @@
 Puppet::Type.type(:generic_cloud).provide(:torque, :parent => :generic_cloudp) do
    desc "Manages Torque clouds formed by KVM virtual machines"
-
-   # Require MCollective files
-   require File.dirname(__FILE__) + '/mcollective/mcollective_client.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_cron.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_files.rb'
-   require File.dirname(__FILE__) + '/mcollective/mcollective_leader.rb'
+   
    
    # Require torque auxiliar files
    require File.dirname(__FILE__) + '/torque/torque_yaml.rb'
@@ -20,17 +15,7 @@ Puppet::Type.type(:generic_cloud).provide(:torque, :parent => :generic_cloudp) d
    # Operating system restrictions
    confine :osfamily => "Debian"
 
-   # Some constants
-   #VIRSH_CONNECT = "virsh -c qemu:///system"
-   #MY_IP = Facter.value(:ipaddress)
-   #PING = "ping -q -c 1 -w 4"
-
-   #LAST_MAC_FILE = "/tmp/cloud-last-mac"
-   #LAST_ID_FILE  = "/tmp/cloud-last-id"
-   
-   #DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
-   
-   #CRON_FILE = "/var/spool/cron/crontabs/root"
+   # Some constants (defined on generic_cloudp)
 
    # Makes sure the cloud is running.
    def start

@@ -1,11 +1,16 @@
 # Generic leader election methods for a distributed infrastructure
 module CloudLeader
    
-   ID_FILE     = "/tmp/cloud-id"
-   LEADER_FILE = "/tmp/cloud-leader"
+   LAST_ID_FILE = "/tmp/cloud-last-id"
+   ID_FILE      = "/tmp/cloud-id"
+   LEADER_FILE  = "/tmp/cloud-leader"
    
    # Do not use attr_reader because your id and your leader's id might change
    # during execution. The only thing that should not change are the files paths.
+   
+   #############################################################################
+   # Basic ID functions
+   #############################################################################
    
    # Gets the ID of the node by reading the node's id_file.
    def self.get_id(id_file = ID_FILE)
@@ -57,6 +62,10 @@ module CloudLeader
    end
    
    
+   #############################################################################
+   # Remote ID functions
+   #############################################################################
+   
    # Checks if the remote node has their ID file.
    def self.vm_check_id(vm, id_file = ID_FILE)
    
@@ -85,6 +94,34 @@ module CloudLeader
       return success
       
    end
+   
+   
+   #############################################################################
+   # Last ID functions
+   #############################################################################
+   
+   # Gets the last defined ID in the ID file.
+   def self.get_last_id(last_id_file = LAST_ID_FILE)
+
+      if File.exists?(last_id_file)
+         file = File.open(last_id_file, 'r')
+         id = file.read().chomp().to_i
+         file.close
+      else
+         id = CloudLeader.get_id()
+      end
+      return id
+
+   end
+
+
+   # Sets last defined ID in the ID file.
+   def self.set_last_id(id, last_id_file = LAST_ID_FILE)
+
+      file = File.open(last_id_file, 'w')
+      file.puts(id)
+      file.close
       
+   end
       
 end
