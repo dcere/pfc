@@ -6,11 +6,13 @@ def torque_cloud_start(torque_roles)
 
    # Start services
    
-   # Start head
+   # Start head node
    start_head(head)
    
-   # Start compute
-   start_compute(head, compute)
+   # Start compute nodes
+   compute.each do |vm|
+      start_compute(head, vm)
+   end
    
    
    # Start monitoring
@@ -28,7 +30,7 @@ end
 # Start node functions
 ################################################################################
 
-# Starts a head node
+# Starts a head node.
 def start_head(head)
    
    puts "Starting trqauthd on head node"
@@ -70,24 +72,22 @@ def start_head(head)
 end
 
 
-# Starts a compute node
+# Starts a compute node.
 def start_compute(head, compute)
 
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
    command = "/bin/bash /root/cloud/torque/start-pbs-mom"
-   compute.each do |vm|
-      out, success = CloudSSH.execute_remote(check_command, vm)
+   out, success = CloudSSH.execute_remote(check_command, compute)
+   unless success
+      out, success = CloudSSH.execute_remote(command, compute)
       unless success
-         out, success = CloudSSH.execute_remote(command, vm)
-         unless success
-            err "Impossible to start pbs_mom in #{vm}"
-            return false
-         end
-         
-         # Add the node to the compute node list on head
-         add_compute_node(vm, head)
+         err "Impossible to start pbs_mom in #{compute}"
+         return false
       end
+      
+      # Add the node to the compute node list on head
+      add_compute_node(compute, head)
    end
 
 end
@@ -199,12 +199,73 @@ def torque_cloud_stop(torque_roles)
    head    = torque_roles[:head]
    compute = torque_roles[:compute]
    
-   # TODO Kill pbs_server, pbs_sched and pbs_mom processes?
-   
+   # Stop compute nodes
    compute.each do |vm|
-      del_compute_node(vm, head)
+      stop_compute(vm)
    end
    
+   # Stop head node
+   stop_head(head)
+   
+end
+
+
+# Stops a head node.
+def stop_head(head)
+   
+   puts "Stopping pbs_sched on head node"
+   command = "pkill -f pbs-sched"      # We are looking for pbs-sched.god
+   out, success = CloudSSH.execute_remote(command, head)
+   unless success
+      command = "pkill pbs_sched"
+      out, success = CloudSSH.execute_remote(command, head)
+      unless success
+         err "Impossible to stop pbs_sched in #{head}"
+         return false
+      end
+   end
+   
+   puts "Stopping pbs_server on head node"
+   command = "pkill -f pbs-server"     # We are looking for pbs-server.god
+   out, success = CloudSSH.execute_remote(command, head)
+   unless success
+      command = "pkill pbs_server"
+      out, success = CloudSSH.execute_remote(command, head)
+      unless success
+         err "Impossible to stop pbs_server in #{head}"
+         return false
+      end
+   end
+   
+   puts "Stopping trqauthd on head node"
+   command = "/etc/init.d/trqauthd stop"     # Do not kill it, stop it
+   out, success = CloudSSH.execute_remote(command, head)
+   unless success
+      err "Impossible to stop trqauthd in #{head}"
+      return false
+   end
+
+end
+
+
+# Stops a compute node.
+def stop_compute(compute)
+
+   puts "Stopping pbs_mom on compute nodes"
+   command = "pkill -f pbs-mom.god"
+   out, success = CloudSSH.execute_remote(command, compute)
+   unless success
+      command = "pkill -f pbs_mom"
+      out, success = CloudSSH.execute_remote(command, compute)
+      unless success
+         err "Impossible to stop pbs_mom in #{compute}"
+         return false
+      end
+      
+      # Add the node to the compute node list on head
+      del_compute_node(compute, head)
+   end
+
 end
 
 
