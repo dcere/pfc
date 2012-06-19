@@ -23,7 +23,6 @@ Puppet::Type.type(:torque).provide(:torquep) do
    PING = "ping -q -c 1 -w 4"
 
    LAST_MAC_FILE = "/tmp/cloud-last-mac"
-   LAST_ID_FILE  = "/tmp/cloud-last-id"
    
    DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
    

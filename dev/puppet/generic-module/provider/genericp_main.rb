@@ -280,7 +280,7 @@ def delete_files()
    # Delete leader, id, last_id and last_mac files on all machines (leader included)
    mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
    mcc.delete_file(CloudLeader::ID_FILE)                 # ID
-   mcc.delete_file(LAST_ID_FILE)                         # Last ID
+   mcc.delete_file(CloudLeader::LAST_ID_FILE)            # Last ID
    mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
    mcc.disconnect       # Now it can be disconnected
    
@@ -393,10 +393,10 @@ def monitor_vm(vm, ip_roles, monitor_function)
    unless success
    
       # Set their ID (based on the last ID we defined)
-      id = get_last_id()
+      id = CloudLeader.get_last_id()
       id += 1
       CloudLeader.vm_set_id(vm, id)
-      set_last_id(id)
+      CloudLeader.set_last_id(id)
       
       # Set the leader's ID
       leader = CloudLeader.get_leader()
@@ -404,7 +404,7 @@ def monitor_vm(vm, ip_roles, monitor_function)
       
       # Send the last ID to all nodes
       mcc = MCollectiveFilesClient.new("files")
-      mcc.create_file(LAST_ID_FILE, id.to_s)
+      mcc.create_file(CloudLeader::LAST_ID_FILE, id.to_s)
       #mcc.disconnect
    end
    

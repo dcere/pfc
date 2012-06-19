@@ -154,32 +154,3 @@ def save_domain_name(ssh_connect, vm_name)
    end
    
 end
-
-
-################################################################################
-# Last ID functions
-################################################################################
-
-# Gets the last defined ID in the ID file.
-def get_last_id()
-
-   if File.exists?(LAST_ID_FILE)
-      file = File.open(LAST_ID_FILE, 'r')
-      id = file.read().chomp().to_i
-      file.close
-   else
-      id = CloudLeader.get_id()
-   end
-   return id
-
-end
-
-
-# Sets last defined ID in the ID file.
-def set_last_id(id)
-
-   file = File.open(LAST_ID_FILE, 'w')
-   file.puts(id)
-   file.close
-   
-end
