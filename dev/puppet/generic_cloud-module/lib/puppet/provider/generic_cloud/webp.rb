@@ -111,9 +111,9 @@ Puppet::Type.type(:generic_cloud).provide(:web, :parent => :generic_cloudp) do
          puts "It is a web cloud"
          
          # Stop cloud infrastructure
-         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
-         #                                                   method(:torque_yaml_images))
-         #web_cloud_stop(vm_ip_roles)
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
+                                                            method(:web_yaml_images))
+         web_cloud_stop(vm_ip_roles)
          
          # Get pool of physical machines
          pms = resource[:pool]

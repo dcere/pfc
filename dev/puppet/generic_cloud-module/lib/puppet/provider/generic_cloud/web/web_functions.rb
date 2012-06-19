@@ -12,67 +12,21 @@ def web_cloud_start(web_roles)
    
    # Start load balancers => Start nginx
    puts "Starting nginx on load balancers"
-   command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
    balancers.each do |vm|
-      if vm == MY_IP
-         result = `#{command}`
-         unless $?.exitstatus == 0
-            err "Impossible to start balancer in #{vm}"
-            return false
-         end
-      else
-         out, success = CloudSSH.execute_remote(command, vm)
-         unless success
-            err "Impossible to start balancer in #{vm}"
-            return false
-         end
-      end
+      start_balancer(vm)
    end
    
    # Start web servers => Start sinatra application
    puts "Starting ruby web3 on web servers"
-   command = "/bin/bash /root/cloud/web/server/start-ruby-web3"
    servers.each do |vm|
-      if vm == MY_IP
-         result = `#{command}`
-         unless $?.exitstatus == 0
-            err "Impossible to start server in #{vm}"
-            return false
-         end
-      else
-         out, success = CloudSSH.execute_remote(command, vm)
-         unless success
-            err "Impossible to start server in #{vm}"
-            return false
-         end
-      end
+      start_server(vm)
    end
    
    # Database servers start at boot time, but check whether they have started
    # and if they have not, start them
    puts "Starting mysql on database servers"
-   check_command = "ps aux | grep -v grep | grep mysql"
-   command = "/usr/bin/service mysql start"
    databases.each do |vm|
-      if vm == MY_IP
-         result = `#{check_command}`
-         unless $?.exitstatus == 0
-            result = `#{command}`
-            unless $?.exitstatus == 0
-               err "Impossible to start database in #{vm}"
-               return false
-            end
-         end
-      else
-         out, success = CloudSSH.execute_remote(check_command, vm)
-         unless success
-            out, success = CloudSSH.execute_remote(command, vm)
-            unless success
-               err "Impossible to start database in #{vm}"
-               return false
-            end
-         end
-      end
+      start_database(vm)
    end
    
    
@@ -97,6 +51,84 @@ def web_cloud_start(web_roles)
    
 end
 
+
+################################################################################
+# Start node functions
+################################################################################
+
+# Starts a load balancer.
+def start_balancer(vm)
+   
+   command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
+   if vm == MY_IP
+      result = `#{command}`
+      unless $?.exitstatus == 0
+         err "Impossible to start balancer in #{vm}"
+         return false
+      end
+   else
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
+         err "Impossible to start balancer in #{vm}"
+         return false
+      end
+   end
+
+end
+
+
+# Starts a web server.
+def start_server(vm)
+
+   command = "/bin/bash /root/cloud/web/server/start-ruby-web3"
+   if vm == MY_IP
+      result = `#{command}`
+      unless $?.exitstatus == 0
+         err "Impossible to start server in #{vm}"
+         return false
+      end
+   else
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
+         err "Impossible to start server in #{vm}"
+         return false
+      end
+   end
+
+end
+
+
+# Starts a database server.
+def start_database(vm)
+   
+   check_command = "ps aux | grep -v grep | grep mysql"
+   command = "/usr/bin/service mysql start"
+   if vm == MY_IP
+      result = `#{check_command}`
+      unless $?.exitstatus == 0
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            err "Impossible to start database in #{vm}"
+            return false
+         end
+      end
+   else
+      out, success = CloudSSH.execute_remote(check_command, vm)
+      unless success
+         out, success = CloudSSH.execute_remote(command, vm)
+         unless success
+            err "Impossible to start database in #{vm}"
+            return false
+         end
+      end
+   end
+   
+end
+
+
+################################################################################
+# Monitor node functions
+################################################################################
 
 # Monitors a virtual machine belonging to a web cloud.
 def web_monitor(vm, role)
@@ -154,10 +186,6 @@ def web_monitor(vm, role)
    
 end
 
-
-################################################################################
-# Auxiliar functions
-################################################################################
 
 # Starts monitoring on load balancer.
 def start_monitor_balancer(vm)
@@ -257,3 +285,89 @@ def start_monitor_database(vm)
    return true
 
 end
+
+
+################################################################################
+# Stop functions
+################################################################################
+
+# Stops a web cloud.
+def web_cloud_stop(web_roles)
+
+   balancers = web_roles[:balancer]
+   servers   = web_roles[:server]
+   databases = web_roles[:database]
+
+   # Stop services
+   
+   # Stop load balancers => Stop nginx
+   puts "Stopping nginx on load balancers"
+   balancers.each do |vm|
+      stop_balancer(vm)
+   end
+   
+   # Stop web servers => Stop sinatra application
+   puts "Stopping ruby web3 on web servers"
+   servers.each do |vm|
+      stop_server(vm)
+   end
+   
+   # Stop database servers => Stop mysql
+   puts "Stopping mysql on database servers"
+   databases.each do |vm|
+      stop_database(vm)
+   end
+
+end
+
+
+# Stops a load balancer.
+def stop_balancer(vm)
+command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
+
+   # It is being monitored explicitly with puppet, so we do not have to stop
+   # monitoring explicitly, we just have to stop it
+   
+   command = "/etc/init.d/nginx stop > /dev/null 2> /dev/null"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to stop balancer in #{vm}"
+      return false
+   end
+
+end
+
+
+# Stops a web server.
+def stop_server(vm)
+
+   command = "pkill -f server.god"     # We are looking for server.god
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      command = "pkill -f web3"
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
+         err "Impossible to stop web server in #{vm}"
+         return false
+      end
+   end
+
+end
+
+
+# Stops a database server.
+def stop_database(vm)
+
+   command = "pkill -f database.god"     # We are looking for database.god
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      command = "/usr/bin/service mysql stop"      # Do not kill it, stop it
+      out, success = CloudSSH.execute_remote(command, vm)
+      unless success
+         err "Impossible to stop database in #{vm}"
+         return false
+      end
+   end
+
+end
+
