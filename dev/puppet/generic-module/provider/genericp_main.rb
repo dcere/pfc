@@ -377,13 +377,8 @@ def monitor_vm(vm, ip_roles, monitor_function)
    end
    
    # TODO What if a machine has different roles?
+   vm_roles = get_vm_roles(ip_roles, vm)
    
-   role = :undefined
-   ip_roles.each do |r, ips|
-      ips.each do |ip|
-         if ip == vm then role = r end
-      end
-   end
    
    # Check if they have their ID
    # If they are running, but they do not have their ID:
@@ -413,8 +408,13 @@ def monitor_vm(vm, ip_roles, monitor_function)
    # Use copy_cloud_files if we copy no matter what. Modify it if we check
    # We should copy no matter what in case they have changed
    
-   # Depending on the type of cloud we will have to monitor different components
-   monitor_function.call(vm, role)
+   # Depending on the type of cloud we will have to monitor different components.
+   # Also, take into account that one node can perform more than one role.
+   print "#{vm} will perform the roles: "
+   p vm_roles
+   vm_roles.each do |role|
+      monitor_function.call(vm, role)
+   end
    
    return true
    

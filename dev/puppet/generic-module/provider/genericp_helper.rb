@@ -154,3 +154,19 @@ def save_domain_name(ssh_connect, vm_name)
    end
    
 end
+
+
+# Gets all the roles a node has.
+def get_vm_roles(roles, vm)
+
+   vm_roles = []
+   roles.each do |role, ips|
+      if ips == vm
+         vm_roles << role
+      elsif ips.is_a?(Array) && ips.include?(vm)
+         vm_roles << role
+      end
+   end
+   return vm_roles
+
+end
