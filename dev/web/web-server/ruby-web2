@@ -1,0 +1,51 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          ruby-web2
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the ruby web2 server
+# Description:       starts ruby web2 using start-stop-daemon
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/root/cloud/web/server/start-bash-web2
+NAME=ruby-web2
+DESC=ruby-web2
+
+test -x $DAEMON || exit 0
+
+set -e
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+	echo -n "Starting $DESC: "
+	/root/cloud/web/server/start-bash-web2
+	echo "$NAME."
+	;;
+  stop)
+	echo -n "Stopping $DESC: "
+	/root/cloud/web/server/stop-bash-web2
+	echo "$NAME."
+	;;
+  restart|force-reload)
+	echo -n "Restarting $DESC: "
+	/root/cloud/web/server/start-bash-web2
+	sleep 1
+	/root/cloud/web/server/stop-bash-web2
+	echo "$NAME."
+	;;
+  status)
+	status_of_proc -p /var/run/$NAME.pid "$DAEMON" ruby-web2 && exit 0 || exit $?
+	;;
+  *)
+	echo "Usage: $NAME {start|stop|restart|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
