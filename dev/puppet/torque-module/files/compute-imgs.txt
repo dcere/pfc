@@ -1,0 +1,1 @@
+/var/tmp/dceresuela/lucid-tor2.img

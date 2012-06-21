@@ -34,7 +34,7 @@ Puppet::Type.newtype(:torque) do
            "an image for every instance"
    end
 
-   newparam(:domain) do
+   newparam(:vm_domain) do
       desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
    end
 
@@ -60,4 +60,14 @@ Puppet::Type.newtype(:torque) do
       defaultto "root"
    end
 
+
+   # Torque parameters
+   newproperty(:head, :array_matching => :all) do
+      desc "The head node's information"
+   end
+   
+   newproperty(:compute, :array_matching => :all) do
+      desc "The compute nodes' information"
+   end
+   
 end

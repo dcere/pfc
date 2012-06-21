@@ -4,6 +4,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
    # Require torque auxiliar files
    require File.dirname(__FILE__) + '/torque/torque_yaml.rb'
    require File.dirname(__FILE__) + '/torque/torque_functions.rb'
+   require File.dirname(__FILE__) + '/torque/torque_parsing.rb'
    
    # Require generic files
    require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
@@ -49,8 +50,10 @@ Puppet::Type.type(:torque).provide(:torquep) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
-                                                            method(:torque_yaml_images))
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
+         #                                                   method(:torque_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -93,9 +96,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
 
          # Check if you are the leader
          if my_id == leader && my_id != -1
-            leader_monitoring(method(:torque_yaml_ips),
-                              method(:torque_yaml_images),
-                              method(:torque_monitor))
+            leader_monitoring(method(:torque_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -122,8 +123,9 @@ Puppet::Type.type(:torque).provide(:torquep) do
          puts "It is a torque cloud"
          
          # Stop cloud infrastructure
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
-                                                            method(:torque_yaml_images))
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
+         #                                                   method(:torque_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
          torque_cloud_stop(vm_ip_roles)
          
          # Get pool of physical machines
@@ -196,5 +198,10 @@ Puppet::Type.type(:torque).provide(:torquep) do
    def root_password
    end
    
+   def head
+   end
+   
+   def compute
+   end
    
 end

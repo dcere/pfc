@@ -2,10 +2,22 @@
 # Auxiliar functions for torque provider
 ################################################################################
 
+# The functions in this file are defined the same in all providers, but each
+# one implements them in their own way. Thus, the headers cannot be modified.
+
 # Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
 def start_cloud(vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
    return torque_cloud_start(vm_ip_roles)
 
+end
+
+
+# Obtains vm data from manifest parameters.
+def obtain_vm_data()
+
+   puts "Obtaining virtual machines' data"
+   return obtain_torque_data(resource[:head], resource[:compute])
+   
 end

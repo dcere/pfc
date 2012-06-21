@@ -175,13 +175,13 @@ def not_cloud_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up)
 end
 
 
-def leader_monitoring(ip_function, img_function, monitor_function)
+def leader_monitoring(monitor_function)
 
    puts "#{MY_IP} is the leader"
    
    # Do monitoring
    deads = []
-   vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(ip_function, img_function)
+   vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
    vm_ips.each do |vm|
       puts "Monitoring #{vm}..."
       unless monitor_vm(vm, vm_ip_roles, monitor_function)
@@ -324,17 +324,17 @@ end
 
 
 # Obtains the virtual machine's data
-def obtain_vm_data(ip_function, img_function)
-   
-   vm_ips = []
-   vm_ip_roles = []
-   vm_img_roles = []
-   puts "Obtaining virtual machines' data"
-   vm_ips, vm_ip_roles = ip_function.call(resource[:ip_file])
-   vm_img_roles = img_function.call(resource[:img_file])
-   return vm_ips, vm_ip_roles, vm_img_roles
-         
-end
+#def obtain_vm_data(ip_function, img_function)
+#   
+#   vm_ips = []
+#   vm_ip_roles = []
+#   vm_img_roles = []
+#   puts "Obtaining virtual machines' data"
+#   vm_ips, vm_ip_roles = ip_function.call(resource[:ip_file])
+#   vm_img_roles = img_function.call(resource[:img_file])
+#   return vm_ips, vm_ip_roles, vm_img_roles
+#         
+#end
 
 
 # Monitors a virtual machine.
@@ -439,17 +439,17 @@ def copy_cloud_files(ips, cloud_type)
             err "Impossible to copy #{file} to #{vm}"
          end
          
-         # Cloud description (IPs YAML file)
-         out, success = CloudSSH.copy_remote(resource[:ip_file], vm, resource[:ip_file])
-         unless success
-            err "Impossible to copy #{resource[:ip_file]} to #{vm}"
-         end
+         # Cloud description (IPs YAML file) TODO Check how to do this
+         #out, success = CloudSSH.copy_remote(resource[:ip_file], vm, resource[:ip_file])
+         #unless success
+         #   err "Impossible to copy #{resource[:ip_file]} to #{vm}"
+         #end
          
          # Cloud roles (Image disks YAML file)
-         out, success = CloudSSH.copy_remote(resource[:img_file], vm, resource[:img_file])
-         unless success
-            err "Impossible to copy #{resource[:img_file]} to #{vm}"
-         end
+         #out, success = CloudSSH.copy_remote(resource[:img_file], vm, resource[:img_file])
+         #unless success
+         #   err "Impossible to copy #{resource[:img_file]} to #{vm}"
+         #end
       end
    end
    

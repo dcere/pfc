@@ -146,7 +146,8 @@ end
 def monitor_compute(vm)
 
    # Obtain head node's IP
-   vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
+   #vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
+   vm_ips, vm_ip_roles = torque_parse_ips(resource[:head], resource[:compute])
    head = vm_ip_roles[:head]
 
    # Check if the node is in the list of compute nodes
