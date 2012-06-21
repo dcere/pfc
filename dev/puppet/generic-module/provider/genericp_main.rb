@@ -99,9 +99,6 @@ def common_start(my_id)
       # If we have received our ID, try to become leader
       puts "Trying to become leader..."
       
-      # Get your ID
-      #my_id = CloudLeader.get_id()
-      
       # Get all machines' IDs
       mcc = MCollectiveLeaderClient.new("leader")
       ids = mcc.ask_id()
@@ -376,7 +373,7 @@ def monitor_vm(vm, ip_roles, monitor_function)
       err "MCollective is not running on #{vm}"
    end
    
-   # TODO What if a machine has different roles?
+   # A node may have different roles
    vm_roles = get_vm_roles(ip_roles, vm)
    
    
