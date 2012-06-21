@@ -34,8 +34,9 @@ Puppet::Type.newtype(:web) do
            "an image for every instance"
    end
    
-   newparam(:domain) do
-      desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
+   newparam(:vm_domain) do
+      desc "The XML file with the virtual machine domain definition. " +
+           "Libvirt XML format must be used"
    end
    
    newproperty(:pool, :array_matching => :all) do
@@ -58,6 +59,21 @@ Puppet::Type.newtype(:web) do
    newproperty(:root_password) do
       desc "Virtual machines' root password"
       defaultto "root"
+   end
+
+
+   # Web parameters
+   
+   newproperty(:balancer, :array_matching => :all) do
+      desc "The bañancer node's information"
+   end
+   
+   newproperty(:server, :array_matching => :all) do
+      desc "The compute nodes' information"
+   end
+   
+   newproperty(:database, :array_matching => :all) do
+      desc "The head node's information"
    end
 
 end

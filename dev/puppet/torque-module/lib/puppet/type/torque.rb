@@ -35,7 +35,8 @@ Puppet::Type.newtype(:torque) do
    end
 
    newparam(:vm_domain) do
-      desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
+      desc "The XML file with the virtual machine domain definition. " +
+           "Libvirt XML format must be used"
    end
 
    newproperty(:pool, :array_matching => :all) do

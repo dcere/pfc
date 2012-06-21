@@ -57,8 +57,9 @@ module CloudSSH
    def self.execute_remote(command, ip, path = SSH_PATH, file = SSH_KEY)
    
       result = `ssh root@#{ip} -i #{SSH_PATH}/#{SSH_KEY} '#{command}'`
-      success = $?.exitstatus == 0
-      return result, success
+      exit_code = $?.exitstatus
+      success = (exit_code == 0)
+      return result, success, exit_code
    end
    
    

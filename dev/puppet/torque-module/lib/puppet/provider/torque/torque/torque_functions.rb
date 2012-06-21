@@ -217,25 +217,29 @@ def stop_head(head)
    puts "Stopping pbs_sched on head node"
    command = "pkill -f pbs-sched"      # We are looking for pbs-sched.god
    out, success = CloudSSH.execute_remote(command, head)
-   unless success
+   if success
       command = "pkill pbs_sched"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "Impossible to stop pbs_sched in #{head}"
          return false
       end
+   else
+      err "Impossible to stop pbs_sched monitoring in #{head}"
    end
    
    puts "Stopping pbs_server on head node"
    command = "pkill -f pbs-server"     # We are looking for pbs-server.god
    out, success = CloudSSH.execute_remote(command, head)
-   unless success
+   if success
       command = "pkill pbs_server"
       out, success = CloudSSH.execute_remote(command, head)
       unless success
          err "Impossible to stop pbs_server in #{head}"
          return false
       end
+   else
+      err "Impossible to stop pbs_server monitoring in #{head}"
    end
    
    puts "Stopping trqauthd on head node"
@@ -255,7 +259,7 @@ def stop_compute(compute)
    puts "Stopping pbs_mom on compute nodes"
    command = "pkill -f pbs-mom.god"
    out, success = CloudSSH.execute_remote(command, compute)
-   unless success
+   if success
       command = "pkill -f pbs_mom"
       out, success = CloudSSH.execute_remote(command, compute)
       unless success

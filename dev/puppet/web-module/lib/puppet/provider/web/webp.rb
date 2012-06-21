@@ -4,6 +4,7 @@ Puppet::Type.type(:web).provide(:webp) do
    # Require web auxiliar files
    require File.dirname(__FILE__) + '/web/web_yaml.rb'
    require File.dirname(__FILE__) + '/web/web_functions.rb'
+   require File.dirname(__FILE__) + '/web/web_parsing.rb'
    
    # Require generic files
    require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
@@ -50,8 +51,9 @@ Puppet::Type.type(:web).provide(:webp) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
-                                                            method(:web_yaml_images))
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
+         #                                                   method(:web_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -94,9 +96,7 @@ Puppet::Type.type(:web).provide(:webp) do
 
          # Check if you are the leader
          if my_id == leader && my_id != -1
-            leader_monitoring(method(:web_yaml_ips),
-                              method(:web_yaml_images),
-                              method(:web_monitor))
+            leader_monitoring(method(:web_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -123,8 +123,9 @@ Puppet::Type.type(:web).provide(:webp) do
          puts "It is a web cloud"
          
          # Stop cloud infrastructure
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
-                                                            method(:web_yaml_images))
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
+         #                                                   method(:web_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
          web_cloud_stop(vm_ip_roles)
          
          # Get pool of physical machines
@@ -197,5 +198,13 @@ Puppet::Type.type(:web).provide(:webp) do
    def starting_mac_address
    end
    
+   def balancer
+   end
+   
+   def server
+   end
+   
+   def database
+   end
    
 end

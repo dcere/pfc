@@ -1,4 +1,4 @@
-# Torque parsing fcuntions to obtain virual machine's data from manifest's
+# Torque parsing functions to obtain virual machine's data from manifest's
 # arguments.
 
 # Obtains the IP addresses and disk images from the resource[:head] and
@@ -32,7 +32,7 @@ def torque_parse_ips(head, compute)
    ips = []
    ip_roles = {}
 
-      
+   
    # Get the IPs that are under the "head" and "compute" labels
    ip_roles[:head] = []
    ip_roles[:head] << head[ips_index].chomp
@@ -42,7 +42,6 @@ def torque_parse_ips(head, compute)
    if file != nil
       ip_roles[:compute] = []
       file.each_line do |line|
-         puts "Adding #{line.chomp} to ip compute list"
          ip_roles[:compute] << line.chomp
       end
    end
@@ -73,7 +72,7 @@ def torque_parse_images(head, compute)
    img_index = 1
    img_roles = {}
 
-      
+   
    # Get the disk images that are under the "head" and "compute" labels
    img_roles[:head] = []
    img_roles[:head] << head[img_index].chomp
@@ -83,7 +82,6 @@ def torque_parse_images(head, compute)
    if file != nil
       img_roles[:compute] = []
       file.each_line do |line|
-         puts "Adding #{line.chomp} to img compute list"
          img_roles[:compute] << line.chomp
       end
    end

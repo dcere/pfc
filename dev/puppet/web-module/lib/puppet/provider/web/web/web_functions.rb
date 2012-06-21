@@ -341,15 +341,17 @@ end
 # Stops a web server.
 def stop_server(vm)
 
-   command = "pkill -f server.god"     # We are looking for server.god
+   command = 'pkill -f server\(.\)god'     # We are looking for server.god
    out, success = CloudSSH.execute_remote(command, vm)
-   unless success
+   if success
       command = "pkill -f web3"
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success, exit_code = CloudSSH.execute_remote(command, vm)
       unless success
-         err "Impossible to stop web server in #{vm}"
+         err "Impossible to stop web server in #{vm}."
          return false
       end
+   else
+      err "Impossible to stop web server monitoring in #{vm}"
    end
 
 end
@@ -358,15 +360,17 @@ end
 # Stops a database server.
 def stop_database(vm)
 
-   command = "pkill -f database.god"     # We are looking for database.god
+   command = 'pkill -f database\(.\)god'    # We are looking for database.god
    out, success = CloudSSH.execute_remote(command, vm)
-   unless success
+   if success
       command = "/usr/bin/service mysql stop"      # Do not kill it, stop it
       out, success = CloudSSH.execute_remote(command, vm)
       unless success
          err "Impossible to stop database in #{vm}"
          return false
       end
+   else
+      err "Impossible to stop database monitoring in #{vm}"
    end
 
 end
