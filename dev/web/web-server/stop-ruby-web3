@@ -1,0 +1,5 @@
+#!/bin/bash
+start-stop-daemon --stop --quiet \
+  --pidfile /var/run/ruby-web3.pid  \
+  --exec /usr/bin/ruby /root/cloud/web/server/web3.rb \
+  > /root/cloud/web/server/web3.out 2> /root/cloud/web/server/web3.err &
