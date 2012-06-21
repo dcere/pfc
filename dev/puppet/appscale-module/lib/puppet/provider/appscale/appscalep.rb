@@ -50,8 +50,9 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          
          # Obtain the virtual machines' IPs
          puts "Obtaining the virtual machines' IPs..."
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:appscale_yaml_ips),
-                                                            method(:appscale_yaml_images))
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:appscale_yaml_ips),
+         #                                                   method(:appscale_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -94,9 +95,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
 
          # Check if you are the leader
          if my_id == leader && my_id != -1
-            leader_monitoring(method(:appscale_yaml_ips),
-                              method(:appscale_yaml_images),
-                              method(:appscale_monitor))
+            leader_monitoring(method(:appscale_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end

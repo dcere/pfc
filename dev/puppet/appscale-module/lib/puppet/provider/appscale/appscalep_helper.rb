@@ -2,6 +2,9 @@
 # Auxiliar functions for appscale provider
 ################################################################################
 
+# The functions in this file are defined the same in all providers, but each
+# one implements them in their own way. Thus, the headers cannot be modified.
+
 # Starts an AppScale cloud formed by <vm_ips> performing <vm_ip_roles>
 def start_cloud(vm_ips, vm_ip_roles)
 
@@ -20,4 +23,14 @@ def start_cloud(vm_ips, vm_ip_roles)
                                resource[:app_email], resource[:app_password],
                                resource[:root_password])
 
+end
+
+
+# Obtains vm data from manifest parameters.
+def obtain_vm_data()
+
+   ips, ip_roles = appscale_yaml_ips(resource[:ip_file])
+   img_roles     = appscale_yaml_ips(resource[:img_file])
+   return ips, ip_roles, img_roles
+   
 end
