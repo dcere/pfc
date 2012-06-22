@@ -80,7 +80,11 @@ end
 # Starts a web server.
 def start_server(vm)
 
-   command = "/bin/bash /root/cloud/web/server/start-ruby-web3"
+   #command = "/bin/bash /root/cloud/web/server/start-ruby-web3"
+   
+   # The ruby-web3 file should have been already copied at this point. It should
+   # have been copied when installing the web server.
+   command = "/etc/init.d/ruby-web3 start"
    if vm == MY_IP
       result = `#{command}`
       unless $?.exitstatus == 0
@@ -146,21 +150,27 @@ def web_monitor(vm, role)
       puts "[Web monitor] Monitoring web server"
       
       # Check god is running
-      check_command = "ps aux | grep -v grep | grep god | grep server.god"
-      out, success = CloudSSH.execute_remote(check_command, vm)
-      unless success
-         puts "[Web monitor] God is not running in #{vm}"
-         
-         # Try to start monitoring again
-         puts "[Web monitor] Starting monitoring server on #{vm}"
-         if start_monitor_server(vm)
-            puts "[Web monitor] Successfully started to monitor server on #{vm}"
-         else
-            err "[Web monitor] Impossible to monitor server on #{vm}"
-         end
+#       check_command = "ps aux | grep -v grep | grep god | grep server.god"
+#       out, success = CloudSSH.execute_remote(check_command, vm)
+#       unless success
+#          puts "[Web monitor] God is not running in #{vm}"
+#          
+#          # Try to start monitoring again
+#          puts "[Web monitor] Starting monitoring server on #{vm}"
+#          if start_monitor_server(vm)
+#             puts "[Web monitor] Successfully started to monitor server on #{vm}"
+#          else
+#             err "[Web monitor] Impossible to monitor server on #{vm}"
+#          end
+#       end
+      
+      # Run puppet
+      unless start_monitor_server(vm)
+         puts "[Web monitor] Impossible to monitor web server on #{vm}"
       end
+      
       puts "[Web monitor] Monitored web server"
-
+      
    elsif role == :database
       puts "[Web monitor] Monitoring database"
       
@@ -216,7 +226,7 @@ end
 # Starts monitoring on web server.
 def start_monitor_server(vm)
 
-   # Copy the puppet manifest
+   # Copy the puppet manifests: general, start and stop
    path = "/etc/puppet/modules/web/files/web-manifests/server.pp"
    out, success = CloudSSH.copy_remote(path, vm, "/tmp")
    unless success
@@ -224,31 +234,53 @@ def start_monitor_server(vm)
       return false
    end
    
+   path = "/etc/puppet/modules/web/files/web-manifests/server-start.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "[Web monitor] Impossible to copy server start manifest to #{vm}"
+      return false
+   end
+   
+   path = "/etc/puppet/modules/web/files/web-manifests/server-stop.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "[Web monitor] Impossible to copy server stop manifest to #{vm}"
+      return false
+   end
+   
    # Monitor web servers with puppet: installation files and required gems
    command = "puppet apply /tmp/server.pp"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "[Web monitor] Impossible to run puppet in #{vm}"
+      err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
       return false
    end
    
    # Monitor web servers with god: web server is up and running
-   path = "/etc/puppet/modules/web/files/web-god/server.god"
-   command = "mkdir -p /etc/god"
+#    path = "/etc/puppet/modules/web/files/web-god/server.god"
+#    command = "mkdir -p /etc/god"
+#    out, success = CloudSSH.execute_remote(command, vm)
+#    unless success
+#       err "[Web monitor] Impossible to create /etc/god at #{vm}"
+#       return false
+#    end
+#    out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+#    unless success
+#       err "[Web monitor] Impossible to copy #{path} to #{vm}"
+#       return false
+#    end
+#    command = "god -c /etc/god/server.god"
+#    out, success = CloudSSH.execute_remote(command, vm)
+#    unless success
+#       err "[Web monitor] Impossible to run god in #{vm}"
+#       return false
+#    end
+   
+   # Monitor web servers with puppet: web server is up and running
+   command = "puppet apply /tmp/server-start.pp"
    out, success = CloudSSH.execute_remote(command, vm)
    unless success
-      err "[Web monitor] Impossible to create /etc/god at #{vm}"
-      return false
-   end
-   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
-   unless success
-      err "[Web monitor] Impossible to copy #{path} to #{vm}"
-      return false
-   end
-   command = "god -c /etc/god/server.god"
-   out, success = CloudSSH.execute_remote(command, vm)
-   unless success
-      err "[Web monitor] Impossible to run god in #{vm}"
+      err "[Web monitor] Impossible to run puppet (server-start.pp) in #{vm}"
       return false
    end
    
@@ -323,7 +355,6 @@ end
 
 # Stops a load balancer.
 def stop_balancer(vm)
-command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
 
    # It is being monitored explicitly with puppet, so we do not have to stop
    # monitoring explicitly, we just have to stop it
@@ -341,19 +372,29 @@ end
 # Stops a web server.
 def stop_server(vm)
 
-   command = 'pkill -f server\(.\)god'     # We are looking for server.god
-   out, success = CloudSSH.execute_remote(command, vm)
-   if success
-      command = "pkill -f web3"
-      out, success, exit_code = CloudSSH.execute_remote(command, vm)
-      unless success
-         err "Impossible to stop web server in #{vm}."
-         return false
-      end
-   else
-      err "Impossible to stop web server monitoring in #{vm}"
-   end
+#    command = 'pkill -f server\(.\)god'     # We are looking for server.god
+#    out, success = CloudSSH.execute_remote(command, vm)
+#    if success
+#       command = "pkill -f web3"
+#       out, success, exit_code = CloudSSH.execute_remote(command, vm)
+#       unless success
+#          err "Impossible to stop web server in #{vm}."
+#          return false
+#       end
+#    else
+#       err "Impossible to stop web server monitoring in #{vm}"
+#    end
 
+   # It is being monitored explicitly with puppet, so we do not have to stop
+   # monitoring explicitly, we just have to stop it
+   
+   command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
+   out, success = CloudSSH.execute_remote(command, vm)
+   unless success
+      err "Impossible to stop web server in #{vm}"
+      return false
+   end
+   
 end
 
 

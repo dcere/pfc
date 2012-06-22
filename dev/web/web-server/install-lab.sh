@@ -30,8 +30,5 @@ WEB_DST="/root/cloud/web/server"
 $SSH mkdir -p $WEB_DST/views     # It will also make /root/cloud/web/web
 
 # Copy files
-scp ./web.rb               root@$1:$WEB_DST/
-scp ./web2.rb              root@$1:$WEB_DST/
-scp ./web3.rb              root@$1:$WEB_DST/
-scp ./start-ruby-web3      root@$1:$WEB_DST/
-scp ./views/index.erb      root@$1:$WEB_DST/views/
+scp -r ./            root@$1:$WEB_DST/
+scp ./ruby-web3      root@$1:/etc/init.d/

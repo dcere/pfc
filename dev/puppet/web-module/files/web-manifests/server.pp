@@ -9,11 +9,3 @@ package {
    'sinatra':      provider => "gem", ensure => present;
    'activerecord': provider => "gem", ensure => present;
 }
-
-service { 'ruby-web3':
-   provider => "base",
-   path => "/root/cloud/web/server/start-ruby-web3",
-   binary => "/root/cloud/web/server/start-ruby-web3",
-   hasstatus => false,
-   ensure => running,
-}
