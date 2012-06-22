@@ -34,8 +34,9 @@ Puppet::Type.newtype(:appscale) do
            "an image for every instance"
    end
 
-   newparam(:domain) do
-      desc "The XML file with the virtual machine domain definition. Libvirt XML format must be used"
+   newparam(:vm_domain) do
+      desc "The XML file with the virtual machine domain definition. " +
+           "Libvirt XML format must be used"
    end
 
    newproperty(:pool, :array_matching => :all) do

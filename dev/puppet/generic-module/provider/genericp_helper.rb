@@ -50,7 +50,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Write virtual machine's domain file
    require 'erb'
-   template = File.open(resource[:domain], 'r').read()
+   template = File.open(resource[:vm_domain], 'r').read()
    erb = ERB.new(template)
    domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
    domain_file = File.open("/etc/puppet/modules/torque/files/#{domain_file_name}", 'w')

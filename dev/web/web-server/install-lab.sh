@@ -27,7 +27,7 @@ SSH="ssh root@$1"
 WEB_DST="/root/cloud/web/server"
 
 # Create directories
-$SSH mkdir -p $WEB_DST/views     # It will also make /root/cloud/web/web
+$SSH mkdir -p $WEB_DST/views     # It will also make /root/cloud/web/server
 
 # Copy files
 scp -r ./            root@$1:$WEB_DST/

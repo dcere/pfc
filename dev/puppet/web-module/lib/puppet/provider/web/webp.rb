@@ -19,16 +19,7 @@ Puppet::Type.type(:web).provide(:webp) do
    confine :osfamily => "Debian"
 
    # Some constants
-   VIRSH_CONNECT = "virsh -c qemu:///system"
-   MY_IP = Facter.value(:ipaddress)
-   PING = "ping -q -c 1 -w 4"
-
-   LAST_MAC_FILE = "/tmp/cloud-last-mac"
-   LAST_ID_FILE  = "/tmp/cloud-last-id"
-   
-   DOMAINS_FILE = "/tmp/defined-domains" # resource[:name] cannot be used at this point
-   
-   CRON_FILE = "/var/spool/cron/crontabs/root"
+   #   They are in the generic cloud files
 
    # Makes sure the cloud is running.
    def start
