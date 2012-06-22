@@ -257,10 +257,10 @@ end
 def stop_compute(compute, head)
 
    puts "Stopping pbs_mom on compute nodes"
-   command = "pkill -f pbs-mom.god"
+   command = 'pkill -f pbs-mom\(.\)god'
    out, success = CloudSSH.execute_remote(command, compute)
    if success
-      command = "pkill -f pbs_mom"
+      command = "pkill pbs_mom"
       out, success = CloudSSH.execute_remote(command, compute)
       unless success
          err "Impossible to stop pbs_mom in #{compute}"
