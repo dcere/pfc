@@ -24,31 +24,19 @@ set -e
 case "$1" in
   start)
 	echo -n "Starting $DESC: "
-	start-stop-daemon --start --quiet -m \
-		--pidfile /var/run/$NAME.pid  \
-		--exec /usr/bin/ruby /root/cloud/web/server/web3.rb \
-		> /root/cloud/web/server/web3.out 2> /root/cloud/web/server/web3.err &
+	/root/cloud/web/server/start-ruby-web3
 	echo "$NAME."
 	;;
   stop)
 	echo -n "Stopping $DESC: "
-	start-stop-daemon --stop --quiet \
-		--pidfile /var/run/$NAME.pid  \
-		--exec /usr/bin/ruby /root/cloud/web/server/web3.rb \
-		> /root/cloud/web/server/web3.out 2> /root/cloud/web/server/web3.err &
+	/root/cloud/web/server/stop-ruby-web3
 	echo "$NAME."
 	;;
   restart|force-reload)
 	echo -n "Restarting $DESC: "
-	start-stop-daemon --stop --quiet \
-		--pidfile /var/run/$NAME.pid  \
-		--exec /usr/bin/ruby /root/cloud/web/server/web3.rb \
-		> /root/cloud/web/server/web3.out 2> /root/cloud/web/server/web3.err &
+	/root/cloud/web/server/stop-ruby-web3
 	sleep 1
-	start-stop-daemon --start --quiet -m \
-		--pidfile /var/run/$NAME.pid  \
-		--exec /usr/bin/ruby /root/cloud/web/server/web3.rb \
-		> /root/cloud/web/server/web3.out 2> /root/cloud/web/server/web3.err &
+	/root/cloud/web/server/start-ruby-web3
 	echo "$NAME."
 	;;
   status)
