@@ -1,9 +1,9 @@
 <domain type='kvm'>
   <name><%= vm[:name] %></name>
   <uuid><%= vm[:uuid] %></uuid>
-  <memory>1048576</memory>
-  <currentMemory>1048576</currentMemory>
-  <vcpu>2</vcpu>
+  <memory><%= vm[:mem] %></memory>
+  <currentMemory><%= vm[:mem] %></currentMemory>
+  <vcpu><%= vm[:ncpu] %></vcpu>
   <os>
     <type arch='x86_64' machine='pc-0.14'>hvm</type>
     <boot dev='hd'/>

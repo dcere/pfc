@@ -5,12 +5,14 @@ class VM
    
    
    # Creates a description of a virtual machine.
-   def initialize(name,uuid,disk,mac)
+   def initialize(name, uuid, disk, mac, mem, ncpu)
       @vm = {
          :name => "#{name}",
          :uuid => "#{uuid}",
          :disk => "#{disk}",
-         :mac  => "#{mac}"}
+         :mac  => "#{mac}",
+         :mem  => "#{mem}",
+         :ncpu => "#{ncpu}"}
    end
    
    

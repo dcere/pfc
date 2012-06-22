@@ -46,7 +46,9 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    vm_uuid = `uuidgen`
    vm_mac  = mac_address
    vm_disk = disk
-   myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac)
+   vm_mem  = resource[:vm_mem]
+   vm_ncpu = resource[:vm_ncpu]
+   myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac, vm_mem, vm_ncpu)
    
    # Write virtual machine's domain file
    require 'erb'

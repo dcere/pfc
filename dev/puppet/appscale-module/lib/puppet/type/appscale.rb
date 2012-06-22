@@ -44,19 +44,32 @@ Puppet::Type.newtype(:appscale) do
    end
 
    
+   # Virtual machine parameters
+   newparam(:vm_mem) do
+      desc "The virtual machine's maximum amopunt of memory. " + 
+           "In KiB: 2**10 (or blocks of 1024 bytes)."
+      defaultto "1048576"
+   end
+   
+   newparam(:vm_ncpu) do
+      desc "The virtual machine's number of CPUs"
+      defaultto "1"
+   end
+   
+   
    # Infrastructure parameters
 
-   newproperty(:pm_user) do
+   newparam(:pm_user) do
       desc "The physical machine user. It must have proper permissions"
       defaultto "dceresuela"
    end
 
-   newproperty(:starting_mac_address) do
+   newparam(:starting_mac_address) do
       desc "Starting MAC address for new virtual machines"
       defaultto "52:54:00:01:00:00"
    end
 
-   newproperty(:root_password) do
+   newparam(:root_password) do
       desc "Virtual machines' root password"
       defaultto "root"
    end
