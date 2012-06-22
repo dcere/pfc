@@ -122,4 +122,11 @@
 - (X) Poner el código de la elección de líder como un módulo más: cloudleader
 - Descomentar la parte de autogestión de los proveedores!!!
 - (X) Renombrar *jobs* por *torque*
-- Mover los ficheros X_functions y X_yaml al directorio de Xp.rb y Xp_helper.rb
+- Mover los ficheros X_functions y X_yaml al directorio de Xp.rb y Xp_helper.rb (No es necesario)
+- (X) Comprobar la parada de un cloud torque: pkill de pbs_sched y pbs_server
+- Cambio de contraseñas: si la contraseña de las máquinas virtuales no es "root" y la cuenta tampoco, ¿cómo se gestiona?
+- Añadir nodos appscale: ¿se puede en funcionamiento?
+- Parámetros de puppet: se pueden usar estructuras elaboradas: ¿existen registros? ¿qué se puede pasar como parámetro: cadena, lista, ...? ejemplo: master => ["155.210.155.73", "/var/tmp/master.img"]
+- (X) No poner domain a secas, poner vm_domain o similar
+- Informarse acerca del uso de pxe para arrancar máquinas con ciertos parámetros configurados: IP, MAC, ...
+- Tener cuidado con el informe que haga el proveedor: no es muy útil que aparezcan 50 IPs en la pantalla si cada una ha fallado

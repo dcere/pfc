@@ -1,3 +1,1 @@
 /var/tmp/dceresuela/lucid-tor2.img
-/var/tmp/dceresuela/lucid-tor3.img
-/var/tmp/dceresuela/lucid-tor4.img

@@ -215,7 +215,7 @@ end
 def stop_head(head)
    
    puts "Stopping pbs_sched on head node"
-   command = "pkill -f pbs-sched"      # We are looking for pbs-sched.god
+   command = 'pkill -f pbs-sched\(.\)god'    # We are looking for pbs-sched.god
    out, success = CloudSSH.execute_remote(command, head)
    if success
       command = "pkill pbs_sched"
@@ -229,7 +229,7 @@ def stop_head(head)
    end
    
    puts "Stopping pbs_server on head node"
-   command = "pkill -f pbs-server"     # We are looking for pbs-server.god
+   command = 'pkill -f pbs-server\(.\)god'   # We are looking for pbs-server.god
    out, success = CloudSSH.execute_remote(command, head)
    if success
       command = "pkill pbs_server"
