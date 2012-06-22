@@ -11,7 +11,7 @@ def torque_cloud_start(torque_roles)
    
    # Start compute nodes
    compute.each do |vm|
-      start_compute(head, vm)
+      start_compute(vm, head)
    end
    
    
@@ -73,7 +73,7 @@ end
 
 
 # Starts a compute node.
-def start_compute(head, compute)
+def start_compute(compute, head)
 
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
@@ -202,7 +202,7 @@ def torque_cloud_stop(torque_roles)
    
    # Stop compute nodes
    compute.each do |vm|
-      stop_compute(vm)
+      stop_compute(vm, head)
    end
    
    # Stop head node
@@ -254,7 +254,7 @@ end
 
 
 # Stops a compute node.
-def stop_compute(compute)
+def stop_compute(compute, head)
 
    puts "Stopping pbs_mom on compute nodes"
    command = "pkill -f pbs-mom.god"
