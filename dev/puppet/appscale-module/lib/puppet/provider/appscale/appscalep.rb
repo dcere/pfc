@@ -52,15 +52,11 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
             puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
-            puts "Checking whether we are the leader..."
-            my_id = CloudLeader.get_id()
-            leader = CloudLeader.get_leader()
- 
-            if my_id == leader && my_id != -1
+            if leader?()
                leader_start("appscale", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
                             method(:appscale_monitor))
             else
-               common_start(my_id)
+               common_start()
             end
          else
             puts "#{MY_IP} is not part of the cloud"

@@ -54,15 +54,11 @@ Puppet::Type.type(:torque).provide(:torquep) do
             puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
-            puts "Checking whether we are the leader..."
-            my_id = CloudLeader.get_id()
-            leader = CloudLeader.get_leader()
- 
-            if my_id == leader && my_id != -1
+            if leader?()
                leader_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
                             method(:torque_monitor))
             else
-               common_start(my_id)
+               common_start()
             end
          else
             puts "#{MY_IP} is not part of the cloud"
@@ -73,21 +69,9 @@ Puppet::Type.type(:torque).provide(:torquep) do
          
          # Cloud exists => Monitoring operations
          puts "Cloud already started"
-         
-         # Get your ID
-         my_id = CloudLeader.get_id()
-         if my_id == -1
-            err "ID file does not exist"
-         end
-         
-         # Get leader's ID
-         leader = CloudLeader.get_leader()
-         if leader == -1
-            err "LEADER file does not exist"
-         end
 
          # Check if you are the leader
-         if my_id == leader && my_id != -1
+         if leader?()
             leader_monitoring(method(:torque_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do

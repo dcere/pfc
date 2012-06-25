@@ -78,11 +78,13 @@ end
 
 
 # Starting function for common (non-leader) nodes.
-def common_start(my_id)
+def common_start
 
    # We are not the leader or we have not received our ID yet
    puts "#{MY_IP} is not the leader"
-
+   
+   my_id = CloudLeader.get_id()
+   
    if my_id == -1
       
       # If we have not received our ID, let's assume we will be the leader
@@ -332,6 +334,17 @@ end
 #   return vm_ips, vm_ip_roles, vm_img_roles
 #         
 #end
+
+
+# Checks if this node is the leader
+def leader?
+
+   my_id = CloudLeader.get_id()
+   leader = CloudLeader.get_leader()
+ 
+   return my_id == leader && my_id != -1
+
+end
 
 
 # Monitors a virtual machine.
