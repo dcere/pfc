@@ -210,9 +210,13 @@ end
 # Stop cloud functions
 ################################################################################
 
-# Shuts down physical machines
-def shutdown_pms(pms)
+# Shuts down virtual machines.
+def shutdown_vms
 
+   # Get pool of physical machines
+   pms = resource[:pool]
+   
+   # Shut down virtual machines
    pms.each do |pm|
    
       pm_user = resource[:pm_user]

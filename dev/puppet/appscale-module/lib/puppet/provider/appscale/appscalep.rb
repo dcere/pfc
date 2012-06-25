@@ -99,11 +99,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          # Stop cloud infrastructure
          appscale_cloud_stop(MY_IP)    # TODO What if we run stop on a different machine than start?
          
-         # Get pool of physical machines
-         pms = resource[:pool]
-         
          # Shutdown and undefine all virtual machines explicitly created for this cloud
-         shutdown_pms(pms)
+         shutdown_vms()
          
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."

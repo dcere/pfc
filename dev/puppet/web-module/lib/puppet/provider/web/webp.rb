@@ -103,11 +103,8 @@ Puppet::Type.type(:web).provide(:webp) do
          vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
          web_cloud_stop(vm_ip_roles)
          
-         # Get pool of physical machines
-         pms = resource[:pool]
-         
          # Shutdown and undefine all virtual machines explicitly created for this cloud
-         shutdown_pms(pms)
+         shutdown_vms()
          
          # Stop cron jobs on all machines
          puts "Stopping cron jobs on all machines..."
