@@ -69,20 +69,8 @@ Puppet::Type.type(:web).provide(:webp) do
          # Cloud exists => Monitoring operations
          puts "Cloud already started"
          
-         # Get your ID
-         my_id = CloudLeader.get_id()
-         if my_id == -1
-            err "ID file does not exist"
-         end
-         
-         # Get leader's ID
-         leader = CloudLeader.get_leader()
-         if leader == -1
-            err "LEADER file does not exist"
-         end
-
          # Check if you are the leader
-         if my_id == leader && my_id != -1
+         if leader?()
             leader_monitoring(method(:web_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
