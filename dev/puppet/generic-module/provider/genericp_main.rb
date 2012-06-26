@@ -94,7 +94,8 @@ def common_start
       puts "#{MY_IP} will be the leader"
       
       # Create your ssh key
-      CloudSSH.generate_ssh_key()
+      user = resource[:vm_user]
+      CloudSSH2.generate_ssh_key(user)
       
    else
       
@@ -120,7 +121,8 @@ def common_start
          puts "...#{MY_IP} will be leader"
          
          # Create your ssh key
-         CloudSSH.generate_ssh_key()
+         user = resource[:vm_user]
+         CloudSSH2.generate_ssh_key(user)
       else
          puts "...Some other machine is/should be leader"
       end
@@ -367,8 +369,9 @@ def monitor_vm(vm, ip_roles, monitor_function)
    # Send it your ssh key
    # Your key was created when you turned into leader
    puts "Sending ssh key to #{vm}"
+   user = resource[:vm_user]
    password = resource[:root_password]
-   out, success = CloudSSH.copy_ssh_key(vm, password)
+   out, success = CloudSSH2.copy_ssh_key(user, vm, password)
    if success
       puts "ssh key sent"
    else
@@ -446,9 +449,10 @@ def copy_cloud_files(ips, cloud_type)
       if vm != MY_IP
          
          # Cloud manifest
+         user = resource[:vm_user]
          file = "init-#{cloud_type}.pp"
          path = "/etc/puppet/modules/#{cloud_type}/manifests/#{file}"
-         out, success = CloudSSH.copy_remote(path, vm, path)
+         out, success = CloudSSH2.copy_remote(path, user, vm, path)
          unless success
             err "Impossible to copy #{file} to #{vm}"
          end
