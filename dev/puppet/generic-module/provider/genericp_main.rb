@@ -232,6 +232,7 @@ def shutdown_vms
          defined_domains = File.open(DOMAINS_FILE, 'r')
       
          # Stop nodes
+         puts "Shutting down domains"
          defined_domains.each_line do |domain|
             domain.chomp!
             result = `#{ssh_connect} '#{VIRSH_CONNECT} shutdown #{domain}'`
@@ -244,6 +245,7 @@ def shutdown_vms
          end
          
          # Undefine local domains
+         puts "Undefining domains"
          defined_domains.rewind
          defined_domains.each_line do |domain|
             domain.chomp!
@@ -257,7 +259,14 @@ def shutdown_vms
          end
          
          # Delete the defined domains file on the physical machine
+         puts "Deleting defined domains file"
          result = `#{ssh_connect} 'rm -rf #{DOMAINS_FILE}'`
+         
+         # Delete all the domain files on the physical machine. Check how the
+         # name is defined on 'start_vm' function.
+         puts "Deleting domain files"
+         domain_files = "cloud-%s-*.xml" % [resource[:name]]
+         result = `#{ssh_connect} 'rm /tmp/#{domain_files}'`
       
       else
          # Some physical machines might not have any virtual machine defined.
