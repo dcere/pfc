@@ -6,7 +6,8 @@
 # web { 'myweb'
 #   ...
 #   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
-#   server   => ["/etc/puppet/modules/web/files/server-ips.txt", "/etc/puppet/modules/web/files/server-imgs.txt"],
+#   server   => ["/etc/puppet/modules/web/files/server-ips.txt",
+#                "/etc/puppet/modules/web/files/server-imgs.txt"],
 #   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
 #   ...
 # }
@@ -24,7 +25,8 @@ end
 # web { 'myweb'
 #   ...
 #   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
-#   server   => ["/etc/puppet/modules/web/files/server-ips.txt", "/etc/puppet/modules/web/files/server-imgs.txt"],
+#   server   => ["/etc/puppet/modules/web/files/server-ips.txt",
+#                "/etc/puppet/modules/web/files/server-imgs.txt"],
 #   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
 #   ...
 # }
@@ -70,7 +72,8 @@ end
 # web { 'myweb'
 #   ...
 #   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
-#   server   => ["/etc/puppet/modules/web/files/server-ips.txt", "/etc/puppet/modules/web/files/server-imgs.txt"],
+#   server   => ["/etc/puppet/modules/web/files/server-ips.txt",
+#                "/etc/puppet/modules/web/files/server-imgs.txt"],
 #   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
 #   ...
 # }

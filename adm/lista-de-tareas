@@ -118,14 +118,14 @@
   - (X) Lo ponemos en el manifiesto
   - Al iniciar el cloud los copiamos a /tmp y nos aseguramos de que siempre estén en todas las máquinas
 - Poner en la wiki / memoria el script set-db.sh y los scripts de SQL para configurar la BD
-- Borrar los archivos del tipo cloud-mycloud-myvm-XXXX.xml de /cloud/
+- (X) Borrar los archivos del tipo cloud-mycloud-myvm-XXXX.xml de /cloud/
 - (X) Poner el código de la elección de líder como un módulo más: cloudleader
 - Descomentar la parte de autogestión de los proveedores!!!
 - (X) Renombrar *jobs* por *torque*
-- Mover los ficheros X_functions y X_yaml al directorio de Xp.rb y Xp_helper.rb (No es necesario)
+- (X) Mover los ficheros X_functions y X_yaml al directorio de Xp.rb y Xp_helper.rb (No es necesario)
 - (X) Comprobar la parada de un cloud torque: pkill de pbs_sched y pbs_server
-- Cambio de contraseñas: si la contraseña de las máquinas virtuales no es "root" y la cuenta tampoco, ¿cómo se gestiona? => La cuenta debe ser root (no se puede usar resource[:vm_user] dentro de los módulos), la contraseña puede especificarse en el manifiesto.
-- Añadir nodos appscale: ¿se puede en funcionamiento?
+- (X) Cambio de contraseñas: si la contraseña de las máquinas virtuales no es "root" y la cuenta tampoco, ¿cómo se gestiona? => La cuenta debe ser root (no se puede usar resource[:vm_user] dentro de los módulos), la contraseña puede especificarse en el manifiesto.
+- (X) Añadir nodos appscale: ¿se puede en funcionamiento? => Únicamente para un periodo de tiempo determinado, pero no para siempre.
 - Parámetros de puppet: se pueden usar estructuras elaboradas: ¿existen registros? ¿qué se puede pasar como parámetro: cadena, lista, ...? ejemplo: master => ["155.210.155.73", "/var/tmp/master.img"]
 - (X) No poner domain a secas, poner vm_domain o similar
 - Informarse acerca del uso de pxe para arrancar máquinas con ciertos parámetros configurados: IP, MAC, ...
