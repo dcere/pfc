@@ -41,7 +41,7 @@ module CloudSSH
    
       puts "Copying ssh key..."
       command_path = "/etc/puppet/modules/generic-module/provider/"
-      identity_file = "#{SSH_PATH}/#{SSH_KEY}"
+      identity_file = "#{path}/#{file}"
       if password
          result = `#{command_path}/ssh_copy_id.sh root@#{ip} #{identity_file} #{password}`
          success = $?.exitstatus == 0
@@ -56,7 +56,7 @@ module CloudSSH
    # Executes a command on a remote machine.
    def self.execute_remote(command, ip, path = SSH_PATH, file = SSH_KEY)
    
-      result = `ssh root@#{ip} -i #{SSH_PATH}/#{SSH_KEY} '#{command}'`
+      result = `ssh root@#{ip} -i #{path}/#{file} '#{command}'`
       exit_code = $?.exitstatus
       success = (exit_code == 0)
       return result, success, exit_code
@@ -66,7 +66,7 @@ module CloudSSH
    # Copies a file to a remote machine.
    def self.copy_remote(src_file, ip, dst_file, path = SSH_PATH, file = SSH_KEY)
    
-      result = `scp -i #{SSH_PATH}/#{SSH_KEY} #{src_file} root@#{ip}:#{dst_file}`
+      result = `scp -i #{path}/#{file} #{src_file} root@#{ip}:#{dst_file}`
       success = $?.exitstatus == 0
       return result, success
    end

@@ -69,6 +69,11 @@ Puppet::Type.newtype(:torque) do
       defaultto "52:54:00:01:00:00"
    end
 
+   newparam(:vm_user) do
+      desc "Virtual machines' user"
+      defaultto "root"
+   end
+
    newparam(:root_password) do
       desc "Virtual machines' root password"
       defaultto "root"
