@@ -53,8 +53,7 @@ module CloudSSH
    
    
    # Executes a command on a remote machine.
-   def self.execute_remote(command, ip, user = "root",
-                           path = SSH_PATH, file = SSH_KEY)
+   def self.execute_remote(command, user, ip, path = SSH_PATH, file = SSH_KEY)
    
       result = `ssh #{user}@#{ip} -i #{path}/#{file} '#{command}'`
       exit_code = $?.exitstatus

@@ -33,12 +33,13 @@ end
 # Starts a head node.
 def start_head(head)
    
+   user = resource[:vm_user]
    puts "Starting trqauthd on head node"
    check_command = "ps aux | grep -v grep | grep trqauthd"
-   out, success = CloudSSH.execute_remote(check_command, head)
+   out, success = CloudSSH.execute_remote(check_command, user, head)
    unless success
       command = "/etc/init.d/trqauthd start > /dev/null 2> /dev/null"
-      out, success = CloudSSH.execute_remote(command, head)
+      out, success = CloudSSH.execute_remote(command, user, head)
       unless success
          err "Impossible to start trqauthd in #{head}"
          return false
@@ -47,10 +48,10 @@ def start_head(head)
    
    puts "Starting pbs_server on head node"
    check_command = "ps aux | grep -v grep | grep pbs_server"
-   out, success = CloudSSH.execute_remote(check_command, head)
+   out, success = CloudSSH.execute_remote(check_command, user, head)
    unless success
       command = "/bin/bash /root/cloud/torque/start-pbs-server"
-      out, success = CloudSSH.execute_remote(command, head)
+      out, success = CloudSSH.execute_remote(command, user, head)
       unless success
          err "Impossible to start pbs_server in #{head}"
          return false
@@ -59,10 +60,10 @@ def start_head(head)
    
    puts "Starting pbs_sched on head node"
    check_command = "ps aux | grep -v grep | grep pbs_sched"
-   out, success = CloudSSH.execute_remote(check_command, head)
+   out, success = CloudSSH.execute_remote(check_command, user, head)
    unless success
       command = "/bin/bash /root/cloud/torque/start-pbs-sched"
-      out, success = CloudSSH.execute_remote(command, head)
+      out, success = CloudSSH.execute_remote(command, user, head)
       unless success
          err "Impossible to start pbs_sched in #{head}"
          return false
@@ -75,12 +76,13 @@ end
 # Starts a compute node.
 def start_compute(compute, head)
 
+   user = resource[:vm_user]
    puts "Starting pbs_mom on compute nodes"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
    command = "/bin/bash /root/cloud/torque/start-pbs-mom"
-   out, success = CloudSSH.execute_remote(check_command, compute)
+   out, success = CloudSSH.execute_remote(check_command, user, compute)
    unless success
-      out, success = CloudSSH.execute_remote(command, compute)
+      out, success = CloudSSH.execute_remote(command, user, compute)
       unless success
          err "Impossible to start pbs_mom in #{compute}"
          return false
@@ -120,13 +122,15 @@ end
 # Monitors a head node.
 def monitor_head(vm)
 
+   user = resource[:vm_user]
+
    check_command1 = "ps aux | grep -v grep | grep trqauthd"
    check_command2 = "ps aux | grep -v grep | grep god | grep pbs-server.god"
    check_command3 = "ps aux | grep -v grep | grep god | grep pbs-sched.god"
    
-   out1, success1 = CloudSSH.execute_remote(check_command1, vm)
-   out2, success2 = CloudSSH.execute_remote(check_command2, vm)
-   out3, success3 = CloudSSH.execute_remote(check_command3, vm)
+   out1, success1 = CloudSSH.execute_remote(check_command1, user, vm)
+   out2, success2 = CloudSSH.execute_remote(check_command2, user, vm)
+   out3, success3 = CloudSSH.execute_remote(check_command3, user, vm)
    unless success1 && success2 && success3
       puts "[Torque monitor] God or trqauthd are not running in #{vm}"
       
@@ -145,6 +149,8 @@ end
 # Monitors a compute node.
 def monitor_compute(vm)
 
+   user = resource[:vm_user]
+
    # Obtain head node's IP
    #vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
    vm_ips, vm_ip_roles = torque_parse_ips(resource[:head], resource[:compute])
@@ -152,13 +158,13 @@ def monitor_compute(vm)
 
    # Check if the node is in the list of compute nodes
    command = "qmgr -c \"list node @localhost\""      # Get a list of all nodes
-   out, success = CloudSSH.execute_remote(command, head)
+   out, success = CloudSSH.execute_remote(command, user, head)
    unless success
       err "[Torque monitor] Impossible to obtain node list from #{head}"
    end
 
    command = "hostname"
-   out2, success = CloudSSH.execute_remote(command, vm)
+   out2, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to obtain hostname for #{vm}"
    end
@@ -174,7 +180,7 @@ def monitor_compute(vm)
 
    # Start monitoring
    check_command = "ps aux | grep -v grep | grep god | grep pbs-mom.god"
-   out, success = CloudSSH.execute_remote(check_command, vm)
+   out, success = CloudSSH.execute_remote(check_command, user, vm)
    unless success
       puts "[Torque monitor] God is not running in #{vm}"
       
@@ -214,12 +220,14 @@ end
 # Stops a head node.
 def stop_head(head)
    
+   user = resource[:vm_user]
+   
    puts "Stopping pbs_sched on head node"
    command = 'pkill -f pbs-sched\(.\)god'    # We are looking for pbs-sched.god
-   out, success = CloudSSH.execute_remote(command, head)
+   out, success = CloudSSH.execute_remote(command, user, head)
    if success
       command = "pkill pbs_sched"
-      out, success = CloudSSH.execute_remote(command, head)
+      out, success = CloudSSH.execute_remote(command, user, head)
       unless success
          err "Impossible to stop pbs_sched in #{head}"
          return false
@@ -230,10 +238,10 @@ def stop_head(head)
    
    puts "Stopping pbs_server on head node"
    command = 'pkill -f pbs-server\(.\)god'   # We are looking for pbs-server.god
-   out, success = CloudSSH.execute_remote(command, head)
+   out, success = CloudSSH.execute_remote(command, user, head)
    if success
       command = "pkill pbs_server"
-      out, success = CloudSSH.execute_remote(command, head)
+      out, success = CloudSSH.execute_remote(command, user, head)
       unless success
          err "Impossible to stop pbs_server in #{head}"
          return false
@@ -244,7 +252,7 @@ def stop_head(head)
    
    puts "Stopping trqauthd on head node"
    command = "/etc/init.d/trqauthd stop"     # Do not kill it, stop it
-   out, success = CloudSSH.execute_remote(command, head)
+   out, success = CloudSSH.execute_remote(command, user, head)
    unless success
       err "Impossible to stop trqauthd in #{head}"
       return false
@@ -256,12 +264,14 @@ end
 # Stops a compute node.
 def stop_compute(compute, head)
 
+   user = resource[:vm_user]
+
    puts "Stopping pbs_mom on compute nodes"
    command = 'pkill -f pbs-mom\(.\)god'
-   out, success = CloudSSH.execute_remote(command, compute)
+   out, success = CloudSSH.execute_remote(command, user, compute)
    if success
       command = "pkill pbs_mom"
-      out, success = CloudSSH.execute_remote(command, compute)
+      out, success = CloudSSH.execute_remote(command, user, compute)
       unless success
          err "Impossible to stop pbs_mom in #{compute}"
          return false
@@ -281,21 +291,23 @@ end
 # Adds a compute node to the list in the head node.
 def add_compute_node(vm, head)
 
+   user = resource[:vm_user]
+
    command = "hostname"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to obtain hostname for #{vm}"
       return false
    end
    hostname = out.chomp()
    command = "qmgr -c \"create node #{hostname}\""
-   out, success = CloudSSH.execute_remote(command, head)
+   out, success = CloudSSH.execute_remote(command, user, head)
    unless success
       err "Impossible to add #{hostname} as a compute node in #{head}"
       return false
    end
    command = "pbsnodes -c #{hostname}"
-   out, success = CloudSSH.execute_remote(command, head)
+   out, success = CloudSSH.execute_remote(command, user, head)
    unless success
       err "Impossible to clear offline from #{hostname} in #{head}"
       return false
@@ -307,15 +319,17 @@ end
 # Deletes a compute node from the list in the head node.
 def del_compute_node(vm, head)
 
+   user = resource[:vm_user]
+   
    command = "hostname"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to obtain hostname for #{vm}"
       return false
    end
    hostname = out
    command = "qmgr -c \"delete node #{hostname}\""
-   out, success = CloudSSH.execute_remote(command, head)
+   out, success = CloudSSH.execute_remote(command, user, head)
    unless success
       err "Impossible to delete #{hostname} as a compute node in #{head}"
       return false
@@ -331,11 +345,13 @@ end
 # Starts monitoring on head node.
 def start_monitor_head(vm)
    
+   user = resource[:vm_user]
+   
    # The trqauthd script is intelligent enough to be initiated as many times
    # as you want without problem: if it is already started it will not be
    # started again
    command = "/etc/init.d/trqauthd start > /dev/null 2> /dev/null"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to run /etc/init.d/trqauthd start at #{vm}"
       return false
@@ -346,7 +362,7 @@ def start_monitor_head(vm)
    # pbs_server is up and running
    path = "/etc/puppet/modules/torque/files/torque-god/pbs-server.god"
    command = "mkdir -p /etc/god"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to create /etc/god at #{vm}"
       return false
@@ -358,7 +374,7 @@ def start_monitor_head(vm)
    end
    port = 17165
    command = "god -c /etc/god/pbs-server.god -p #{port}"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to run god in #{vm}"
       return false
@@ -367,7 +383,7 @@ def start_monitor_head(vm)
    # pbs_sched is up and running
    path = "/etc/puppet/modules/torque/files/torque-god/pbs-sched.god"
    command = "mkdir -p /etc/god"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to create /etc/god at #{vm}"
       return false
@@ -379,7 +395,7 @@ def start_monitor_head(vm)
    end
    port = 17166
    command = "god -c /etc/god/pbs-sched.god -p #{port}"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to run god in #{vm}"
       return false
@@ -393,10 +409,12 @@ end
 # Starts monitoring on compute node.
 def start_monitor_compute(vm)
    
+   user = resource[:vm_user]
+   
    # Monitor compute node with god: pbs_mom is up and running
    path = "/etc/puppet/modules/torque/files/torque-god/pbs-mom.god"
    command = "mkdir -p /etc/god"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to create /etc/god at #{vm}"
       return false
@@ -407,7 +425,7 @@ def start_monitor_compute(vm)
       return false
    end
    command = "god -c /etc/god/pbs-mom.god"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to run god in #{vm}"
       return false

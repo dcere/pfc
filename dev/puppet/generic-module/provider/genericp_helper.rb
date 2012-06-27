@@ -118,7 +118,7 @@ def define_domain(pm_user, pm, vm_name, domain_file_name)
 
    #result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_name}'`
    command = "#{VIRSH_CONNECT} define #{domain_file_name}"
-   out, success = CloudSSH.execute_remote(command, pm, pm_user)
+   out, success = CloudSSH.execute_remote(command, pm_user, pm)
    if success
       debug "[DBG] #{vm_name} domain defined"
       return true
@@ -136,7 +136,7 @@ def start_domain(pm_user, pm, vm_name)
 
    #result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
    command = "#{VIRSH_CONNECT} start #{vm_name}"
-   out, success = CloudSSH.execute_remote(command, pm, pm_user)
+   out, success = CloudSSH.execute_remote(command, pm_user, pm)
    if success
       debug "[DBG] #{vm_name} started"
       return true
@@ -154,7 +154,7 @@ def save_domain_name(pm_user, pm, vm_name)
 
    #result = `#{ssh_connect} 'echo #{vm_name} >> #{DOMAINS_FILE}'`
    command = "echo #{vm_name} >> #{DOMAINS_FILE}"
-   out, success = CloudSSH.execute_remote(command, pm, pm_user)
+   out, success = CloudSSH.execute_remote(command, pm_user, pm)
    if success
       debug "[DBG] #{vm_name} name saved"
       return true

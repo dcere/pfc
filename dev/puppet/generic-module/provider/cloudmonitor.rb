@@ -26,7 +26,7 @@ module CloudMonitor
       # Client configuration file
       client_file = "/etc/mcollective/client.cfg"
       command = "cat #{client_file} > /dev/null 2> /dev/null"
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success = CloudSSH.execute_remote(command, "root", vm)
       unless success
          puts "[CloudMonitor]: #{client_file} does not exist on #{vm}"
          installed = false
@@ -35,7 +35,7 @@ module CloudMonitor
       # Server configuration file
       server_file = "/etc/mcollective/server.cfg"
       command = "cat #{server_file} > /dev/null 2> /dev/null"
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success = CloudSSH.execute_remote(command, "root", vm)
       unless success
          puts "[CloudMonitor]: #{server_file} does not exist on #{vm}"
          installed = false
@@ -50,11 +50,11 @@ module CloudMonitor
    def self.mcollective_running(vm)
       
       command = "ps aux | grep -v grep | grep mcollective"
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success = CloudSSH.execute_remote(command, "root", vm)
       unless success
          puts "MCollective is not running on #{vm}"
          command = "/usr/bin/service mcollective start"
-         out, success = CloudSSH.execute_remote(command, vm)
+         out, success = CloudSSH.execute_remote(command, "root", vm)
          unless success
             puts "[CloudMonitor]: Impossible to start mcollective on #{vm}"
             return false

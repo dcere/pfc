@@ -241,7 +241,7 @@ def shutdown_vms
          defined_domains.each_line do |domain|
             domain.chomp!
             command = "#{VIRSH_CONNECT} shutdown #{domain}"
-            out, success = CloudSSH.execute_remote(command, pm, pm_user)
+            out, success = CloudSSH.execute_remote(command, pm_user, pm)
             if success
                debug "[DBG] #{domain} was shutdown"
             else
@@ -256,7 +256,7 @@ def shutdown_vms
          defined_domains.each_line do |domain|
             domain.chomp!
             command = "#{VIRSH_CONNECT} undefine #{domain}"
-            out, success = CloudSSH.execute_remote(command, pm, pm_user)
+            out, success = CloudSSH.execute_remote(command, pm_user, pm)
             if success
                debug "[DBG] #{domain} was undefined"
             else
@@ -268,14 +268,14 @@ def shutdown_vms
          # Delete the defined domains file on the physical machine
          puts "Deleting defined domains file"
          command = "rm -rf #{DOMAINS_FILE}"
-         out, success = CloudSSH.execute_remote(command, pm, pm_user)
+         out, success = CloudSSH.execute_remote(command, pm_user, pm)
          
          # Delete all the domain files on the physical machine. Check how the
          # name is defined on 'start_vm' function.
          puts "Deleting domain files"
          domain_files = "cloud-%s-*.xml" % [resource[:name]]
          command = "rm /tmp/#{domain_files}"
-         out, success = CloudSSH.execute_remote(command, pm, pm_user)
+         out, success = CloudSSH.execute_remote(command, pm_user, pm)
       
       else
          # Some physical machines might not have any virtual machine defined.

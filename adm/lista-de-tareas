@@ -106,8 +106,8 @@
 - (1/2) Inicio de AppScale desde Puppet con script expect: A veces sí, a veces no, depende de como lleve el día AppScale.
 - (X) Comprobación de roles en AppScale
 - (X) Ver como hace la distribucion de claves SSH appscale e imitarla.
-- Distribuir claves SSH a las máquinas físicas también.
-- Creación de un comando copy_remote_pm o similar para copiar ficheros a las máquinas físicas que alojan a las máquinas virtuales
+- (X) Distribuir claves SSH a las máquinas físicas también.
+- (X) Creación de un comando copy_remote_pm o similar para copiar ficheros a las máquinas físicas que alojan a las máquinas virtuales
 - (X) ¿Es necesaria la clase VM_Name si generamos nombres aleatoriamente? => No.
 - (X) Añadir el parámetro "starting MAC" o similar para evitar colisiones de MACs. => starting_mac_address
 - Crear fichero para saber desde qué máquina se ha iniciado el cloud AppScale y poder realizar appscale-terminate-instances
