@@ -220,11 +220,15 @@ def shutdown_vms
    pms.each do |pm|
    
       pm_user = resource[:pm_user]
-      ssh_connect = "ssh #{pm_user}@#{pm}"
+      
+      # Copy ssh key to physical machine
+      puts "Copying ssh key to physical machine"
+      out, success = CloudSSH.copy_ssh_key(pm_user, pm, nil)
       
       # Bring the defined domains file from the physical machine to this one
-      result = `scp #{pm_user}@#{pm}:#{DOMAINS_FILE} #{DOMAINS_FILE}`
-      if $?.exitstatus == 0
+      
+      out, success = CloudSSH.get_remote(DOMAINS_FILE, pm_user, pm, DOMAINS_FILE)
+      if success
       
          puts "#{DOMAINS_FILE} exists in #{pm}"
          
@@ -235,8 +239,9 @@ def shutdown_vms
          puts "Shutting down domains"
          defined_domains.each_line do |domain|
             domain.chomp!
-            result = `#{ssh_connect} '#{VIRSH_CONNECT} shutdown #{domain}'`
-            if $?.exitstatus == 0
+            command = "#{VIRSH_CONNECT} shutdown #{domain}"
+            out, success = CloudSSH.execute_remote(command, pm, pm_user)
+            if success
                debug "[DBG] #{domain} was shutdown"
             else
                debug "[DBG] #{domain} impossible to shutdown"
@@ -249,8 +254,9 @@ def shutdown_vms
          defined_domains.rewind
          defined_domains.each_line do |domain|
             domain.chomp!
-            result = `#{ssh_connect} '#{VIRSH_CONNECT} undefine #{domain}'`
-            if $?.exitstatus == 0
+            command = "#{VIRSH_CONNECT} undefine #{domain}"
+            out, success = CloudSSH.execute_remote(command, pm, pm_user)
+            if success
                debug "[DBG] #{domain} was undefined"
             else
                debug "[DBG] #{domain} impossible to undefine"
@@ -260,13 +266,15 @@ def shutdown_vms
          
          # Delete the defined domains file on the physical machine
          puts "Deleting defined domains file"
-         result = `#{ssh_connect} 'rm -rf #{DOMAINS_FILE}'`
+         command = "rm -rf #{DOMAINS_FILE}"
+         out, success = CloudSSH.execute_remote(command, pm, pm_user)
          
          # Delete all the domain files on the physical machine. Check how the
          # name is defined on 'start_vm' function.
          puts "Deleting domain files"
          domain_files = "cloud-%s-*.xml" % [resource[:name]]
-         result = `#{ssh_connect} 'rm /tmp/#{domain_files}'`
+         command = "rm /tmp/#{domain_files}"
+         out, success = CloudSSH.execute_remote(command, pm, pm_user)
       
       else
          # Some physical machines might not have any virtual machine defined.
@@ -377,7 +385,7 @@ def monitor_vm(vm, ip_roles, monitor_function)
    # Your key was created when you turned into leader
    puts "Sending ssh key to #{vm}"
    password = resource[:root_password]
-   out, success = CloudSSH.copy_ssh_key(vm, password)
+   out, success = CloudSSH.copy_ssh_key("root", vm, password)
    if success
       puts "ssh key sent"
    else
