@@ -41,7 +41,7 @@ module CloudSSH
    
       command_path = "/etc/puppet/modules/generic-module/provider/"
       identity_file = "#{path}/#{file}"
-      if password
+      if password != ""
          result = `#{command_path}/ssh_copy_id.sh #{user}@#{ip} #{identity_file} #{password}`
          success = $?.exitstatus == 0
       else

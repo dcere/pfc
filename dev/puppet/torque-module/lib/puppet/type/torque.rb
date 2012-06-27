@@ -60,8 +60,13 @@ Puppet::Type.newtype(:torque) do
    # Infrastructure parameters
 
    newparam(:pm_user) do
-      desc "The physical machine user. It must have proper permissions"
+      desc "The physical machines' user. It must have proper permissions"
       defaultto "dceresuela"
+   end
+
+   newparam(:pm_password) do
+      desc "The physical machines' password"
+      defaultto ""
    end
 
    newparam(:starting_mac_address) do

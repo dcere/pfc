@@ -67,7 +67,8 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Copy ssh key to physical machine
    puts "Copying ssh key to physical machine"
    pm_user = resource[:pm_user]
-   out, success = CloudSSH.copy_ssh_key(pm_user, pm, nil)
+   pm_password = resource[:pm_password]
+   out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
    
    # Copy the domain definition file to the physical machine
    puts "Copying the domain definition file to the physical machine..."

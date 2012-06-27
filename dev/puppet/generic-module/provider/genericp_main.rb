@@ -220,10 +220,11 @@ def shutdown_vms
    pms.each do |pm|
    
       pm_user = resource[:pm_user]
+      pm_password = resource[:pm_password]
       
       # Copy ssh key to physical machine
       puts "Copying ssh key to physical machine"
-      out, success = CloudSSH.copy_ssh_key(pm_user, pm, nil)
+      out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
       
       # Bring the defined domains file from the physical machine to this one
       
