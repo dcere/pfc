@@ -1,8 +1,5 @@
 # Starts a web cloud.
 def web_cloud_start(web_roles)
-   
-   # TODO   ssh to itself? Does it work if keys are distributed? Should it make
-   #        a clear distinction between ssh to itself or others?
 
    balancers = web_roles[:balancer]
    servers   = web_roles[:server]
@@ -60,6 +57,7 @@ end
 def start_balancer(vm)
    
    command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
+   user = resource[:vm_user]
    if vm == MY_IP
       result = `#{command}`
       unless $?.exitstatus == 0
@@ -67,7 +65,7 @@ def start_balancer(vm)
          return false
       end
    else
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
          err "Impossible to start balancer in #{vm}"
          return false
@@ -79,12 +77,11 @@ end
 
 # Starts a web server.
 def start_server(vm)
-
-   #command = "/bin/bash /root/cloud/web/server/start-ruby-web3"
    
    # The ruby-web3 file should have been already copied at this point. It should
    # have been copied when installing the web server.
    command = "/etc/init.d/ruby-web3 start"
+   user = resource[:vm_user]
    if vm == MY_IP
       result = `#{command}`
       unless $?.exitstatus == 0
@@ -92,7 +89,7 @@ def start_server(vm)
          return false
       end
    else
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
          err "Impossible to start server in #{vm}"
          return false
@@ -107,6 +104,7 @@ def start_database(vm)
    
    check_command = "ps aux | grep -v grep | grep mysql"
    command = "/usr/bin/service mysql start"
+   user = resource[:vm_user]
    if vm == MY_IP
       result = `#{check_command}`
       unless $?.exitstatus == 0
@@ -117,9 +115,9 @@ def start_database(vm)
          end
       end
    else
-      out, success = CloudSSH.execute_remote(check_command, vm)
+      out, success = CloudSSH.execute_remote(check_command, user, vm)
       unless success
-         out, success = CloudSSH.execute_remote(command, vm)
+         out, success = CloudSSH.execute_remote(command, user, vm)
          unless success
             err "Impossible to start database in #{vm}"
             return false
@@ -149,21 +147,6 @@ def web_monitor(vm, role)
    elsif role == :server
       puts "[Web monitor] Monitoring web server"
       
-      # Check god is running
-#       check_command = "ps aux | grep -v grep | grep god | grep server.god"
-#       out, success = CloudSSH.execute_remote(check_command, vm)
-#       unless success
-#          puts "[Web monitor] God is not running in #{vm}"
-#          
-#          # Try to start monitoring again
-#          puts "[Web monitor] Starting monitoring server on #{vm}"
-#          if start_monitor_server(vm)
-#             puts "[Web monitor] Successfully started to monitor server on #{vm}"
-#          else
-#             err "[Web monitor] Impossible to monitor server on #{vm}"
-#          end
-#       end
-      
       # Run puppet
       unless start_monitor_server(vm)
          puts "[Web monitor] Impossible to monitor web server on #{vm}"
@@ -176,7 +159,8 @@ def web_monitor(vm, role)
       
       # Check god is running
       check_command = "ps aux | grep -v grep | grep god | grep database.god"
-      out, success = CloudSSH.execute_remote(check_command, vm)
+      user = resource[:vm_user]
+      out, success = CloudSSH.execute_remote(check_command, user, vm)
       unless success
          puts "[Web monitor] God is not running in #{vm}"
          
@@ -212,7 +196,8 @@ def start_monitor_balancer(vm)
    # While god monitoring will be done in a loop this will only be done if
    # explicitly invoked, so we must call 'puppet apply' every time.
    command = "puppet apply /tmp/balancer.pp"
-   out, success = CloudSSH.execute_remote(command, vm)
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Web monitor] Impossible to run puppet in #{vm}"
       return false
@@ -250,35 +235,17 @@ def start_monitor_server(vm)
    
    # Monitor web servers with puppet: installation files and required gems
    command = "puppet apply /tmp/server.pp"
-   out, success = CloudSSH.execute_remote(command, vm)
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
       return false
    end
    
-   # Monitor web servers with god: web server is up and running
-#    path = "/etc/puppet/modules/web/files/web-god/server.god"
-#    command = "mkdir -p /etc/god"
-#    out, success = CloudSSH.execute_remote(command, vm)
-#    unless success
-#       err "[Web monitor] Impossible to create /etc/god at #{vm}"
-#       return false
-#    end
-#    out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
-#    unless success
-#       err "[Web monitor] Impossible to copy #{path} to #{vm}"
-#       return false
-#    end
-#    command = "god -c /etc/god/server.god"
-#    out, success = CloudSSH.execute_remote(command, vm)
-#    unless success
-#       err "[Web monitor] Impossible to run god in #{vm}"
-#       return false
-#    end
-   
    # Monitor web servers with puppet: web server is up and running
    command = "puppet apply /tmp/server-start.pp"
-   out, success = CloudSSH.execute_remote(command, vm)
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Web monitor] Impossible to run puppet (server-start.pp) in #{vm}"
       return false
@@ -292,12 +259,14 @@ end
 # Starts monitoring on database.
 def start_monitor_database(vm)
 
+   user = resource[:vm_user]
+
    # Monitor database with god due to puppet vs ubuntu mysql bug
    # http://projects.puppetlabs.com/issues/12773
    # Therefore there is no puppet monitoring, only god
    path = "/etc/puppet/modules/web/files/web-god/database.god"
    command = "mkdir -p /etc/god"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Web monitor] Impossible to create /etc/god at #{vm}"
       return false
@@ -308,7 +277,7 @@ def start_monitor_database(vm)
       return false
    end
    command = "god -c /etc/god/database.god"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Web monitor] Impossible to run god in #{vm}"
       return false
@@ -360,7 +329,8 @@ def stop_balancer(vm)
    # monitoring explicitly, we just have to stop it
    
    command = "/etc/init.d/nginx stop > /dev/null 2> /dev/null"
-   out, success = CloudSSH.execute_remote(command, vm)
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to stop balancer in #{vm}"
       return false
@@ -372,24 +342,12 @@ end
 # Stops a web server.
 def stop_server(vm)
 
-#    command = 'pkill -f server\(.\)god'     # We are looking for server.god
-#    out, success = CloudSSH.execute_remote(command, vm)
-#    if success
-#       command = "pkill -f web3"
-#       out, success, exit_code = CloudSSH.execute_remote(command, vm)
-#       unless success
-#          err "Impossible to stop web server in #{vm}."
-#          return false
-#       end
-#    else
-#       err "Impossible to stop web server monitoring in #{vm}"
-#    end
-
    # It is being monitored explicitly with puppet, so we do not have to stop
    # monitoring explicitly, we just have to stop it
    
    command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
-   out, success = CloudSSH.execute_remote(command, vm)
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user,vm)
    unless success
       err "Impossible to stop web server in #{vm}"
       return false
@@ -401,11 +359,13 @@ end
 # Stops a database server.
 def stop_database(vm)
 
+   user = resource[:vm_user]
+
    command = 'pkill -f database\(.\)god'    # We are looking for database.god
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    if success
       command = "/usr/bin/service mysql stop"      # Do not kill it, stop it
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
          err "Impossible to stop database in #{vm}"
          return false

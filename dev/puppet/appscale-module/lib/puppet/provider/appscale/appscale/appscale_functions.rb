@@ -61,9 +61,11 @@ end
 # Stops an AppScale cloud.
 def appscale_cloud_stop(vm)
    
+   user = resource[:vm_user]
+   
    # Terminate instances
    command = "/root/appscale-tools/bin/appscale-terminate-instances"
-   CloudSSH.execute_remote(command, vm)
+   CloudSSH.execute_remote(command, user, vm)
    
 end
 
@@ -72,7 +74,8 @@ end
 def appscale_monitor(vm, role)
 
    command = "ps aux"
-   out, success = CloudSSH.execute_remote(command, vm)
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[AppScale monitor] Impossible to execute #{command} in #{vm}"
       return
@@ -114,7 +117,7 @@ def appscale_monitor(vm, role)
       # Try to start the AppMonitoring
       puts "[AppScale monitor] Starting AppMonitoring on #{vm}"
       command = "/etc/init.d/appscale-monitoring start"
-      out, success = CloudSSH.execute_remote(command, vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       if success
          puts "[AppScale monitor] Successfully started AppMonitoring"
       else
@@ -142,7 +145,7 @@ def appscale_monitor(vm, role)
    # Apply the manifest
    puts "Applying manifest"
    command = "puppet apply /tmp/basic.pp"
-   out, success = CloudSSH.execute_remote(command, vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[AppScale monitor] Impossible to run puppet in #{vm}"
       return
