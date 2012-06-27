@@ -64,33 +64,35 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # Choose a physical machine to host the virtual machine
    pm = pm_up[rand(pm_up.count)] # Choose randomly
    
+   # Copy ssh key to physical machine
+   puts "Copying ssh key to physical machine"
+   pm_user = resource[:pm_user]
+   out, success = CloudSSH.copy_ssh_key(pm_user, pm, nil)
+   
    # Copy the domain definition file to the physical machine
    puts "Copying the domain definition file to the physical machine..."
-   domain_file_path = "/tmp/" + domain_file_name
-   pm_user = resource[:pm_user]
-   command = "scp /etc/puppet/modules/torque/files/#{domain_file_name}" +
-                " #{pm_user}@#{pm}:#{domain_file_path}"
-   result = `#{command}`
-   if $?.exitstatus == 0
+   domain_file_src = "/etc/puppet/modules/torque/files/#{domain_file_name}"
+   domain_file_dst = "/tmp/" + domain_file_name
+   
+   out, success = CloudSSH.copy_remote(domain_file_src, pm, domain_file_dst, pm_user)
+   if success
       debug "[DBG] domain definition file copied"
    else
       debug "[DBG] #{vm_name} impossible to copy domain definition file"
       err   "#{vm_name} impossible to copy domain definition file"
    end
    
-   ssh_connect = "ssh #{pm_user}@#{pm}"
-   
    # Define the domain in the physical machine
    puts "Defining the domain in the physical machine..."
-   define_domain(ssh_connect, vm_name, domain_file_path)
+   define_domain(pm_user, pm, vm_name, domain_file_dst)
    
    # Start the domain
    puts "Starting the domain..."
-   start_domain(ssh_connect, vm_name)
+   start_domain(pm_user, pm, vm_name)
    
    # Save the domain's name
    puts "Saving the domain's name..."
-   save_domain_name(ssh_connect, vm_name)
+   save_domain_name(pm_user, pm, vm_name)
    
    # Save the new virtual machine's MAC address
    file = File.open(LAST_MAC_FILE, 'w')
@@ -111,10 +113,12 @@ end
 
 
 # Define a domain for a virtual machine on a physical machine.
-def define_domain(ssh_connect, vm_name, domain_file_name)
+def define_domain(pm_user, pm, vm_name, domain_file_name)
 
-   result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_name}'`
-   if $?.exitstatus == 0
+   #result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_name}'`
+   command = "#{VIRSH_CONNECT} define #{domain_file_name}"
+   out, success = CloudSSH.execute_remote(command, pm, pm_user)
+   if success
       debug "[DBG] #{vm_name} domain defined"
       return true
    else
@@ -127,10 +131,12 @@ end
 
 
 # Starts a domain on a physical machine.
-def start_domain(ssh_connect, vm_name)
+def start_domain(pm_user, pm, vm_name)
 
-   result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
-   if $?.exitstatus == 0
+   #result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
+   command = "#{VIRSH_CONNECT} start #{vm_name}"
+   out, success = CloudSSH.execute_remote(command, pm, pm_user)
+   if success
       debug "[DBG] #{vm_name} started"
       return true
    else
@@ -143,10 +149,12 @@ end
 
 
 # Saves the virtual machine's domain name in a file.
-def save_domain_name(ssh_connect, vm_name)
+def save_domain_name(pm_user, pm, vm_name)
 
-   result = `#{ssh_connect} 'echo #{vm_name} >> #{DOMAINS_FILE}'`
-   if $?.exitstatus == 0
+   #result = `#{ssh_connect} 'echo #{vm_name} >> #{DOMAINS_FILE}'`
+   command = "echo #{vm_name} >> #{DOMAINS_FILE}"
+   out, success = CloudSSH.execute_remote(command, pm, pm_user)
+   if success
       debug "[DBG] #{vm_name} name saved"
       return true
    else

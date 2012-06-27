@@ -39,7 +39,6 @@ module CloudSSH
    # Copies an ssh key to a machine.
    def self.copy_ssh_key(user, ip, password, path = SSH_PATH, file = SSH_KEY)
    
-      puts "Copying ssh key..."
       command_path = "/etc/puppet/modules/generic-module/provider/"
       identity_file = "#{path}/#{file}"
       if password
@@ -65,10 +64,10 @@ module CloudSSH
    
    
    # Copies a file to a remote machine.
-   def self.copy_remote(src_file, ip, dst_file, user = "root",
+   def self.copy_remote(src_file, dst_ip, dst_file, dst_user = "root",
                         path = SSH_PATH, file = SSH_KEY)
    
-      result = `scp -i #{path}/#{file} #{src_file} #{user}@#{ip}:#{dst_file}`
+      result = `scp -i #{path}/#{file} #{src_file} #{dst_user}@#{dst_ip}:#{dst_file}`
       success = $?.exitstatus == 0
       return result, success
    end
