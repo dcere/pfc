@@ -24,15 +24,15 @@ Puppet::Type.newtype(:torque) do
       isnamevar
    end
 
-   newparam(:ip_file) do
-      desc "The file with the cloud description in YAML format"
-   end
-
-   newparam(:img_file) do
-      desc "The file containing the qemu image(s). You must either provide " +
-           "one image from which all copies shall be made or provide " +
-           "an image for every instance"
-   end
+#   newparam(:ip_file) do
+#      desc "The file with the cloud description in YAML format"
+#   end
+#   
+#   newparam(:img_file) do
+#      desc "The file containing the qemu image(s). You must either provide " +
+#           "one image from which all copies shall be made or provide " +
+#           "an image for every instance"
+#   end
 
    newparam(:vm_domain) do
       desc "The XML file with the virtual machine domain definition. " +

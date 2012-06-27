@@ -24,15 +24,15 @@ Puppet::Type.newtype(:web) do
       isnamevar
    end
    
-   newparam(:ip_file) do
-      desc "The file with the cloud description in YAML format"
-   end
-   
-   newparam(:img_file) do
-      desc "The file containing the qemu image(s). You must either provide " +
-           "one image from which all copies shall be made or provide " +
-           "an image for every instance"
-   end
+#   newparam(:ip_file) do
+#      desc "The file with the cloud description in YAML format"
+#   end
+#   
+#   newparam(:img_file) do
+#      desc "The file containing the qemu image(s). You must either provide " +
+#           "one image from which all copies shall be made or provide " +
+#           "an image for every instance"
+#   end
    
    newparam(:vm_domain) do
       desc "The XML file with the virtual machine domain definition. " +
@@ -88,15 +88,15 @@ Puppet::Type.newtype(:web) do
    # Web parameters
    
    newproperty(:balancer, :array_matching => :all) do
-      desc "The bañancer node's information"
+      desc "The balancer node's information"
    end
    
    newproperty(:server, :array_matching => :all) do
-      desc "The compute nodes' information"
+      desc "The server nodes' information"
    end
    
    newproperty(:database, :array_matching => :all) do
-      desc "The head node's information"
+      desc "The database node's information"
    end
 
 end
