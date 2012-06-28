@@ -55,7 +55,8 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    template = File.open(resource[:vm_domain], 'r').read()
    erb = ERB.new(template)
    domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
-   domain_file = File.open("/etc/puppet/modules/torque/files/#{domain_file_name}", 'w')
+   domain_file_path = "/etc/puppet/modules/#{resource[:name]}/files/#{domain_file_name}"
+   domain_file = File.open(domain_file_path, 'w')
    debug "[DBG] Domain file created"
    domain_file.write(erb.result(myvm.get_binding))
    domain_file.close
@@ -72,7 +73,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Copy the domain definition file to the physical machine
    puts "Copying the domain definition file to the physical machine..."
-   domain_file_src = "/etc/puppet/modules/torque/files/#{domain_file_name}"
+   domain_file_src = domain_file_path
    domain_file_dst = "/tmp/" + domain_file_name
    
    out, success = CloudSSH.copy_remote(domain_file_src, pm, domain_file_dst, pm_user)
