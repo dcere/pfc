@@ -1,3 +1,7 @@
+# Constants
+LAST_MAC_FILE = "/tmp/cloud-last-mac"
+
+
 # Starts a virtual machine.
 def start_vm(vm, ip_roles, img_roles, pm_up)
 
@@ -6,41 +10,14 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Get virtual machine's MAC address
    puts "Getting VM's MAC address..."
-   if File.exists?(LAST_MAC_FILE)
-      file = File.open(LAST_MAC_FILE, 'r')
-      mac_address = MAC_Address.new(file.read().chomp())
-      file.close
-   else
-      mac_address = MAC_Address.new(resource[:starting_mac_address])
-   end
-   mac_address = mac_address.next_mac()
+   mac_address = get_vm_mac()
    puts "...VM's MAC is #{mac_address}"
    
    # Get virtual machine's image disk
    puts "Getting VM's image disk..."
-   # TODO What if a machine has different roles?
-   role = :undefined
-   index = 0
-   ip_roles.each do |r, ips|
-      index_aux = 0      # Reset the index for each role
-      ips.each do |ip|
-         if vm == ip
-            puts "vm: #{vm} == ip: #{ip}"
-            role = r
-            index = index_aux
-            puts "role: #{role}"
-         else
-            index_aux += 1
-         end
-      end
-   end
-   puts "Finished iterating. role: #{role}, index: #{index}"
-   puts "Image roles:"
-   p img_roles
-   disk = img_roles[role][index]
-   puts "...VM's image disk is #{disk}"
+   disk = get_vm_disk(ip_roles, img_roles)
    
-   # Define new virtual machine
+   # Define a new virtual machine
    id = rand(10000)      # Choose a number for domain name randomly
    vm_name = "myvm-#{id}"
    vm_uuid = `uuidgen`
@@ -51,15 +28,9 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac, vm_mem, vm_ncpu)
    
    # Write virtual machine's domain file
-   require 'erb'
-   template = File.open(resource[:vm_domain], 'r').read()
-   erb = ERB.new(template)
    domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
    domain_file_path = "/etc/puppet/modules/#{resource[:name]}/files/#{domain_file_name}"
-   domain_file = File.open(domain_file_path, 'w')
-   debug "[DBG] Domain file created"
-   domain_file.write(erb.result(myvm.get_binding))
-   domain_file.close
+   write_domain(myvm, domain_file_path)
    puts "Domain file written"
    
    # Choose a physical machine to host the virtual machine
@@ -114,10 +85,68 @@ end
 ################################################################################
 
 
-# Define a domain for a virtual machine on a physical machine.
+# Gets the virtual machine's mac address.
+def get_vm_mac()
+   
+   if File.exists?(LAST_MAC_FILE)
+      file = File.open(LAST_MAC_FILE, 'r')
+      mac = MAC_Address.new(file.read().chomp())
+      mac = mac.next_mac()
+      file.close
+   else
+      mac = MAC_Address.new(resource[:starting_mac_address])
+      # TODO Check we do not need to get the next mac
+   end
+   
+   return mac
+
+end
+
+
+# Gets the virtual machine's disk image.
+def get_vm_disk(ip_roles, img_roles)
+   
+   # TODO What if a machine has different roles?
+   role = :undefined
+   index = 0
+   ip_roles.each do |r, ips|
+      index_aux = 0      # Reset the index for each role
+      ips.each do |ip|
+         if vm == ip
+            puts "vm: #{vm} == ip: #{ip}"
+            role = r
+            index = index_aux
+            puts "role: #{role}"
+         else
+            index_aux += 1
+         end
+      end
+   end
+   
+   puts "Finished iterating. role: #{role}, index: #{index}"
+   disk = img_roles[role][index]
+   
+   return disk
+
+end
+
+
+# Writes the virtual machine's domain file.
+def write_domain(virtual_machine, domain_file_path)
+
+   require 'erb'
+   template = File.open(resource[:vm_domain], 'r').read()
+   erb = ERB.new(template)
+   domain_file = File.open(domain_file_path, 'w')
+   domain_file.write(erb.result(virtual_machine.get_binding))
+   domain_file.close
+
+end
+
+
+# Defines a domain for a virtual machine on a physical machine.
 def define_domain(pm_user, pm, vm_name, domain_file_name)
 
-   #result = `#{ssh_connect} '#{VIRSH_CONNECT} define #{domain_file_name}'`
    command = "#{VIRSH_CONNECT} define #{domain_file_name}"
    out, success = CloudSSH.execute_remote(command, pm_user, pm)
    if success
@@ -135,7 +164,6 @@ end
 # Starts a domain on a physical machine.
 def start_domain(pm_user, pm, vm_name)
 
-   #result = `#{ssh_connect} '#{VIRSH_CONNECT} start #{vm_name}'`
    command = "#{VIRSH_CONNECT} start #{vm_name}"
    out, success = CloudSSH.execute_remote(command, pm_user, pm)
    if success
@@ -153,7 +181,6 @@ end
 # Saves the virtual machine's domain name in a file.
 def save_domain_name(pm_user, pm, vm_name)
 
-   #result = `#{ssh_connect} 'echo #{vm_name} >> #{DOMAINS_FILE}'`
    command = "echo #{vm_name} >> #{DOMAINS_FILE}"
    out, success = CloudSSH.execute_remote(command, pm_user, pm)
    if success
