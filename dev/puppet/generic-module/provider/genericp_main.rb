@@ -269,42 +269,6 @@ def shutdown_vms()
 end
 
 
-# Shuts down KVM domains.
-def shutdown_domains(defined_domains, pm_user, pm)
-
-   defined_domains.each_line do |domain|
-      domain.chomp!
-      command = "#{VIRSH_CONNECT} shutdown #{domain}"
-      out, success = CloudSSH.execute_remote(command, pm_user, pm)
-      if success
-         debug "[DBG] #{domain} was shutdown"
-      else
-         debug "[DBG] #{domain} impossible to shutdown"
-         err "#{domain} impossible to shutdown"
-      end
-   end
-
-end
-
-
-# Undefines KVM domains.
-def undefine_domains(defined_domains, pm_user, pm)
-
-   defined_domains.each_line do |domain|
-      domain.chomp!
-      command = "#{VIRSH_CONNECT} undefine #{domain}"
-      out, success = CloudSSH.execute_remote(command, pm_user, pm)
-      if success
-         debug "[DBG] #{domain} was undefined"
-      else
-         debug "[DBG] #{domain} impossible to undefine"
-         err "#{domain} impossible to undefine"
-      end
-   end
-
-end
-
-
 # Deletes cloud files on all machines.
 def delete_files()
 
@@ -523,4 +487,40 @@ def auto_manage(cloud_type)
       err "Impossible to find cron file at #{path}"
    end
    
+end
+
+
+# Shuts down libvirt domains.
+def shutdown_domains(defined_domains, pm_user, pm)
+
+   defined_domains.each_line do |domain|
+      domain.chomp!
+      command = "#{VIRSH_CONNECT} shutdown #{domain}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      if success
+         debug "[DBG] #{domain} was shutdown"
+      else
+         debug "[DBG] #{domain} impossible to shutdown"
+         err "#{domain} impossible to shutdown"
+      end
+   end
+
+end
+
+
+# Undefines libvirt domains.
+def undefine_domains(defined_domains, pm_user, pm)
+
+   defined_domains.each_line do |domain|
+      domain.chomp!
+      command = "#{VIRSH_CONNECT} undefine #{domain}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      if success
+         debug "[DBG] #{domain} was undefined"
+      else
+         debug "[DBG] #{domain} impossible to undefine"
+         err "#{domain} impossible to undefine"
+      end
+   end
+
 end
