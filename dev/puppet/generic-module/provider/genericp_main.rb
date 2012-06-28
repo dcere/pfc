@@ -3,7 +3,8 @@
 ################################################################################
 
 # Starting function for leader node.
-def leader_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up, monitor_function)
+def leader_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                 monitor_function)
    
    # We are the leader
    puts "#{MY_IP} is the leader"
@@ -78,7 +79,7 @@ end
 
 
 # Starting function for common (non-leader) nodes.
-def common_start
+def common_start()
 
    # We are not the leader or we have not received our ID yet
    puts "#{MY_IP} is not the leader"
@@ -211,7 +212,7 @@ end
 ################################################################################
 
 # Shuts down virtual machines.
-def shutdown_vms
+def shutdown_vms()
 
    # Get pool of physical machines
    pms = resource[:pool]
@@ -227,7 +228,6 @@ def shutdown_vms
       out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
       
       # Bring the defined domains file from the physical machine to this one
-      
       out, success = CloudSSH.get_remote(DOMAINS_FILE, pm_user, pm, DOMAINS_FILE)
       if success
       
@@ -238,32 +238,12 @@ def shutdown_vms
       
          # Stop nodes
          puts "Shutting down domains"
-         defined_domains.each_line do |domain|
-            domain.chomp!
-            command = "#{VIRSH_CONNECT} shutdown #{domain}"
-            out, success = CloudSSH.execute_remote(command, pm_user, pm)
-            if success
-               debug "[DBG] #{domain} was shutdown"
-            else
-               debug "[DBG] #{domain} impossible to shutdown"
-               err "#{domain} impossible to shutdown"
-            end
-         end
+         shutdown_domains(defined_domains, pm_user, pm)
          
          # Undefine local domains
          puts "Undefining domains"
          defined_domains.rewind
-         defined_domains.each_line do |domain|
-            domain.chomp!
-            command = "#{VIRSH_CONNECT} undefine #{domain}"
-            out, success = CloudSSH.execute_remote(command, pm_user, pm)
-            if success
-               debug "[DBG] #{domain} was undefined"
-            else
-               debug "[DBG] #{domain} impossible to undefine"
-               err "#{domain} impossible to undefine"
-            end
-         end
+         undefine_domains(defined_domains, pm_user, pm)
          
          # Delete the defined domains file on the physical machine
          puts "Deleting defined domains file"
@@ -279,12 +259,48 @@ def shutdown_vms
       
       else
          # Some physical machines might not have any virtual machine defined.
-         # For instance, if they were already defined and running when we
-         # started the cloud.
+         # For instance, no virtual machine will be defined if they were already
+         # defined and running when we started the cloud.
          puts "No #{DOMAINS_FILE} file found in #{pm}"
       end
       
    end   # pms.each
+
+end
+
+
+# Shuts down KVM domains.
+def shutdown_domains(defined_domains, pm_user, pm)
+
+   defined_domains.each_line do |domain|
+      domain.chomp!
+      command = "#{VIRSH_CONNECT} shutdown #{domain}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      if success
+         debug "[DBG] #{domain} was shutdown"
+      else
+         debug "[DBG] #{domain} impossible to shutdown"
+         err "#{domain} impossible to shutdown"
+      end
+   end
+
+end
+
+
+# Undefines KVM domains.
+def undefine_domains(defined_domains, pm_user, pm)
+
+   defined_domains.each_line do |domain|
+      domain.chomp!
+      command = "#{VIRSH_CONNECT} undefine #{domain}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      if success
+         debug "[DBG] #{domain} was undefined"
+      else
+         debug "[DBG] #{domain} impossible to undefine"
+         err "#{domain} impossible to undefine"
+      end
+   end
 
 end
 
@@ -324,7 +340,7 @@ end
 ################################################################################
 
 # Checks the pool of physical machines are OK.
-def check_pool
+def check_pool()
 
    machines_up = []
    machines_down = []
@@ -359,7 +375,7 @@ end
 
 
 # Checks if this node is the leader
-def leader?
+def leader?()
 
    my_id = CloudLeader.get_id()
    leader = CloudLeader.get_leader()
