@@ -67,30 +67,30 @@ module CloudLeader
    #############################################################################
    
    # Checks if the remote node has their ID file.
-   def self.vm_check_id(vm, id_file = ID_FILE)
+   def self.vm_check_id(user, vm, id_file = ID_FILE)
    
       command = "cat #{id_file} > /dev/null 2> /dev/null"
-      out, success = CloudSSH.execute_remote(command, "root", vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       return success
       
    end
    
    
    # Sets the node's ID on a remote node.
-   def self.vm_set_id(vm, id, id_file = ID_FILE)
+   def self.vm_set_id(user, vm, id, id_file = ID_FILE)
    
       command = "echo #{id} > #{id_file}"
-      out, success = CloudSSH.execute_remote(command, "root", vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       return success
       
    end
 
 
    # Sets the leader's ID on a remote node.
-   def self.vm_set_leader(vm, leader, leader_file = LEADER_FILE)
+   def self.vm_set_leader(user, vm, leader, leader_file = LEADER_FILE)
    
       command = "echo #{leader} > #{leader_file}"
-      out, success = CloudSSH.execute_remote(command, "root", vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       return success
       
    end

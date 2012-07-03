@@ -362,11 +362,13 @@ def monitor_vm(vm, ip_roles, monitor_function)
       return false
    end
    
+   # Get user and password
+   user = resource[:vm_user]
+   password = resource[:root_password]
+   
    # Send it your ssh key
    # Your key was created when you turned into leader
    puts "Sending ssh key to #{vm}"
-   user = resource[:vm_user]
-   password = resource[:root_password]
    out, success = CloudSSH.copy_ssh_key(user, vm, password)
    if success
       puts "ssh key sent"
@@ -397,18 +399,18 @@ def monitor_vm(vm, ip_roles, monitor_function)
    # If they are running, but they do not have their ID:
    #   - Set their ID before they can become another leader.
    #   - Set also the leader's ID.
-   success = CloudLeader.vm_check_id(vm)
+   success = CloudLeader.vm_check_id(user, vm)
    unless success
    
       # Set their ID (based on the last ID we defined)
       id = CloudLeader.get_last_id()
       id += 1
-      CloudLeader.vm_set_id(vm, id)
+      CloudLeader.vm_set_id(user, vm, id)
       CloudLeader.set_last_id(id)
       
       # Set the leader's ID
       leader = CloudLeader.get_leader()
-      CloudLeader.vm_set_leader(vm, leader)
+      CloudLeader.vm_set_leader(user, vm, leader)
       
       # Send the last ID to all nodes
       mcc = MCollectiveFilesClient.new("files")
