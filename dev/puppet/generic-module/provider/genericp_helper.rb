@@ -9,13 +9,12 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    # start it
    
    # Get virtual machine's MAC address
-   puts "Getting VM's MAC address..."
+   puts "Getting VM's MAC address"
    mac_address = get_vm_mac()
-   puts "...VM's MAC is #{mac_address}"
    
    # Get virtual machine's image disk
-   puts "Getting VM's image disk..."
-   disk = get_vm_disk(ip_roles, img_roles)
+   puts "Getting VM's image disk"
+   disk = get_vm_disk(vm, ip_roles, img_roles)
    
    # Define a new virtual machine
    id = rand(10000)      # Choose a number for domain name randomly
@@ -29,7 +28,8 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Write virtual machine's domain file
    domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
-   domain_file_path = "/etc/puppet/modules/#{resource[:name]}/files/#{domain_file_name}"
+   type = "torque" # FIXME Cannot be hardcoded
+   domain_file_path = "/etc/puppet/modules/#{type}/files/#{domain_file_name}"
    write_domain(myvm, domain_file_path)
    puts "Domain file written"
    
@@ -49,9 +49,11 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    out, success = CloudSSH.copy_remote(domain_file_src, pm, domain_file_dst, pm_user)
    if success
-      debug "[DBG] domain definition file copied"
+      puts "domain definition file copied"
+      
+      # Delete the local copy
+      File.delete(domain_file_src)
    else
-      debug "[DBG] #{vm_name} impossible to copy domain definition file"
       err   "#{vm_name} impossible to copy domain definition file"
    end
    
@@ -91,20 +93,20 @@ def get_vm_mac()
    if File.exists?(LAST_MAC_FILE)
       file = File.open(LAST_MAC_FILE, 'r')
       mac = MAC_Address.new(file.read().chomp())
-      mac = mac.next_mac()
+      mac_address = mac.next_mac()
       file.close
    else
       mac = MAC_Address.new(resource[:starting_mac_address])
-      # TODO Check we do not need to get the next mac
+      mac_address = mac.mac
    end
    
-   return mac
+   return mac_address
 
 end
 
 
 # Gets the virtual machine's disk image.
-def get_vm_disk(ip_roles, img_roles)
+def get_vm_disk(vm, ip_roles, img_roles)
    
    # TODO What if a machine has different roles?
    role = :undefined
@@ -153,8 +155,7 @@ def define_domain(pm_user, pm, vm_name, domain_file_name)
       debug "[DBG] #{vm_name} domain defined"
       return true
    else
-      debug "[DBG] #impossible to define #{vm_name} domain"
-      err   "#impossible to define #{vm_name} domain"
+      err   "Impossible to define #{vm_name} domain"
       return false
    end
    
