@@ -40,11 +40,13 @@ module CloudSSH
    def self.copy_ssh_key(user, ip, password, path = SSH_PATH, file = SSH_KEY)
    
       command_path = "/etc/puppet/modules/generic-module/provider/"
-      identity_file = "#{path}/#{file}"
+      identity_file = "#{path}/#{file}.pub"     # Be careful, copy PUBLIC KEY
       if password != ""
+         puts "password is not empty, using ssh_copy_id.sh shell script"
          result = `#{command_path}/ssh_copy_id.sh #{user}@#{ip} #{identity_file} #{password}`
          success = $?.exitstatus == 0
       else
+         puts "password is empty, using ssh-copy-id command"
          result = `ssh-copy-id -i #{identity_file} #{user}@#{ip}`
          success = $?.exitstatus == 0
       end

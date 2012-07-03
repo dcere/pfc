@@ -19,25 +19,25 @@ module CloudMonitor
 
 
    # Checks if MCollective is installed in <vm>.
-   def self.mcollective_installed(vm)
+   def self.mcollective_installed(user, vm)
       
       installed = true
       
       # Client configuration file
       client_file = "/etc/mcollective/client.cfg"
       command = "cat #{client_file} > /dev/null 2> /dev/null"
-      out, success = CloudSSH.execute_remote(command, "root", vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
-         puts "[CloudMonitor]: #{client_file} does not exist on #{vm}"
+         puts "[CloudMonitor]: #{client_file} does not exist on #{user}@#{vm}"
          installed = false
       end
 
       # Server configuration file
       server_file = "/etc/mcollective/server.cfg"
       command = "cat #{server_file} > /dev/null 2> /dev/null"
-      out, success = CloudSSH.execute_remote(command, "root", vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
-         puts "[CloudMonitor]: #{server_file} does not exist on #{vm}"
+         puts "[CloudMonitor]: #{server_file} does not exist on #{user}@#{vm}"
          installed = false
       end
       
@@ -47,16 +47,16 @@ module CloudMonitor
 
 
    # Checks if MCollective is running in <vm>.
-   def self.mcollective_running(vm)
+   def self.mcollective_running(user, vm)
       
       command = "ps aux | grep -v grep | grep mcollective"
-      out, success = CloudSSH.execute_remote(command, "root", vm)
+      out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
          puts "MCollective is not running on #{vm}"
          command = "/usr/bin/service mcollective start"
-         out, success = CloudSSH.execute_remote(command, "root", vm)
+         out, success = CloudSSH.execute_remote(command, user, vm)
          unless success
-            puts "[CloudMonitor]: Impossible to start mcollective on #{vm}"
+            puts "[CloudMonitor]: Impossible to start mcollective on #{user}@#{vm}"
             return false
          else
             puts "[CloudMonitor]: MCollective is running now on #{vm}"
