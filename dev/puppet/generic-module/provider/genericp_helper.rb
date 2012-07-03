@@ -28,8 +28,8 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
    
    # Write virtual machine's domain file
    domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
-   type = "torque" # FIXME Cannot be hardcoded
-   domain_file_path = "/etc/puppet/modules/#{type}/files/#{domain_file_name}"
+   domain_file_path = File.dirname(resource[:vm_domain]) + 
+                      "/" + "#{domain_file_name}"
    write_domain(myvm, domain_file_path)
    puts "Domain file written"
    
