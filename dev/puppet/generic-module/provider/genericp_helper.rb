@@ -198,6 +198,9 @@ end
 # Gets all the roles a node has.
 def get_vm_roles(roles, vm)
 
+   # The roles array is a map of roles - IP addresses. The 'IP addresses' value
+   # can be either a single value or an array of values.
+   
    vm_roles = []
    roles.each do |role, ips|
       if ips == vm

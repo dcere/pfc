@@ -175,6 +175,7 @@ def not_cloud_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up)
 end
 
 
+# Monitoring function for leader node.
 def leader_monitoring(monitor_function)
 
    puts "#{MY_IP} is the leader"
@@ -233,7 +234,7 @@ def shutdown_vms()
       
          puts "#{DOMAINS_FILE} exists in #{pm}"
          
-         # Open files
+         # Open file
          defined_domains = File.open(DOMAINS_FILE, 'r')
       
          # Stop nodes
