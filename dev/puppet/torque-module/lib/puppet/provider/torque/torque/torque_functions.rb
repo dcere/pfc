@@ -346,6 +346,7 @@ end
 def start_monitor_head(vm)
    
    user = resource[:vm_user]
+   god_port = 17165
    
    # The trqauthd script is intelligent enough to be initiated as many times
    # as you want without problem: if it is already started it will not be
@@ -372,7 +373,7 @@ def start_monitor_head(vm)
       err "[Torque monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
-   port = 17165
+   port = god_port
    command = "god -c /etc/god/pbs-server.god -p #{port}"
    out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
@@ -393,7 +394,7 @@ def start_monitor_head(vm)
       err "[Torque monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
-   port = 17166
+   port += 1
    command = "god -c /etc/god/pbs-sched.god -p #{port}"
    out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
@@ -410,6 +411,7 @@ end
 def start_monitor_compute(vm)
    
    user = resource[:vm_user]
+   god_port = 17165
    
    # Monitor compute node with god: pbs_mom is up and running
    path = "/etc/puppet/modules/torque/files/torque-god/pbs-mom.god"
@@ -424,7 +426,7 @@ def start_monitor_compute(vm)
       err "[Torque monitor] Impossible to copy #{path} to #{vm}"
       return false
    end
-   command = "god -c /etc/god/pbs-mom.god"
+   command = "god -c /etc/god/pbs-mom.god -p #{god_port}"
    out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "[Torque monitor] Impossible to run god in #{vm}"
