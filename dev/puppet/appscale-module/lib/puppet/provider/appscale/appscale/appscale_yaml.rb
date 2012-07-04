@@ -117,6 +117,24 @@ def appscale_yaml_images(path)
 end
 
 
+# Writes a hash in a file using the YAML format.
+# The hash should resemble something like
+# {:controller => ["192.168.1.1"], :servers => ["192.168.1.2", "192.168.1.3"]}
+# if you are writing the default deployment IP addresses.
+# The custom deployment is done in a similar fashion.
+# Either case, the key-value pairs must follow the {symbol => array} pattern.
+def appscale_write_yaml_file(hash, path)
+
+   file = File.open(path, 'w')
+   file.write(hash.to_yaml)
+
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
 # Transforms the given elements to an array.
 def get_elements(array)
 
