@@ -28,12 +28,13 @@ end
 # }
 def torque_parse_ips(head, compute)
 
-   ips_index = 0
+   ips_index = 0     # Because the IPs are in the first component of the head
+                     # and compute arrays, and that is array[0]
    ips = []
    ip_roles = {}
 
    
-   # Get the IPs that are under the "head" and "compute" labels
+   # Get the IPs that are under the "head" and "compute" attributes
    ip_roles[:head] = []
    ip_roles[:head] << head[ips_index].chomp
    
@@ -69,11 +70,12 @@ end
 # }
 def torque_parse_images(head, compute)
 
-   img_index = 1
+   img_index = 1     # Because the images are in the first component of the head
+                     # and compute arrays, and that is array[1]
    img_roles = {}
 
    
-   # Get the disk images that are under the "head" and "compute" labels
+   # Get the disk images that are under the "head" and "compute" attributes
    img_roles[:head] = []
    img_roles[:head] << head[img_index].chomp
    

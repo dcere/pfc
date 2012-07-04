@@ -32,12 +32,15 @@ end
 # }
 def web_parse_ips(balancer, server, database)
 
-   ips_index = 0
+   ips_index = 0     # Because the IPs are in the first component of the
+                     # balancer, server and database arrays, and that is
+                     # array[0]
    ips = []
    ip_roles = {}
 
    
-   # Get the IPs that are under the "balancer", "server" and "database" labels
+   # Get the IPs that are under the "balancer", "server" and "database"
+   # attributes
    ip_roles[:balancer] = []
    ip_roles[:balancer] << balancer[ips_index].chomp
    
@@ -79,12 +82,14 @@ end
 # }
 def web_parse_images(balancer, server, database)
 
-   img_index = 1
+   img_index = 1     # Because the images are in the second component of the
+                     # balancer, server and database arrays, and that is
+                     # array[1]
    img_roles = {}
 
    
    # Get the disk images that are under the "balancer", "server" and "database"
-   # labels
+   # attributes
    img_roles[:balancer] = []
    img_roles[:balancer] << balancer[img_index].chomp
    
