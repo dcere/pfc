@@ -45,6 +45,7 @@ def torque_parse_ips(head, compute)
       file.each_line do |line|
          ip_roles[:compute] << line.chomp
       end
+      file.close
    end
    
    # Add the IPs to the array
@@ -52,8 +53,6 @@ def torque_parse_ips(head, compute)
    ips = ips + ip_roles[:compute]
    
    ips = ips.uniq
-   
-   file.close
    
    return ips, ip_roles
    
@@ -86,9 +85,8 @@ def torque_parse_images(head, compute)
       file.each_line do |line|
          img_roles[:compute] << line.chomp
       end
+      file.close
    end
-   
-   file.close
    
    return img_roles
    

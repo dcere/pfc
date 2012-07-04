@@ -51,6 +51,7 @@ def web_parse_ips(balancer, server, database)
       file.each_line do |line|
          ip_roles[:server] << line.chomp
       end
+      file.close
    end
    
    ip_roles[:database] = []
@@ -62,8 +63,6 @@ def web_parse_ips(balancer, server, database)
    ips = ips + ip_roles[:database]
    
    ips = ips.uniq
-   
-   file.close
    
    return ips, ip_roles
    
@@ -100,12 +99,11 @@ def web_parse_images(balancer, server, database)
       file.each_line do |line|
          img_roles[:server] << line.chomp
       end
+      file.close
    end
    
    img_roles[:database] = []
    img_roles[:database] << database[img_index].chomp
-   
-   file.close
    
    return img_roles
    
