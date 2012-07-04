@@ -18,6 +18,7 @@ def obtain_appscale_data_default(controller, servers)
 
    ips, ip_roles = appscale_parse_ips_default(controller, servers)
    img_roles     = appscale_parse_images_default(controller, servers)
+   
    return ips, ip_roles, img_roles
 
 end
@@ -41,14 +42,7 @@ def appscale_parse_ips_default(controller, servers)
    ip_roles[:controller] << controller[ips_index].chomp
    
    path = servers[ips_index]
-   file = File.open(path)
-   if file != nil
-      ip_roles[:servers] = []
-      file.each_line do |line|
-         ip_roles[:servers] << line.chomp
-      end
-      file.close
-   end
+   ip_roles[:servers] = get_from_file(path)
    
    # Add the IPs to the array
    ips = ips + ip_roles[:controller]
@@ -79,19 +73,12 @@ def appscale_parse_images_default(controller, servers)
    img_roles[:controller] << controller[img_index].chomp
    
    path = servers[img_index]
-   file = File.open(path)
-   if file != nil
-      img_roles[:servers] = []
-      file.each_line do |line|
-         img_roles[:servers] << line.chomp
-      end
-   end
-   
-   file.close
+   img_roles[:servers] = get_from_file(path)
    
    return img_roles
    
 end
+
 
 ################################################################################
 # Custom deployment
@@ -104,6 +91,7 @@ def obtain_appscale_data_custom(master, appengine, database, login, open,
                       open, zookeeper, memcache)
    img_roles     = appscale_parse_images_custom(master, appengine, database,
                       login, open, zookeeper, memcache)
+   
    return ips, ip_roles, img_roles
 
 end
@@ -129,37 +117,16 @@ def appscale_parse_ips_custom(master, appengine, database, login, open,
    ip_roles[:master] << master[ips_index].chomp
    
    path = appengine[ips_index]
-   file = File.open(path)
-   if file != nil
-      ip_roles[:appengine] = []
-      file.each_line do |line|
-         ip_roles[:appengine] << line.chomp
-      end
-      file.close
-   end
+   ip_roles[:appengine] = get_from_file(path)
    
    path = database[ips_index]
-   file = File.open(path)
-   if file != nil
-      ip_roles[:database] = []
-      file.each_line do |line|
-         ip_roles[:database] << line.chomp
-      end
-      file.close
-   end
+   ip_roles[:database] = get_from_file(path)
    
    ip_roles[:login] = []
    ip_roles[:login] << login[ips_index].chomp
    
    path = open[ips_index]
-   file = File.open(path)
-   if file != nil
-      ip_roles[:open] = []
-      file.each_line do |line|
-         ip_roles[:open] << line.chomp
-      end
-      file.close
-   end
+   ip_roles[:open] = get_from_file(path)
    
    # TODO zookeeper and memcache
    
@@ -198,40 +165,38 @@ def appscale_parse_images_custom(master, appengine, database, login, open,
    img_roles[:master] << master[img_index].chomp
    
    path = appengine[img_index]
-   file = File.open(path)
-   if file != nil
-      img_roles[:appengine] = []
-      file.each_line do |line|
-         img_roles[:appengine] << line.chomp
-      end
-      file.close
-   end
+   img_roles[:appengine] = get_from_file(path)
    
    path = database[img_index]
-   file = File.open(path)
-   if file != nil
-      img_roles[:database] = []
-      file.each_line do |line|
-         img_roles[:database] << line.chomp
-      end
-      file.close
-   end
+   img_roles[:database] = get_from_file(path)
    
    img_roles[:login] = []
    img_roles[:login] << login[img_index].chomp
    
    path = open[img_index]
-   file = File.open(path)
-   if file != nil
-      img_roles[:open] = []
-      file.each_line do |line|
-         img_roles[:open] << line.chomp
-      end
-      file.close
-   end
+   img_roles[:open] = get_from_file(path)
    
    # TODO zookeeper and memcache
    
    return img_roles
    
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Gets all the file lines in an array.
+def get_from_file(path)
+
+   array = []
+   file = File.open(path)
+   if file != nil
+      array = file.readlines.map(&:chomp)    # Discard the final '\n'
+      file.close
+   end
+
+   return array
+
 end

@@ -32,21 +32,13 @@ def torque_parse_ips(head, compute)
                      # and compute arrays, and that is array[0]
    ips = []
    ip_roles = {}
-
    
    # Get the IPs that are under the "head" and "compute" attributes
    ip_roles[:head] = []
    ip_roles[:head] << head[ips_index].chomp
    
    path = compute[ips_index]
-   file = File.open(path)
-   if file != nil
-      ip_roles[:compute] = []
-      file.each_line do |line|
-         ip_roles[:compute] << line.chomp
-      end
-      file.close
-   end
+   ip_roles[:compute] = get_from_file(path)
    
    # Add the IPs to the array
    ips = ips + ip_roles[:head]
@@ -79,15 +71,27 @@ def torque_parse_images(head, compute)
    img_roles[:head] << head[img_index].chomp
    
    path = compute[img_index]
-   file = File.open(path)
-   if file != nil
-      img_roles[:compute] = []
-      file.each_line do |line|
-         img_roles[:compute] << line.chomp
-      end
-      file.close
-   end
+   img_roles[:compute] = get_from_file(path)
    
    return img_roles
    
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Gets all the file lines in an array.
+def get_from_file(path)
+
+   array = []
+   file = File.open(path)
+   if file != nil
+      array = file.readlines.map(&:chomp)    # Discard the final '\n'
+      file.close
+   end
+
+   return array
+
 end

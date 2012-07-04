@@ -15,6 +15,7 @@ def obtain_web_data(balancer, server, database)
 
    ips, ip_roles = web_parse_ips(balancer, server, database)
    img_roles     = web_parse_images(balancer, server, database)
+   
    return ips, ip_roles, img_roles
 
 end
@@ -37,7 +38,6 @@ def web_parse_ips(balancer, server, database)
                      # array[0]
    ips = []
    ip_roles = {}
-
    
    # Get the IPs that are under the "balancer", "server" and "database"
    # attributes
@@ -45,14 +45,7 @@ def web_parse_ips(balancer, server, database)
    ip_roles[:balancer] << balancer[ips_index].chomp
    
    path = server[ips_index]
-   file = File.open(path)
-   if file != nil
-      ip_roles[:server] = []
-      file.each_line do |line|
-         ip_roles[:server] << line.chomp
-      end
-      file.close
-   end
+   ip_roles[:server] = get_from_file(path)
    
    ip_roles[:database] = []
    ip_roles[:database] << database[ips_index].chomp
@@ -93,18 +86,30 @@ def web_parse_images(balancer, server, database)
    img_roles[:balancer] << balancer[img_index].chomp
    
    path = server[img_index]
-   file = File.open(path)
-   if file != nil
-      img_roles[:server] = []
-      file.each_line do |line|
-         img_roles[:server] << line.chomp
-      end
-      file.close
-   end
+   img_roles[:server] = get_from_file(path)
    
    img_roles[:database] = []
    img_roles[:database] << database[img_index].chomp
    
    return img_roles
    
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Gets all the file lines in an array.
+def get_from_file(path)
+
+   array = []
+   file = File.open(path)
+   if file != nil
+      array = file.readlines.map(&:chomp)    # Discard the final '\n'
+      file.close
+   end
+
+   return array
+
 end
