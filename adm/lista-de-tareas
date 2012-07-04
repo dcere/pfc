@@ -130,3 +130,4 @@
 - (X) No poner domain a secas, poner vm_domain o similar
 - Informarse acerca del uso de pxe para arrancar máquinas con ciertos parámetros configurados: IP, MAC, ...
 - Tener cuidado con el informe que haga el proveedor: no es muy útil que aparezcan 50 IPs en la pantalla si cada una ha fallado
+- Comprobar parsings fallidos del manifiesto: head, compute, master, controller, servers, etc
