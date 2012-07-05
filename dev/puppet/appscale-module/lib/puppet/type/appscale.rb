@@ -87,12 +87,50 @@ Puppet::Type.newtype(:appscale) do
    
    # AppScale parameters
    
-   newproperty(:app_email) do
+   newproperty(:controller, :array_matching => :all) do
+      desc "The controller node"
+   end
+
+   newproperty(:servers, :array_matching => :all) do
+      desc "The server nodes"
+   end
+
+
+   newproperty(:master, :array_matching => :all) do
+      desc "The master node"
+   end
+
+   newproperty(:appengine, :array_matching => :all) do
+      desc "The appengine nodes"
+   end
+
+   newproperty(:database, :array_matching => :all) do
+      desc "The database nodes"
+   end
+
+   newproperty(:login, :array_matching => :all) do
+      desc "The login node"
+   end
+
+   newproperty(:open, :array_matching => :all) do
+      desc "The open nodes"
+   end
+
+   newproperty(:zookeeper, :array_matching => :all) do
+      desc "The zookeeper nodes"
+   end
+
+   newproperty(:memcache, :array_matching => :all) do
+      desc "The memcache nodes"
+   end
+
+
+   newparam(:app_email) do
       desc "AppScale administrator e-mail"
       defaultto "david@gmail.com"
    end
    
-   newproperty(:app_password) do
+   newparam(:app_password) do
       desc "AppScale administrator password"
       defaultto "appscale"
    end
