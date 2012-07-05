@@ -128,6 +128,7 @@
 - (X) Añadir nodos appscale: ¿se puede en funcionamiento? => Únicamente para un periodo de tiempo determinado, pero no para siempre.
 - Parámetros de puppet: se pueden usar estructuras elaboradas: ¿existen registros? ¿qué se puede pasar como parámetro: cadena, lista, ...? ejemplo: master => ["155.210.155.73", "/var/tmp/master.img"]
 - (X) No poner domain a secas, poner vm_domain o similar
-- Informarse acerca del uso de pxe para arrancar máquinas con ciertos parámetros configurados: IP, MAC, ...
+- (X) Informarse acerca del uso de pxe para arrancar máquinas con ciertos parámetros configurados: IP, MAC, ... (No usar PXE)
 - Tener cuidado con el informe que haga el proveedor: no es muy útil que aparezcan 50 IPs en la pantalla si cada una ha fallado
 - Comprobar parsings fallidos del manifiesto: head, compute, master, controller, servers, etc
+- Comprobar la monitorización de varios roles por máquina virtual en appscale

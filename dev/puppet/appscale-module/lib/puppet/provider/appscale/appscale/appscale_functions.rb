@@ -44,15 +44,27 @@ def appscale_cloud_start(app_ips, app_roles,
    
       # Find the role
       # TODO What if a machine has different roles?
-      role = :undefined
-      app_roles.each do |r, ips|
-         ips.each do |ip|
-            if vm == ip then role = r end
-         end
+      # role = :undefined
+      # app_roles.each do |r, ips|
+      #    ips.each do |ip|
+      #       if vm == ip then role = r end
+      #    end
+      # end
+
+      # Get all vm's roles
+      roles = app_roles.select { |r, ips| ips.include?(vm) }      # Be careful,
+      # Ruby 1.8.7 returns an array instead of a hash, so we get something like
+      # [[:appengine, [2, 3, 4]], [:database, [3, 4]]] which is an array of
+      # arrays with the role in the first place of the innermost array.
+      
+      # Monitor every one of them
+      roles.each do |role_array|
+         role = role_array[0]
+         puts "Calling appscale_monitor on #{vm} as #{role}"
+         appscale_monitor(vm, role)
       end
-      puts "Calling appscale_monitor"
-      appscale_monitor(vm, role)
    end
+
    return true
    
 end
