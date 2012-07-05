@@ -55,7 +55,7 @@ def appscale_cloud_start(app_ips, app_roles,
       roles = app_roles.select { |r, ips| ips.include?(vm) }      # Be careful,
       # Ruby 1.8.7 returns an array instead of a hash, so we get something like
       # [[:appengine, [2, 3, 4]], [:database, [3, 4]]] which is an array of
-      # arrays with the role in the first place of the innermost array.
+      # arrays with the role in the first place of the innermost arrays.
       
       # Monitor every one of them
       roles.each do |role_array|

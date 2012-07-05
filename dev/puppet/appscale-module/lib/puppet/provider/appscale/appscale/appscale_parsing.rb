@@ -127,9 +127,13 @@ def appscale_parse_ips_custom(master, appengine, database, login, open,
    
    path = open[ips_index]
    ip_roles[:open] = get_from_file(path)
-   
-   # TODO zookeeper and memcache
-   
+      
+   path = zookeeper[ips_index]
+   ip_roles[:zookeeper] = get_from_file(path)
+
+   path = memcache[ips_index]
+   ip_roles[:memcache] = get_from_file(path)
+
    # Add the IPs to the array   
    ips = ips + ip_roles[:master]
    ips = ips + ip_roles[:appengine]
@@ -176,8 +180,12 @@ def appscale_parse_images_custom(master, appengine, database, login, open,
    path = open[img_index]
    img_roles[:open] = get_from_file(path)
    
-   # TODO zookeeper and memcache
-   
+   path = zookeeper[img_index]
+   img_roles[:zookeeper] = get_from_file(path)
+
+   path = memcache[img_index]
+   imgp_roles[:memcache] = get_from_file(path)
+
    return img_roles
    
 end
