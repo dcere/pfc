@@ -1,6 +1,7 @@
-# Appscale parsing functions to obtain virual machine's data from manifest's
+# Appscale parsing functions to obtain virtual machine's data from manifest's
 # arguments.
-
+# All different roles have been obtained from the node_layout file located at
+# appscale-tools/lib/node_layout.rb
 
 ################################################################################
 # Default deployment
@@ -184,7 +185,7 @@ def appscale_parse_images_custom(master, appengine, database, login, open,
    img_roles[:zookeeper] = get_from_file(path)
 
    path = memcache[img_index]
-   imgp_roles[:memcache] = get_from_file(path)
+   img_roles[:memcache] = get_from_file(path)
 
    return img_roles
    

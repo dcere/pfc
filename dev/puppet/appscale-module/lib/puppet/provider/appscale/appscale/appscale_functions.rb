@@ -12,9 +12,15 @@ def appscale_cloud_start(app_ips, app_roles,
    
    script_keys = "appscale-add-keypair.tcl"
    script_run  = "appscale-run-instances.tcl"
-   ips_yaml = resource[:ip_file]
+   #ips_yaml = resource[:ip_file]
    script_path = "/etc/puppet/modules/appscale/lib/puppet/provider/appscale/appscale"
-   
+
+   # Write ips.yaml file
+   puts "Writing AppScale ips_yaml file"
+   ips_yaml = "/etc/puppet/modules/appscale/files/ips.yaml"
+   appscale_write_yaml_file(app_roles, ips_yaml)
+   puts "AppScale ips_yaml file written"
+
    # Add key pairs
    puts "About to add key pairs"
    debug "[DBG] ips.yaml file: #{ips_yaml}"
