@@ -17,7 +17,9 @@ def appscale_cloud_start(app_ips, app_roles,
 
    # Write ips.yaml file
    puts "Writing AppScale ips_yaml file"
-   ips_yaml = "/etc/puppet/modules/appscale/files/ips.yaml"
+   puts "Hash received: "
+   p app_roles
+   ips_yaml = "/etc/puppet/modules/appscale/files/auto-ips.yaml"
    appscale_write_yaml_file(app_roles, ips_yaml)
    puts "AppScale ips_yaml file written"
 
