@@ -29,6 +29,7 @@ def appscale_cloud_start(app_ips, app_roles,
    result = `#{script_path}/#{script_keys} #{ips_yaml} #{root_password}`
    if $?.exitstatus == 0
       puts "Key pairs added"
+      puts "result = |||#{result}|||"
    else
       err "Impossible to add key pairs"
       return false
@@ -40,7 +41,7 @@ def appscale_cloud_start(app_ips, app_roles,
    result = `#{script_path}/#{script_run} #{ips_yaml} #{app_email} #{app_password}`
    if $?.exitstatus == 0
       puts "Instances running"
-      puts "result = #{result}"
+      puts "result = |||#{result}|||"
    else
       err "Impossible to run appscale instances"
       return false

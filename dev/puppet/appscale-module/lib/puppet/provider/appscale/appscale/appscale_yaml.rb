@@ -133,7 +133,7 @@ end
 def appscale_write_yaml_file(hash, path)
 
    # Get and clean the hash
-   hash_yaml = hash.to_yaml.to_s
+   hash_yaml = hash.to_yaml(:Indent => 0).to_s
    hash_yaml = hash_yaml.gsub("!ruby/symbol ", ":")
    hash_yaml = hash_yaml.gsub("!ruby/sym ", ":")
    
