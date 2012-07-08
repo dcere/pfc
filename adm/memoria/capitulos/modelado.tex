@@ -1,26 +1,31 @@
-\chapter{Modelado de configuración automática de infraestructuras distribuidas}
+\chapter{Modelado de recursos distribuidos con Puppet}
 \label{cap:modelado}
 
 [Revisar]\\
 
-La extensión a la herramienta de configuración Puppet se ha hecho mediante el uso de tipos y proveedores personalizados. Mediante la definición de un nuevo tipo estamos añadiendo un nuevo recurso que Puppet puede administrar; para que Puppet sepa cómo administrar ese nuevo recurso debemos proporcionar un proveedor en el que se le indique lo que tiene que hacer.
+%La extensión a la herramienta de configuración Puppet se ha hecho mediante el uso de tipos y proveedores personalizados. Mediante la definición de un nuevo tipo estamos añadiendo un nuevo recurso que Puppet puede administrar; para que Puppet sepa cómo administrar ese nuevo recurso debemos proporcionar un proveedor en el que se le indique lo que tiene que hacer.
 
 
-\section{Modelado de recursos distribuidos}
+\section{Configuración de recursos distribuidos}
 
-En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener y cuál debe ser su estado. Sin embargo, el modelado de un recurso distribuido plantea ciertos desafíos al ejemplo anterior, ya que éste no está pensado teniendo en cuenta la problemática asociada a los sistemas distribuidos. \\
+En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener y cuál debe ser su estado. Dentro de este tipo de recursos se encuentran el recurso usuario, el recurso fichero y el recurso paquete. Sin embargo, el modelado de un recurso distribuido plantea ciertos desafíos al ejemplo anterior, ya que éste no está pensado teniendo en cuenta la problemática asociada a los sistemas distribuidos. \\
 
 %En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener. Sin embargo, el modelado de un recurso distribuido plantea ciertos desafíos al modelo anterior: se puede pensar que para modelar un recurso distribuido basta con que Puppet envíe a cada nodo la configuración necesaria para garantizar el comportamiento deseado, pero, ¿qué pasa cuando ese nodo falla? Si no hacemos nada, el recurso dejará de mantenerse en el estado deseado. Por lo tanto, a la hora de administrar un recurso distribuido hay que asegurarse de que los nodos están operativos y cumpliendo con su función. Asimismo, un recurso distribuido puede presentar elementos comunes con otros recursos distribuidos, tales como una monitorización básica. Entre los recursos clásicos de Puppet, por ejemplo un usuario y un paquete, no hay tantos elementos comunes. \\
 
-Al modelar un recurso distribuido, deben tenerse en cuenta las características propias de este tipo de recursos. Tenemos que presentar el recurso como un único sistema coherente, es decir, como una única abstracción; no vale con describir un recurso distribuido como una colección de recursos clásicos de Puppet. Afortunadamente Puppet proporciona los medios para crear nuevos tipos de recurso, y se puede crear un nuevo tipo de recurso con sus parámetros correspondientes para definir los recursos distribuidos. \\
+Al modelar un recurso distribuido, deben tenerse en cuenta las características propias de este tipo de recursos, como la disponibilidad y las prestaciones. La disponibilidad contempla los fallos que se pueden dar en una infraestructura distribuida y en ella estarían incluidos los fallos de procesos y los fallos de máquinas. Las prestaciones contemplan los servicios ofrecidos y dentro de ellas tendríamos la creación de máquinas para repartir la carga. Asimismo, un recurso distribuido puede presentar elementos comunes con otros recursos distribuidos, tales como una monitorización básica. Entre los recursos clásicos de Puppet, por ejemplo un usuario y un paquete, no existen apenas elementos comunes. \\
 
-En particular, para definir un distribuido, o recurso \emph{cloud}, se han considerado como fundamentales los siguientes parámetros:
+A la hora de definir un recurso distribuido tenemos que presentarlo como un único sistema coherente, es decir, como una única abstracción, y por lo tanto no vale con describir un recurso distribuido como una colección de recursos clásicos de Puppet. Afortunadamente, Puppet proporciona los medios para crear nuevos tipos de recurso, y se puede crear un nuevo tipo de recurso con sus parámetros correspondientes para definir los recursos distribuidos. \\
+
+
+\section{Modelización en Puppet}
+
+En particular, para definir un recurso distribuido, o recurso \emph{cloud}, se han considerado como fundamentales los siguientes parámetros:
 
 \begin{itemize}
-\item Nombre: Para identificar al \emph{cloud} de manera única.
-\item Fichero de direcciones IP: Para describir qué dirección IP está asociada a cada nodo del \emph{cloud}. Como la asociación viene dada por un par <rol, dirección IP> también se le llama a este parámetro fichero de roles.
-\item Fichero de imágenes de disco: Para asignar a cada nodo la correspondiente imagen de disco duro.
-\item Fichero de dominio: Para definir una máquina virtual especificando sus características \emph{hardware}.
+\item Nombre: Para identificar al recurso de manera única.
+%\item Fichero de direcciones IP: Para describir qué dirección IP está asociada a cada nodo del \emph{cloud}. Como la asociación viene dada por un par <rol, dirección IP> también se le llama a este parámetro fichero de roles.
+%\item Fichero de imágenes de disco: Para asignar a cada nodo la correspondiente imagen de disco duro.
+\item Fichero de dominio: Para definir una plantilla de creación de máquinas virtuales especificando sus características \emph{hardware}.
 \item Conjunto de máquinas físicas: Para indicar qué máquinas físicas pueden ejecutar las máquinas virtuales definidas.
 \end{itemize}
 
@@ -36,6 +41,9 @@ torque {'torque-cloud':
 }
 \end{lstlisting}
 
+
+\subsection{Patrón de diseño del proveedor}
+\subsection{\emph{Framework} de implementación}
 
 \section{Diseño del proveedor de recursos distribuidos}
 
