@@ -14,16 +14,6 @@ En Puppet, la definición clásica de recursos se presupone dentro del ámbito l
 
 Al modelar un recurso distribuido, deben tenerse en cuenta las características propias de este tipo de recursos. Tenemos que presentar el recurso como un único sistema coherente, es decir, como una única abstracción; no vale con describir un recurso distribuido como una colección de recursos clásicos de Puppet. Afortunadamente Puppet proporciona los medios para crear nuevos tipos de recurso, y se puede crear un nuevo tipo de recurso con sus parámetros correspondientes para definir los recursos distribuidos. \\
 
-%%% Revisar [Metaclases]
-% Tenemos, pues, dos tipos de recursos claramente diferenciados: los recursos clásicos de Puppet (a los que llamaremos recursos locales) y los recursos distribuidos. Para entender mejor el modelado de estos recursos se puede hacer una analogía con la programación orientada a objetos (Figura \ref{figure:puppet-modelo-teorico}). En esta analogía el recurso distribuido sería una instancia de una metaclase que proporcionaría los atributos y métodos comunes a todo recurso distribuido. La instanciación de ese recurso en un recurso distribuido de tipo AppScale, Torque, web u otros sería similar a la instanciación de una clase a partir de la metaclase. De igual manera, el recurso distribuido instanciado podría añadir nuevos atributos y métodos y modificar el comportamiento de los métodos de la metaclase, ya que no tienen por qué iniciarse de igual manera el recurso AppScale y el recurso Torque. Los recursos locales de Puppet quedarían como clases que se instanciarían a partir de una metaclase de recursos locales.
-
-%\begin{figure} [!htbp]
-%  \centering
-%  \includegraphics[width=\textwidth]{figuras/Modelo_Teorico_Puppet.eps}
-%  \caption{Modelado teórico de recursos en Puppet.}
-%\label{figure:puppet-modelo-teorico}
-%\end{figure}
-
 En particular, para definir un distribuido, o recurso \emph{cloud}, se han considerado como fundamentales los siguientes parámetros:
 
 \begin{itemize}
