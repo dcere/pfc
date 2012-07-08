@@ -10,21 +10,21 @@ def appscale_yaml_ips(path)
 
    ips = []
    ip_roles = {}
-
+   
    file = File.open(path)
    tree = YAML::parse(file)
    
    if tree != nil
-
+   
       tree = tree.transform
-
+      
       # Default deployment (from appscale-tools/lib/node_layout.rb)
       controller = tree[:controller]
       servers =    tree[:servers]
-
+      
       ip_roles[:controller] = get_elements(controller)
       ip_roles[:servers]    = get_elements(servers)
-
+      
       ips = ips + ip_roles[:controller]
       ips = ips + ip_roles[:servers]
       
@@ -54,6 +54,9 @@ def appscale_yaml_ips(path)
       ips = ips + ip_roles[:memcache]
       
       ips = ips.uniq
+      
+      # Delete all the roles that have no IP address associated
+      ip_roles.delete_if{ |role, ips| ips == [] }
       
       file.close
       
@@ -92,6 +95,7 @@ def appscale_yaml_images(path)
       all = tree[:all]
       
       if all == nil
+
          # Default deployment
          img_roles[:controller] = get_elements(controller)
          img_roles[:servers]    = get_elements(servers)
@@ -104,6 +108,9 @@ def appscale_yaml_images(path)
          img_roles[:open]      = get_elements(open)
          img_roles[:zookeeper] = get_elements(zookeeper)
          img_roles[:memcache]  = get_elements(memcache)
+         
+         # Delete all the roles that have no disk image associated
+         img_roles.delete_if{ |role, img| img == [] }
          
       else
          img_roles[:all] = get_elements(all)
@@ -125,8 +132,14 @@ end
 # Either case, the key-value pairs must follow the {symbol => array} pattern.
 def appscale_write_yaml_file(hash, path)
 
+   # Get and clean the hash
+   hash_yaml = hash.to_yaml(:Indent => 0).to_s
+   hash_yaml = hash_yaml.gsub("!ruby/symbol ", ":")
+   hash_yaml = hash_yaml.gsub("!ruby/sym ", ":")
+   
+   # Write to file
    file = File.open(path, 'w')
-   file.write(hash.to_yaml)
+   file.write(hash_yaml)
 
 end
 
