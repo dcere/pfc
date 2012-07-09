@@ -3,9 +3,11 @@ Puppet::Type.newtype(:web) do
    
    
    ensurable do
+
       desc "The cloud's ensure field can assume one of the following values:
    `running`: The cloud is running.
    `stopped`: The cloud is stopped.\n"
+   
       newvalue(:stopped) do
          provider.stop
       end
