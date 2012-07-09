@@ -19,6 +19,7 @@ Al modelar un recurso distribuido, deben tenerse en cuenta las características 
 A la hora de definir un recurso distribuido tenemos que presentarlo como un único sistema coherente, es decir, como una única abstracción, y por lo tanto no vale con describir un recurso distribuido como una colección de recursos clásicos de Puppet. Afortunadamente, Puppet proporciona los medios para crear nuevos tipos de recurso, y se puede crear un nuevo tipo de recurso con sus parámetros correspondientes para definir los recursos distribuidos. \\
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Modelización en Puppet}
 
 Puppet puede ser extendido para incluir la definición de nuevos recursos. Para ello hay que proporcinarle como mínimo dos ficheros: uno en el que se define el recurso y otro en el que se define cómo gestionar ese recurso. Al fichero en el que se define el recurso se le llama tipo y al fichero en el que se define cómo gestionarlo se le llama proveedor. Es decir, el tipo se encarga del ``qué'' y el proveedor se encarga del ``cómo''.\\
@@ -34,6 +35,7 @@ Para definir un recurso distribuido, o recurso \emph{cloud}, se han considerado 
 Estos parámetros se obtienen mediante la observación de los elementos comunes a todo recurso distribuido. Además de estos parámetros cada tipo de recurso distribuido puede añadir los que considere necesarios para una completa especificación del recurso.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Patrón de diseño del proveedor}
 
 En Puppet, el proveedor es el encargado de llevar al recurso al estado que se le indique en el manifiesto. Típicamente el proveedor posee las funciones necesarias para crear un nuevo recurso y para destruirlo. Para llevar a cabo estas funciones en un recurso de tipo \emph{cloud} el proveedor se apoya en cuatro grupos de funciones: puesta en marcha de un \emph{cloud}, monitorización de un \emph{cloud}, elección de líder y parada de un \emph{cloud}. Las funciones de los tres primeros grupos se usan a la hora de crear un nuevo recurso de tipo \emph{cloud} mientras que las del último grupo se usan a la hora de parar un \emph{cloud} ya existente. \\
@@ -83,8 +85,9 @@ Aunque no se proporcionan como funciones, hay que tener en cuenta que cada tipo 
 \end{enumerate}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\emph{Framework} de implementación}
-
+\label{sec:modelado-framework}
 
 Las operaciones de puesta que se proporcionan son:
 \begin{itemize}
