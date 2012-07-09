@@ -14,7 +14,7 @@ En Puppet, la definición clásica de recursos se presupone dentro del ámbito l
 
 %Ahora bien, este proveedor no es un proveedor al uso: debe lidiar con la problemática asociada a los sistemas distribuidos. Entre otras cosas debe tener en cuenta que puede haber dependencias entre los nodos, que cada nodo puede cumplir un papel distinto dentro del sistema y que los nodos pueden fallar. Además, debe resolver los fallos con la mayor transparencia posible, es decir, con la menor intervención humana posible.\\
 
-Al modelar un recurso distribuido, deben tenerse en cuenta las características propias de este tipo de recursos, como la disponibilidad, las prestaciones y las dependencias. La disponibilidad contempla los fallos que se pueden dar en una infraestructura distribuida y en ella estarían incluidos los fallos de procesos y los fallos de máquinas. Las prestaciones contemplan los servicios ofrecidos y dentro de ellas tendríamos la creación de máquinas para repartir la carga. Las dependencias contemplan la necesidad de que un servicio esté funcionando para que otro pueda hacerlo. Asimismo, un recurso distribuido puede presentar elementos comunes con otros recursos distribuidos, tales como una monitorización básica. Entre los recursos clásicos de Puppet, por ejemplo un fichero y un usuario, no existen apenas elementos comunes. \\
+Al modelar un recurso distribuido, deben tenerse en cuenta las características propias de este tipo de recursos, como la disponibilidad, las prestaciones y las dependencias. La disponibilidad contempla los fallos que se pueden dar en una infraestructura distribuida y en ella estarían incluidos los fallos de procesos y los fallos de máquinas. Las prestaciones contemplan los servicios ofrecidos y dentro de ellas tendríamos la creación de máquinas para repartir la carga. Las dependencias contemplan la necesidad de que un servicio esté funcionando para que otro pueda hacerlo. Asimismo, un recurso distribuido puede presentar elementos comunes con otros recursos distribuidos, tales como una monitorización básica. La presencia de elementos comunes entre los recursos clásicos de Puppet, por ejemplo un fichero y un usuario, no es tan corriente. \\
 
 A la hora de definir un recurso distribuido tenemos que presentarlo como un único sistema coherente, es decir, como una única abstracción, y por lo tanto no vale con describir un recurso distribuido como una colección de recursos clásicos de Puppet. Afortunadamente, Puppet proporciona los medios para crear nuevos tipos de recurso, y se puede crear un nuevo tipo de recurso con sus parámetros correspondientes para definir los recursos distribuidos. \\
 
@@ -40,7 +40,17 @@ En Puppet, el proveedor es el encargado de llevar al recurso al estado que se le
 
 Las operaciones de puesta en marcha son las encargadas de poner en funcionamiento el \emph{cloud} especificado en el manifiesto. Las más importantes son:
 \begin{itemize}
-\item Inicio como líder: Función de puesta en marcha que realizará el nodo líder del \emph{cloud}.
+\item Inicio como líder: Función de puesta en marcha que realizará el nodo líder del \emph{cloud}. Ésta es la función más importante dentro de las funciones de inicio del proveedor ya que es la que se encarga de iniciar el cloud. A grandes rasgos, los pasos que realiza son:
+
+   \begin{enumerate}
+   \item Comprobación de la existencia del \emph{cloud}: si no existe se creará.
+   \item Comprobación del estado del conjunto de máquinas físicas.
+   \item Obtención de las direcciones IP de los nodos y los roles que les han sido asignados.
+   \item Comprobación del estado de las máquinas virtuales: si están funcionando se monitorizan, mientras que si no están funcionando hay que definir una nueva máquina virtual y ponerla en funcionamiento. Las funciones de monitorización incluyen el envío de un fichero mediante el cual cada nodo se autoadministre la mayor parte posible.
+   \item Cuando todas las máquinas virtuales estén funcionando se procede a inicializar el \emph{cloud}.
+   \item Operaciones de puesta en marcha particulares dependiendo de cada tipo de \emph{cloud}.
+   \end{enumerate}
+
 \item Inicio como nodo común: Función de puesta en marcha que realizarán los nodos comunes del \emph{cloud}.
 \item Inicio como nodo externo: Función de puesta en marcha que realizará un nodo no perteneciente al \emph{cloud}.
 \end{itemize}
@@ -50,39 +60,24 @@ La monitorización del \emph{cloud} únicamente la llevará a cabo el nodo líde
 \item Monitorización como líder: Función de monitorización que realizará el nodo líder del \emph{cloud}.
 \end{itemize}
 
-Si sólo el nodo líder se encarga de comprobar el estado global del \emph{cloud} deberá haber siempre un nodo que cumpla este papel. Esto se consigue con las operaciones de elección de líder, de las cuales las más importantes son:
+Si sólo el nodo líder se encarga de comprobar el estado global del \emph{cloud} deberá haber siempre un nodo que cumpla este papel. Para elegir un líder de entre todos los nodos del \emph{cloud} se utiliza el algoritmo peleón (en inglés \emph{Bully algorithm}). En este algoritmo todos los nodos tratan periódicamente de convertirse en el líder; si hay un líder impedirá que otro nodo le quite el liderazgo y si no lo hay uno de los restantes nodos se convertirá en líder. Para ayudar a la implementación de este algoritmo se proporcionan las funciones de elección de líder, de las cuales las más importantes son:
 \begin{itemize}
 \item Lectura y escritura de identificador: Funciones de lectura y escritura del identificador del nodo actual.
 \item Lectura y escritura de identificador de líder: Funciones de lectura y escritura del identificador del nodo líder.
-\item Lectura y escritura de identificador remoto: Funciones de lectura y escritura del identificador en un nodo distinto del actual.
+\item Escritura de identificador e identificador de líder remoto: Funciones de escritura del identificador y del identifiacor del líder en un nodo distinto del actual.
 \end{itemize}
 
 Por último, es posible que en algún momento se desee parar por completo el funcionamiento del \emph{cloud}. Las operaciones de parada de \emph{cloud} más importantes son:
 \begin{itemize}
 \item Apagado de máquinas virtuales: Función de apagado de las máquinas virtuales que forman el \emph{cloud}.
-\item Borrado de ficheros: Función de eliminación de todos los ficheros usados durante el funcionamiento del \emph{cloud}.
+\item Borrado de ficheros: Función de eliminación de todos los ficheros internos de gestión del \emph{cloud}.
 \end{itemize}
 
-
-
-Para poner un \emph{cloud} en funcionamiento, los pasos que realiza el proveedor son:
-
-\begin{enumerate}
-\item Comprobación de la existencia del \emph{cloud}: si existe se realizarán tareas de mantenimiento, si no existe se creará.
-\item Comprobación del estado del conjunto de máquinas físicas.
-\item Obtención de las direcciones IP de los nodos y los roles que les han sido asignados.
-\item Comprobación del estado de las máquinas virtuales: si están funcionando se monitorizan, mientras que si no están funcionando hay que definir una nueva máquina virtual y ponerla en funcionamiento. Las funciones de monitorización incluyen el envío de un fichero mediante el cual cada nodo se autoadministre la mayor parte posible.
-\item Cuando todas las máquinas virtuales estén funcionando se procede a inicializar el \emph{cloud}.
-\item Operaciones de puesta en marcha particulares dependiendo de cada tipo de \emph{cloud}.
-\end{enumerate}
-
-
-Para parar un \emph{cloud} los pasos que el proveedor realiza son:
-
+Aunque no se proporcionan como funciones, hay que tener en cuenta que cada tipo de cloud puede tener sus propias funciones de parada. Estas funciones de parada deben realizarse antes de apagar las máquinas virtuales. De forma general, los pasos que hay que hacer a la hora de parar un cloud son:
 \begin{enumerate}
 \item Comprobación de la existencia del \emph{cloud}: si existe se procederá a su parada.
 \item Operaciones de parada particulares a cada tipo de \emph{cloud}.
-\item Apagado y borrado de las definiciones de las máquinas virtuales creadas explícitamente para este \emph{cloud}.
+\item Apagado de las máquinas virtuales creadas explícitamente para este \emph{cloud}.
 \item Parada de las funciones de automantenimiento de los nodos.
 \item Eliminación de los ficheros internos de gestión del \emph{cloud}.
 \end{enumerate}
@@ -90,4 +85,28 @@ Para parar un \emph{cloud} los pasos que el proveedor realiza son:
 
 \subsection{\emph{Framework} de implementación}
 
-Funciones concretas
+
+Las operaciones de puesta que se proporcionan son:
+\begin{itemize}
+\item Inicio como líder: \texttt{leader\_start}.
+\item Inicio como nodo común: \texttt{common\_start}.
+\item Inicio como nodo externo: \texttt{not\_cloud\_start}.
+\end{itemize}
+
+La función de monitorización que se proporciona es:
+\begin{itemize}
+\item Monitorización como líder: \texttt{leader\_monitoring}.
+\end{itemize}
+
+Las funciones de elección de líder que se proporcionan son:
+\begin{itemize}
+\item Lectura y escritura de identificador: \texttt{get\_id} y \texttt{set\_id}.
+\item Lectura y escritura de identificador de líder: \texttt{get\_leader} y \texttt{set\_leader}.
+\item Escritura de identificador e identificador de líder remoto: \texttt{vm\_set\_id} y \texttt{vm\_set\_leader}.
+\end{itemize}
+
+Las funciones de parada de \emph{cloud} que se proporcionan son:
+\begin{itemize}
+\item Apagado de máquinas virtuales: \texttt{shutdown\_vms}.
+\item Borrado de ficheros: \texttt{delete\_files}.
+\end{itemize}
