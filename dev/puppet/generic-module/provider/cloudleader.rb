@@ -12,7 +12,7 @@ module CloudLeader
    # Basic ID functions
    #############################################################################
    
-   # Gets the ID of the node by reading the node's id_file.
+   # Gets the node's ID by reading the node's id_file.
    def self.get_id(id_file = ID_FILE)
       
       if File.exists?(id_file)
@@ -27,7 +27,7 @@ module CloudLeader
    end
    
    
-   # Sets the ID of the node.
+   # Sets the node's ID.
    def self.set_id(id, id_file = ID_FILE)
    
       file = File.open(id_file, 'w')
@@ -37,17 +37,7 @@ module CloudLeader
    end
    
    
-   # Sets the leader ID in the node.
-   def self.set_leader(leader, leader_file = LEADER_FILE)
-   
-      file = File.open(leader_file, 'w')
-      file.puts(leader)
-      file.close
-      
-   end
-   
-   
-   # Gets the ID of the leader by reading the node's leader_file.
+   # Gets the leader's ID by reading the node's leader_file.
    def self.get_leader(leader_file = LEADER_FILE)
    
       if File.exists?(leader_file)
@@ -59,6 +49,16 @@ module CloudLeader
       end
       return leader
    
+   end
+
+
+   # Sets the leader's ID in the node.
+   def self.set_leader(leader, leader_file = LEADER_FILE)
+   
+      file = File.open(leader_file, 'w')
+      file.puts(leader)
+      file.close
+      
    end
    
    
