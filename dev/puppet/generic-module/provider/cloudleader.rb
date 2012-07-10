@@ -1,22 +1,34 @@
 # Generic leader election methods for a distributed infrastructure
-module CloudLeader
+class CloudLeader
    
-   LAST_ID_FILE = "/tmp/cloud-last-id"
    ID_FILE      = "/tmp/cloud-id"
    LEADER_FILE  = "/tmp/cloud-leader"
+   LAST_ID_FILE = "/tmp/cloud-last-id"
    
-   # Do not use attr_reader because your id and your leader's id might change
-   # during execution. The only thing that should not change are the files paths.
+   attr_reader :id, :leader, :last_id
+   
+   def initialize(id_file = ID_FILE, leader_file = LEADER_FILE,
+                  last_id_file = LAST_ID_FILE)
+   
+      @id_file      = id_file
+      @leader_file  = leader_file
+      @last_id_file = last_id_file 
+      
+      @id      = init_id()
+      @leader  = init_leader()
+      @last_id = init_last_id()
+      
+   end
+   
    
    #############################################################################
-   # Basic ID functions
-   #############################################################################
+   private
    
    # Gets the node's ID by reading the node's id_file.
-   def self.get_id(id_file = ID_FILE)
+   def init_id()
       
-      if File.exists?(id_file)
-         id_file = File.open(id_file, 'r')
+      if File.exists?(@id_file)
+         id_file = File.open(@id_file, 'r')
          id = id_file.read().chomp().to_i()
          id_file.close
       else
@@ -27,21 +39,11 @@ module CloudLeader
    end
    
    
-   # Sets the node's ID.
-   def self.set_id(id, id_file = ID_FILE)
-   
-      file = File.open(id_file, 'w')
-      file.puts(id)
-      file.close
-      
-   end
-   
-   
    # Gets the leader's ID by reading the node's leader_file.
-   def self.get_leader(leader_file = LEADER_FILE)
+   def init_leader()
    
-      if File.exists?(leader_file)
-         leader_file = File.open(leader_file, 'r')
+      if File.exists?(@leader_file)
+         leader_file = File.open(@leader_file, 'r')
          leader = leader_file.read().chomp().to_i()
          leader_file.close
       else
@@ -50,14 +52,63 @@ module CloudLeader
       return leader
    
    end
-
-
-   # Sets the leader's ID in the node.
-   def self.set_leader(leader, leader_file = LEADER_FILE)
    
-      file = File.open(leader_file, 'w')
+   
+   # Gets the last defined ID in the ID file.
+   def init_last_id()
+
+      if File.exists?(@last_id_file)
+         file = File.open(@last_id_file, 'r')
+         id = file.read().chomp().to_i
+         file.close
+      else
+         id = get_id()
+      end
+      return id
+
+   end
+   
+   
+   #############################################################################
+   public
+   
+   # Sets the node's ID.
+   def set_id(id)
+   
+      file = File.open(@id_file, 'w')
+      file.puts(id)
+      file.close
+      @id = id
+      
+   end
+   
+   
+   # Sets the leader's ID in the node.
+   def set_leader(leader)
+   
+      file = File.open(@leader_file, 'w')
       file.puts(leader)
       file.close
+      @leader = leader
+      
+   end
+   
+   
+   # Sets last defined ID in the ID file.
+   def set_last_id(id)
+
+      file = File.open(@last_id_file, 'w')
+      file.puts(id)
+      file.close
+      @last_id = id
+      
+   end
+   
+   
+   # Checks if this node is leader.
+   def leader?
+      
+      return @id == @leader && @id != -1
       
    end
    
@@ -95,33 +146,4 @@ module CloudLeader
       
    end
    
-   
-   #############################################################################
-   # Last ID functions
-   #############################################################################
-   
-   # Gets the last defined ID in the ID file.
-   def self.get_last_id(last_id_file = LAST_ID_FILE)
-
-      if File.exists?(last_id_file)
-         file = File.open(last_id_file, 'r')
-         id = file.read().chomp().to_i
-         file.close
-      else
-         id = CloudLeader.get_id()
-      end
-      return id
-
-   end
-
-
-   # Sets last defined ID in the ID file.
-   def self.set_last_id(id, last_id_file = LAST_ID_FILE)
-
-      file = File.open(last_id_file, 'w')
-      file.puts(id)
-      file.close
-      
-   end
-      
 end
