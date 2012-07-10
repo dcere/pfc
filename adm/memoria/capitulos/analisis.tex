@@ -79,7 +79,7 @@ Para permitir el alojamiento de aplicaciones web y la ejecución de trabajos una
 \item[\texttt{Open}]: No ejecuta nada por defecto, pero está disponible por si acaso. Estas máquinas son las utilizadas para ejecutar trabajos MPI.
 \end{description}
 
-Como muchos de estos roles deberían estar juntos en una máquina, se han creado unos alias para facilitar el despliegue de la infraestructura:
+Como muchos de estos roles suele desempeñarlos una máquina, se han creado unos roles agregados para facilitar el despliegue de la infraestructura:
 
 \begin{description}
 \item[\texttt{Controller}]: Shadow, Load Balancer, Database, Login y Zookeeper.
@@ -87,7 +87,7 @@ Como muchos de estos roles deberían estar juntos en una máquina, se han creado
 \item[\texttt{Master}]: Shadow, Load Balancer y Zookeeper.
 \end{description}
 
-No todos estos roles serán usados a la vez al hacer un despliegue de AppScale. AppScale contempla la posibilidad de dos tipos de despliegue: por defecto y personalizado. En el despliegue por defecto un nodo sólo puede ser o bien \texttt{Controller} o bien \texttt{Server}. En el despliegue personalizado el usuario es libre de especificar los nodos como quiera. \\
+No todos estos roles serán usados a la vez al hacer un despliegue de AppScale. AppScale contempla la posibilidad de dos tipos de despliegue: por defecto y personalizado. En el despliegue por defecto un nodo sólo puede ser o bien \texttt{Controller} o bien \texttt{Server}. En el despliegue personalizado el usuario es libre de especificar los roles de un nodo como más le convenga. \\
 
 Una vez puesta en marcha la infraestructura de AppScale, servirá tanto para alojar las aplicaciones web que el usuario despliegue como para ejecutar trabajos. Para desplegar las aplicaciones web hay que hacer uso de las AppScale Tools, un conjunto de herramientas que permiten, entre otras cosas, iniciar y terminar instancias, desplegar aplicaciones y eliminar aplicaciones. Para ejecutar trabajos hay que servirse de la API de Neptune, que no es tan sencilla. En general esto se consigue mediante tres pasos: en el primero se le indica el código fuente que se quiere subir a la infraestructura; en el segundo se le da la orden de ejecutar el trabajo; en el tercero se le piden los resultados de la ejecución. Cada uno de estos pasos debe indicarse, mediante un lenguaje específico de dominio, en un fichero que luego se interpretará con el programa neptune. En el caso de un trabajo MPI, podemos definir, además del código a ejecutar, el número de máquinas sobre las que ejecutar el código y el número de procesos que se usarán para el trabajo.
 
@@ -95,4 +95,4 @@ Una vez puesta en marcha la infraestructura de AppScale, servirá tanto para alo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Análisis de la infraestructura Torque}
 
-La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido ha sido Torque. Torque es una de las infraestructuras clásicas en lo que a ejecución de trabajos se refiere. Una infraestructura de este tipo está compuesta de un nodo maestro y tantos nodos de computación como se desee. Una vez puesta en marcha la infraestructura, los usuarios que tengan permiso pueden mandar sus trabajos al nodo maestro. El nodo maestro, valiéndose de un planificador, decidirá a cuál de los nodos de computación le enviará el trabajo. El nodo de computación que reciba el trabajo será el encargado de ejecutarlo y de enviar los resultados de vuelta al nodo maestro.
+La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido ha sido Torque. Torque es una de las infraestructuras clásicas en lo que a ejecución de trabajos se refiere. Una infraestructura de este tipo está compuesta de un nodo maestro y tantos nodos de computación como se desee. Una vez puesta en marcha la infraestructura, los usuarios que tengan los permisos correspondientes pueden mandar sus trabajos al nodo maestro. El nodo maestro, valiéndose de un planificador (en su versión más simple es una cola FIFO), decidirá a cuál de los nodos de computación le enviará el trabajo. El nodo de computación que reciba el trabajo será el encargado de ejecutarlo y de enviar los resultados de vuelta al nodo maestro una vez terminada la ejecución.

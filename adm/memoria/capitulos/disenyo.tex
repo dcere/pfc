@@ -9,7 +9,7 @@ El primer paso que hay que hacer a la hora de crear un nuevo recurso en Puppet e
 \begin{rubycode}
 Puppet::Type.newtype(:mitipo) do
 
-   @doc = "Gestiona el tipo 'mitipo'."
+   @doc = "Tipo 'mitipo'."
    
    ensurable do
       desc "El campo ensure puede tomar uno de los siguientes valores:
@@ -52,7 +52,7 @@ Una vez que se ha definido el tipo del recurso, queda definir el proveedor para 
 
 \begin{rubycode}
 Puppet::Type.type(:mitipo).provide(:mitipo_proveedor) do
-   desc "Proveedor para el tipo 'mitipo'"
+   desc "Proveedor para el tipo 'mitipo'."
 
    ...
 
