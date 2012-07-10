@@ -2,6 +2,14 @@
 # Start cloud functions
 ################################################################################
 
+# Test function
+def mifunciondetest(resource, error_function)
+
+   puts "El nombre del recurso es %s" % [resource[:name]]
+   error_function.call "Error en GENERIC MAIN"
+
+end
+
 # Starting function for leader node.
 def leader_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up,
                  monitor_function)
@@ -266,6 +274,16 @@ def shutdown_vms()
       end
       
    end   # pms.each
+
+end
+
+
+# Stops cron jobs on all machines.
+def stop_cron_jobs(cloud_type)
+
+   mcc = MCollectiveCronClient.new("cronos")
+   string = "init-#{cloud_type}"
+   mcc.delete_line(CRON_FILE, string)
 
 end
 

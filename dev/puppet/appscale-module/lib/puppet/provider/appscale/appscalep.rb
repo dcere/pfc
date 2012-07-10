@@ -25,6 +25,9 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
 
       puts "Starting cloud %s" % [resource[:name]]
       
+      # Zona de test
+      mifunciondetest(resource, method(:err))
+      
       # Check existence
       if !exists?
          # Cloud does not exist => Startup operations
@@ -102,12 +105,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          # Shutdown and undefine all virtual machines explicitly created for this cloud
          shutdown_vms()
          
-         # Stop cron jobs on all machines
-         puts "Stopping cron jobs on all machines..."
-         mcc = MCollectiveCronClient.new("cronos")
-         string = "init-appscale"
-         mcc.delete_line(CRON_FILE, string)
-         # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
+         # Stop cron jobs on all machiness
+         stop_cron_jobs("appscale")    # TODO Be careful of the order: 1 stop cron and 2 stop appscale or the other way?
          
          # Delete files
          delete_files()

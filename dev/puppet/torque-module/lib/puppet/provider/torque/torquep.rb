@@ -108,11 +108,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          shutdown_vms()
          
          # Stop cron jobs on all machines
-         puts "Stopping cron jobs on all machines..."
-         mcc = MCollectiveCronClient.new("cronos")
-         string = "init-torque"
-         mcc.delete_line(CRON_FILE, string)
-         # WARNING: Do not disconnect the mcc or you will get a 'Broken pipe' error
+         stop_cron_jobs("torque")      # TODO Check order
          
          # Delete files
          delete_files()
