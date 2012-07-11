@@ -235,19 +235,21 @@ def shutdown_vms()
       out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
       
       # Bring the defined domains file from the physical machine to this one
-      out, success = CloudSSH.get_remote(DOMAINS_FILE, pm_user, pm, DOMAINS_FILE)
+      out, success = CloudSSH.get_remote(CloudInfrastructure::DOMAINS_FILE,
+                                         pm_user, pm,
+                                         CloudInfrastructure::DOMAINS_FILE)
       if success
       
-         puts "#{DOMAINS_FILE} exists in #{pm}"
+         puts "#{CloudInfrastructure::DOMAINS_FILE} exists in #{pm}"
          
          # Open file
-         defined_domains = File.open(DOMAINS_FILE, 'r')
+         defined_domains = File.open(CloudInfrastructure::DOMAINS_FILE, 'r')
       
          # Stop nodes
          puts "Shutting down domains"
          defined_domains.each_line do |domain|
             domain.chomp!
-            unless shutdown_domain(domain)
+            unless CloudInfrastructure.shutdown_domain(domain)
                err "#{domain} impossible to shut down"
             end
          end
@@ -257,14 +259,14 @@ def shutdown_vms()
          defined_domains.rewind
          defined_domains.each_line do |domain|
             domain.chomp!
-            unless undefine_domain(domain)
+            unless CloudInfrastructure.undefine_domain(domain)
                err "#{domain} impossible to undefine"
             end
          end
          
          # Delete the defined domains file on the physical machine
          puts "Deleting defined domains file"
-         command = "rm -rf #{DOMAINS_FILE}"
+         command = "rm -rf #{CloudInfrastructure::DOMAINS_FILE}"
          out, success = CloudSSH.execute_remote(command, pm_user, pm)
          
          # Delete all the domain files on the physical machine. Check how the
@@ -278,7 +280,7 @@ def shutdown_vms()
          # Some physical machines might not have any virtual machine defined.
          # For instance, no virtual machine will be defined if they were already
          # defined and running when we started the cloud.
-         puts "No #{DOMAINS_FILE} file found in #{pm}"
+         puts "No #{CloudInfrastructure::DOMAINS_FILE} file found in #{pm}"
       end
       
    end   # pms.each
@@ -313,7 +315,7 @@ def delete_files()
    mcc.disconnect       # Now it can be disconnected
    
    # Delete rest of regular files on leader machine
-   files = [DOMAINS_FILE,                                # Domains file
+   files = [CloudInfrastructure::DOMAINS_FILE,           # Domains file
             "/tmp/cloud-#{resource[:name]}"]             # Cloud file
    files.each do |file|
       if File.exists?(file)
