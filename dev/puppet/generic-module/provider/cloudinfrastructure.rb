@@ -1,4 +1,4 @@
-module CloudInfrastructure
+class CloudInfrastructure
 
    # Constants
 
@@ -12,7 +12,7 @@ module CloudInfrastructure
 
 
    # Writes the virtual machine's domain file.
-   def self.write_domain(virtual_machine, domain_file_path, template_path)
+   def write_domain(virtual_machine, domain_file_path, template_path)
 
       require 'erb'
       template = File.open(template_path, 'r').read()
@@ -25,7 +25,7 @@ module CloudInfrastructure
 
 
    # Defines a domain for a virtual machine on a physical machine.
-   def self.define_domain(pm_user, pm, vm_name, domain_file_name)
+   def define_domain(pm_user, pm, vm_name, domain_file_name)
 
       command = "#{VIRSH_CONNECT} define #{domain_file_name}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -35,7 +35,7 @@ module CloudInfrastructure
 
 
    # Starts a domain on a physical machine.
-   def self.start_domain(pm_user, pm, vm_name)
+   def start_domain(pm_user, pm, vm_name)
 
       command = "#{VIRSH_CONNECT} start #{vm_name}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -45,7 +45,7 @@ module CloudInfrastructure
 
 
    # Saves the virtual machine's domain name in a file.
-   def self.save_domain_name(pm_user, pm, vm_name)
+   def save_domain_name(pm_user, pm, vm_name)
 
       command = "echo #{vm_name} >> #{DOMAINS_FILE}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -55,7 +55,7 @@ module CloudInfrastructure
 
 
    # Shuts down a domain.
-   def self.shutdown_domain(domain, pm_user, pm)
+   def shutdown_domain(domain, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} shutdown #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -65,7 +65,7 @@ module CloudInfrastructure
 
 
    # Undefines a domain.
-   def self.undefine_domains(domain, pm_user, pm)
+   def undefine_domains(domain, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} undefine #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)

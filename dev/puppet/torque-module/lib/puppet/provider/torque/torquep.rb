@@ -24,6 +24,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
    # Makes sure the cloud is running.
    def start
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Starting cloud %s" % [resource[:name]]
       
       # Check existence
@@ -32,7 +34,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          
          # Check pool of physical machines
          puts "Checking pool of physical machines..."
-         pm_up, pm_down = check_pool()
+         pm_up, pm_down = cloud.check_pool()
          unless pm_down.empty?
             puts "Some physical machines are down"
             pm_down.each do |pm|
@@ -54,15 +56,16 @@ Puppet::Type.type(:torque).provide(:torquep) do
             puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
-            if leader?()
-               leader_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
-                            method(:torque_monitor))
+            if cloud.leader?()
+               cloud.leader_start("torque", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up, method(:torque_monitor))
             else
-               common_start()
+               cloud.common_start()
             end
          else
             puts "#{MY_IP} is not part of the cloud"
-            not_cloud_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+            cloud.not_cloud_start("torque", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up)
          end
          
       else
@@ -71,8 +74,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
          puts "Cloud already started"
 
          # Check if you are the leader
-         if leader?()
-            leader_monitoring(method(:torque_monitor))
+         if cloud.leader?()
+            cloud.leader_monitoring(method(:torque_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -84,6 +87,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
    # Makes sure the cloud is not running.
    def stop
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Stopping cloud %s" % [resource[:name]]
 
       if !exists?
@@ -105,13 +110,13 @@ Puppet::Type.type(:torque).provide(:torquep) do
          torque_cloud_stop(vm_ip_roles)
          
          # Shutdown and undefine all virtual machines explicitly created for this cloud
-         shutdown_vms()
+         cloud.shutdown_vms()
          
          # Stop cron jobs on all machines
-         stop_cron_jobs("torque")      # TODO Check order
+         cloud.stop_cron_jobs("torque")      # TODO Check order
          
          # Delete files
-         delete_files()
+         cloud.delete_files()
          
          # Note: As all the files deleted so far are located in the /tmp directory
          # only the machines that are still alive need to delete these files.
