@@ -62,7 +62,7 @@ class CloudLeader
          id = file.read().chomp().to_i
          file.close
       else
-         id = get_id()
+         id = @id
       end
       return id
 

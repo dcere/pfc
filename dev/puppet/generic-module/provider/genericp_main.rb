@@ -116,7 +116,7 @@ def common_start()
       # See if some other machine is leader
       exists_leader = false
       ids.each do |id|
-         if id < my_id
+         if id < cloud_leader.id
             exists_leader = true 
             break
          end
@@ -124,7 +124,7 @@ def common_start()
       
       # If there is no leader, we will be the new leader
       if !exists_leader
-         mcc.new_leader(my_id.to_s())
+         mcc.new_leader(cloud_leader.id.to_s())
          puts "...#{MY_IP} will be leader"
          
          # Create your ssh key
