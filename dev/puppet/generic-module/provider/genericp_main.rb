@@ -91,13 +91,13 @@ def common_start()
    # We are not the leader or we have not received our ID yet
    puts "#{MY_IP} is not the leader"
    
-   my_id = CloudLeader.get_id()
+   cloud_leader = CloudLeader.new()
    
-   if my_id == -1
+   if cloud_leader.id == -1
       
       # If we have not received our ID, let's assume we will be the leader
-      CloudLeader.set_id(0)
-      CloudLeader.set_leader(0)
+      cloud_leader.set_id(0)
+      cloud_leader.set_leader(0)
       
       puts "#{MY_IP} will be the leader"
       
@@ -245,12 +245,22 @@ def shutdown_vms()
       
          # Stop nodes
          puts "Shutting down domains"
-         shutdown_domains(defined_domains, pm_user, pm)
+         defined_domains.each_line do |domain|
+            domain.chomp!
+            unless shutdown_domain(domain)
+               err "#{domain} impossible to shut down"
+            end
+         end
          
          # Undefine local domains
          puts "Undefining domains"
          defined_domains.rewind
-         undefine_domains(defined_domains, pm_user, pm)
+         defined_domains.each_line do |domain|
+            domain.chomp!
+            unless undefine_domain(domain)
+               err "#{domain} impossible to undefine"
+            end
+         end
          
          # Delete the defined domains file on the physical machine
          puts "Deleting defined domains file"
@@ -357,10 +367,9 @@ end
 # Checks if this node is the leader
 def leader?()
 
-   my_id = CloudLeader.get_id()
-   leader = CloudLeader.get_leader()
+   cloud_leader = CloudLeader.new()
  
-   return my_id == leader && my_id != -1
+   return cloud_leader.leader?
 
 end
 
@@ -418,14 +427,16 @@ def monitor_vm(vm, ip_roles, monitor_function)
    success = CloudLeader.vm_check_id(user, vm)
    unless success
    
+      cloud_leader = CloudLeader.new()
+
       # Set their ID (based on the last ID we defined)
-      id = CloudLeader.get_last_id()
+      id = cloud_leader.last_id
       id += 1
       CloudLeader.vm_set_id(user, vm, id)
-      CloudLeader.set_last_id(id)
+      cloud_leader.set_last_id(id)
       
       # Set the leader's ID
-      leader = CloudLeader.get_leader()
+      leader = cloud_leader.leader
       CloudLeader.vm_set_leader(user, vm, leader)
       
       # Send the last ID to all nodes
@@ -470,17 +481,8 @@ def copy_cloud_files(ips, cloud_type)
             err "Impossible to copy #{file} to #{vm}"
          end
          
-         # Cloud description (IPs YAML file) TODO Check how to do this
-         #out, success = CloudSSH.copy_remote(resource[:ip_file], vm, resource[:ip_file])
-         #unless success
-         #   err "Impossible to copy #{resource[:ip_file]} to #{vm}"
-         #end
-         
-         # Cloud roles (Image disks YAML file)
-         #out, success = CloudSSH.copy_remote(resource[:img_file], vm, resource[:img_file])
-         #unless success
-         #   err "Impossible to copy #{resource[:img_file]} to #{vm}"
-         #end
+         #TODO Use a user-provided function to copy important files to all nodes?
+
       end
    end
    
@@ -506,40 +508,4 @@ def auto_manage(cloud_type)
       err "Impossible to find cron file at #{path}"
    end
    
-end
-
-
-# Shuts down libvirt domains.
-def shutdown_domains(defined_domains, pm_user, pm)
-
-   defined_domains.each_line do |domain|
-      domain.chomp!
-      command = "#{VIRSH_CONNECT} shutdown #{domain}"
-      out, success = CloudSSH.execute_remote(command, pm_user, pm)
-      if success
-         debug "[DBG] #{domain} was shutdown"
-      else
-         debug "[DBG] #{domain} impossible to shutdown"
-         err "#{domain} impossible to shutdown"
-      end
-   end
-
-end
-
-
-# Undefines libvirt domains.
-def undefine_domains(defined_domains, pm_user, pm)
-
-   defined_domains.each_line do |domain|
-      domain.chomp!
-      command = "#{VIRSH_CONNECT} undefine #{domain}"
-      out, success = CloudSSH.execute_remote(command, pm_user, pm)
-      if success
-         debug "[DBG] #{domain} was undefined"
-      else
-         debug "[DBG] #{domain} impossible to undefine"
-         err "#{domain} impossible to undefine"
-      end
-   end
-
 end
