@@ -54,7 +54,7 @@ def start_vm(vm, ip_roles, img_roles, pm_up)
       # Delete the local copy
       File.delete(domain_file_src)
    else
-      err   "#{vm_name} impossible to copy domain definition file"
+      err "#{vm_name} impossible to copy domain definition file"
    end
    
    # Define the domain in the physical machine
@@ -195,6 +195,17 @@ def save_domain_name(pm_user, pm, vm_name)
    
 end
 
+
+################################################################################
+
+# Checks if a machine is alive
+def alive?(ip)
+
+   ping = "ping -q -c 1 -w 4"
+   result = `#{ping} #{ip}`
+   return $?.exitstatus == 0
+
+end
 
 # Gets all the roles a node has.
 def get_vm_roles(roles, vm)

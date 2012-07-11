@@ -25,8 +25,7 @@ def leader_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up,
    
    puts "Checking whether virtual machines are alive..."
    vm_ips.each do |vm|
-      result = `#{PING} #{vm}`
-      if $?.exitstatus == 0
+      if alive?(vm)
          debug "[DBG] #{vm} is up"
          alive[vm] = true
       else
@@ -148,8 +147,7 @@ def not_cloud_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up)
    alive = false
    vm_leader = ""
    vm_ips.each do |vm|
-      result = `#{PING} #{vm}`
-      if $?.exitstatus == 0
+      if alive?(vm)
          puts "#{vm} is up"
          alive = true
          vm_leader = vm
@@ -329,8 +327,7 @@ def check_pool()
    machines_down = []
    machines = resource[:pool]
    machines.each do |machine|
-      result = `#{PING} #{machine}`
-      if $?.exitstatus == 0
+      if alive?(machine)
          debug "[DBG] #{machine} (PM) is up"
          machines_up << machine
       else
