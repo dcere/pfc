@@ -140,6 +140,7 @@ def appscale_write_yaml_file(hash, path)
    # Write to file
    file = File.open(path, 'w')
    file.write(hash_yaml)
+   file.close
 
 end
 
