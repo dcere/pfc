@@ -6,7 +6,7 @@
 # one implements them in their own way. Thus, the headers cannot be modified.
 
 # Starts an AppScale cloud formed by <vm_ips> performing <vm_ip_roles>
-def start_cloud(vm_ips, vm_ip_roles)
+def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
    if (resource[:app_email] == nil) || (resource[:app_password] == nil)
@@ -19,7 +19,7 @@ def start_cloud(vm_ips, vm_ip_roles)
    puts  "Starting an appscale cloud"
    
    # Start appscale cloud
-   return appscale_cloud_start(vm_ips, vm_ip_roles,
+   return appscale_cloud_start(resource, vm_ips, vm_ip_roles,
                                resource[:app_email], resource[:app_password],
                                resource[:root_password])
 
@@ -27,7 +27,7 @@ end
 
 
 # Obtains vm data from manifest parameters.
-def obtain_vm_data()
+def obtain_vm_data(resource)
 
 #   if resource[:controller] != nil && resource[:servers] != nil
 #

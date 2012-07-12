@@ -1,5 +1,5 @@
 # Starts an AppScale cloud.
-def appscale_cloud_start(app_ips, app_roles,
+def appscale_cloud_start(resource, app_ips, app_roles,
                          app_email=nil, app_password=nil, root_password=nil)
 
    require 'expect'
@@ -25,7 +25,7 @@ def appscale_cloud_start(app_ips, app_roles,
 
    # Add key pairs
    puts "About to add key pairs"
-   debug "[DBG] ips.yaml file: #{ips_yaml}"
+   #debug "[DBG] ips.yaml file: #{ips_yaml}"
    result = `#{script_path}/#{script_keys} #{ips_yaml} #{root_password}`
    if $?.exitstatus == 0
       puts "Key pairs added"
@@ -70,7 +70,7 @@ def appscale_cloud_start(app_ips, app_roles,
       roles.each do |role_array|
          role = role_array[0]
          puts "Calling appscale_monitor on #{vm} as #{role}"
-         appscale_monitor(vm, role)
+         appscale_monitor(resource, vm, role)
       end
    end
 
@@ -80,7 +80,7 @@ end
 
 
 # Stops an AppScale cloud.
-def appscale_cloud_stop(vm)
+def appscale_cloud_stop(resource, vm)
    
    user = resource[:vm_user]
    
@@ -92,7 +92,7 @@ end
 
 
 # Monitors a virtual machine belonging to an AppScale cloud.
-def appscale_monitor(vm, role)
+def appscale_monitor(resource, vm, role)
 
    command = "ps aux"
    user = resource[:vm_user]
