@@ -45,7 +45,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          puts "Obtaining the virtual machines' IPs..."
          #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:appscale_yaml_ips),
          #                                                   method(:appscale_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(resource)
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -102,7 +102,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          puts "It is an appscale cloud"
          
          # Stop cloud infrastructure
-         appscale_cloud_stop(resource, MY_IP)    # TODO What if we run stop on a different machine than start?
+         appscale_cloud_stop(cloud.resource, MY_IP)    # TODO What if we run stop on a different machine than start?
          
          # Shutdown and undefine all virtual machines explicitly created for this cloud
          cloud.shutdown_vms()

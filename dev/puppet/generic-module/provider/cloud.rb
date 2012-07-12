@@ -1,5 +1,7 @@
 class Cloud
 
+   attr_reader :resource
+
    def initialize(infrastructure, leader, resource, error_function)
 
       @infrastructure = infrastructure
