@@ -6,7 +6,7 @@
 # one implements them in their own way. Thus, the headers cannot be modified.
 
 # Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
-def start_cloud(vm_ips, vm_ip_roles)
+def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
    puts  "Starting a web cloud"
@@ -21,7 +21,7 @@ end
 
 
 # Obtains vm data from manifest parameters.
-def obtain_vm_data()
+def obtain_vm_data(resource)
 
    puts "Obtaining virtual machines' data"
    return obtain_web_data(resource[:balancer], resource[:server],

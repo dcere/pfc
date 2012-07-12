@@ -1,5 +1,5 @@
 # Starts a web cloud.
-def web_cloud_start(web_roles)
+def web_cloud_start(resource, web_roles)
 
    balancers = web_roles[:balancer]
    servers   = web_roles[:server]
@@ -10,20 +10,20 @@ def web_cloud_start(web_roles)
    # Start load balancers => Start nginx
    puts "Starting nginx on load balancers"
    balancers.each do |vm|
-      start_balancer(vm)
+      start_balancer(resource, vm)
    end
    
    # Start web servers => Start sinatra application
    puts "Starting ruby web3 on web servers"
    servers.each do |vm|
-      start_server(vm)
+      start_server(resource, vm)
    end
    
    # Database servers start at boot time, but check whether they have started
    # and if they have not, start them
    puts "Starting mysql on database servers"
    databases.each do |vm|
-      start_database(vm)
+      start_database(resource, vm)
    end
    
    
@@ -31,17 +31,17 @@ def web_cloud_start(web_roles)
    
    # Load balancers
    balancers.each do |vm|
-      start_monitor_balancer(vm)
+      start_monitor_balancer(resource, vm)
    end
    
    # Web servers
    servers.each do |vm|
-      start_monitor_server(vm)
+      start_monitor_server(resource, vm)
    end
    
    # Database servers
    databases.each do |vm|
-      start_monitor_database(vm)
+      start_monitor_database(resource, vm)
    end
    
    return true
@@ -54,7 +54,7 @@ end
 ################################################################################
 
 # Starts a load balancer.
-def start_balancer(vm)
+def start_balancer(resource, vm)
    
    command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
    user = resource[:vm_user]
@@ -76,7 +76,7 @@ end
 
 
 # Starts a web server.
-def start_server(vm)
+def start_server(resource, vm)
    
    # The ruby-web3 file should have been already copied at this point. It should
    # have been copied when installing the web server.
@@ -100,7 +100,7 @@ end
 
 
 # Starts a database server.
-def start_database(vm)
+def start_database(resource, vm)
    
    check_command = "ps aux | grep -v grep | grep mysql"
    command = "/usr/bin/service mysql start"
@@ -133,13 +133,13 @@ end
 ################################################################################
 
 # Monitors a virtual machine belonging to a web cloud.
-def web_monitor(vm, role)
+def web_monitor(resource, vm, role)
 
    if role == :balancer
       puts "[Web monitor] Monitoring load balancer"
       
       # Run puppet
-      unless start_monitor_balancer(vm)
+      unless start_monitor_balancer(resource, vm)
          puts "[Web monitor] Impossible to monitor load balancer on #{vm}"
       end
       puts "[Web monitor] Monitored load balancer"
@@ -148,7 +148,7 @@ def web_monitor(vm, role)
       puts "[Web monitor] Monitoring web server"
       
       # Run puppet
-      unless start_monitor_server(vm)
+      unless start_monitor_server(resource, vm)
          puts "[Web monitor] Impossible to monitor web server on #{vm}"
       end
       
@@ -166,7 +166,7 @@ def web_monitor(vm, role)
          
          # Try to start monitoring again
          puts "[Web monitor] Starting monitoring database on #{vm}"
-         if start_monitor_database(vm)
+         if start_monitor_database(resource, vm)
             puts "[Web monitor] Successfully started to monitor database on #{vm}"
          else
             err "[Web monitor] Impossible to monitor database on #{vm}"
@@ -182,7 +182,7 @@ end
 
 
 # Starts monitoring on load balancer.
-def start_monitor_balancer(vm)
+def start_monitor_balancer(resource, vm)
 
    # Copy the puppet manifest
    path = "/etc/puppet/modules/web/files/web-manifests/balancer.pp"
@@ -209,7 +209,7 @@ end
 
 
 # Starts monitoring on web server.
-def start_monitor_server(vm)
+def start_monitor_server(resource, vm)
 
    # Copy the puppet manifests: general, start and stop
    path = "/etc/puppet/modules/web/files/web-manifests/server.pp"
@@ -257,7 +257,7 @@ end
 
 
 # Starts monitoring on database.
-def start_monitor_database(vm)
+def start_monitor_database(resource, vm)
 
    user = resource[:vm_user]
 
@@ -293,7 +293,7 @@ end
 ################################################################################
 
 # Stops a web cloud.
-def web_cloud_stop(web_roles)
+def web_cloud_stop(resource, web_roles)
 
    balancers = web_roles[:balancer]
    servers   = web_roles[:server]
@@ -304,26 +304,26 @@ def web_cloud_stop(web_roles)
    # Stop load balancers => Stop nginx
    puts "Stopping nginx on load balancers"
    balancers.each do |vm|
-      stop_balancer(vm)
+      stop_balancer(resource, vm)
    end
    
    # Stop web servers => Stop sinatra application
    puts "Stopping ruby web3 on web servers"
    servers.each do |vm|
-      stop_server(vm)
+      stop_server(resource, vm)
    end
    
    # Stop database servers => Stop mysql
    puts "Stopping mysql on database servers"
    databases.each do |vm|
-      stop_database(vm)
+      stop_database(resource, vm)
    end
 
 end
 
 
 # Stops a load balancer.
-def stop_balancer(vm)
+def stop_balancer(resource, vm)
 
    # It is being monitored explicitly with puppet, so we do not have to stop
    # monitoring explicitly, we just have to stop it
@@ -340,7 +340,7 @@ end
 
 
 # Stops a web server.
-def stop_server(vm)
+def stop_server(resource, vm)
 
    # It is being monitored explicitly with puppet, so we do not have to stop
    # monitoring explicitly, we just have to stop it
@@ -357,7 +357,7 @@ end
 
 
 # Stops a database server.
-def stop_database(vm)
+def stop_database(resource, vm)
 
    user = resource[:vm_user]
 
