@@ -46,7 +46,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          puts "Obtaining the virtual machines' IPs..."
          #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
          #                                                   method(:torque_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(resource)
          
          
          # Check whether you are one of the virtual machines
@@ -106,8 +106,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
          # Stop cloud infrastructure
          #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
          #                                                   method(:torque_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-         torque_cloud_stop(vm_ip_roles)
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(resource)
+         torque_cloud_stop(resource, vm_ip_roles)
          
          # Shutdown and undefine all virtual machines explicitly created for this cloud
          cloud.shutdown_vms()

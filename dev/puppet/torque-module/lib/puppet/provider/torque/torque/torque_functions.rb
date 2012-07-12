@@ -1,5 +1,5 @@
 # Starts a torque cloud.
-def torque_cloud_start(torque_roles)
+def torque_cloud_start(resource, torque_roles)
 
    head    = torque_roles[:head]
    compute = torque_roles[:compute]
@@ -7,18 +7,18 @@ def torque_cloud_start(torque_roles)
    # Start services
    
    # Start head node
-   start_head(head)
+   start_head(resource, head)
    
    # Start compute nodes
    compute.each do |vm|
-      start_compute(vm, head)
+      start_compute(resource, vm, head)
    end
    
    
    # Start monitoring
-   torque_monitor(head, :head)
+   torque_monitor(resource, head, :head)
    compute.each do |vm|
-      torque_monitor(vm, :compute)
+      torque_monitor(resource, vm, :compute)
    end
    
    return true
@@ -31,7 +31,7 @@ end
 ################################################################################
 
 # Starts a head node.
-def start_head(head)
+def start_head(resource, head)
    
    user = resource[:vm_user]
    puts "Starting trqauthd on head node"
@@ -74,7 +74,7 @@ end
 
 
 # Starts a compute node.
-def start_compute(compute, head)
+def start_compute(resource, compute, head)
 
    user = resource[:vm_user]
    puts "Starting pbs_mom on compute nodes"
@@ -89,7 +89,7 @@ def start_compute(compute, head)
       end
       
       # Add the node to the compute node list on head
-      add_compute_node(compute, head)
+      add_compute_node(resource, compute, head)
    end
 
 end
@@ -100,16 +100,16 @@ end
 ################################################################################
 
 # Monitors a virtual machine belonging to a torque cloud.
-def torque_monitor(vm, role)
+def torque_monitor(resource, vm, role)
 
    if role == :head
       puts "[Torque monitor] Monitoring head"
-      monitor_head(vm)
+      monitor_head(resource, vm)
       puts "[Torque monitor] Monitored head"
 
    elsif role == :compute
       puts "[Torque monitor] Monitoring compute"
-      monitor_compute(vm)
+      monitor_compute(resource, vm)
       puts "[Torque monitor] Monitored compute"
 
    else
@@ -120,7 +120,7 @@ end
 
 
 # Monitors a head node.
-def monitor_head(vm)
+def monitor_head(resource, vm)
 
    user = resource[:vm_user]
 
@@ -136,7 +136,7 @@ def monitor_head(vm)
       
       # Try to start monitoring again
       puts "[Torque monitor] Starting monitoring head on #{vm}"
-      if start_monitor_head(vm)
+      if start_monitor_head(resource, vm)
          puts "[Torque monitor] Successfully started to monitor head on #{vm}"
       else
          err "[Torque monitor] Impossible to monitor head on #{vm}"
@@ -147,7 +147,7 @@ end
 
 
 # Monitors a compute node.
-def monitor_compute(vm)
+def monitor_compute(resource, vm)
 
    user = resource[:vm_user]
 
@@ -175,7 +175,7 @@ def monitor_compute(vm)
       puts "[Torque monitor] #{hostname} (#{vm}) already in head's list node"
    else
       puts "[Torque monitor] Adding #{hostname} to the list of compute nodes"
-      add_compute_node(vm, head)
+      add_compute_node(resource, vm, head)
    end
 
    # Start monitoring
@@ -186,7 +186,7 @@ def monitor_compute(vm)
       
       # Try to start monitoring again
       puts "[Torque monitor] Starting monitoring compute on #{vm}"
-      if start_monitor_compute(vm)
+      if start_monitor_compute(resource, vm)
          puts "[Torque monitor] Successfully started to monitor compute on #{vm}"
       else
          err "[Torque monitor] Impossible to monitor compute on #{vm}"
@@ -201,24 +201,24 @@ end
 ################################################################################
 
 # Stops a torque cloud.
-def torque_cloud_stop(torque_roles)
+def torque_cloud_stop(resource, torque_roles)
 
    head    = torque_roles[:head]
    compute = torque_roles[:compute]
    
    # Stop compute nodes
    compute.each do |vm|
-      stop_compute(vm, head)
+      stop_compute(resource, vm, head)
    end
    
    # Stop head node
-   stop_head(head)
+   stop_head(resource, head)
    
 end
 
 
 # Stops a head node.
-def stop_head(head)
+def stop_head(resource, head)
    
    user = resource[:vm_user]
    
@@ -262,7 +262,7 @@ end
 
 
 # Stops a compute node.
-def stop_compute(compute, head)
+def stop_compute(resource, compute, head)
 
    user = resource[:vm_user]
 
@@ -278,7 +278,7 @@ def stop_compute(compute, head)
       end
       
       # Add the node to the compute node list on head
-      del_compute_node(compute, head)
+      del_compute_node(resource, compute, head)
    end
 
 end
@@ -289,7 +289,7 @@ end
 ################################################################################
 
 # Adds a compute node to the list in the head node.
-def add_compute_node(vm, head)
+def add_compute_node(resource, vm, head)
 
    user = resource[:vm_user]
 
@@ -317,7 +317,7 @@ end
 
 
 # Deletes a compute node from the list in the head node.
-def del_compute_node(vm, head)
+def del_compute_node(resource, vm, head)
 
    user = resource[:vm_user]
    
@@ -343,7 +343,7 @@ end
 ################################################################################
 
 # Starts monitoring on head node.
-def start_monitor_head(vm)
+def start_monitor_head(resource, vm)
    
    user = resource[:vm_user]
    god_port = 17165
@@ -408,7 +408,7 @@ end
 
 
 # Starts monitoring on compute node.
-def start_monitor_compute(vm)
+def start_monitor_compute(resource, vm)
    
    user = resource[:vm_user]
    god_port = 17165

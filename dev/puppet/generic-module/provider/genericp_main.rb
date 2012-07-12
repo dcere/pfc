@@ -63,7 +63,7 @@ class Cloud
             copy_cloud_files(vm_ips, cloud_type)      # TODO Move it to monitor and call it each time for one vm?
          
             # Start the cloud
-            if start_cloud(vm_ips, vm_ip_roles)
+            if start_cloud(@resource, vm_ips, vm_ip_roles)
                
                # Make cloud nodes manage themselves
                #auto_manage(cloud_type)     # Only if cloud was started properly FIXME Uncomment after tests
@@ -92,11 +92,11 @@ class Cloud
       # We are not the leader or we have not received our ID yet
       puts "#{MY_IP} is not the leader"
             
-      if @cloud_leader.id == -1
+      if @leader.id == -1
          
          # If we have not received our ID, let's assume we will be the leader
-         @cloud_leader.set_id(0)
-         @cloud_leader.set_leader(0)
+         @leader.set_id(0)
+         @leader.set_leader(0)
          
          puts "#{MY_IP} will be the leader"
          
@@ -115,7 +115,7 @@ class Cloud
          # See if some other machine is leader
          exists_leader = false
          ids.each do |id|
-            if id < @cloud_leader.id
+            if id < @leader.id
                exists_leader = true 
                break
             end
@@ -123,7 +123,7 @@ class Cloud
          
          # If there is no leader, we will be the new leader
          if !exists_leader
-            mcc.new_leader(@cloud_leader.id.to_s())
+            mcc.new_leader(@leader.id.to_s())
             puts "...#{MY_IP} will be leader"
             
             # Create your ssh key
@@ -187,7 +187,7 @@ class Cloud
       
       # Do monitoring
       deads = []
-      vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+      vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(@resource)
       vm_ips.each do |vm|
          puts "Monitoring #{vm}..."
          unless monitor_vm(vm, vm_ip_roles, monitor_function)
@@ -366,7 +366,7 @@ class Cloud
    # Checks if this node is the leader
    def leader?()
     
-      return @cloud_leader.leader?
+      return @leader.leader?
 
    end
 
@@ -425,13 +425,13 @@ class Cloud
       unless success
       
          # Set their ID (based on the last ID we defined)
-         id = @cloud_leader.last_id
+         id = @leader.last_id
          id += 1
          CloudLeader.vm_set_id(user, vm, id)
-         @cloud_leader.set_last_id(id)
+         @leader.set_last_id(id)
          
          # Set the leader's ID
-         leader = @cloud_leader.leader
+         leader = @leader.leader
          CloudLeader.vm_set_leader(user, vm, leader)
          
          # Send the last ID to all nodes
@@ -450,7 +450,7 @@ class Cloud
       print "#{vm} will perform the roles: "
       p vm_roles
       vm_roles.each do |role|
-         monitor_function.call(vm, role)
+         monitor_function.call(@resource, vm, role)
       end
       
       return true
