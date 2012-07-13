@@ -12,7 +12,7 @@ Las herramientas de gestión de configuración tienen como objetivo llevar a un 
 
 %Puppet, al igual que otras herramientas de configuración, trata de que los nodos converjan hacia un estado concreto, pero no garantiza que esto ocurra en una única ejecución. Es posible que sean necesarias varias ejecuciones de Puppet, aun cuando todo va bien, para alcanzar el estado deseado. Aunque esto pueda contrastar con la ejecución habitual de los programas, no es tan excepcional: si tenemos que poner en marcha dos servicios, de los cuales uno de ellos depende del otro, hasta que el primero no esté funcionando no podrá hacerlo el segundo. Una sola ejecución de Puppet no valdría para poner ambos servicios en marcha, sino que harían falta dos iteraciones como mínimo.
 
-Puppet es una herramienta de gestión de configuración basada en un lenguaje declarativo. A través de este lenguaje se modelan los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). 
+Puppet \cite{puppetlabs} es una herramienta de gestión de configuración basada en un lenguaje declarativo. A través de este lenguaje se modelan los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). 
 
 La agrupación de uno o más recursos en un fichero de texto da lugar a un manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Un usuario normal de Puppet creará manifiestos en los que especifique los recursos y su estado. Por ejemplo, para crear un fichero un usuario escribirá en un manifiesto algo similar a lo siguiente:
 
@@ -47,7 +47,7 @@ Además de permitir la creación de tipos y proveedores para los usuarios más a
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Análisis de las infraestructuras de ejecución de trabajos distribuidos}
 
-En esta sección se analizarán en profundidad las dos infraestructuras de ejecución de trabajos distribuidos usadas en este proyecto: AppScale y Torque
+En esta sección se analizarán en profundidad las dos infraestructuras de ejecución de trabajos distribuidos usadas en este proyecto: AppScale y TORQUE
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,7 +60,6 @@ AppScale trata de imitar de la manera más fiel los servicios que ofrece el App 
 
 \begin{figure} [!htbp]
   \centering
-%  \includegraphics[width=0.8\textwidth]{imagenes/AppScale_Stack.png}
   \includegraphics[width=13.5cm]{imagenes/AppScale_Stack.png}
   \caption{Tecnologías usadas por AppScale.}
 \label{figure:tecnologias-appscale}
@@ -69,30 +68,30 @@ AppScale trata de imitar de la manera más fiel los servicios que ofrece el App 
 Para permitir el alojamiento de aplicaciones web y la ejecución de trabajos una compleja infraestructura debe ponerse en marcha. Los distintos roles que un nodo puede desempeñar en una infraestructura de este tipo son los siguientes:
 
 \begin{description}
-\item[\texttt{Shadow}]: Comprueba el estado en el que se encuentran el resto de nodos y se asegura de que están ejecutando los servicios que deben.
-\item[\texttt{Load balancer}]: Servicio web que lleva a los usuarios a las aplicaciones. Posee también una página en la que informa del estado de todas las máquinas desplegadas.
-\item[\texttt{AppEngine}]: Versión modificada de los SDKs de Google App Engine. Además de alojar las aplicaciones web añaden la capacidad de almacenar y recuperar datos de bases de datos que soporten la API de Google Datastore.
+\item[\texttt{Shadow}]: Comprueba el estado en el que se encuentran el resto de nodos.
+\item[\texttt{Load balancer}]: Servicio web que lleva a los usuarios a las aplicaciones.
+\item[\texttt{AppEngine}]: Aloja las aplicaciones web de los usuarios.
 \item[\texttt{Database}]: Ejecuta los servicios necesarios para alojar a la base de datos elegida.
-\item[\texttt{Login}]: La máquina principal que lleva a los usuarios a las aplicaciones App Engine. Difiere del Load Balancer en que esta es la única máquina desde la que se pueden hacer funciones administrativas. Puede haber muchas máquinas que hagan la función de Load Balancer pero sólo habrá una que haga función de Login.
+\item[\texttt{Login}]: Máquina desde la que se pueden hacer funciones administrativas.
 \item[\texttt{Memcache}]: Proporciona soporte para almacenamiento en caché para las aplicaciones App Engine.
 \item[\texttt{Zookeeper}]: Aloja los metadatos necesarios para hacer transacciones en las bases de datos.
-\item[\texttt{Open}]: No ejecuta nada por defecto, pero está disponible por si acaso. Estas máquinas son las utilizadas para ejecutar trabajos MPI.
+\item[\texttt{Open}]: No ejecuta nada por defecto, pero está disponible en caso de que sea necesario.
 \end{description}
 
-Como muchos de estos roles suele desempeñarlos una máquina, se han creado unos roles agregados para facilitar el despliegue de la infraestructura:
+Como muchos de estos roles suele desempeñarlos una máquina, se han creado unos roles agregados para facilitar el despliegue de la infraestructura. El rol \texttt{Controller} está compuesto por los roles Shadow, Load Balancer, Database, Login y Zookeeper; el rol \texttt{Servers} agrupa a los roles AppEngine, Database y Load Balancer; el rol \texttt{Master} está formado por los roles Shadow, Load Balancer y Zookeeper. Una especificación más detallada de los roles puede encontrarse en el [apéndice X].
 
-\begin{description}
-\item[\texttt{Controller}]: Shadow, Load Balancer, Database, Login y Zookeeper.
-\item[\texttt{Servers}]: App Engine, Database y Load Balancer.
-\item[\texttt{Master}]: Shadow, Load Balancer y Zookeeper.
-\end{description}
+AppScale contempla la posibilidad de dos tipos de despliegue: por defecto y personalizado. En el despliegue por defecto un nodo sólo puede ser o bien \texttt{Controller} o bien \texttt{Servers}. En el despliegue personalizado el usuario es libre de especificar los roles de manera más precisa. \\
 
-No todos estos roles serán usados a la vez al hacer un despliegue de AppScale. AppScale contempla la posibilidad de dos tipos de despliegue: por defecto y personalizado. En el despliegue por defecto un nodo sólo puede ser o bien \texttt{Controller} o bien \texttt{Server}. En el despliegue personalizado el usuario es libre de especificar los roles de un nodo como más le convenga. \\
-
-Una vez puesta en marcha la infraestructura de AppScale, servirá tanto para alojar las aplicaciones web que el usuario despliegue como para ejecutar trabajos. Para desplegar las aplicaciones web hay que hacer uso de las AppScale Tools, un conjunto de herramientas que permiten, entre otras cosas, iniciar y terminar instancias, desplegar aplicaciones y eliminar aplicaciones. Para ejecutar trabajos hay que servirse de la API de Neptune, que no es tan sencilla. En general esto se consigue mediante tres pasos: en el primero se le indica el código fuente que se quiere subir a la infraestructura; en el segundo se le da la orden de ejecutar el trabajo; en el tercero se le piden los resultados de la ejecución. Cada uno de estos pasos debe indicarse, mediante un lenguaje específico de dominio, en un fichero que luego se interpretará con el programa neptune. En el caso de un trabajo MPI, podemos definir, además del código a ejecutar, el número de máquinas sobre las que ejecutar el código y el número de procesos que se usarán para el trabajo.
+Una vez puesta en marcha la infraestructura de AppScale, servirá tanto para alojar las aplicaciones web que el usuario despliegue como para ejecutar trabajos. Para desplegar las aplicaciones web hay que hacer uso de las AppScale Tools, un conjunto de herramientas que permiten, entre otras cosas, iniciar y terminar instancias, desplegar aplicaciones y eliminar aplicaciones. Para ejecutar trabajos hay que servirse de la API de Neptune, que no es tan sencilla. En general esto se consigue mediante tres pasos: en el primero se le indica el código fuente que se quiere subir a la infraestructura; en el segundo se le da la orden de ejecutar el trabajo; en el tercero se le piden los resultados de la ejecución. Cada uno de estos pasos debe indicarse, mediante un lenguaje específico de dominio, en un fichero que luego se interpretará con el programa Neptune. En el caso de un trabajo MPI, podemos definir, además del código a ejecutar, el número de máquinas sobre las que ejecutar el código y el número de procesos que se usarán para el trabajo.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Análisis de la infraestructura Torque}
+\subsection{Análisis de la infraestructura TORQUE}
 
-La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido ha sido Torque. Torque es una de las infraestructuras clásicas en lo que a ejecución de trabajos se refiere. Una infraestructura de este tipo está compuesta de un nodo maestro y tantos nodos de computación como se desee. Una vez puesta en marcha la infraestructura, los usuarios que tengan los permisos correspondientes pueden mandar sus trabajos al nodo maestro. El nodo maestro, valiéndose de un planificador (en su versión más simple es una cola FIFO), decidirá a cuál de los nodos de computación le enviará el trabajo. El nodo de computación que reciba el trabajo será el encargado de ejecutarlo y de enviar los resultados de vuelta al nodo maestro una vez terminada la ejecución.
+La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido ha sido TORQUE, una de las infraestructuras clásicas en lo que a ejecución de trabajos se refiere. TORQUE permite a los usuarios la ejecución de trabajos \emph{batch} sobre un conjunto de nodos. Además de los nodos de computación necesarios para ejecutar los trabajos, una infraestructura de este tipo estará compuesta de un nodo maestro, que es el encargado de planificar la ejecución de los trabajos y de la gestión de los nodos de computación. \\
+
+Una vez que la infraestructura está en funcionamiento los usuarios pueden mandar sus trabajos al nodo maestro. Éste, valiéndose de un planificador (en su versión más simple es una cola FIFO), decidirá a cuál de los nodos de computación le enviará el trabajo. El nodo de computación que reciba el trabajo será el encargado de ejecutarlo y de enviar los resultados de vuelta al nodo maestro una vez terminada la ejecución. \\
+
+%Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores como Maui Cluster Scheduler o Moab Workload Manager para mejorar tanto la planificación de trabajos como la administración del \emph{cluster}.
+
+Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores tanto comerciales como \emph{open source} para mejorar la planificación de trabajos y la administración de los nodos del \emph{cluster}.
