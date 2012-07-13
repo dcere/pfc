@@ -234,20 +234,40 @@ def start_monitor_server(resource, vm)
    end
    
    # Monitor web servers with puppet: installation files and required gems
-   command = "puppet apply /tmp/server.pp"
-   user = resource[:vm_user]
-   out, success = CloudSSH.execute_remote(command, user, vm)
+   # command = "puppet apply /tmp/server.pp"
+   # user = resource[:vm_user]
+   # out, success = CloudSSH.execute_remote(command, user, vm)
+   # unless success
+   #    err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
+   #    return false
+   # end
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/server.pp"
+   cron_out = "/root/server.out"
+   cron_err = "/root/server.err"
+   cron_line = cron_time + " " + cron_command + " > " + cron_out + " 2> " + cron_err
+   out, success = CloudCron.add_line(cron_line, user, vm)
    unless success
-      err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
+      err "[Web monitor] Impossible to put server.pp in crontab in #{vm}"
       return false
    end
-   
+
    # Monitor web servers with puppet: web server is up and running
-   command = "puppet apply /tmp/server-start.pp"
-   user = resource[:vm_user]
-   out, success = CloudSSH.execute_remote(command, user, vm)
+   # command = "puppet apply /tmp/server-start.pp"
+   # user = resource[:vm_user]
+   # out, success = CloudSSH.execute_remote(command, user, vm)
+   # unless success
+   #    err "[Web monitor] Impossible to run puppet (server-start.pp) in #{vm}"
+   #    return false
+   # end
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/server-start.pp"
+   cron_out = "/root/server-start.out"
+   cron_err = "/root/server-start.err"
+   cron_line = cron_time + " " + cron_command + " > " + cron_out + " 2> " + cron_err
+   out, success = CloudCron.add_line(cron_line, user, vm)
    unless success
-      err "[Web monitor] Impossible to run puppet (server-start.pp) in #{vm}"
+      err "[Web monitor] Impossible to put server-start.pp in crontab in #{vm}"
       return false
    end
    
@@ -347,7 +367,7 @@ def stop_server(resource, vm)
    
    command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
    user = resource[:vm_user]
-   out, success = CloudSSH.execute_remote(command, user,vm)
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to stop web server in #{vm}"
       return false
