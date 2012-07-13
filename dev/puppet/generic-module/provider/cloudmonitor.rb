@@ -8,10 +8,10 @@ module CloudMonitor
 
       result = `#{PING} #{vm}`
       if $?.exitstatus == 0
-         puts "[CloudMonitor]: #{vm} is up"
+         puts "[CloudMonitor] #{vm} is up"
          return true
       else
-         puts "[CloudMonitor]: #{vm} is down"
+         puts "[CloudMonitor] #{vm} is down"
          return false
       end
       
@@ -28,7 +28,7 @@ module CloudMonitor
       command = "cat #{client_file} > /dev/null 2> /dev/null"
       out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
-         puts "[CloudMonitor]: #{client_file} does not exist on #{user}@#{vm}"
+         puts "[CloudMonitor] #{client_file} does not exist on #{user}@#{vm}"
          installed = false
       end
 
@@ -37,7 +37,7 @@ module CloudMonitor
       command = "cat #{server_file} > /dev/null 2> /dev/null"
       out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
-         puts "[CloudMonitor]: #{server_file} does not exist on #{user}@#{vm}"
+         puts "[CloudMonitor] #{server_file} does not exist on #{user}@#{vm}"
          installed = false
       end
       
@@ -56,14 +56,14 @@ module CloudMonitor
          command = "/usr/bin/service mcollective start"
          out, success = CloudSSH.execute_remote(command, user, vm)
          unless success
-            puts "[CloudMonitor]: Impossible to start mcollective on #{user}@#{vm}"
+            puts "[CloudMonitor] Impossible to start mcollective on #{user}@#{vm}"
             return false
          else
-            puts "[CloudMonitor]: MCollective is running now on #{vm}"
+            puts "[CloudMonitor] MCollective is running now on #{vm}"
             return true
          end
       else
-         puts "[CloudMonitor]: MCollective is running on #{vm}"
+         puts "[CloudMonitor] MCollective is running on #{vm}"
          return true
       end
       
