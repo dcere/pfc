@@ -241,13 +241,13 @@ def start_monitor_server(resource, vm)
    #    err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
    #    return false
    # end
+   cloud_cron = CloudCron.new()
    cron_time = "*/1 * * * *"
    cron_command = "puppet apply /tmp/server.pp"
    cron_out = "/root/server.out"
    cron_err = "/root/server.err"
-   cron_line = cron_time + " " + cron_command + " > " + cron_out + " 2> " + cron_err
-   out, success = CloudCron.add_line(cron_line, user, vm)
-   unless success
+   cloud_cron.create_command(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(user, vm)
       err "[Web monitor] Impossible to put server.pp in crontab in #{vm}"
       return false
    end
@@ -264,9 +264,8 @@ def start_monitor_server(resource, vm)
    cron_command = "puppet apply /tmp/server-start.pp"
    cron_out = "/root/server-start.out"
    cron_err = "/root/server-start.err"
-   cron_line = cron_time + " " + cron_command + " > " + cron_out + " 2> " + cron_err
-   out, success = CloudCron.add_line(cron_line, user, vm)
-   unless success
+   cloud_cron.create_command(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(user, vm)
       err "[Web monitor] Impossible to put server-start.pp in crontab in #{vm}"
       return false
    end
