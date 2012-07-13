@@ -294,7 +294,7 @@ class Cloud
 
       mcc = MCollectiveCronClient.new("cronos")
       string = "init-#{cloud_type}"
-      mcc.delete_line(CRON_FILE, string)
+      mcc.delete_line(CloudCron::CRON_FILE, string)
 
    end
 
@@ -499,7 +499,7 @@ class Cloud
          
          # Add the 'puppet apply manifest.pp' line to the crontab file
          mcc = MCollectiveCronClient.new("cronos")
-         mcc.add_line(CRON_FILE, line)
+         mcc.add_line(CloudCron::CRON_FILE, line)
          mcc.disconnect
       else
          @err.call "Impossible to find cron file at #{path}"
