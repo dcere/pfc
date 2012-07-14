@@ -1,0 +1,67 @@
+\chapter{Puppet}
+\label{puppet-language}
+
+Puppet es una herramienta de gestión de configuración basada en un lenguaje declarativo. Este lenguaje declarativo permite expresar de una manera clara la configuración deseada en un sistema. Para expresar dicha configuración un usuario indicará en un fichero, llamado manifiesto, cuál es el estado que deben alcanzar los recursos de ese sistema. Si, por ejemplo, un usario quisiera especificar cuál debe ser el contenido de un fichero, podría utilizar algo similar a lo siguiente:
+
+\begin{lstlisting}
+file {'testfile':
+  path    => '/tmp/testfile',
+  ensure  => present,
+  mode    => 0640,
+  content => "I'm a test file.",
+}
+\end{lstlisting}
+
+Entre los recursos de Puppet se encuentran, además del fichero, otros que pueden ser familiares, como usuario, grupo, paquete, servicio... Por ejemplo, un recurso paquete puede definirse de una forma similar a:
+
+\begin{lstlisting}
+package {'vim':
+  ensure  => present,
+}
+\end{lstlisting}
+
+Además de la especificación de recursos, Puppet permite la agrupación de varios recursos en una entidad de nivel superior. A esta entidad en la terminología de Puppet se le denomina clase \footnote[1]{Aunque el nombre sea el mismo este concepto no es idéntico al usado en la programación orientada a objetos. En Puppet una clase debe verse como una colección de recursos.} y resulta útil cuando sobre un nodo se quieren aplicar varios recursos, por ejemplo un usuario y el grupo de este ususario:
+
+\begin{lstlisting}
+class usergroup {
+
+  user { 'david':
+    ensure => present,
+    comment => "My user",
+    gid => "david",
+    shell => "/bin/bash",
+    require => Group["david"],
+  }
+
+  group { 'david':
+    ensure => present,
+  }
+
+}
+\end{lstlisting}
+
+Asimismo el lenguaje declarativo de Puppet presenta elementos comunes a otros lenguajes de programación, como las variables y las estructuras de control, para mejorar la lógica y la flexibilidad del lenguaje. Estos conceptos pueden verse aplicados en el siguiente manifiesto en el que las variables \texttt{\$operatingsystem} y \texttt{\$puppetserver} estarían predefinidas:
+
+\begin{lstlisting}
+class sudo {
+
+  package { sudo:
+    ensure => present,
+  }
+  
+  if $operatingsystem == "Ubuntu" {
+      package { "sudo-ldap":
+      ensure => present,
+      require => Package["sudo"],
+    }
+  }
+  
+  file { "/etc/sudoers":
+    owner => "root",
+    group => "root",
+    mode => 0440,
+    source => "puppet://$puppetserver/modules/sudo/etc/sudoers",
+    require => Package["sudo"],
+  }
+}
+\end{lstlisting}
