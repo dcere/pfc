@@ -76,7 +76,7 @@ Dentro de las funciones \texttt{start} y \texttt{stop} se puede hacer uso de las
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ejemplos de diseño e implementación}
 
-En esta sección se verá cómo aplicar los pasos anteriores en ejemplos prácticos de arquitecturas distribuidas. Veremos como se aplica a AppScale, a Torque y a una infraestructura web de servicios en tres niveles.
+En esta sección se verá cómo aplicar los pasos anteriores en ejemplos prácticos de arquitecturas distribuidas. Veremos como se aplica a AppScale, a TORQUE y a una infraestructura web de servicios en tres niveles.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Diseño e implementación de un recurso distribuido para una infraestructura AppScale}
@@ -159,11 +159,11 @@ Hay multitud de despliegues posibles combinando estos roles, pero será de espec
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Diseño e implementación de un recurso distribuido para una infraestructura Torque}
+\subsection{Diseño e implementación de un recurso distribuido para una infraestructura TORQUE}
 
 [Cambiará mucho]
 
-Una infraestructura Torque está formada por un nodo maestro y un conjunto de nodos de computación (Figura \ref{figure:arquitectura-torque}). El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta.
+Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de nodos de computación (Figura \ref{figure:arquitectura-torque}). El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta.
 
 \begin{figure} [!htbp]
   \centering
@@ -174,7 +174,7 @@ Una infraestructura Torque está formada por un nodo maestro y un conjunto de no
 
 %\subsection{Manifiesto de recurso distribuido}
 
-La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale, sólo que aquí no aparecen los parámetros de administración que aparecían en aquél, ya que Torque no requiere su uso. Un ejemplo para la puesta en marcha de una infraestructura Torque sería similar a éste:
+La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale, sólo que aquí no aparecen los parámetros de administración que aparecían en aquél, ya que TORQUE no requiere su uso. Un ejemplo para la puesta en marcha de una infraestructura TORQUE sería similar a éste:
 
 \begin{lstlisting}
 torque {'mycloud':
@@ -199,14 +199,14 @@ torque {'mycloud':
 
 %\subsection{Fichero de roles}
 
-%El contenido del fichero de roles sí que será más sencillo que en el caso de AppScale, ya que en Torque tenemos únicamente los roles de nodo maestro y nodo de computación. La especificación completa de la sintaxis es la siguiente:
+%El contenido del fichero de roles sí que será más sencillo que en el caso de AppScale, ya que en TORQUE tenemos únicamente los roles de nodo maestro y nodo de computación. La especificación completa de la sintaxis es la siguiente:
 
 %\begin{description}
 %\item[\texttt{head}]: La máquina que desempeñará el rol de nodo maestro.
 %\item[\texttt{compute}]: La lista de máquinas que desempeñarán el rol de nodos de computación.
 %\end{description}
 
-%Un fichero de especificación de roles para una infraestructura Torque tendría un contenido similar a éste:
+%Un fichero de especificación de roles para una infraestructura TORQUE tendría un contenido similar a éste:
 %\begin{yamlcode}
 %--- 
 %:head: 155.210.155.73
@@ -230,14 +230,14 @@ Una típica arquitectura de servicios web consta de al menos tres niveles: balan
 \label{figure:arquitectura-web}
 \end{figure}
 
-Para demostrar la validez del modelo desarrollado se verá como, además de sobre las infraestructuras AppScale y Torque, también se puede aplicar dicho modelo sobre una infraestructura que no tiene nada que ver con la ejecución de trabajos: una infraestructura de servicios web. En el ejemplo se ha validado una infraestructura que consta de un balanceador de carga, dos servidores web y un servidor de bases de datos (Figura \ref{figure:arquitectura-web}).
+Para demostrar la validez del modelo desarrollado se verá como, además de sobre las infraestructuras AppScale y TORQUE, también se puede aplicar dicho modelo sobre una infraestructura que no tiene nada que ver con la ejecución de trabajos: una infraestructura de servicios web. En el ejemplo se ha validado una infraestructura que consta de un balanceador de carga, dos servidores web y un servidor de bases de datos (Figura \ref{figure:arquitectura-web}).
 
 %%% Revisar
 %%% Como balanceador de carga se ha usado nginx y como servidor de base de datos se ha usado MySQL. La creación de la página web se ha hecho usando el framework Sinatra sobre el servidor web WEBrick. Todos ellos corren sobre máquinas con sistema operativo Ubuntu.\\
 
 %\subsection{Manifiesto de recurso distribuido}
 
-La sintaxis del manifiesto de puesta en marcha es fundamentalmente similar a la utilizada en el ejemplo de Torque, ya que tampoco en este caso tenemos parámetros de administración de la infraestructura. Así pues, si se quiere poner en marcha una infraestructura web de tres niveles podemos usar un manifiesto similar a éste:
+La sintaxis del manifiesto de puesta en marcha es fundamentalmente similar a la utilizada en el ejemplo de TORQUE, ya que tampoco en este caso tenemos parámetros de administración de la infraestructura. Así pues, si se quiere poner en marcha una infraestructura web de tres niveles podemos usar un manifiesto similar a éste:
 
 \begin{lstlisting}
 web {'mycloud':
