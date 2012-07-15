@@ -40,7 +40,7 @@ Estos parámetros se obtienen mediante la observación de los elementos comunes 
 
 En Puppet, el proveedor es el encargado de llevar al recurso al estado que se le indique en el manifiesto. Típicamente el proveedor posee las funciones necesarias para crear un nuevo recurso y para destruirlo. Para llevar a cabo estas funciones en un recurso de tipo \emph{cloud} el proveedor se apoya en cuatro grupos de funciones: puesta en marcha de un \emph{cloud}, monitorización de un \emph{cloud}, elección de líder y parada de un \emph{cloud}. Las funciones de los tres primeros grupos se usan a la hora de crear un nuevo recurso de tipo \emph{cloud} mientras que las del último grupo se usan a la hora de parar un \emph{cloud} ya existente. \\
 
-Puppet no permite que haya herencia entre tipos o entre proveedores de distintos tipos. Por lo tanto, las funciones anteriormente especificadas no se encuentran dentro de ningún proveedor concreto (no existe, como tal, el proveedor de un recurso cloud genérico), sino que se presentan como una clase Ruby que los distintos proveedores de recursos sistema distribuido pueden usar para facilitar el desarrollo de los mismos. \\
+Puppet no contempla la herencia entre tipos o entre proveedores de distintos tipos. Por lo tanto, las funciones anteriormente especificadas no se encuentran dentro de ningún proveedor concreto (no existe, como tal, el proveedor de un recurso cloud genérico), sino que se presentan como una clase Ruby que los distintos proveedores de recursos sistema distribuido pueden usar para facilitar el desarrollo de los mismos. \\
 
 Las operaciones de puesta en marcha son las encargadas de poner en funcionamiento el \emph{cloud} especificado en el manifiesto. Las más importantes son:
 \begin{itemize}
@@ -68,7 +68,7 @@ Si sólo el nodo líder se encarga de comprobar el estado global del \emph{cloud
 \begin{itemize}
 \item Lectura y escritura de identificador: Funciones de lectura y escritura del identificador del nodo actual.
 \item Lectura y escritura de identificador de líder: Funciones de lectura y escritura del identificador del nodo líder.
-\item Escritura de identificador e identificador de líder remoto: Funciones de escritura del identificador y del identifiacor del líder en un nodo distinto del actual.
+\item Escritura de identificador e identificador de líder remoto: Funciones de escritura del identificador y del identificador del líder en un nodo distinto del actual.
 \end{itemize}
 
 Por último, es posible que en algún momento se desee parar por completo el funcionamiento del \emph{cloud}. Las operaciones de parada de \emph{cloud} más importantes son:
@@ -78,6 +78,7 @@ Por último, es posible que en algún momento se desee parar por completo el fun
 \end{itemize}
 
 Aunque no se proporcionan como funciones, hay que tener en cuenta que cada tipo de cloud puede tener sus propias funciones de parada. Estas funciones de parada deben realizarse antes de apagar las máquinas virtuales. De forma general, los pasos que hay que hacer a la hora de parar un cloud son:
+[Revisar este orden]
 \begin{enumerate}
 \item Comprobación de la existencia del \emph{cloud}: si existe se procederá a su parada.
 \item Operaciones de parada particulares a cada tipo de \emph{cloud}.
@@ -116,20 +117,20 @@ Aunque no se proporcionan como funciones, hay que tener en cuenta que cada tipo 
 %\item Borrado de ficheros: \texttt{delete\_files}.
 %\end{itemize}
 
-La mejor manera de crear un tipo y un proveedor en Puppet es hacerlo usando un módulo. Los módulos proporcionan una estructura predefinida en la que colocar el código de manera estándar. Si se crea el tipo \texttt{tipo} y el proveedor \texttt{proveedor} la estructura sería similar a la siguiente:
+La mejor manera de crear un tipo y un proveedor en Puppet es hacerlo usando un módulo. Los módulos deben organizarse siguiendo una estructura predefinida. En esta estrucutra hay que colocar el código del tipo y del proveedor en la parte correspondiente. Si se crea el tipo \texttt{tipo} y el proveedor \texttt{proveedor} dentro del módulo \texttt{modulo} la estructura sería similar a la siguiente:
 
 \begin{lstlisting}
-module/
-module/manifests
-module/manifests/init.pp
-module/files
-module/templates
-module/lib/facter
-module/lib/puppet/type
-module/lib/puppet/type/tipo.rb
-module/lib/puppet/provider
-module/lib/puppet/provider/tipo/proveedor.rb
-module/lib/puppet/parser/functions
+modulo/
+modulo/manifests
+modulo/manifests/init.pp
+modulo/files
+modulo/templates
+modulo/lib/facter
+modulo/lib/puppet/type
+modulo/lib/puppet/type/tipo.rb
+modulo/lib/puppet/provider
+modulo/lib/puppet/provider/tipo/proveedor.rb
+modulo/lib/puppet/parser/functions
 \end{lstlisting}
 
 Al ser el recurso sistema distribuido un recurso genérico, dicha organización es excesiva, puesto que carece de la mayoría de los elementos ahí definidos. Bastará por tanto con la siguiente estructura:
