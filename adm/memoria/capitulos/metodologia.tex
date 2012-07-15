@@ -18,17 +18,18 @@ Una típica arquitectura de servicios web consta de al menos tres niveles: balan
 La infraestructura usada como ejemplo consta de un balanceador de carga, dos servidores web y un servidor de bases de datos (Figura \ref{figure:arquitectura-web}).
 
 
-La creación del tipo \texttt{mitipo} se haría en un fichero \texttt{mitipo.rb} con un contenido similar a éste:
+La creación del tipo \texttt{web} se haría en un fichero \texttt{web.rb} (en el lugar apropiado dentro del correspondiente módulo) con un contenido similar a éste:
 
 \begin{rubycode}
-Puppet::Type.newtype(:mitipo) do
-
-   @doc = "Tipo 'mitipo'."
+Puppet::Type.newtype(:web) do
+   @doc = "Manages web clouds formed by KVM virtual machines."
+   
    
    ensurable do
-      desc "El campo ensure puede tomar uno de los siguientes valores:
-   `running`: El cloud esta en marcha.
-   `stopped`: El cloud esta parado.\n"
+
+      desc "The cloud's ensure field can assume one of the following values:
+   `running`: The cloud is running.
+   `stopped`: The cloud is stopped.\n"
    
       newvalue(:stopped) do
          provider.stop
@@ -40,23 +41,45 @@ Puppet::Type.newtype(:mitipo) do
 
    end
 
-   # Parametros
+
+   # General parameters
    
    newparam(:name) do
-      desc "El nombre del recurso"
+      desc "The cloud name"
       isnamevar
    end
-
-   newparam(:param1) do
-      desc "El parametro 1 es un parametro muy simple"
+   
+   newparam(:vm_domain) do
+      desc "The XML file with the virtual machine domain definition. " +
+           "Libvirt XML format must be used"
    end
    
-   newproperty(:param2, :array_matching => :all) do
-      desc "El parametro 2 es un vector de opciones"
+   newproperty(:pool, :array_matching => :all) do
+      desc "The pool of physical machines"
+   end
+
+   # ...
+
+
+   # Web parameters
+   
+   newproperty(:balancer, :array_matching => :all) do
+      desc "The balancer node's information"
+   end
+   
+   newproperty(:server, :array_matching => :all) do
+      desc "The server nodes' information"
+   end
+   
+   newproperty(:database, :array_matching => :all) do
+      desc "The database node's information"
    end
 
 end
+
 \end{rubycode}
+
+Dentro del tipo web, los parámetros \texttt{name}, \texttt{vm\_domain} y \texttt{pool} se corresponden con los parámetros \texttt{Nombre}, \texttt{Fichero de dominio} y \texttt{Conjunto de máquinas físicas} definidos en la sección \ref{sec:modelado-puppet}. Los parámetros \texttt{balancer}, \texttt{server} y \texttt{database} son los parámetros propios de la arquitectura web.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,27 +88,93 @@ end
 Una vez que se ha definido el tipo del recurso, queda definir el proveedor para ese tipo. En el caso de los recursos distribuidos, y teniendo en cuenta las funciones especificadas en la parte de \texttt{ensurable}, el proveedor deberá contener obligatoriamente las funciones \texttt{start} y \texttt{stop}. Un proveedor simplificado sería similar a éste:
 
 \begin{rubycode}
-Puppet::Type.type(:mitipo).provide(:mitipo_proveedor) do
-   desc "Proveedor para el tipo 'mitipo'."
+Puppet::Type.type(:web).provide(:webp) do
+   desc "Manages web clouds formed by KVM virtual machines"
 
-   ...
+   # Require files
+   # ...
 
-   # Poner el cloud en marcha.
+   # Makes sure the cloud is running.
    def start
-      ...
+   
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
+      puts "Starting cloud %s" % [resource[:name]]
+      
+      # Check existence
+      if !exists?
+         # Cloud does not exist => Startup operations
+         
+         # Check pool of physical machines
+         puts "Checking pool of physical machines..."
+         pm_up, pm_down = cloud.check_pool()
+         unless pm_down.empty?
+            puts "Some physical machines are down"
+            pm_down.each do |pm|
+               puts " - #{pm}"
+            end
+         end
+         
+         # Obtain the virtual machines' IPs
+         puts "Obtaining the virtual machines' IPs..."
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
+         
+         # Check whether you are one of the virtual machines
+         puts "Checking whether this machine is part of the cloud..."
+         part_of_cloud = vm_ips.include?(MY_IP)
+         if part_of_cloud
+            puts "#{MY_IP} is part of the cloud"
+            
+            # Check if you are the leader
+            if cloud.leader?()
+               cloud.leader_start("web", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up, method(:web_monitor))
+            else
+               cloud.common_start()
+            end
+         else
+            puts "#{MY_IP} is not part of the cloud"
+            cloud.not_cloud_start("web", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up)
+         end
+         
+      else
+         
+         # Cloud exists => Monitoring operations
+         puts "Cloud already started"
+         
+         # Check if you are the leader
+         if cloud.leader?()
+            cloud.leader_monitoring(method(:web_monitor))
+         else
+            puts "#{MY_IP} is not the leader"      # Nothing to do
+         end
+      end
+      
    end
 
-   # Parar el cloud.
+
+   # Makes sure the cloud is not running.
    def stop
-      ...
-   end
+
+      # ...
    
-   ...
+   end
+
+
+   def status
+      if File.exists?("/tmp/cloud-#{resource[:name]}")
+         return :running
+      else
+         return :stopped
+      end
+   end
    
 end
 \end{rubycode}
 
-Dentro de las funciones \texttt{start} y \texttt{stop} se puede hacer uso de las funciones especificadas en la sección \ref{sec:modelado-framework}.
+Es especialmente importante dentro de este proveedor la línea 10, ya que es ahí donde creamos un nuevo objeto de la clase \texttt{Cloud} (\ref{sec:modelado-framework}). En la línea 40 puede verse como este objeto se usa para llamar al método \texttt{leader\_start} que realizará las funciones de puesta en marcha como nodo líder del \emph{cloud} (\ref{sec:modelado-proveedor}).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ejemplos de diseño e implementación}
