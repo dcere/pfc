@@ -81,6 +81,19 @@ end
 
 Dentro del tipo web, los parámetros \texttt{name}, \texttt{vm\_domain} y \texttt{pool} se corresponden con los parámetros \texttt{Nombre}, \texttt{Fichero de dominio} y \texttt{Conjunto de máquinas físicas} definidos en la sección \ref{sec:modelado-puppet}. Los parámetros \texttt{balancer}, \texttt{server} y \texttt{database} son los parámetros propios de la arquitectura web.
 
+Una vez que el tipo ya está definido, ya se puede ver cuál será el aspecto de un manifiesto para un recurso de tipo web:
+
+\begin{lstlisting}
+web {'mycloud':
+   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
+   server => ["/etc/puppet/modules/web/files/server-ips.txt",
+              "/etc/puppet/modules/web/files/server-imgs.txt"],
+   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
+   vm_domain => "/etc/puppet/modules/web/files/mycloud-template.xml",
+   pool => ["155.210.155.70"],
+   ensure => running,
+}
+\end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diseño e implementación del proveedor}
@@ -186,51 +199,14 @@ En esta sección se verá cómo aplicar los pasos anteriores en ejemplos prácti
 
 Una infraestructura AppScale puede ser definida de dos maneras: mediante un despliegue por defecto o uno personalizado. En un despliegue por defecto un nodo es el encargado de controlar la infraestructura y el resto de nodos se encargan de hacer el resto del trabajo. En un despliegue personalizado podemos especificar con mayor grado de precisión qué tipo de trabajo debe hacer cada nodo. Por ejemplo, podemos indicar qué nodos se encargarán de alojar las aplicaciones de los usuarios, qué nodos alojarán la base de datos o qué nodos serán los encargados de ejecutar los trabajos de computación. Para administrar una infraestructura AppScale, sin importar el tipo de despliegue, necesitaremos una cuenta de correo y una contraseña. Este usuario y contraseña son necesarios para poder administrar las aplicaciones alojadas y observar el estado de la infraestructura. \\
 
-%\subsection{Manifiesto de recurso distribuido}
-
-La sintaxis del manifiesto del recurso AppScale no se verá afectada por los dos tipos de despliegue posibles, pero sí que tendrá que reflejar los parámetros necesarios para realizar las tareas de administración de la infraestructura. Éste podría ser un ejemplo de un manifiesto para la puesta en marcha de una infraestructura de tipo AppScale:
-
-\begin{lstlisting}
-appscale {'mycloud':
-   ip_file      => "/etc/puppet/modules/appscale/files/appscale-ip.yaml",
-   img_file     => "/etc/puppet/modules/appscale/files/appscale-img.yaml",
-   domain       => "/etc/puppet/modules/appscale/files/mycloud-template.xml",
-   pool         => ["155.210.155.70"],
-   app_email    => "user@mail.com"
-   app_password => "password"
-   ensure       => running,
-}
-\end{lstlisting}
-
-La parada de una infraestructura AppScale no requiere un manifiesto tan complejo:
-
-\begin{lstlisting}
-appscale {'mycloud':
-   pool   => ["155.210.155.70"],
-   ensure => stopped,
-}
-\end{lstlisting}
-
-%\subsection{Fichero de roles}
-
-El fichero de roles sí que debe reflejar los dos posibles tipos de despliegue. En un despliegue por defecto los posibles roles que puede tomar un nodo son:
+En un despliegue por defecto los posibles roles que puede tomar un nodo son:
 
 \begin{description}
 \item[\texttt{controller}]: La máquina que desempeñará el rol de nodo controlador.
 \item[\texttt{servers}]: La lista de máquinas que desempeñarán el rol de nodos de trabajo.
 \end{description}
 
-Un fichero de roles para este despliegue sería de esta forma:
-
-\begin{yamlcode}
---- 
-:controller: 155.210.155.73
-:servers: 
-- 155.210.155.177
-- 155.210.155.178
-\end{yamlcode}
-
-Por otra parte, los posibles roles que puede desempeñar un nodo en un despliegue personalizado y que resultan interesantes desde nuestro punto de vista son:
+Mientras que los posibles roles que puede desempeñar un nodo en un despliegue personalizado y que resultan interesantes desde nuestro punto de vista son:
 
 \begin{description}
 \item[\texttt{master}]: La máquina que desempeñará el rol de nodo maestro.
@@ -240,6 +216,69 @@ Por otra parte, los posibles roles que puede desempeñar un nodo en un despliegu
 \item[\texttt{open}]: Las máquinas de ejecución de trabajos. También pueden ser usadas como nodos de reserva por si falla algún otro nodo.
 \end{description}
 
+El tipo \texttt{appscale} deberá ser capaz de soportar ambos tipos de despliegue. Además de los parámetros necesarios para los roles de las máquinas, una infraestructura AppScale también requiere una cuenta de correo y una contraseña para el administrador del cloud. Todos los parámetros que debe tener un tipo \texttt{appscale} son:
+
+\begin{rubycode}
+Puppet::Type.newtype(:appscale) do
+   @doc = "Manages AppScale clouds formed by KVM virtual machines."
+   
+   # ...
+
+   # AppScale parameters
+   
+   newproperty(:controller, :array_matching => :all) do
+      desc "The controller node"
+   end
+
+   newproperty(:servers, :array_matching => :all) do
+      desc "The server nodes"
+   end
+
+
+   newproperty(:master, :array_matching => :all) do
+      desc "The master node"
+   end
+
+   newproperty(:appengine, :array_matching => :all) do
+      desc "The appengine nodes"
+   end
+
+   newproperty(:database, :array_matching => :all) do
+      desc "The database nodes"
+   end
+
+   newproperty(:login, :array_matching => :all) do
+      desc "The login node"
+   end
+
+   newproperty(:open, :array_matching => :all) do
+      desc "The open nodes"
+   end
+
+   newproperty(:zookeeper, :array_matching => :all) do
+      desc "The zookeeper nodes"
+   end
+
+   newproperty(:memcache, :array_matching => :all) do
+      desc "The memcache nodes"
+   end
+   
+
+   newparam(:app_email) do
+      desc "AppScale administrator e-mail"
+      defaultto "david@gmail.com"
+   end
+   
+   newparam(:app_password) do
+      desc "AppScale administrator password"
+      defaultto "appscale"
+   end
+
+end
+\end{rubycode}
+
+Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés para nosotros el que permite ejecutar trabajos de computación en AppScale (Figura \ref{figure:arquitectura-appscale}).
+
 \begin{figure} [!htbp]
   \centering
   \includegraphics[width=0.5\textwidth]{figuras/Arquitectura_AppScale.eps}
@@ -247,26 +286,31 @@ Por otra parte, los posibles roles que puede desempeñar un nodo en un despliegu
 \label{figure:arquitectura-appscale}
 \end{figure}
 
-Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés para nosotros el que permite ejecutar trabajos de computación en AppScale (Figura \ref{figure:arquitectura-appscale}). Un despliegue de este tipo podría conseguirse con un fichero similar a éste:
+Para lograr un despliegue de este tipo podría utilizarse un manifiesto similar a éste:
 
-\begin{yamlcode}
----
-:master:    155.210.155.73
-:appengine: 155.210.155.73
-:database:  155.210.155.73
-:login:     155.210.155.73
-:open:
-- 155.210.155.177
-- 155.210.155.178
-\end{yamlcode}
+\begin{lstlisting}
+appscale {'mycloud':
+   master    => ["155.210.155.73",
+                 "/var/tmp/dceresuela/lucid-tor1.img"],
+   appengine => ["155.210.155.73",
+                 "/var/tmp/dceresuela/lucid-tor1.img"],
+   database  => ["155.210.155.73",
+                 "/var/tmp/dceresuela/lucid-tor1.img"],
+   login     => ["155.210.155.73",
+                 "/var/tmp/dceresuela/lucid-tor1.img"],
+   open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
+                 "/etc/puppet/modules/appscale/files/open-imgs.txt"],
+   vm_domain => "/etc/puppet/modules/appscale/files/mycloud-template.xml",
+   pool => ["155.210.155.70"],
+   ensure => running,
+}
+\end{lstlisting}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Diseño e implementación de un recurso distribuido para una infraestructura TORQUE}
 
-[Cambiará mucho]
-
-Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de nodos de computación (Figura \ref{figure:arquitectura-torque}). El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta.
+Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de nodos de computación (Figura \ref{figure:arquitectura-torque}). El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta. \\
 
 \begin{figure} [!htbp]
   \centering
@@ -275,93 +319,49 @@ Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de no
 \label{figure:arquitectura-torque}
 \end{figure}
 
-%\subsection{Manifiesto de recurso distribuido}
+Los nuevos parámetros que aparecen en el tipo \texttt{torque} reflejan esta nueva infraestructura:
 
-La sintaxis del manifiesto distribuido es similar a la usada en el ejemplo de AppScale, sólo que aquí no aparecen los parámetros de administración que aparecían en aquél, ya que TORQUE no requiere su uso. Un ejemplo para la puesta en marcha de una infraestructura TORQUE sería similar a éste:
+\begin{rubycode}
+Puppet::Type.newtype(:torque) do
+   @doc = "Manages Torque clouds formed by KVM virtual machines."
+   
+   # ...
+
+   # Torque parameters
+   newproperty(:head, :array_matching => :all) do
+      desc "The head node's information"
+   end
+   
+   newproperty(:compute, :array_matching => :all) do
+      desc "The compute nodes' information"
+   end
+   
+end
+\end{rubycode}
+
+La sintaxis del manifiesto de puesta en marcha también se modifica para reflejar este cambio. Un ejemplo para la puesta en marcha de una infraestructura TORQUE sería similar a éste:
 
 \begin{lstlisting}
 torque {'mycloud':
-   ip_file  => "/etc/puppet/modules/torque/files/jobs-ip.yaml",
-   img_file => "/etc/puppet/modules/torque/files/jobs-img.yaml",
-   domain   => "/etc/puppet/modules/torque/files/mycloud-template.xml",
-   pool     => ["155.210.155.70"],
-   ensure   => running,
+   head => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
+   compute => ["/etc/puppet/modules/torque/files/compute-ips.txt",
+               "/etc/puppet/modules/torque/files/compute-imgs.txt"],
+   vm_domain => "/etc/puppet/modules/torque/files/mycloud-template.xml",
+   pool => ["155.210.155.70"],
+   ensure => running,
 }
 \end{lstlisting}
 
-En este caso, la parada de la infraestructura es algo más compleja que en el ejemplo de AppScale. Un posible manifiesto de parada sería similar a éste:
+Por otro lado, un posible manifiesto de parada sería similar a éste:
 
 \begin{lstlisting}
 torque {'mycloud':
-   ip_file  => "/etc/puppet/modules/torque/files/jobs-ip.yaml",
-   img_file => "/etc/puppet/modules/torque/files/jobs-img.yaml",
-   pool     => ["155.210.155.70"],
-   ensure   => stopped,
-}
-\end{lstlisting}
-
-%\subsection{Fichero de roles}
-
-%El contenido del fichero de roles sí que será más sencillo que en el caso de AppScale, ya que en TORQUE tenemos únicamente los roles de nodo maestro y nodo de computación. La especificación completa de la sintaxis es la siguiente:
-
-%\begin{description}
-%\item[\texttt{head}]: La máquina que desempeñará el rol de nodo maestro.
-%\item[\texttt{compute}]: La lista de máquinas que desempeñarán el rol de nodos de computación.
-%\end{description}
-
-%Un fichero de especificación de roles para una infraestructura TORQUE tendría un contenido similar a éste:
-%\begin{yamlcode}
-%--- 
-%:head: 155.210.155.73
-%:compute:
-%- 155.210.155.177
-%- 155.210.155.178
-%\end{yamlcode}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Diseño e implementación de un recurso distribuido para una infraestructura web de tres niveles}
-
-[Cambiará mucho]
-
-%\subsection{Manifiesto de recurso distribuido}
-
-La sintaxis del manifiesto de puesta en marcha es fundamentalmente similar a la utilizada en el ejemplo de TORQUE, ya que tampoco en este caso tenemos parámetros de administración de la infraestructura. Así pues, si se quiere poner en marcha una infraestructura web de tres niveles podemos usar un manifiesto similar a éste:
-
-\begin{lstlisting}
-web {'mycloud':
-   ip_file  => "/etc/puppet/modules/web/files/web-ip.yaml",
-   img_file => "/etc/puppet/modules/web/files/web-img.yaml",
-   domain   => "/etc/puppet/modules/web/files/mycloud-template.xml",
-   pool     => ["155.210.155.70"],
-   ensure   => running,
-}
-\end{lstlisting}
-
-En este caso, el manifiesto de parada vuelve a ser sencillo. Un posible ejemplo es éste:
-
-\begin{lstlisting}
-web {'mycloud':
-   pool   => ["155.210.155.70"],
+   head => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
+   compute => ["/etc/puppet/modules/torque/files/compute-ips.txt",
+               "/etc/puppet/modules/torque/files/compute-imgs.txt"],
+   pool => ["155.210.155.70"],
    ensure => stopped,
 }
 \end{lstlisting}
 
-%\subsection{Fichero de roles}
 
-%El contenido del fichero de especificación de roles sí que poseerá valores distintos a los que tenía cualquiera de los dos ejemplos anteriores ya que estamos describiendo una infraestructura distinta. Los roles que pueden desempeñar los nodos dentro de una infraestructura web son:
-%\begin{description}
-%\item[\texttt{balancer}]: La máquina que desempeñará el rol de balanceador de carga.
-%\item[\texttt{server}]: La lista de máquinas que desempeñarán el rol de servidor web.
-%\item[\texttt{database}]: La máquina que desempeñará el rol de servidor de base de datos.
-%\end{description}
-
-%Un ejemplo completo del fichero de especificación de roles tendría un contenido similar a éste:
-%\begin{yamlcode}
-%--- 
-%:balancer: 155.210.155.175
-%:server:
-%- 155.210.155.73
-%- 155.210.155.178
-%:database: 155.210.155.177
-%\end{yamlcode}
