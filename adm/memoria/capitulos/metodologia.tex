@@ -18,7 +18,7 @@ Una típica arquitectura de servicios web consta de al menos tres niveles: balan
 La infraestructura usada como ejemplo consta de un balanceador de carga, dos servidores web y un servidor de bases de datos (Figura \ref{figure:arquitectura-web}).
 
 
-La creación del tipo \texttt{web} se haría en un fichero \texttt{web.rb} (en el lugar apropiado dentro del correspondiente módulo) con un contenido similar a éste:
+La creación del tipo \texttt{web} se hace en el fichero \texttt{web.rb} (en el lugar apropiado dentro del correspondiente módulo) con un contenido similar a éste:
 
 \begin{rubycode}
 Puppet::Type.newtype(:web) do
@@ -79,7 +79,7 @@ end
 
 \end{rubycode}
 
-Dentro del tipo web, los parámetros \texttt{name}, \texttt{vm\_domain} y \texttt{pool} se corresponden con los parámetros \texttt{Nombre}, \texttt{Fichero de dominio} y \texttt{Conjunto de máquinas físicas} definidos en la sección \ref{sec:modelado-puppet}. Los parámetros \texttt{balancer}, \texttt{server} y \texttt{database} son los parámetros propios de la arquitectura web.
+Dentro del tipo \texttt{web}, los parámetros \texttt{name}, \texttt{vm\_domain} y \texttt{pool} se corresponden con los parámetros \texttt{Nombre}, \texttt{Fichero de dominio} y \texttt{Conjunto de máquinas físicas} definidos en la sección \ref{sec:modelado-puppet}. Los parámetros \texttt{balancer}, \texttt{server} y \texttt{database} son los parámetros propios de la arquitectura web.
 
 Una vez que el tipo ya está definido, ya se puede ver cuál será el aspecto de un manifiesto para un recurso de tipo web:
 
@@ -192,7 +192,7 @@ Es especialmente importante dentro de este proveedor la línea 10, ya que es ah�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ejemplos de diseño e implementación}
 
-En esta sección se verá cómo aplicar los pasos anteriores en ejemplos prácticos de arquitecturas distribuidas. Veremos como se aplica a AppScale, a TORQUE y a una infraestructura web de servicios en tres niveles.
+En esta sección se verá cómo aplicar los pasos anteriores en las arquitecturas distribuidas AppScale y TORQUE.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Diseño e implementación de un recurso distribuido para una infraestructura AppScale}
@@ -216,7 +216,7 @@ Mientras que los posibles roles que puede desempeñar un nodo en un despliegue p
 \item[\texttt{open}]: Las máquinas de ejecución de trabajos. También pueden ser usadas como nodos de reserva por si falla algún otro nodo.
 \end{description}
 
-El tipo \texttt{appscale} deberá ser capaz de soportar ambos tipos de despliegue. Además de los parámetros necesarios para los roles de las máquinas, una infraestructura AppScale también requiere una cuenta de correo y una contraseña para el administrador del cloud. Todos los parámetros que debe tener un tipo \texttt{appscale} son:
+El tipo \texttt{appscale} deberá ser capaz de soportar ambos tipos de despliegue. Además de los parámetros necesarios para los roles de las máquinas, también debe contar con la cuenta de correo y la contraseña para el administrador del \emph{cloud}. Los parámetros del tipo \texttt{appscale} son:
 
 \begin{rubycode}
 Puppet::Type.newtype(:appscale) do
@@ -277,7 +277,7 @@ Puppet::Type.newtype(:appscale) do
 end
 \end{rubycode}
 
-Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés para nosotros el que permite ejecutar trabajos de computación en AppScale (Figura \ref{figure:arquitectura-appscale}).
+Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés el que permite ejecutar trabajos de computación en AppScale (Figura \ref{figure:arquitectura-appscale}).
 
 \begin{figure} [!htbp]
   \centering

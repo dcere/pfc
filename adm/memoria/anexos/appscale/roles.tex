@@ -1,3 +1,10 @@
+\chapter{AppScale: Roles y despliegues}
+\label{anx:appscale-roles}
+
+A continuación se explica de manera más detallada los distintos roles de la arquitectura AppScale. \\
+
+En primer lugar tenemos los roles simples:
+
 \begin{description}
 \item[\texttt{Shadow}]: Comprueba el estado en el que se encuentran el resto de nodos y se asegura de que están ejecutando los servicios que deben.
 \item[\texttt{Load balancer}]: Servicio web que lleva a los usuarios a las aplicaciones. Posee también una página en la que informa del estado de todas las máquinas desplegadas.
@@ -9,8 +16,12 @@
 \item[\texttt{Open}]: No ejecuta nada por defecto, pero está disponible en caso de que sea necesario. Estas máquinas son las utilizadas para ejecutar trabajos MPI.
 \end{description}
 
+Además de los roles simples también se proporcionan unos roles agregados que agrupan a varios de los roles simples y que facilitan la descripción de la arquitectura:
+
 \begin{description}
 \item[\texttt{Controller}]: Shadow, Load Balancer, Database, Login y Zookeeper.
 \item[\texttt{Servers}]: App Engine, Database y Load Balancer.
 \item[\texttt{Master}]: Shadow, Load Balancer y Zookeeper.
 \end{description}
+
+Estos roles pueden usarse en dos tipos de despliegue: por defecto y personalizado. En un despliegue por defecto únicamente se pueden usar los roles \texttt{Controller} y \texttt{Servers}. En un despliegue personalizado se usan el resto de roles.
