@@ -186,7 +186,7 @@ Puppet::Type.type(:web).provide(:webp) do
 end
 \end{rubycode}
 
-Es especialmente importante dentro de este proveedor la línea 10, ya que es ahí donde creamos un nuevo objeto de la clase \texttt{Cloud} (\ref{sec:modelado-framework}). En la línea 40 puede verse como este objeto se usa para llamar al método \texttt{leader\_start} que realizará las funciones de puesta en marcha como nodo líder del \emph{cloud} (\ref{sec:modelado-proveedor}).
+Son especialmente importantes dentro de este proveedor las líneas 10, 30 y 40. En la línea 10 creamos un nuevo objeto de la clase \texttt{Cloud} (\ref{sec:modelado-framework}). En la línea 30 se llama a la función \texttt{obtain\_vm\_data} para obtener los datos de las máquinas virtuales (\ref{sec:modelado-framework}). En la línea 40 puede verse como el objeto de la clase \texttt{Cloud} se usa para llamar al método \texttt{leader\_start} que realizará las funciones de puesta en marcha como nodo líder del \emph{cloud} (\ref{sec:modelado-proveedor}). Uno de los parámetros de esa llamada es la función \texttt{web\_monitor} que se usará para monitorizar los aspectos particulares del \emph{cloud} web (\ref{sec:modelado-framework}).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
