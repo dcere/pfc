@@ -241,6 +241,7 @@ def start_monitor_server(resource, vm)
    #    err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
    #    return false
    # end
+   user = resource[:vm_user]
    cloud_cron = CloudCron.new()
    cron_time = "*/1 * * * *"
    cron_command = "puppet apply /tmp/server.pp"

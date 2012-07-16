@@ -15,7 +15,7 @@ def start_cloud(resource, vm_ips, vm_ip_roles)
    # so we do not have to distribute them again
    
    # Start web cloud
-   return web_cloud_start(vm_ip_roles)
+   return web_cloud_start(resource, vm_ip_roles)
 
 end
 
