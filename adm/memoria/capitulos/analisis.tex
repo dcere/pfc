@@ -6,15 +6,15 @@
 En este capítulo se realiza un breve análisis de las distintas herramientas e infraestructuras usadas a lo largo del proyecto.
 
 
-\section{Análisis de la herramienta de gestión de configuración}
+\section{Herramienta de gestión de configuración}
 
-Las herramientas de gestión de configuración tienen como objetivo llevar a un nodo a un cierto estado. Normalmente esto suele incluir la especificación de los recursos (ficheros, usuarios, paquetes instalados, etc.) que dicho nodo debería tener. Para cumplir esta misión se apoyan en dos conceptos básicos: convergencia e iteración. Estas herramientas tratan iteración tras iteración de acercar al nodo lo máximo posible al estado deseado. Es posible, por tanto, que el estado final no se alcance en una única ejecución, sino que sean necesarias varias ejecuciones. Aunque esto pueda contrastar con el funcionamiento habitual de los programas (sería sorprendente que sólo se abriera medio editor de texto), no es tan excepcional en este entorno: si tenemos que poner en marcha dos servicios, de los cuales uno de ellos depende del otro, hasta que el primero no esté funcionando no podrá hacerlo el segundo. Una sola ejecución de la herramienta no serviría para poner ambos servicios en marcha, sino que serían necesarias dos iteraciones como mínimo. \\
+Las herramientas de gestión de configuración tienen como objetivo describir y llevar a un sistema informático a un cierto estado. Normalmente esto suele incluir llevar a una serie de recursos (ficheros, usuarios, paquetes instalados, etc.) al estado deseado. Para cumplir esta misión se apoyan en dos conceptos básicos: iteración y convergencia. Estas herramientas tratan iteración tras iteración de acercar al sistema informático lo máximo posible al estado deseado. Es posible, por tanto, que el estado final no se alcance en una única ejecución, sino que sean necesarias varias ejecuciones.
 
-%Puppet, al igual que otras herramientas de configuración, trata de que los nodos converjan hacia un estado concreto, pero no garantiza que esto ocurra en una única ejecución. Es posible que sean necesarias varias ejecuciones de Puppet, aun cuando todo va bien, para alcanzar el estado deseado. Aunque esto pueda contrastar con la ejecución habitual de los programas, no es tan excepcional: si tenemos que poner en marcha dos servicios, de los cuales uno de ellos depende del otro, hasta que el primero no esté funcionando no podrá hacerlo el segundo. Una sola ejecución de Puppet no valdría para poner ambos servicios en marcha, sino que harían falta dos iteraciones como mínimo.
+Aunque esto pueda contrastar con el funcionamiento habitual de los programas (sería sorprendente que sólo se abriera medio editor de texto), no es tan excepcional en este entorno: si tenemos que poner en marcha dos servicios, de los cuales uno de ellos depende del otro, hasta que el primero no esté funcionando no podrá hacerlo el segundo. Una sola ejecución de la herramienta no serviría para poner ambos servicios en marcha, sino que serían necesarias dos iteraciones como mínimo. \\
 
-Puppet \cite{puppetlabs} es una herramienta de gestión de configuración que posee un lenguaje declarativo (ver Anexo \ref{anx:puppet-language}) mediante el cual se especifica la configuración de los sistemas. A través de este lenguaje se modelan los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). 
+Puppet \cite{puppetlabs} es una herramienta de gestión de configuración que posee un lenguaje declarativo (ver Anexo \ref{anx:puppet-language}) mediante el cual se especifica la configuración de los sistemas. A través de este lenguaje se especifica de forma declarativa los distintos elementos de configuración, que en la terminología de Puppet se llaman recursos. Mediante el uso de este lenguaje se indica en qué estado se quiere mantener el recurso y será tarea de Puppet el encargarse de que así sea. Cada recurso está compuesto de un tipo (el tipo de recurso que estamos gestionando), un título (el nombre del recurso) y una serie de atributos (los valores que especifican el estado del recurso). 
 
-La agrupación de uno o más recursos en un fichero de texto da lugar a un manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Un usuario normal de Puppet creará manifiestos en los que especifique los recursos y su estado. Por ejemplo, para crear un fichero un usuario escribirá en un manifiesto algo similar a lo siguiente:
+A la especificación de forma declarativa de los recursos y del estado que estos deben alcanzar se le denomina manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Un administrador de un sistema informático que use Puppet creará manifiestos en los que especifique los recursos y su estado. Por ejemplo, para crear un fichero el administrador escribirá en un manifiesto algo similar a lo siguiente:
 
 \begin{lstlisting}
 file {'testfile':
@@ -24,8 +24,6 @@ file {'testfile':
   content => "I'm a test file.",
 }
 \end{lstlisting}
-
-Los usuarios más avanzados de Puppet pueden crear sus propios tipos de recursos. Para que Puppet sepa cómo tratar con ese recurso deberá crear un proveedor. Esencialmente, el tipo se encarga de definir qué se puede hacer con un recurso y el proveedor se encarga de definir cómo hacerlo.
 
 Cuando se tiene listo el manifiesto a Puppet se le da la orden de aplicarlo. Los pasos que sigue para aplicarlo son:
 
@@ -39,13 +37,11 @@ Cuando se tiene listo el manifiesto a Puppet se le da la orden de aplicarlo. Los
 
 Normalmente Puppet se ejecuta de manera periódica mediante un planificador de trabajos (por ejemplo, cron). Cada cierto tiempo contactará con el nodo que debe ser administrado y volverá a repetir los pasos anteriores. Es decir, Puppet está continuamente intentando llevar al nodo al estado especificado en el manifiesto. Si entre una ejecución y otra algo cambiara en el nodo, Puppet se daría cuenta e intentaría llevar al nodo al estado que le corresponde. \\
 
-Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde el que se aplica el manifiesto, a lo largo de este proyecto las ejecuciones de Puppet siempre serán sobre el nodo que aplica el manifiesto, siempre serán locales. \\
-
-Además de permitir la creación de tipos y proveedores para los usuarios más avanzados, Puppet tiene otros puntos de extensión. Uno de ellos es la API \emph{Faces} \cite{puppet-faces}, que permite crear subcomandos y acciones dentro de Puppet. Después de analizar esta API a fondo se vio que las opciones que ofrecía no permitían la integración del recurso distribuido dentro del modelo de Puppet. Como lo que interesaba era crear una abstracción del recurso distribuido esta opción se acabó descartando en favor de la creación de un tipo y un proveedor, que soluciona el problema de una manera más elegante.
+Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde el que se aplica el manifiesto, a lo largo de este proyecto las ejecuciones de Puppet siempre serán sobre el nodo que aplica el manifiesto, siempre serán locales.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Análisis de las infraestructuras de ejecución de trabajos distribuidos}
+\section{Infraestructuras de ejecución de trabajos distribuidos}
 
 En esta sección se analizarán en profundidad las dos infraestructuras de ejecución de trabajos distribuidos usadas en este proyecto: AppScale y TORQUE
 
