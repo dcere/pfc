@@ -1,1 +1,1 @@
-gedit ./capitulos/{resumen,introduccion,analisis,modelado,metodologia,validacion,conclusiones}.tex &
+gedit ./capitulos/{resumen,introduccion,analisis,modelado,metodologia,disenyo,validacion,conclusiones}.tex &

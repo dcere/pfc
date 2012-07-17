@@ -4,7 +4,7 @@
 
 \section{Especificación del tipo}
 
-El primer paso que hay que hacer a la hora de crear un nuevo recurso en Puppet es definir el tipo de recurso. Para ello en un fichero habrá que especificar el nombre del nuevo tipo y los argumentos que éste tiene. Durante esta sección y la siguiente se usará el ejemplo de la arquitectura web de tres niveles. El primer motivo es que puede resultar más conocida que las infraestructuras de ejecución de trabajos. El segundo motivo es para demostrar que el enfoque que se ha tomado es lo suficientemente general y válido también para infraestructuras que nada tienen que ver con la ejecución de trabajos. \\
+El primer paso que hay que hacer a la hora de crear un nuevo recurso en Puppet es definir el tipo de recurso. Para ello en un fichero habrá que especificar el nombre del nuevo tipo y los argumentos que éste tiene. Durante esta sección y la siguiente se usará el ejemplo de la arquitectura web de tres niveles ya que es la más conocida y sirve para demostrar que el enfoque que se ha tomado es lo suficientemente general y válido también para infraestructuras que nada tienen que ver con la ejecución de trabajos. \\
 
 Una típica arquitectura de servicios web consta de al menos tres niveles: balanceo de carga, servidores web y base de datos. Cada uno de estos niveles está compuesto por al menos un elemento clave: el balanceador de carga, el servidor web y el servidor de base de datos, respectivamente. El balanceador de carga es el punto de entrada al sistema y el que se encarga, como su nombre indica, de repartir las peticiones de los clientes a los distintos servidores web. Los servidores web se encargan de servir las páginas web a los clientes y para ello, dependiendo de las peticiones que hagan los clientes, podrán leer o almacenar información en la base de datos. Para manipular dicha información los servidores web tendrán que comunicarse con el servidor de base de datos, que es el que hará efectiva la lectura y modificación de la información.\\
 
@@ -18,7 +18,7 @@ Una típica arquitectura de servicios web consta de al menos tres niveles: balan
 La infraestructura usada como ejemplo consta de un balanceador de carga, dos servidores web y un servidor de bases de datos (Figura \ref{figure:arquitectura-web}).
 
 
-La creación del tipo \texttt{web} se hace en el fichero \texttt{web.rb} (en el lugar apropiado dentro del correspondiente módulo) con un contenido similar a éste:
+La creación del tipo \texttt{web} se hace en el fichero \texttt{web.rb}, en el lugar apropiado dentro del correspondiente módulo. En el siguiente fragmento de código se indican los aspectos más importantes (la implementación completa puede encontrarse en el Anexo X):
 
 \begin{rubycode}
 Puppet::Type.newtype(:web) do
@@ -79,7 +79,7 @@ end
 
 \end{rubycode}
 
-Dentro del tipo \texttt{web}, los parámetros \texttt{name}, \texttt{vm\_domain} y \texttt{pool} se corresponden con los parámetros \texttt{Nombre}, \texttt{Fichero de dominio} y \texttt{Conjunto de máquinas físicas} definidos en la sección \ref{sec:modelado-puppet}. Los parámetros \texttt{balancer}, \texttt{server} y \texttt{database} son los parámetros propios de la arquitectura web.
+Dentro del tipo \texttt{web}, los atributos \texttt{name}, \texttt{vm\_domain} y \texttt{pool} se corresponden con los atributos \texttt{Nombre}, \texttt{Fichero de dominio} y \texttt{Conjunto de máquinas físicas} definidos en la sección \ref{sec:modelado-puppet}. Los atributos \texttt{balancer}, \texttt{server} y \texttt{database} son los atributos propios de la arquitectura web.
 
 Una vez que el tipo ya está definido, ya se puede ver cuál será el aspecto de un manifiesto para un recurso de tipo web:
 
@@ -98,7 +98,7 @@ web {'mycloud':
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diseño e implementación del proveedor}
 
-Una vez que se ha definido el tipo del recurso, queda definir el proveedor para ese tipo. En el caso de los recursos distribuidos, y teniendo en cuenta las funciones especificadas en la parte de \texttt{ensurable}, el proveedor deberá contener obligatoriamente las funciones \texttt{start} y \texttt{stop}. Un proveedor simplificado sería similar a éste:
+Una vez que se ha definido el tipo del recurso, queda definir el proveedor que implementa dicho tipo. En el caso de los recursos distribuidos, y teniendo en cuenta las funciones de arranque y parada especificadas en el tipo (en el bloque \texttt{ensurable}, líneas 5 a 19), el proveedor deberá contener obligatoriamente las funciones \texttt{start} y \texttt{stop}. A continuación se presenta un proveedor con los aspectos más importantes (la implementación completa se encuentra en el Anexo X):
 
 \begin{rubycode}
 Puppet::Type.type(:web).provide(:webp) do
@@ -107,7 +107,7 @@ Puppet::Type.type(:web).provide(:webp) do
    # Require files
    # ...
 
-   # Makes sure the cloud is running.
+   # Start function. Makes sure the cloud is running.
    def start
    
       cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
@@ -167,7 +167,7 @@ Puppet::Type.type(:web).provide(:webp) do
    end
 
 
-   # Makes sure the cloud is not running.
+   # Stop function. Makes sure the cloud is not running.
    def stop
 
       # ...
@@ -186,182 +186,8 @@ Puppet::Type.type(:web).provide(:webp) do
 end
 \end{rubycode}
 
-Son especialmente importantes dentro de este proveedor las líneas 10, 30 y 40. En la línea 10 creamos un nuevo objeto de la clase \texttt{Cloud} (\ref{sec:modelado-framework}). En la línea 30 se llama a la función \texttt{obtain\_vm\_data} para obtener los datos de las máquinas virtuales (\ref{sec:modelado-framework}). En la línea 40 puede verse como el objeto de la clase \texttt{Cloud} se usa para llamar al método \texttt{leader\_start} que realizará las funciones de puesta en marcha como nodo líder del \emph{cloud} (\ref{sec:modelado-proveedor}). Uno de los parámetros de esa llamada es la función \texttt{web\_monitor} que se usará para monitorizar los aspectos particulares del \emph{cloud} web (\ref{sec:modelado-framework}).
+Son especialmente importantes dentro de este proveedor las líneas 10, 30 y 40. En la línea 10 creamos un nuevo objeto de la clase \texttt{Cloud} (\ref{sec:modelado-framework}). En la línea 30 se llama a la función \texttt{obtain\_vm\_data} para obtener los datos de las máquinas virtuales (\ref{sec:modelado-framework}). En la línea 40 puede verse como el objeto de la clase \texttt{Cloud} se usa para llamar al método \texttt{leader\_start} que realizará las funciones de puesta en marcha como nodo líder del \emph{cloud} (\ref{sec:modelado-proveedor}). Uno de los argumentos del método en esa llamada es la función \texttt{web\_monitor} que se usará para monitorizar los aspectos particulares del \emph{cloud} web (\ref{sec:modelado-framework}). \\
 
+Merece la pena comentar que tanto el tipo como el proveedor están implementados haciendo uso de la capacidad de metaprogramación que ofrece Ruby. Ambos se pasan como un bloque de código Ruby a una función de Puppet (\texttt{newtype} y \texttt{provide} respectivamente) que se encargará internamente de realizar las operaciones necesarias. Es por este motivo que en el código del tipo y del proveedor aparecen variables (como \texttt{resource} y \texttt{provider}) y funciones (como \texttt{newparam} y \texttt{desc}) que no pertenecen al lenguaje Ruby y no se encuentran \emph{a priori} definidas en ninguna parte. Gracias a la ejecución dinámica de Ruby sabemos que estas variables y funciones estarán definidas en el entorno de Puppet en tiempo de ejecución.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Ejemplos de diseño e implementación}
-
-En esta sección se verá cómo aplicar los pasos anteriores en las arquitecturas distribuidas AppScale y TORQUE.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Diseño e implementación de un recurso distribuido para una infraestructura AppScale}
-
-Una infraestructura AppScale puede ser definida de dos maneras: mediante un despliegue por defecto o uno personalizado. En un despliegue por defecto un nodo es el encargado de controlar la infraestructura y el resto de nodos se encargan de hacer el resto del trabajo. En un despliegue personalizado podemos especificar con mayor grado de precisión qué tipo de trabajo debe hacer cada nodo. Por ejemplo, podemos indicar qué nodos se encargarán de alojar las aplicaciones de los usuarios, qué nodos alojarán la base de datos o qué nodos serán los encargados de ejecutar los trabajos de computación. Para administrar una infraestructura AppScale, sin importar el tipo de despliegue, necesitaremos una cuenta de correo y una contraseña. Este usuario y contraseña son necesarios para poder administrar las aplicaciones alojadas y observar el estado de la infraestructura. \\
-
-En un despliegue por defecto los posibles roles que puede tomar un nodo son:
-
-\begin{description}
-\item[\texttt{controller}]: La máquina que desempeñará el rol de nodo controlador.
-\item[\texttt{servers}]: La lista de máquinas que desempeñarán el rol de nodos de trabajo.
-\end{description}
-
-Mientras que los posibles roles que puede desempeñar un nodo en un despliegue personalizado y que resultan interesantes desde nuestro punto de vista son:
-
-\begin{description}
-\item[\texttt{master}]: La máquina que desempeñará el rol de nodo maestro.
-\item[\texttt{appengine}]: Los servidores para alojar las aplicaciones.
-\item[\texttt{database}]: Las máquinas que contienen la base de datos.
-\item[\texttt{login}]: La máquina encargada de redirigir a los usuarios a sus servidores. Es también la que se le facilita al administrador de la infraestructura para que realice las tareas administrativas.
-\item[\texttt{open}]: Las máquinas de ejecución de trabajos. También pueden ser usadas como nodos de reserva por si falla algún otro nodo.
-\end{description}
-
-El tipo \texttt{appscale} deberá ser capaz de soportar ambos tipos de despliegue. Además de los parámetros necesarios para los roles de las máquinas, también debe contar con la cuenta de correo y la contraseña para el administrador del \emph{cloud}. Los parámetros del tipo \texttt{appscale} son:
-
-\begin{rubycode}
-Puppet::Type.newtype(:appscale) do
-   @doc = "Manages AppScale clouds formed by KVM virtual machines."
-   
-   # ...
-
-   # AppScale parameters
-   
-   newproperty(:controller, :array_matching => :all) do
-      desc "The controller node"
-   end
-
-   newproperty(:servers, :array_matching => :all) do
-      desc "The server nodes"
-   end
-
-
-   newproperty(:master, :array_matching => :all) do
-      desc "The master node"
-   end
-
-   newproperty(:appengine, :array_matching => :all) do
-      desc "The appengine nodes"
-   end
-
-   newproperty(:database, :array_matching => :all) do
-      desc "The database nodes"
-   end
-
-   newproperty(:login, :array_matching => :all) do
-      desc "The login node"
-   end
-
-   newproperty(:open, :array_matching => :all) do
-      desc "The open nodes"
-   end
-
-   newproperty(:zookeeper, :array_matching => :all) do
-      desc "The zookeeper nodes"
-   end
-
-   newproperty(:memcache, :array_matching => :all) do
-      desc "The memcache nodes"
-   end
-   
-
-   newparam(:app_email) do
-      desc "AppScale administrator e-mail"
-      defaultto "david@gmail.com"
-   end
-   
-   newparam(:app_password) do
-      desc "AppScale administrator password"
-      defaultto "appscale"
-   end
-
-end
-\end{rubycode}
-
-Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés el que permite ejecutar trabajos de computación en AppScale (Figura \ref{figure:arquitectura-appscale}).
-
-\begin{figure} [!htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{figuras/Arquitectura_AppScale.eps}
-  \caption{Infraestructura AppScale en despliegue personalizado.}
-\label{figure:arquitectura-appscale}
-\end{figure}
-
-Para lograr un despliegue de este tipo podría utilizarse un manifiesto similar a éste:
-
-\begin{lstlisting}
-appscale {'mycloud':
-   master    => ["155.210.155.73",
-                 "/var/tmp/dceresuela/lucid-tor1.img"],
-   appengine => ["155.210.155.73",
-                 "/var/tmp/dceresuela/lucid-tor1.img"],
-   database  => ["155.210.155.73",
-                 "/var/tmp/dceresuela/lucid-tor1.img"],
-   login     => ["155.210.155.73",
-                 "/var/tmp/dceresuela/lucid-tor1.img"],
-   open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
-                 "/etc/puppet/modules/appscale/files/open-imgs.txt"],
-   vm_domain => "/etc/puppet/modules/appscale/files/mycloud-template.xml",
-   pool => ["155.210.155.70"],
-   ensure => running,
-}
-\end{lstlisting}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Diseño e implementación de un recurso distribuido para una infraestructura TORQUE}
-
-Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de nodos de computación (Figura \ref{figure:arquitectura-torque}). El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta. \\
-
-\begin{figure} [!htbp]
-  \centering
-  \includegraphics[width=13.5cm]{figuras/Arquitectura_Torque.eps}
-  \caption{Infraestructura Torque.}
-\label{figure:arquitectura-torque}
-\end{figure}
-
-Los nuevos parámetros que aparecen en el tipo \texttt{torque} reflejan esta nueva infraestructura:
-
-\begin{rubycode}
-Puppet::Type.newtype(:torque) do
-   @doc = "Manages Torque clouds formed by KVM virtual machines."
-   
-   # ...
-
-   # Torque parameters
-   newproperty(:head, :array_matching => :all) do
-      desc "The head node's information"
-   end
-   
-   newproperty(:compute, :array_matching => :all) do
-      desc "The compute nodes' information"
-   end
-   
-end
-\end{rubycode}
-
-La sintaxis del manifiesto de puesta en marcha también se modifica para reflejar este cambio. Un ejemplo para la puesta en marcha de una infraestructura TORQUE sería similar a éste:
-
-\begin{lstlisting}
-torque {'mycloud':
-   head => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
-   compute => ["/etc/puppet/modules/torque/files/compute-ips.txt",
-               "/etc/puppet/modules/torque/files/compute-imgs.txt"],
-   vm_domain => "/etc/puppet/modules/torque/files/mycloud-template.xml",
-   pool => ["155.210.155.70"],
-   ensure => running,
-}
-\end{lstlisting}
-
-Por otro lado, un posible manifiesto de parada sería similar a éste:
-
-\begin{lstlisting}
-torque {'mycloud':
-   head => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
-   compute => ["/etc/puppet/modules/torque/files/compute-ips.txt",
-               "/etc/puppet/modules/torque/files/compute-imgs.txt"],
-   pool => ["155.210.155.70"],
-   ensure => stopped,
-}
-\end{lstlisting}
-
-
+% [Revisar] ¿Poner anexo con las 'palabras reservadas' de Puppet? ¿Hay alguna lista oficial?
