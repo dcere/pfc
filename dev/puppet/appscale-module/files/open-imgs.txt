@@ -1,0 +1,2 @@
+/var/tmp/dceresuela/lucid-appscale-tr2.img
+/var/tmp/dceresuela/lucid-appscale-tr3.img

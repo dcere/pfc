@@ -29,27 +29,31 @@ end
 # Obtains vm data from manifest parameters.
 def obtain_vm_data(resource)
 
-#   if resource[:controller] != nil && resource[:servers] != nil
-#
-#      return obtain_appscale_data_default(resource[:controller],
-#                                          resource[:servers])
-#
-#   elsif resource[:master] != nil && resource[:appengine] != nil &&
-#         resource[:database] != nil && resource[:login] != nil &&
-#         resource[:open] != nil
-#
-#      return obtain_appscale_data_custom(resource[:master],
-#                                         resource[:appengine],
-#                                         resource[:database],
-#                                         resource[:login],
-#                                         resource[:open],
-#                                         resource[:zookeeper],
-#                                         resource[:memcache])
-#
-#   end
+# TODO Uncomment
 
-   ips, ip_roles = appscale_yaml_ips(resource[:ip_file])
-   img_roles     = appscale_yaml_ips(resource[:img_file])
-   return ips, ip_roles, img_roles
+   # Default deployment
+   if resource[:controller] != nil && resource[:servers] != nil
+
+      return obtain_appscale_data_default(resource[:controller],
+                                          resource[:servers])
+
+   # Custom deployment
+   elsif resource[:master] != nil && resource[:appengine] != nil &&
+         resource[:database] != nil && resource[:login] != nil &&
+         resource[:open] != nil
+
+      return obtain_appscale_data_custom(resource[:master],
+                                         resource[:appengine],
+                                         resource[:database],
+                                         resource[:login],
+                                         resource[:open],
+                                         resource[:zookeeper],
+                                         resource[:memcache])
+
+   end
+
+#   ips, ip_roles = appscale_yaml_ips(resource[:ip_file])
+#   img_roles     = appscale_yaml_ips(resource[:img_file])
+#   return ips, ip_roles, img_roles
    
 end

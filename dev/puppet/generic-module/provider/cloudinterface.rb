@@ -23,6 +23,12 @@ class CloudInterface
       
       # ...
       
+      ips = ["IP_A", "IP_B"]
+      ip_roles  = {:rol_a => "IP_A", :rol_b => "IP_B"}
+      img_roles = {:rol_a => "/path/to/IMG_A", :rol_b => "/path/to/IMG_B"}
+      
+      return ips, ip_roles, img_roles
+      
    end
    
 end
