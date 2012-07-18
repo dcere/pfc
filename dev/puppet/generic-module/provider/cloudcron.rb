@@ -29,7 +29,7 @@ class CloudCron
    def add_line(user, vm)
 
       line = "#{@time} #{@command} > #{@out} 2> #{@err}"
-      #command = "echo \"#{line} >> #{@crontab}\""
+      command = "echo \"#{line}\" >> #{@crontab}"
       out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
          puts "Impossible to add line in cron file #{@crontab} at #{vm}"
