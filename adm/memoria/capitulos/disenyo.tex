@@ -113,8 +113,11 @@ Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de no
 \label{figure:arquitectura-torque}
 \end{figure}
 
+\pagebreak
+
 Los nuevos atributos que aparecen en el tipo \texttt{torque} reflejan esta nueva infraestructura:
 
+%\begin{figure}
 \begin{rubycode}
 Puppet::Type.newtype(:torque) do
    @doc = "Manages Torque clouds formed by KVM virtual machines."
@@ -132,9 +135,11 @@ Puppet::Type.newtype(:torque) do
    
 end
 \end{rubycode}
+%\end{figure}
 
 La sintaxis del manifiesto de puesta en marcha también se modifica para reflejar este cambio. Un ejemplo de un manifiesto para la puesta en marcha de una infraestructura TORQUE sería similar a éste:
 
+%\begin{figure}
 \begin{lstlisting}
 torque {'mycloud':
    head => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
@@ -145,6 +150,7 @@ torque {'mycloud':
    ensure => running,
 }
 \end{lstlisting}
+%\end{figure}
 
 %Por otro lado, un posible manifiesto de parada sería similar a éste:
 
