@@ -2,6 +2,9 @@
 # arguments.
 # All different roles have been obtained from the node_layout file located at
 # appscale-tools/lib/node_layout.rb
+# There will be at most 1 controller, 1 master, and 1 login node.
+# There will be at most N servers, appengine, database, open, zookeeper and
+# memcache nodes.
 
 ################################################################################
 # Default deployment
@@ -46,11 +49,8 @@ def appscale_parse_ips_default(controller, servers)
 
    
    # Get the IPs that are under the "controller" and "servers" attributes
-   ip_roles[:controller] = []
-   ip_roles[:controller] << controller[ips_index].chomp
-   
-   path = servers[ips_index]
-   ip_roles[:servers] = get_from_file(path)
+   ip_roles[:controller] = Array[controller[ips_index].chomp]
+   ip_roles[:servers]    = get_from_file(servers[ips_index])
    
    # Add the IPs to the array
    ips = ips + ip_roles[:controller]
@@ -82,11 +82,8 @@ def appscale_parse_images_default(controller, servers)
    
    # Get the disk images that are under the "controller" and "servers"
    # attributes
-   img_roles[:controller] = []
-   img_roles[:controller] << controller[img_index].chomp
-   
-   path = servers[img_index]
-   img_roles[:servers] = get_from_file(path)
+   img_roles[:controller] = Array[controller[img_index].chomp]
+   img_roles[:servers]    = get_from_file(servers[img_index])
    
    return img_roles
    
@@ -116,8 +113,10 @@ end
 def obtain_appscale_data_custom(master, appengine, database, login, open,
                                 zookeeper, memcache)
 
+   puts "Parsing custom AppScale IPs"
    ips, ip_roles = appscale_parse_ips_custom(master, appengine, database, login,
                       open, zookeeper, memcache)
+   puts "Parsing custom AppScale imgs"
    img_roles     = appscale_parse_images_custom(master, appengine, database,
                       login, open, zookeeper, memcache)
    
@@ -153,22 +152,22 @@ def appscale_parse_ips_custom(master, appengine, database, login, open,
    
    # Get the IPs that are under the "master", "appengine", "database", "login",
    # "open", "zookeeper" and "memcache" attributes
-   ip_roles[:master]    = Array.new(master[ips_index].chomp)
-   ip_roles[:appengine] = get_from_file(appengine[ips_index])
-   ip_roles[:database]  = get_from_file(database[ips_index])
-   ip_roles[:login]     = Array.new(login[ips_index].chomp)
-   ip_roles[:open]      = get_from_file(open[ips_index])
-   ip_roles[:zookeeper] = get_from_file(zookeeper[ips_index])
-   ip_roles[:memcache]  = get_from_file(memcache[ips_index])
+   ip_roles[:master]    = Array[master[ips_index].chomp]      unless master.nil?
+   ip_roles[:appengine] = get_from_file(appengine[ips_index]) unless appengine.nil?
+   ip_roles[:database]  = get_from_file(database[ips_index])  unless database.nil?
+   ip_roles[:login]     = Array[login[ips_index].chomp]       unless login.nil?
+   ip_roles[:open]      = get_from_file(open[ips_index])      unless open.nil?
+   ip_roles[:zookeeper] = get_from_file(zookeeper[ips_index]) unless zookeeper.nil?
+   ip_roles[:memcache]  = get_from_file(memcache[ips_index])  unless memcache.nil?
 
-   # Add the IPs to the array   
-   ips = ips + ip_roles[:master]
-   ips = ips + ip_roles[:appengine]
-   ips = ips + ip_roles[:database]
-   ips = ips + ip_roles[:login]
-   ips = ips + ip_roles[:open]
-   ips = ips + ip_roles[:zookeeper]
-   ips = ips + ip_roles[:memcache]
+   # Add the IPs to the array
+   ips = ips + (ip_roles[:master]    || []) # If it was nil, add the empty array
+   ips = ips + (ip_roles[:appengine] || []) # (add nothing). If it was not nil,
+   ips = ips + (ip_roles[:database]  || []) # add the IP addresses.
+   ips = ips + (ip_roles[:login]     || [])
+   ips = ips + (ip_roles[:open]      || [])
+   ips = ips + (ip_roles[:zookeeper] || [])
+   ips = ips + (ip_roles[:memcache]  || [])
    
    ips = ips.uniq
    
@@ -203,13 +202,13 @@ def appscale_parse_images_custom(master, appengine, database, login, open,
    
    # Get the disk images that are under the "master", "appengine", "database",
    # "login", "open", "zookeeper" and "memcache" attributes
-   img_roles[:master]    = Array.new(master[img_index].chomp)
-   img_roles[:appengine] = get_from_file(appengine[img_index])
-   img_roles[:database]  = get_from_file(database[img_index])
-   img_roles[:login]     = Array.new(login[img_index].chomp)
-   img_roles[:open]      = get_from_file(open[img_index])
-   img_roles[:zookeeper] = get_from_file(zookeeper[img_index])
-   img_roles[:memcache]  = get_from_file(memcache[img_index])
+   img_roles[:master]    = Array[master[img_index].chomp]      unless master.nil?
+   img_roles[:appengine] = get_from_file(appengine[img_index]) unless appengine.nil?
+   img_roles[:database]  = get_from_file(database[img_index])  unless database.nil?
+   img_roles[:login]     = Array[login[img_index].chomp]       unless login.nil?
+   img_roles[:open]      = get_from_file(open[img_index])      unless open.nil?
+   img_roles[:zookeeper] = get_from_file(zookeeper[img_index]) unless zookeeper.nil?
+   img_roles[:memcache]  = get_from_file(memcache[img_index])  unless memcache.nil?
 
    return img_roles
    

@@ -3,6 +3,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
 
    # Require appscale auxiliar files
    require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
+   require File.dirname(__FILE__) + '/appscale/appscale_parsing.rb'
    require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
    
    # Require generic files

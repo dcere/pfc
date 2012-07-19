@@ -34,6 +34,7 @@ def obtain_vm_data(resource)
    # Default deployment
    if resource[:controller] != nil && resource[:servers] != nil
 
+      puts "Default deployment"
       return obtain_appscale_data_default(resource[:controller],
                                           resource[:servers])
 
@@ -42,6 +43,7 @@ def obtain_vm_data(resource)
          resource[:database] != nil && resource[:login] != nil &&
          resource[:open] != nil
 
+      puts "Custom deployment"
       return obtain_appscale_data_custom(resource[:master],
                                          resource[:appengine],
                                          resource[:database],
