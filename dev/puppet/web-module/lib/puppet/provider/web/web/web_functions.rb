@@ -195,11 +195,24 @@ def start_monitor_balancer(resource, vm)
    # Monitor load balancer with puppet
    # While god monitoring will be done in a loop this will only be done if
    # explicitly invoked, so we must call 'puppet apply' every time.
-   command = "puppet apply /tmp/balancer.pp"
+#   command = "puppet apply /tmp/balancer.pp"
+#   user = resource[:vm_user]
+#   out, success = CloudSSH.execute_remote(command, user, vm)
+#   unless success
+#      err "[Web monitor] Impossible to run puppet in #{vm}"
+#      return false
+#   end
+   
+   # We have to ensure that the node will be auto-monitoring itself
    user = resource[:vm_user]
-   out, success = CloudSSH.execute_remote(command, user, vm)
-   unless success
-      err "[Web monitor] Impossible to run puppet in #{vm}"
+   cloud_cron = CloudCron.new()
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/balancer.pp"
+   cron_out = "/root/balancer.out"
+   cron_err = "/root/balancer.err"
+   cloud_cron.create_command(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(user, vm)
+      err "[Web monitor] Impossible to put balancer.pp in crontab in #{vm}"
       return false
    end
    
@@ -233,14 +246,7 @@ def start_monitor_server(resource, vm)
       return false
    end
    
-   # Monitor web servers with puppet: installation files and required gems
-   # command = "puppet apply /tmp/server.pp"
-   # user = resource[:vm_user]
-   # out, success = CloudSSH.execute_remote(command, user, vm)
-   # unless success
-   #    err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
-   #    return false
-   # end
+   # Monitor web server with puppet: installation files and required gems
    user = resource[:vm_user]
    cloud_cron = CloudCron.new()
    cron_time = "*/1 * * * *"
@@ -253,14 +259,7 @@ def start_monitor_server(resource, vm)
       return false
    end
 
-   # Monitor web servers with puppet: web server is up and running
-   # command = "puppet apply /tmp/server-start.pp"
-   # user = resource[:vm_user]
-   # out, success = CloudSSH.execute_remote(command, user, vm)
-   # unless success
-   #    err "[Web monitor] Impossible to run puppet (server-start.pp) in #{vm}"
-   #    return false
-   # end
+   # Monitor web server with puppet: web server is up and running
    cron_time = "*/1 * * * *"
    cron_command = "puppet apply /tmp/server-start.pp"
    cron_out = "/root/server-start.out"
@@ -345,11 +344,16 @@ end
 # Stops a load balancer.
 def stop_balancer(resource, vm)
 
-   # It is being monitored explicitly with puppet, so we do not have to stop
-   # monitoring explicitly, we just have to stop it
-   
-   command = "/etc/init.d/nginx stop > /dev/null 2> /dev/null"
    user = resource[:vm_user]
+
+   # It is being monitored with puppet through a crontab file, so we have to
+   # stop monitoring first
+   cloud_cron = CloudCron.new()
+   word = "balancer"
+   cloud_cron.delete_line_with_word(word, user, vm)
+   
+   # Once we have stopped monitoring we stop the load balancer
+   command = "/etc/init.d/nginx stop > /dev/null 2> /dev/null"
    out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to stop balancer in #{vm}"
@@ -362,11 +366,18 @@ end
 # Stops a web server.
 def stop_server(resource, vm)
 
-   # It is being monitored explicitly with puppet, so we do not have to stop
-   # monitoring explicitly, we just have to stop it
-   
-   command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
    user = resource[:vm_user]
+
+   # It is being monitored with puppet through a crontab file, so we have to
+   # stop monitoring first
+   cloud_cron = CloudCron.new()
+   word1 = "server"
+   word2 = "server-start"
+   cloud_cron.delete_line_with_word(word1, user, vm)
+   cloud_cron.delete_line_with_word(word2, user, vm)
+   
+   # Once we have stopped monitoring we stop the web server
+   command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
    out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to stop web server in #{vm}"
