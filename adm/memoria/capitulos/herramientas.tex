@@ -1,5 +1,5 @@
 \chapter{Herramientas e infraestructuras utilizadas}
-\label{cap:analisis}
+\label{cap:herramientas}
 
 [Revisar]\\
 
@@ -47,12 +47,14 @@ En esta sección se analizarán en profundidad las dos infraestructuras de ejecu
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Análisis de la infraestructura AppScale}
+\subsection{Infraestructura AppScale}
 
 %%% Revisar
 AppScale es una implementación \emph{open source} del App Engine de Google. Al igual que App Engine, AppScale permite alojar aplicaciones web; a diferencia de App Engine, las aplicaciones no serán alojadas en la infraestructura que Google posee, sino que serán alojadas en una infraestructura que el usuario posea. Además de permitir alojar aplicaciones web, AppScale también ofrece las APIs de MapReduce y Neptune. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La API de Neptune añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI, aunque también se pueden ejecutar trabajos de otro tipo. \\
 
 AppScale trata de imitar de la manera más fiel los servicios que ofrece el App Engine de Google, tratatando de alcanzar el mayor grado de compatibilidad posible. Como la tecnología que Google usa para hacer esto posible permanece oculta al público, AppScale tiene que hacer uso de otras tecnologías existentes para ofrecer las mismas funciones. En la Figura \ref{figure:tecnologias-appscale} se puede ver toda la pila de tecnologías usadas en AppScale.
+
+\newpage % Si no se pone, la imagen aparece sola en una página entera.
 
 \begin{figure} [!htbp]
   \centering
@@ -82,12 +84,15 @@ Una vez puesta en marcha la infraestructura de AppScale, servirá tanto para alo
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Análisis de la infraestructura TORQUE}
+\subsection{Infraestructura TORQUE}
 
 La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido ha sido TORQUE, una de las infraestructuras clásicas en lo que a ejecución de trabajos se refiere. TORQUE permite a los usuarios la ejecución de trabajos \emph{batch} sobre un conjunto de nodos. Además de los nodos de computación necesarios para ejecutar los trabajos, una infraestructura de este tipo estará compuesta de un nodo maestro, que es el encargado de planificar la ejecución de los trabajos y de la gestión de los nodos de computación. \\
 
 Una vez que la infraestructura está en funcionamiento los usuarios pueden mandar sus trabajos al nodo maestro. Éste, valiéndose de un planificador (en su versión más simple es una cola FIFO), decidirá a cuál de los nodos de computación le enviará el trabajo. El nodo de computación que reciba el trabajo será el encargado de ejecutarlo y de enviar los resultados de vuelta al nodo maestro una vez terminada la ejecución. \\
 
-%Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores como Maui Cluster Scheduler o Moab Workload Manager para mejorar tanto la planificación de trabajos como la administración del \emph{cluster}.
+Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores tanto comerciales como \emph{open source} para mejorar la planificación de trabajos y la administración de los nodos del \emph{cluster}. [Pongo nombres y referencias? Maui Cluster Scheduler y Moab Workload Manager respectivamente] \\
 
-Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores tanto comerciales como \emph{open source} para mejorar la planificación de trabajos y la administración de los nodos del \emph{cluster}.
+Para determinar qué usuarios son los que pueden enviar trabajos y qué usuarios son los que pueden realizar tareas administrativas, como por ejemplo cancelar un trabajo, TORQUE permite especificar dos grupos de usuarios: \texttt{managers} y \texttt{operators}. Para administrar el nodo maestro un usuario deberá pertenecer al primer grupo; para mandar trabajos deberá pertenecer al segundo. Por defecto únicamente el usuario \texttt{root} del nodo maestro puede administrarlo.
+
+%%% Revisar
+% Hablar de las colas?
