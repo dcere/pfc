@@ -168,6 +168,37 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    def root_password
    end
    
+   # AppScale
+   
+   def controller
+   end
+
+   def servers
+   end
+
+
+   def master
+   end
+
+   def appengine
+   end
+
+   def database
+   end
+
+   def login
+   end
+
+   def open
+   end
+
+   def zookeeper
+   end
+
+   def memcache
+   end
+   
+   
    def app_email
    end
    
