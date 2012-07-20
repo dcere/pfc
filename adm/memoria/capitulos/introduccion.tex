@@ -9,15 +9,16 @@ A lo largo de los últimos años las herramientas de gestión de configuración 
 
 Sin embargo, estas herramientas de gestión de la configuración carecen de la funcionalidad requerida para administrar infraestructuras distribuidas. Son capaces de asegurar que cada uno de los nodos se comporta de acuerdo a la configuración que le ha sido asignada pero no son capaces de administrar una infraestructura distribuida como una entidad propia. Si tomamos la administración de un \emph{cloud} como la administración de las máquinas virtuales que forman los nodos del mismo nos damos cuenta de que la administración es puramente \emph{software}. Únicamente tenemos que asegurarnos de que para cada nodo de la infraestructura distribuida hay una máquina virtual que está cumpliendo con su función.\\
 
-Teniendo en cuenta el considerable avance de la computación en la nube, parece claro que el siguiente paso de las herramientas de gestión de configuración debería ir encaminado a la gestión de la nube. Para demostrar una posible manera en la que esto se podría lograr, en este proyecto se ha tomado una de esas herramientas de gestión de la configuración y se ha modificado añadiéndole la posibilidad de gestionar infraestructuras distribuidas. La modificación realizada se ha validado usando tres ejemplos de infraestructuras distribuidas, que se explican a continuación.
+Teniendo en cuenta el considerable avance de la computación en la nube, parece claro que el siguiente paso de las herramientas de gestión de configuración debería ir encaminado a la gestión de la nube. Para demostrar una posible manera en la que esto se podría lograr en este proyecto se ha tomado una de esas herramientas de gestión de la configuración y se ha extendido su funcionalidad añadiéndole la posibilidad de gestionar infraestructuras distribuidas. La modificación realizada se ha validado usando tres ejemplos de infraestructuras distribuidas, que se explican a continuación.
 
-La primera de ellas es AppScale \cite{appscale}, una implementación \emph{open source} del App Engine de Google \cite{appengine}. App Engine permite alojar aplicaciones web en la infraestructura que Google posee. Además del alojamiento de aplicaciones web, AppScale también ofrece las APIs \footnote[1]{API (del inglés \emph{Application Programming Interface}, Interfaz de programación de aplicaciones) es el conjunto de funciones y procedimientos que ofrece una biblioteca para ser utilizado por otro \emph{software} como una capa de abstracción.} de EC2 \cite{appscale-ec2}, MapReduce \cite{appscale-mapreduce} y Neptune \cite{appscale-neptune}. La API de EC2 añade a las aplicaciones la capacidad de interactuar con máquinas alojadas en Amazon EC2 \cite{amazon-ec2}. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La última API, Neptune, añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI \footnote[2]{MPI (del inglés \emph{Message Passing Interface}, Interfaz de Paso de Mensajes) es un estándar que define la sintaxis y la semántica de las funciones de una biblioteca de paso de mensajes diseñada para ser usada en programas que exploten la existencia de múltiples procesadores.}. El trabajo de entrada sirve para subir ficheros (generalmente el código que se ejecutará) a la infraestructura, el de salida para traer ficheros (generalmente los resultados obtenidos después de la ejecución) y el de MPI para ejecutar un trabajo MPI.
+La primera de ellas es AppScale \cite{appscale}, una implementación \emph{open source} del App Engine de Google \cite{appengine}. App Engine permite alojar aplicaciones web en la infraestructura que Google posee. Además del alojamiento de aplicaciones web que ofrece App Engine, AppScale también ofrece las APIs \footnote[1]{API (del inglés \emph{Application Programming Interface}, Interfaz de programación de aplicaciones) es el conjunto de funciones y procedimientos que ofrece una biblioteca para ser utilizado por otro \emph{software} como una capa de abstracción.} de EC2 \cite{appscale-ec2}, MapReduce \cite{appscale-mapreduce} y Neptune \cite{appscale-neptune}. La API de EC2 añade a las aplicaciones la capacidad de interactuar con máquinas alojadas en Amazon EC2 \cite{amazon-ec2}. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La última API, Neptune, añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI \footnote[2]{MPI (del inglés \emph{Message Passing Interface}, Interfaz de Paso de Mensajes) es un estándar que define la sintaxis y la semántica de las funciones de una biblioteca de paso de mensajes diseñada para ser usada en programas que exploten la existencia de múltiples procesadores.}. El trabajo de entrada sirve para subir ficheros (generalmente el código que se ejecutará) a la infraestructura, el de salida para traer ficheros (generalmente los resultados obtenidos después de la ejecución) y el de MPI para ejecutar un trabajo MPI.
 
-La segunda infraestructura es TORQUE \cite{Staples:2006:TRM:1188455.1188464, torque}, una infraestructura de ejecución de trabajos. Este tipo de infraestructuras está especializada en la ejecución de grandes cargas de trabajo paralelizable e intensivo en computación. Son por lo tanto idóneas para ser usadas en la computación de altas prestaciones.
+La segunda infraestructura es TORQUE \cite{Staples:2006:TRM:1188455.1188464, torque}, una infraestructura de ejecución de trabajos distribuidos. Este tipo de infraestructuras están especializadas en la ejecución de grandes cargas de trabajo paralelizable e intensivo en computación. Son por lo tanto idóneas para ser usadas en la computación de altas prestaciones.
 
-La tercera y última es la de servicios web en tres capas. Este tipo de infraestructura tiene tres niveles claramente diferenciados: balanceo o distribución de carga, servidor web y base de datos. El balanceador de carga es el encargado de distribuir las peticiones web a los servidores web que se encuentran en el segundo nivel de la infraestructura. Éstos procesarán las peticiones web y para responder a los clientes puede que tengan que consultar o modificar ciertos datos. Los datos de la aplicación se encuentran en la base de datos, el tercer nivel de la estructura, y por consiguiente, cada vez que uno de los elementos del segundo nivel necesite leer información o modificarla, accederá a este nivel. Para esta infraestructura no se puede elegir un ejemplo que destaque sobre los demás porque es tan común que cualquier página web profesional de hoy en día se sustenta en una infraestructura similar a ésta.\\
+La tercera y última es la de servicios web en tres capas, así denominada porque tiene tres niveles claramente diferenciados: balanceo o distribución de carga, servidor web y base de datos. El balanceador de carga es el encargado de distribuir las peticiones web a los servidores web que se encuentran en el segundo nivel de la infraestructura. Éstos procesarán las peticiones web y para responder a los clientes puede que tengan que consultar o modificar ciertos datos. Los datos de la aplicación se encuentran en la base de datos, el tercer nivel de la estructura, y por consiguiente, cada vez que uno de los elementos del segundo nivel necesite leer información o modificarla, accederá a este nivel. Para esta infraestructura no se puede elegir un ejemplo que destaque sobre los demás porque es tan común que cualquier página web profesional de hoy en día se sustenta en una infraestructura similar a ésta.\\
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Contexto del proyecto}
 
 Para la realización de este proyecto de fin de carrera se ha hecho uso del laboratorio 1.03b de investigación que el Departamento de Informática e Ingeniería de Sistemas posee en la Escuela de Ingeniería y Arquitectura de la Universidad de Zaragoza. Los ordenadores que forman este laboratorio poseen procesadores con soporte de virtualización, lo que permite la creación de diversas máquinas virtuales. La creación de los distintos tipos de \emph{cloud} que representan cada una de las infraestructuras distribuidas se ha llevado a cabo a través de máquinas virtuales alojadas en distintos ordenadores del laboratorio.\\
@@ -25,28 +26,35 @@ Para la realización de este proyecto de fin de carrera se ha hecho uso del labo
 En este laboratorio se ha comprobado la validez de la extensión introducida en la herramienta de gestión de configuraciones Puppet para administración de infraestructuras distribuidas que se ha desarrollado a lo largo de este proyecto de fin de carrera.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Objetivos}
 
 El objetivo de este proyecto es proporcionar una herramienta que facilite la puesta en marcha de infraestructuras distribuidas y su posterior mantenimiento. Las tareas principales en las que se puede dividir este proyecto son:
 
-% TODO Comprobar que están en el mismo orden que el capítulo Estudio de las herramientas e infraestructuras.
+% Revisar
 \begin{enumerate}
-\item Análisis de las herramientas de administración de virtualización \emph{hardware}.
-\item Estudio de algunas de las infraestructuras distribuidas existentes profundizando en la parte relativa a la ejecución de trabajos distribuidos.
-\item Investigación de las herramientas de gestión de configuración existentes más relevantes y elección de aquella que mayor facilidad de integración y uso proporcione.
-\item Extensión de la herramienta de gestión de configuración para que soporte la puesta en marcha y el mantenimiento de un sistema de ejecución de trabajos distribuidos.
+%\item Análisis de las herramientas de administración de virtualización \emph{hardware}.
+%\item Estudio de algunas de las infraestructuras distribuidas existentes profundizando en la parte relativa a la ejecución de trabajos distribuidos.
+%\item Investigación de las herramientas de gestión de configuración existentes más relevantes y elección de aquella que mayor facilidad de integración y uso proporcione.
+%\item Extensión de la herramienta de gestión de configuración para que soporte la puesta en marcha y el mantenimiento de un sistema de ejecución de trabajos distribuidos.
+\item Modelado de un recurso distribuido en la herramienta de gestión de la configuración Puppet, proporcionando facilidades a los usuarios que quieran definir infraestructuras distribuidas.
+\item Definición de una metodología de diseño e implementación de un recurso sistema distribuido.
+\item Aplicación de dicha metodología en las infraestructuras distribuidas AppScale, TORQUE y servicios web en tres niveles.
+\item Validación de la extensión desarrollada en la herramienta de gestión de configuración para la puesta en marcha y el mantenimiento de dichas infraestructuras.
 \end{enumerate}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Trabajos previos}
 
-Desde un primer momento se decidió trabajar con la herramienta de configuración Puppet para la realización de este proyecto. La otra alternativa posible era CFEngine, pero a diferencia de ésta, Puppet posee un nivel mayor de abstracción que permite un mejor modelado de los recursos de un sistema. Además, el hecho de que Puppet esté programado en Ruby hace que sea más fácil trabajar y realizar abstracciones de alto nivel en él que en CFEngine, que está programado en el lenguaje C.
+Desde un primer momento se decidió trabajar con la herramienta de gestión de la configuración Puppet para la realización de este proyecto. La otra alternativa posible era CFEngine, pero a diferencia de ésta, Puppet posee un nivel mayor de abstracción que permite un mejor modelado de los recursos de un sistema. Además, el hecho de que Puppet esté programado en Ruby hace que sea más fácil trabajar y realizar abstracciones de alto nivel en él que en CFEngine, que está programado en el lenguaje C.
 
 También se decidió desde el principio trabajar con la infraestructura de ejecución de trabajos que proporciona AppScale. AppScale combina la capacidad de ejecutar trabajos con el alojamiento de aplicaciones web. Esta dualidad la convierte en una infraestructura muy interesante para trabajar con ella.
 
-La infraestructura de ejecución de trabajos TORQUE también se eligió desde el inicio.
+La infraestructura de ejecución de trabajos TORQUE también se eligió desde el inicio. La infraestructura de servicios web en tres niveles se incluyó para cerciorarnos de que la solución aportada era lo suficientemente genérica para cualquier infraestructura distribuida, y no se centraba únicamente en las de ejecución de trabajos.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tecnologías utilizadas}
 
 %Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnologías:
@@ -59,12 +67,15 @@ La infraestructura de ejecución de trabajos TORQUE también se eligió desde el
 %\item Shell como lenguaje de programación de los \emph{scripts} de configuración de las máquinas virtuales.
 %\item Sistema operativo Debian para las máquinas del laboratorio y Ubuntu para las máquinas virtuales.
 %\item \LaTeX{} \cite{manual:latex} para la redacción de esta memoria.
-%\item Dia para la elaboración de los diagramas que aparecen en esta memoria.
+%\item Dia para la confección de los diagramas que aparecen en esta memoria.
 %\end{itemize}
 
-Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnologías: KVM, QEMU, libvirt y virsh para el soporte y la gestión de las máquinas virtuales; Puppet como herramienta de configuración automática; Ruby como lenguaje de programación para la extensión de Puppet; AppScale y TORQUE como infraestructuras de ejecución de trabajos distribuidos en las que validar la extensión; Nginx, WEBrick y MySQL como balanceador de carga, servidor web y base de datos para la infraestructura web de tres niveles en la que se valida la extensión; Shell como lenguaje de programación de los \emph{scripts} de configuración de las máquinas virtuales; Sistema operativo Debian para las máquinas del laboratorio y Ubuntu para las máquinas virtuales; \LaTeX{} \cite{manual:latex} para la redacción de esta memoria y Dia para la elaboración de los diagramas que aparecen en esta memoria.
+% Revisar: Hablar de Git y OpenOffice?
+
+Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnologías: KVM, QEMU, libvirt y virsh para el soporte y la gestión de las máquinas virtuales; Puppet como herramienta de configuración automática; Ruby como lenguaje de programación para la extensión de Puppet; AppScale y TORQUE como infraestructuras de ejecución de trabajos distribuidos en las que validar la extensión; Nginx, WEBrick y MySQL como balanceador de carga, servidor web y base de datos para la infraestructura web de tres niveles en la que se valida la extensión; Shell como lenguaje de programación de los \emph{scripts} de configuración de las máquinas virtuales; Sistema operativo Debian para las máquinas del laboratorio y Ubuntu para las máquinas virtuales; \LaTeX{} \cite{manual:latex} para la redacción de esta memoria y Dia para la confección de los diagramas que aparecen en esta memoria.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Herramientas utilizadas}
 
 [Revisar]
@@ -75,14 +86,15 @@ La virtualización nativa permite hacer una virtualización \emph{hardware} comp
 
 Como los ordenadores del laboratorio poseen procesadores con extensiones de soporte para virtualización y sistema operativo Debian, se eligió KVM para dar soporte a las máquinas virtuales. Esto significa que se puede usar cualquier sistema operativo para las máquinas virtuales, sin necesidad de hacer ninguna modificación en el mismo.
 
-El resto de herramientas utilizadas se explican en detalle en sus respectivas secciones.
+El resto de herramientas utilizadas se explican con más detalle en sus respectivas secciones.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Organización de la memoria}
 
 %El resto de este documento queda organizado de la siguiente manera:
 %\begin{description}
-%\item[Capítulo \ref{cap:analisis}] Herramientas e infraestructuras utilizadas.
+%\item[Capítulo \ref{cap:herramientas}] Herramientas e infraestructuras utilizadas.
 %\item[Capítulo \ref{cap:modelado}] Modelado de recursos distribuidos con Puppet.
 %\item[Capítulo \ref{cap:metodologia}] Metodología de diseño e implementación de recursos distribuidos.
 %\item[Capítulo \ref{cap:disenyo}] Diseño e implementación de recursos distribuidos.
@@ -90,25 +102,25 @@ El resto de herramientas utilizadas se explican en detalle en sus respectivas se
 %\item[Capítulo \ref{cap:conclusiones}] Conclusiones.
 %\end{description}
 
-El resto de este documento queda organizado de la siguiente manera: el capítulo \ref{cap:herramientas} describe las herramientas e infraestructuras utilizadas; el capítulo \ref{cap:modelado}] indica cómo se ha realizado el modelado de recursos distribuidos con Puppet; el capítulo \ref{cap:metodologia} introduce la metodología de diseño e implementación de recursos distribuidos; el capítulo \ref{cap:disenyo} muestra como aplicar dicha metodología a la creación de recursos distribuidos; el capítulo \ref{cap:validacion} valida la solución planteada y el capítulo \ref{cap:conclusiones} presenta las conclusiones obtenidas e indica las posibilidades de trabajo futuro.
+El resto de este documento queda organizado de la siguiente manera: el capítulo \ref{cap:herramientas} describe las herramientas e infraestructuras utilizadas; el capítulo \ref{cap:modelado} indica cómo se ha realizado el modelado de recursos distribuidos con Puppet; el capítulo \ref{cap:metodologia} introduce la metodología de diseño e implementación de recursos distribuidos; el capítulo \ref{cap:disenyo} muestra como aplicar dicha metodología a la creación de recursos distribuidos; el capítulo \ref{cap:validacion} valida la solución planteada y el capítulo \ref{cap:conclusiones} presenta las conclusiones obtenidas e indica las posibilidades de trabajo futuro.
 
-Además consta de una serie de anexos organizados de esta manera:
-\begin{description}
-\item[Anexo \ref{anx:puppet-language}] Lenguaje declarativo de Puppet.
-\item[Anexo \ref{anx:appscale-roles}] Roles de AppScale.
-\end{description}
+%Además consta de una serie de anexos organizados de esta manera:
+%\begin{description}
+%\item[Anexo \ref{anx:puppet-language}] Lenguaje declarativo de Puppet.
+%\item[Anexo \ref{anx:appscale-roles}] Roles de AppScale.
+%\end{description}
 
+Además consta de una serie de anexos organizados de esta manera: el anexo \ref{anx:puppet-language} amplía el lenguaje declarativo de Puppet; el anexo \ref{anx:appscale-roles} profundiza en los roles de los nodos y posibilidades de despliegue de AppScale; ... (control de esfuerzos, manual de instalación de las tecnologías)
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Agradecimientos}
 
 Agradecimientos
 
 %Quisiera agradecer en primer lugar a Javier Celaya y a Unai Arronategui por la oportunidad que me han dado de hacer este proyecto, por su guía y por su paciencia infinita durante el mismo. \\
 
-%A los amigos de aquí y a los de allá; a los de dentro y a los de fuera. \\
+%A los amigos de aquí y a los de allá, a los de dentro y a los de fuera. \\
 
-%A mis padres. \\
+%A mis padres, por trabajar durante toda su vida para que hoy pueda estar donde estoy y por su apoyo durante toda la carrera. \\
 
 %Y a todos aquellos que ya no están entre nosotros. \\
-
-%\emph{Se pueden apresar los bueyes y las pingües ovejas, se pueden adquirir los trípodes y los tostados alazanes; pero no es posible prender ni coger el alma humana para que vuelva, una vez ha salvado la barrera que forman los dientes. La Ilíada, Canto IX.}
