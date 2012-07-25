@@ -3,7 +3,7 @@
 
 % Revisar: Cuidado con el código y las imágenes que se mezclan.
 
-En este capítulo se verá cómo aplicar la metodología anteriormente expuesta para diseñar e implentar los recursos distribuidos de las infraestructuras de ejecución de trabajos AppScale y TORQUE.
+En este capítulo se muestra cómo aplicar la metodología anteriormente expuesta para diseñar e implentar los recursos distribuidos de las infraestructuras de ejecución de trabajos AppScale y TORQUE.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diseño e implementación de un recurso distribuido para una infraestructura AppScale}
@@ -27,7 +27,7 @@ Mientras que los posibles roles que puede desempeñar un nodo en un despliegue p
 \item[\texttt{open}]: Las máquinas de ejecución de trabajos. También pueden ser usadas como nodos de reserva por si falla algún otro nodo.
 \end{description}
 
-Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés para este proyecto el que permite ejecutar trabajos de computación en AppScale (Figura \ref{figure:arquitectura-appscale}).
+Hay multitud de despliegues posibles combinando estos roles, pero será de especial interés para este proyecto el que permite ejecutar trabajos de computación en AppScale. La infraestructura usada como ejemplo consta de un nodo \texttt{master}, \texttt{appengine}, \texttt{database} y \texttt{login} y dos nodos \texttt{open} (Figura \ref{figure:arquitectura-appscale}).
 
 \begin{figure} [!htbp]
   \centering

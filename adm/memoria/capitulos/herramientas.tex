@@ -8,7 +8,7 @@ En este capítulo se realiza un breve análisis de las distintas herramientas e 
 
 \section{Herramienta de gestión de configuración}
 
-Las herramientas de gestión de configuración tienen como objetivo describir y llevar a un sistema informático a un cierto estado. Normalmente esto suele incluir llevar a una serie de recursos (ficheros, usuarios, paquetes instalados, etc.) al estado deseado. Para cumplir esta misión se apoyan en dos conceptos básicos: iteración y convergencia. Estas herramientas tratan iteración tras iteración de acercar al sistema informático lo máximo posible al estado deseado. Es posible, por tanto, que el estado final no se alcance en una única ejecución, sino que sean necesarias varias ejecuciones.
+Las herramientas de gestión de configuración tienen como objetivo describir y llevar a un sistema informático a un cierto estado. Normalmente esto suele incluir llevar a una serie de recursos (ficheros, usuarios, paquetes instalados, etc.) al estado deseado. Para cumplir esta misión se apoyan en dos conceptos básicos: iteración y convergencia. Estas herramientas tratan iteración tras iteración de acercar el sistema informático lo máximo posible al estado deseado. Es posible, por tanto, que el estado final no se alcance en una única ejecución, sino que sean necesarias varias ejecuciones.
 
 Aunque esto pueda contrastar con el funcionamiento habitual de los programas (sería sorprendente que sólo se abriera medio editor de texto), no es tan excepcional en este entorno: si tenemos que poner en marcha dos servicios, de los cuales uno de ellos depende del otro, hasta que el primero no esté funcionando no podrá hacerlo el segundo. Una sola ejecución de la herramienta no serviría para poner ambos servicios en marcha, sino que serían necesarias dos iteraciones como mínimo. \\
 
@@ -45,7 +45,7 @@ Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Infraestructuras de ejecución de trabajos distribuidos}
 
-En esta sección se analizarán en profundidad las dos infraestructuras de ejecución de trabajos distribuidos usadas en este proyecto: AppScale y TORQUE
+En esta sección se analizan en profundidad las dos infraestructuras de ejecución de trabajos distribuidos usadas en este proyecto: AppScale y TORQUE
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,7 +54,7 @@ En esta sección se analizarán en profundidad las dos infraestructuras de ejecu
 %%% Revisar
 AppScale es una implementación \emph{open source} del App Engine de Google. Al igual que App Engine, AppScale permite alojar aplicaciones web; a diferencia de App Engine, las aplicaciones no serán alojadas en la infraestructura que Google posee, sino que serán alojadas en una infraestructura que el usuario posea. Además de permitir alojar aplicaciones web, AppScale también ofrece las APIs de MapReduce y Neptune. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La API de Neptune añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI, aunque también se pueden ejecutar trabajos de otro tipo. \\
 
-AppScale trata de imitar de la manera más fiel los servicios que ofrece el App Engine de Google, tratatando de alcanzar el mayor grado de compatibilidad posible. Como la tecnología que Google usa para hacer esto posible permanece oculta al público, AppScale tiene que hacer uso de otras tecnologías existentes para ofrecer las mismas funciones. En la Figura \ref{figure:tecnologias-appscale} se puede ver toda la pila de tecnologías usadas en AppScale.
+AppScale trata de imitar de la manera más fiel posible los servicios que ofrece el App Engine de Google, tratatando de alcanzar el mayor grado de compatibilidad con éstos. Como la tecnología que Google usa internamente en App Engine permanece oculta al público, AppScale tiene que hacer uso de otras tecnologías existentes para ofrecer las mismas funciones. En la Figura \ref{figure:tecnologias-appscale} se puede ver toda la pila de tecnologías usadas en AppScale.
 
 \newpage % Si no se pone, la imagen aparece sola en una página entera.
 
@@ -82,7 +82,7 @@ Como muchos de estos roles suele desempeñarlos una máquina, se han creado unos
 
 AppScale contempla la posibilidad de dos tipos de despliegue: por defecto y personalizado. En el despliegue por defecto un nodo sólo puede ser o bien \texttt{Controller} o bien \texttt{Servers}. En el despliegue personalizado el usuario es libre de especificar los roles de manera más precisa. \\
 
-Una vez puesta en marcha la infraestructura de AppScale, servirá tanto para alojar las aplicaciones web que el usuario despliegue como para ejecutar trabajos. Para desplegar las aplicaciones web hay que hacer uso de las AppScale Tools, un conjunto de herramientas que permiten, entre otras cosas, iniciar y terminar instancias, desplegar aplicaciones y eliminar aplicaciones. Para ejecutar trabajos hay que servirse de la API de Neptune, que no es tan sencilla. En general esto se consigue mediante tres pasos: en el primero se le indica el código fuente que se quiere subir a la infraestructura; en el segundo se le da la orden de ejecutar el trabajo; en el tercero se le piden los resultados de la ejecución. Cada uno de estos pasos debe indicarse, mediante un lenguaje específico de dominio, en un fichero que luego se interpretará con el programa Neptune. En el caso de un trabajo MPI, podemos definir, además del código a ejecutar, el número de máquinas sobre las que ejecutar el código y el número de procesos que se usarán para el trabajo.
+Una vez puesta en marcha la infraestructura de AppScale, servirá tanto para alojar las aplicaciones web que el usuario despliegue como para ejecutar trabajos. Para desplegar las aplicaciones web hay que hacer uso de las AppScale Tools, un conjunto de herramientas que permiten, entre otras cosas, iniciar y terminar instancias, desplegar aplicaciones y eliminar aplicaciones. Para ejecutar trabajos hay que servirse, además de las AppScale Tools, de la API de Neptune, que no es tan sencilla. En general, la ejecución de trabajos se consigue mediante tres pasos: en el primero se le indica el código fuente que se quiere subir a la infraestructura; en el segundo se le da la orden de ejecutar el trabajo; en el tercero se le piden los resultados de la ejecución. Cada uno de estos pasos debe indicarse, mediante un lenguaje específico de dominio, en un fichero que luego se interpretará con el programa Neptune. En el caso de un trabajo MPI, podemos definir, además del código a ejecutar, el número de máquinas sobre las que ejecutar el código y el número de procesos que se usarán para el trabajo.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,7 +92,7 @@ La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido
 
 Una vez que la infraestructura está en funcionamiento los usuarios pueden mandar sus trabajos al nodo maestro. Éste, valiéndose de un planificador (en su versión más simple es una cola FIFO), decidirá a cuál de los nodos de computación le enviará el trabajo. El nodo de computación que reciba el trabajo será el encargado de ejecutarlo y de enviar los resultados de vuelta al nodo maestro una vez terminada la ejecución. \\
 
-Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores tanto comerciales como \emph{open source} para mejorar la planificación de trabajos y la administración de los nodos del \emph{cluster}. [Pongo nombres y referencias? Maui Cluster Scheduler y Moab Workload Manager respectivamente] \\
+Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores tanto comerciales (Maui Cluster Scheduler) como \emph{open source} (Moab Workload Manager) para mejorar la planificación de trabajos y la administración de los nodos del \emph{cluster}. A lo largo de este proyecto se usará, por simplicidad, el planificador más básico. \\
 
 Para determinar qué usuarios son los que pueden enviar trabajos y qué usuarios son los que pueden realizar tareas administrativas, como por ejemplo cancelar un trabajo, TORQUE permite especificar dos grupos de usuarios: \texttt{managers} y \texttt{operators}. Para administrar el nodo maestro un usuario deberá pertenecer al primer grupo; para mandar trabajos deberá pertenecer al segundo. Por defecto únicamente el usuario \texttt{root} del nodo maestro puede administrarlo.
 

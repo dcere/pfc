@@ -1,7 +1,7 @@
 \chapter{Metodología de diseño e implementación de recursos distribuidos}
 \label{cap:metodologia}
 
-Una vez que el modelado se ha completado es hora de abarcar la metodología que se seguirá para diseñar e implementar nuevos recursos distribuidos. Para ello se usarán las facilidades que proporciona la herramienta de gestión de configuración para ampliar su funcionalidad.
+Una vez que el modelado se ha completado es tiempo de abarcar la metodología que se sigue a la hora de diseñar e implementar nuevos recursos distribuidos. Para ello se usan las facilidades que proporciona la herramienta de gestión de configuración para ampliar su funcionalidad.
 
 
 \section{Especificación del tipo}
@@ -22,7 +22,7 @@ La infraestructura usada como ejemplo consta de un balanceador de carga, dos ser
 
 \pagebreak
 
-La creación del tipo \texttt{web} se hace en el fichero \texttt{web.rb}, en el lugar apropiado dentro del correspondiente módulo. En el siguiente fragmento de código se indican los aspectos más importantes (la implementación completa puede encontrarse en el Anexo X):
+La creación del tipo \texttt{web} se hace en el fichero \texttt{web.rb}, en el lugar apropiado dentro del correspondiente módulo. En el siguiente fragmento de código se indican los aspectos más importantes (la implementación completa puede encontrarse en el Anexo X) del mismo:
 
 \begin{rubycode}
 Puppet::Type.newtype(:web) do
@@ -86,6 +86,8 @@ end
 Dentro del tipo \texttt{web}, los atributos \texttt{name}, \texttt{vm\_domain} y \texttt{pool} se corresponden con los atributos \texttt{Nombre}, \texttt{Fichero de dominio} y \texttt{Conjunto de máquinas físicas} definidos en la sección \ref{sec:modelado-puppet}. Los atributos \texttt{balancer}, \texttt{server} y \texttt{database} son los atributos propios de la arquitectura web.
 
 Una vez que el tipo ya está definido, ya se puede ver cuál será el aspecto de un manifiesto para un recurso de tipo web:
+
+%%% Revisar que no cambie
 
 \begin{lstlisting}
 web {'mycloud':

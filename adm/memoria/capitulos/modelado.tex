@@ -21,6 +21,7 @@ A la hora de definir un recurso sistema distribuido tenemos que presentarlo como
 \section{Modelización en Puppet}
 \label{sec:modelado-puppet}
 
+%%% Revisar: La última frase del párrafo anterior ya incluye los conceptos de tipo y proveedor.
 Puppet puede ser extendido para incluir la definición de nuevos recursos. Para ello hay que proporcinarle como mínimo dos ficheros: uno en el que se define el recurso y otro en el que se define cómo gestionar ese recurso. Al fichero en el que se define el recurso se le llama tipo y al fichero en el que se define cómo gestionarlo se le llama proveedor. Es decir, el tipo se encarga del ``qué'' y el proveedor se encarga del ``cómo''.\\
 
 Para definir un recurso sistema distribuido, al que también llamaremos \emph{cloud}, se han considerado como fundamentales los siguientes atributos:
@@ -142,6 +143,8 @@ generic-cloud/provider/cloud.rb
 
 Dentro del fichero \texttt{cloud.rb} se encuentra definida la clase \texttt{Cloud} que proporciona las funciones más básicas que ayudan al resto de recursos sistema distribuido a crear sus proveedores. En concreto, las operaciones de puesta en marcha que se proporcionan son \texttt{leader\_start}, \texttt{common\_start} y \texttt{not\_cloud\_start}; la función de monitorización que se proporciona es \texttt{leader\_monitoring}; las funciones de elección de líder que se proporcionan son \texttt{get\_id}, \texttt{set\_id}, \texttt{get\_leader}, \texttt{set\_leader}, \texttt{vm\_set\_id} y \texttt{vm\_set\_leader}; por último, las funciones de parada de \emph{cloud} que se proporcionan son \texttt{shutdown\_vms} y \texttt{delete\_files}. La implementación completa de la clase \texttt{Cloud} puede verse en el anexo X.
 
-Además de proporcionar estas funciones, la clase \texttt{Cloud} necesita de otras para realizar su trabajo. En particular, cada proveedor debe implementar dos funciones. La primera de ellas es la función \texttt{start\_cloud} que se usará para iniciar el \emph{cloud}. La segunda es la función \texttt{obtain\_vm\_data} que se utilizará para obtener datos de las máquinas virtuales que forman el \emph{cloud}.
+Además de proporcionar estas funciones, la clase \texttt{Cloud} necesita de otras para realizar su trabajo. En particular, cada proveedor debe implementar dos funciones. La primera de ellas es la función \texttt{start\_cloud} que se usa para iniciar el \emph{cloud}. La segunda es la función \texttt{obtain\_vm\_data} que se utiliza para obtener datos de las máquinas virtuales que forman el \emph{cloud}.
 
-Para monitorizar el \emph{cloud} concreto, también será necesario pasarle una función como argumento a las funciones \texttt{leader\_start} y \texttt{leader\_monitoring}. Esta función implementa una monitorización que incluye los aspectos particulares de cada tipo de \emph{cloud}.
+Para monitorizar el \emph{cloud} concreto es necesario pasar una función como argumento a las funciones \texttt{leader\_start} y \texttt{leader\_monitoring}. Esta función debe implementar una monitorización que tenga en cuenta los aspectos particulares de cada tipo de \emph{cloud}.
+
+%%% Revisar si se crea el fichero cloud-interface o similar con las funciones start_cloud y obtain_vm_data
