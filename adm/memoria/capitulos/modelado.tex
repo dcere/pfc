@@ -8,7 +8,7 @@ Las herramientas de gestión de la configuración se han centrado en la gestión
 
 \section{Configuración de recursos distribuidos}
 
-En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener y cuál debe ser su estado. Dentro de este tipo de recursos se encuentran, entre otros, el recurso usuario y el recurso fichero. Sin embargo, el modelado de un recurso sistema distribuido plantea ciertos desafíos al ejemplo anterior, ya que no está pensado teniendo en cuenta la problemática asociada a los sistemas distribuidos. \\
+En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener y cuál debe ser el estado de dichos recursos. Dentro de este tipo de recursos se encuentran, entre otros, el recurso usuario y el recurso fichero. Sin embargo, el modelado de un recurso sistema distribuido plantea ciertos desafíos a la definición clásica de recursos de Puppet, ya que ésta no está pensada teniendo en cuenta la problemática asociada a los sistemas distribuidos. \\
 
 %Ahora bien, este proveedor no es un proveedor al uso: debe lidiar con la problemática asociada a los sistemas distribuidos. Entre otras cosas debe tener en cuenta que puede haber dependencias entre los nodos, que cada nodo puede cumplir un papel distinto dentro del sistema y que los nodos pueden fallar. Además, debe resolver los fallos con la mayor transparencia posible, es decir, con la menor intervención humana posible.\\
 
