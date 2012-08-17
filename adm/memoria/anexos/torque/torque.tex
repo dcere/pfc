@@ -1,0 +1,201 @@
+\chapter{TORQUE}
+\label{anx:torque}
+
+%% Revisar las versiones de TORQUE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instalación de TORQUE}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Nodo maestro}
+
+Primero instalaremos \texttt{libssl-dev}:
+
+\begin{bashcode}
+_: apt-get install libssl-dev
+\end{bashcode}
+
+Una vez hecho esto debemos seguir las instrucciones del enlace \url{http://www.adaptivecomputing.com/resources/docs/torque/4-0-1/help.htm#topics/1-installConfig/installing.htm}, que básicamente son:
+
+\begin{bashcode}
+_: tar -xzvf torque-4.0.2.tar.gz
+_: cd torque-4.0.2/
+_: echo '/usr/local/lib' > /etc/ld.so.conf.d/torque.conf
+_: ldconfig
+_: ./configure
+_: make
+_: make install
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Nodos de computación}
+
+Para crear los paquetes necesarios para los nodos de computación, haz lo siguiente:
+
+\begin{bashcode}
+_: cd torque-4.0.2/
+_: make packages
+\end{bashcode}
+
+Ahora se pueden instalar estos paquetes en los nodos de computación usando los \emph{scripts} creados dentro del directorio \texttt{torque-4.0.2}:
+
+\begin{bashcode}
+_: ./torque-package-mom-linux-x86_64.sh --install
+\end{bashcode}
+
+No hay que olvidarse de incluir \texttt{/usr/local/lib} en la lista de directorios para buscar las librerías enlazadas dinámicamente:
+
+\begin{bashcode}
+_: echo '/usr/local/lib' > /etc/ld.so.conf.d/torque.conf
+_: ldconfig
+\end{bashcode}
+
+Para habilitar TORQUE como un servicio se debe hacer lo siguiente:
+
+\begin{bashcode}
+_: cd torque-4.0.2
+_: cp contrib/init.d/debian.pbs_mom /etc/init.d/pbs_mom
+_: update-rc.d pbs_mom defaults
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Configuración de TORQUE}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Nodo maestro}
+Añade los nodos de computación en el fichero \texttt{/var/spool/torque/server\_priv/nodes}. Por ejemplo:
+
+\begin{lstlisting}
+## This is the TORQUE server "nodes" file. 
+## 
+## To add a node, enter its hostname, optional processor count (np=), 
+## and optional feature names.
+## 
+## Example:
+##    host01 np=8 featureA featureB 
+##    host02 np=8 featureA featureB
+## 
+## for more information, please visit:
+## 
+## http://www.clusterresources.com/torquedocs/nodeconfig.shtml
+
+### Nodes
+lucid-tor2
+\end{lstlisting}
+
+Posteriormente copia el fichero \texttt{debian.trqauthd} al directorio \texttt{/etc/init.d}:
+
+\begin{bashcode}
+_: cd torque-4.0.2/contrib/init.d
+_: cp debian.trqauthd /etc/init.d
+_: cd /etc/init.d
+_: mv debian.trqauthd trqauthd
+\end{bashcode}
+
+Puedes empezar el demonio con:
+
+\begin{bashcode}
+_: /etc/init.d/trqauthd start
+_: /usr/bin/service trqauthd start
+\end{bashcode}
+
+y puedes pararlo con:
+
+\begin{bashcode}
+_: /etc/init.d/trqauthd stop
+_: /usr/bin/service trqauthd stop
+\end{bashcode}
+
+Inicializa \texttt{serverdb}:
+
+\begin{bashcode}
+_: cd torque-4.0.2/
+_: ./torque.setup <user>   # Asegurate de que el usuario <user> existe en cada
+                           # nodo, maestro o de computacion.
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Comprobación de la configuración}
+
+
+Reiniciamos \texttt{pbs\_server} en el nodo maestro:
+
+\begin{bashcode}
+_: qterm -t quick
+_: pbs_server
+\end{bashcode}
+
+Y \texttt{pbs\_mom} en los nodos de computación:
+
+\begin{bashcode}
+_: pbs_mom
+\end{bashcode}
+
+Después de esperar durante un tiempo prudencial, el comando \texttt{pbsnodes -a} proporcionará una lista de nodos libres:
+
+\begin{bashcode}
+_: pbsnodes -a
+lucid-tor2
+     state = free
+     np = 1
+     ntype = cluster
+     status = rectime=1338548162,varattr=,jobs=,state=free,netload=2359153,
+              gres=,loadave=0.03,ncpus=2,physmem=1023292kb,availmem=1457904kb,
+              totmem=1521972kb,idletime=3003,nusers=0,nsessions=0,
+              uname=Linux lucid-tor2 2.6.32-33-server
+              #70-Ubuntu SMP Thu Jul 7 22:28:30 UTC 2011 x86_64,opsys=linux
+     mom_service_port = 15002
+     mom_manager_port = 15003
+     gpus = 0
+\end{bashcode}
+
+Nota: Si el nodo aparece como \texttt{offline}, y únicamente \texttt{offline} (i.e. no como \texttt{down, offline}) se puede liberar con:
+
+\begin{bashcode}
+_: pbsnodes -c lucid-tor2
+\end{bashcode}
+
+Para ver el estado de las colas podemos ejecutar \texttt{qstat -q}:
+
+\begin{bashcode}
+_: qstat -q
+
+server: lucid-tor1
+
+Queue            Memory CPU Time Walltime Node  Run Que Lm  State
+---------------- ------ -------- -------- ----  --- --- --  -----
+batch              --      --       --      --    0   0 --   E R
+                                               ----- -----
+                                                   0     0
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Envío de un trabajo}
+
+Ejecutar, no como root, sino como un usuario normal, lo siguiente:
+
+\begin{bashcode}
+root@lucid-tor1:~# su - david
+david@lucid-tor1:~$ echo "sleep 30" | qsub
+0.lucid-tor1
+david@lucid-tor1:~$ qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+0.lucid-tor1               STDIN            david                  0 Q batch
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Versiones}
+
+\begin{tabular}{|c|c|}
+   \hline
+   Software & Versión \\ \hline
+   Ubuntu & 10.04 \\ \hline
+   TORQUE & 4.0.2 \\ \hline
+\end{tabular}

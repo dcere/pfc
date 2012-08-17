@@ -1,4 +1,30 @@
-\chapter{AppScale: Roles y despliegues}
+\chapter{AppScale}
+\label{anx:appscale}
+
+\section{Instalación}
+
+Para instalar las Appscale tools se debe descargar el archivo \emph{tarball} de  \url{http://code.google.com/p/appscale/downloads/list}. Una vez descargado, se instala:
+
+\begin{bashcode}
+_: tar xzvf appscale-tools.tar.gz
+_: cd appscale-tools
+_: sudo bash debian/appscale_build.sh
+...
+AppScale tools installation completed successfully!
+\end{bashcode}
+
+Sin olvidarse de añadir el directorio de las appscale-tools a nuestro \emph{path}:
+
+\begin{bashcode}
+_: export PATH=${PATH}:/usr/local/appscale-tools/bin
+\end{bashcode}
+%% Put a $ to get back highlightning in gedit
+
+Una vez instaladas las appscale-tools hay varias maneras de instalar AppScale. Para ello se recomienda leer la información disponible en \url{http://code.google.com/p/appscale/wiki/Getting_Started}. En este proyecto se ha creado una imagen propia en la que se ha instalado AppScale a través del repositorio. Estos pasos aparecen especificados en \url{http://code.google.com/p/appscale/wiki/ImageSetupViaBzr}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Roles y despliegue}
 \label{anx:appscale-roles}
 
 A continuación se explica de manera más detallada los distintos roles de la arquitectura AppScale. \\

@@ -1,7 +1,7 @@
 \chapter{Facter y Puppet}
 \label{comun:puppet}
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Instalación de libopenssl-ruby}
 
 Si nuestro sistema no tiene instalado \texttt{libopenssl-ruby} tenemos que instalarlo:
@@ -11,7 +11,7 @@ _: apt-get install libopenssl-ruby
 \end{bashcode}
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Creación del entorno de instalación de Facter y Puppet}
 
 Antes de instalar Facter y Puppet, hay que dar valores a ciertas variables:
@@ -26,6 +26,7 @@ _: export PATH RUBYLIB
 
 
 %% Put a $ to get back highlightning in gedit
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Instalación de Facter}
 
 Instalaremos Facter mediante una instalación por fuentes. Para ello primero tenemos que obtener las fuentes:
@@ -48,7 +49,7 @@ _: ruby install.rb
 \end{bashcode}
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Instalación de Puppet}
 
 Instalaremos Puppet también mediante fuentes. Obtenemos las fuentes:
@@ -71,7 +72,7 @@ _: ruby install.rb
 \end{bashcode}
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Configuración de Puppet}
 
 Nos aseguramos de que el fichero \texttt{/etc/puppet/puppet.conf} existe en nuestro sistema. Si no es así, podemos crearlo de la siguiente manera:
@@ -97,7 +98,7 @@ _: chgrp puppet /var/lib/puppet/rrd
 Nota: Si este directorio todavía no existe seguimos adelante con la instalación y ya revisitaremos este punto.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Comprobación de la instalación}
 
 Vamos a comprobar de manera rápida que la instalación de Facter y Puppet fue exitosa:
@@ -136,7 +137,7 @@ I'm a test file.
 Ahora es momento de volver al directorio \texttt{/var/lib/puppet/rrd} y comprobar que tanto el usuario como el grupo de ese directorio tienen como valor \texttt{puppet}.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Comprobación del maestro de Puppet}
 
 Para comprobar que el maestro de puppet puede ejecutarse como un demonio tenemos que hacer:
@@ -157,7 +158,7 @@ _: puppet master
 \end{bashcode}
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Comprobación del agente de Puppet}
 
 Nota: Supondremos que el maestro de Puppet se está ejecutando en una máquina que tiene por nombre \texttt{puppet.example.com}. La máquina desde la que se ejecuta el agente tiene por nombre \texttt{node1.example.com}
@@ -221,7 +222,7 @@ notice: Caught INT; calling stop
 \end{bashcode}
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Comprobación del sistema Puppet}
 
 Creamos el fichero \texttt{/etc/puppet/manifests/site.pp} en la máquina del maestro con el siguiente contenido:
@@ -260,7 +261,7 @@ I'm a test file.
 \end{bashcode}
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Problemas}
 
 Durante la ejecución de Puppet pueden ocurrir varios errores. Como la información de Puppet puede ser en ocasiones algo críptica se muestra a continuación una colección de los errores más comunes y su solución:
@@ -319,7 +320,7 @@ err: Could not evaluate: Puppet::Util::Log requires a message
 Solution: Puppet ha salido de manera abrupta. Si estás ejecutando un proveedor asegúrate de que sales de él con \texttt{return} y no con \texttt{exit}.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Versiones}
 
 \begin{tabular}{|c|c|}
