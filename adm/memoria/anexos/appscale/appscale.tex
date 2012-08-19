@@ -51,3 +51,27 @@ Además de los roles simples también se proporcionan unos roles agregados que a
 \end{description}
 
 Estos roles pueden usarse en dos tipos de despliegue: por defecto y personalizado. En un despliegue por defecto únicamente se pueden usar los roles \texttt{Controller} y \texttt{Servers}. En un despliegue personalizado se usan el resto de roles.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Bases de datos}
+
+
+AppScale es capaz de trabajar con varias bases de datos. Cada una de estas bases de datos implementa la interfaz AppScale DB, para comunicarse con las aplicaciones del App Engine. Las bases de datos que soporta AppScale son:
+
+\begin{description}
+\item[\texttt{Cassandra}] \cite{appscale-cassandra}: Una base de datos híbrida entre BigTable \cite{appscale-bigtable} y Dynamo \cite{appscale-dynamo}. Es una base de datos de nodos idénticos (\emph{peer-to-peer}) con una alta escalabilidad y rendimiento.
+\item[\texttt{HBase}] \cite{appscale-hbase}: Una implementación de BigTable realizada en Java. Se ejecuta sobre Hadoop \cite{appscale-hadoop}.
+\item[\texttt{Hypertable}] \cite{appscale-hypertable}: Otra implementación de BigTable, esta vez realizada en C++. Al igual que \texttt{HBase} se ejecuta sobre Hadoop. Tiene como objetivo el alto rendimiento.
+\item[\texttt{MongoDB}] \cite{appscale-mongodb}: Una base de datos centrada en el almacén de documentos. Se comporta bien en operaciones de adición (\emph{append}).
+\item[\texttt{MemcacheDB}] \cite{appscale-memcachedb}: Una base de datos clave-valor distribuida diseñada para ser persistente. Se basa en MemcacheD \cite{appscale-memcached}, una memoria cache distribuida, y usa la misma API que ella. La persistencia la obtiene a través de BerkeleyDB \cite{appscale-berkeleydb}.
+\item[\texttt{MySQL Cluster}] \cite{appscale-mysql}: Es usada como una base de datos clave-valor dentro de AppScale.
+\item[\texttt{Voldemort}] \cite{appscale-voldemort}: Es una base de datos clave-valor de nodos idénticos (\emph{peer-to-peer}). Se basa en Dynamo y gestiona la persistencia a través de BerkeleyDB
+\item[\texttt{Redis}] \cite{appscale-redis}: Base de datos clave-valor con durabilidad opcional.
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Infraestructuras}
+
+Infraestructuras: Eucalyptus, Amazon, propia.
