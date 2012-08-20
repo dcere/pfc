@@ -57,7 +57,7 @@ Estos roles pueden usarse en dos tipos de despliegue: por defecto y personalizad
 \section{Bases de datos}
 
 
-AppScale es capaz de trabajar con varias bases de datos. Cada una de estas bases de datos implementa la interfaz AppScale DB, para comunicarse con las aplicaciones del App Engine. Las bases de datos que soporta AppScale son:
+AppScale no obliga a trabajar con una base de datos determinada, sino que es capaz de trabajar con varias bases de datos. Cada una de estas bases de datos implementa la interfaz AppScale DB, para comunicarse con las aplicaciones del App Engine. Las bases de datos que actualmente soporta AppScale son:
 
 \begin{description}
 \item[\texttt{Cassandra}] \cite{appscale-cassandra}: Una base de datos híbrida entre BigTable \cite{appscale-bigtable} y Dynamo \cite{appscale-dynamo}. Es una base de datos de nodos idénticos (\emph{peer-to-peer}) con una alta escalabilidad y rendimiento.
@@ -70,8 +70,22 @@ AppScale es capaz de trabajar con varias bases de datos. Cada una de estas bases
 \item[\texttt{Redis}] \cite{appscale-redis}: Base de datos clave-valor con durabilidad opcional.
 \end{description}
 
+%% Revisar Y redis? se acepta como base de datos?
+La elección de la base de datos a la hora de iniciar AppScale se realiza en el comando \texttt{appscale-run-instances}. Los valores que acepta el comando son: \texttt{cassandra}, \texttt{hbase}, \texttt{hypertable}, \texttt{mongodb}, \texttt{memcachedb}, \texttt{mysql} y \texttt{voldemort}. La base de datos que usa por defecto es \texttt{Cassandra}, así que si queremos elegir otra, deberemos especificarlo claramente. Por ejemplo, en el caso de que eligiésemos \texttt{HBase} como base de datos, habría que usar el comando \texttt{appscale-run-instances} de la siguiente manera:
+
+\begin{bashcode}
+appscale-run-instances --ips ips.yaml --table hbase
+\end{bashcode}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Infraestructuras}
 
-Infraestructuras: Eucalyptus, Amazon, propia.
+AppScale es capaz de ser ejecutada sobre diversos tipos de infraestructuras. Estas infraestructuras pueden ser públicas, privadas o híbridas. Dentro de las infraestructuras públicas AppScale soporta tanto Amazon EC2 como otras infraestructuras públicas administradas mediante Eucalyptus, o de manera más general, cualquier infraestructura que sea compatible con las euca2ools \cite{appscale-euca2ools}. Dentro de las infraestructuras privadas soporta tanto un \emph{cluster} de máquinas con Xen o KVM como infraestructuras privadas gestionadas mediante Eucalyptus. Una infraestructura híbrida puede estar formada por una combinación de infraestructura privada e infraestructura pública. Los casos que se pueden dar son:
+
+\begin{itemize}
+\item Cloud privado - Cloud público
+\item Clod privado X - Cloud privado Y
+\item Clod público (zona X) - Cloud público (zona Y)
+\item Clod público (empresa X) - Cloud público (empresa Y)
+\end{itemize}

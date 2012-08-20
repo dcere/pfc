@@ -66,6 +66,8 @@ _: update-rc.d pbs_mom defaults
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Nodo maestro}
+\label{anx:torque-conf-maestro}
+
 Añade los nodos de computación en el fichero \texttt{/var/spool/torque/server\_priv/nodes}. Por ejemplo:
 
 \begin{lstlisting}
@@ -177,7 +179,7 @@ batch              --      --       --      --    0   0 --   E R
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Envío de un trabajo}
 
-Ejecutar, no como root, sino como un usuario normal, lo siguiente:
+Para comprobar que TORQUE es capaz de ejecutar trabajos podemos enviarle un trabajo sencillo. Para ello ejecutaremos el comando \texttt{echo "sleep 30" | qsub} desde el usuario creado al final de la sección \ref{anx:torque-conf-maestro}. Si el trabajo fue correctamente recibido deberá aparecer al usar el comando \texttt{qstat}:
 
 \begin{bashcode}
 root@lucid-tor1:~# su - david
@@ -186,7 +188,7 @@ david@lucid-tor1:~$ echo "sleep 30" | qsub
 david@lucid-tor1:~$ qstat
 Job id                    Name             User            Time Use S Queue
 ------------------------- ---------------- --------------- -------- - -----
-0.lucid-tor1               STDIN            david                  0 Q batch
+0.lucid-tor1              STDIN            david                  0 Q batch
 \end{bashcode}
 
 
