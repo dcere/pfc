@@ -210,8 +210,8 @@ def start_monitor_balancer(resource, vm)
    cron_command = "puppet apply /tmp/balancer.pp"
    cron_out = "/root/balancer.out"
    cron_err = "/root/balancer.err"
-   cloud_cron.create_command(cron_time, cron_command, cron_out, cron_err)
-   unless cloud_cron.add_line(user, vm)
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
       err "[Web monitor] Impossible to put balancer.pp in crontab in #{vm}"
       return false
    end
@@ -253,8 +253,8 @@ def start_monitor_server(resource, vm)
    cron_command = "puppet apply /tmp/server.pp"
    cron_out = "/root/server.out"
    cron_err = "/root/server.err"
-   cloud_cron.create_command(cron_time, cron_command, cron_out, cron_err)
-   unless cloud_cron.add_line(user, vm)
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
       err "[Web monitor] Impossible to put server.pp in crontab in #{vm}"
       return false
    end
@@ -264,8 +264,8 @@ def start_monitor_server(resource, vm)
    cron_command = "puppet apply /tmp/server-start.pp"
    cron_out = "/root/server-start.out"
    cron_err = "/root/server-start.err"
-   cloud_cron.create_command(cron_time, cron_command, cron_out, cron_err)
-   unless cloud_cron.add_line(user, vm)
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
       err "[Web monitor] Impossible to put server-start.pp in crontab in #{vm}"
       return false
    end
