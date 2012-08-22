@@ -24,17 +24,17 @@ class MAC_Address
    
    
    # Generates an array of <many> MAC addresses starting from this one.
-   def generate_array(many)
+   # def generate_array(many)
    
-      result = []
-      result << @mac
-      for i in 1..many
-         mac = MAC_Address.new(result[i - 1])
-         result << mac.next_mac
-      end
-      return result
+   #    result = []
+   #    result << @mac
+   #    for i in 1..many
+   #       mac = MAC_Address.new(result[i - 1])
+   #       result << mac.next_mac
+   #    end
+   #    return result
    
-   end
+   # end
    
    
 end

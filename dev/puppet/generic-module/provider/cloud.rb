@@ -145,39 +145,37 @@ class Cloud
    def not_cloud_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up)
       
       # Try to find one virtual machine that is already running
-      alive = false
-      vm_leader = ""
       vm_ips.each do |vm|
          if alive?(vm)
+            # This machine is running
             puts "#{vm} is up"
-            alive = true
             vm_leader = vm
-            break
+
+            # Inform the user of this machine
+            puts "#{vm_leader} is already running"
+            puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
+            return
          end
       end
       
-      if !alive
-         puts "All virtual machines are stopped"
-         puts "Starting one of them..."
+      # No machines are running
+      puts "All virtual machines are stopped"
+      puts "Starting one of them..."
+   
+      # Start one of the virtual machines
+      vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
+      puts "Starting #{vm} ..."
       
-         # Start one of the virtual machines
-         vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
-         puts "Starting #{vm} ..."
-         
-         start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-         
-         # That virtual machine will be the "leader" (actually the chosen one)
-         vm_leader = vm
-         
-         # Copy important files to it
-         #copy_cloud_files(vm_leader, cloud_type)
-         
-         puts "#{vm_leader} is being started"
-         puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}" 
-      else
-         puts "#{vm_leader} is already running"
-         puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
-      end
+      start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+      
+      # That virtual machine will be the "leader" (actually the chosen one)
+      vm_leader = vm
+      
+      # Copy important files to it
+      #copy_cloud_files(vm_leader, cloud_type)
+      
+      puts "#{vm_leader} is being started"
+      puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}"
 
    end
 
@@ -308,7 +306,8 @@ class Cloud
       # when you create more than one client in a short time
       mcc = MCollectiveFilesClient.new("files")
       
-      # Delete leader, id, last_id and last_mac files on all machines (leader included)
+      # Delete leader, id, last_id and last_mac files on all machines
+      # (leader included)
       mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
       mcc.delete_file(CloudLeader::ID_FILE)                 # ID
       mcc.delete_file(CloudLeader::LAST_ID_FILE)            # Last ID
@@ -349,20 +348,6 @@ class Cloud
       return machines_up, machines_down
       
    end
-
-
-   # Obtains the virtual machine's data
-   #def obtain_vm_data(ip_function, img_function)
-   #   
-   #   vm_ips = []
-   #   vm_ip_roles = []
-   #   vm_img_roles = []
-   #   puts "Obtaining virtual machines' data"
-   #   vm_ips, vm_ip_roles = ip_function.call(@resource[:ip_file])
-   #   vm_img_roles = img_function.call(@resource[:img_file])
-   #   return vm_ips, vm_ip_roles, vm_img_roles
-   #         
-   #end
 
 
    # Checks if this node is the leader
@@ -656,7 +641,7 @@ class Cloud
    #############################################################################
 
 
-   # Checks if a machine is alive
+   # Checks if a machine is alive.
    def alive?(ip)
 
       ping = "ping -q -c 1 -w 4"
