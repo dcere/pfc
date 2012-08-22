@@ -568,24 +568,24 @@ class Cloud
          # Delete the local copy
          File.delete(domain_file_src)
       else
-         @err.call "#{vm_name} impossible to copy domain definition file"
+         @err.call "Impossible to copy #{vm_name}\'s domain definition file"
       end
       
       # Define the domain in the physical machine
       puts "Defining the domain in the physical machine..."
-      unless @infrastructure.define_domain(pm_user, pm, vm_name, domain_file_dst)
+      unless @infrastructure.define_domain(domain_file_dst, pm_user, pm)
          @err.call "Impossible to define #{vm_name} domain"
       end
       
       # Start the domain
       puts "Starting the domain..."
-      unless @infrastructure.start_domain(pm_user, pm, vm_name)
+      unless @infrastructure.start_domain(vm_name, pm_user, pm)
          @err.call "#{vm_name} impossible to start"
       end
       
       # Save the domain's name
       puts "Saving the domain's name..."
-      unless @infrastructure.save_domain_name(pm_user, pm, vm_name)
+      unless @infrastructure.save_domain_name(vm_name, pm_user, pm)
          @err.call "#{vm_name} impossible to save in domains file"
       end
 

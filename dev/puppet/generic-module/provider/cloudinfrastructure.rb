@@ -25,7 +25,7 @@ class CloudInfrastructure
 
 
    # Defines a domain for a virtual machine on a physical machine.
-   def define_domain(pm_user, pm, vm_name, domain_file_name)
+   def define_domain(domain_file_name, pm_user, pm, vm_name)
 
       command = "#{VIRSH_CONNECT} define #{domain_file_name}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -35,9 +35,9 @@ class CloudInfrastructure
 
 
    # Starts a domain on a physical machine.
-   def start_domain(pm_user, pm, vm_name)
+   def start_domain(domain, pm_user, pm)
 
-      command = "#{VIRSH_CONNECT} start #{vm_name}"
+      command = "#{VIRSH_CONNECT} start #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
       return success
       
@@ -45,9 +45,9 @@ class CloudInfrastructure
 
 
    # Saves the virtual machine's domain name in a file.
-   def save_domain_name(pm_user, pm, vm_name)
+   def save_domain_name(domain, pm_user, pm)
 
-      command = "echo #{vm_name} >> #{DOMAINS_FILE}"
+      command = "echo #{domain} >> #{DOMAINS_FILE}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
       return success
 
@@ -65,7 +65,7 @@ class CloudInfrastructure
 
 
    # Undefines a domain.
-   def undefine_domains(domain, pm_user, pm)
+   def undefine_domain(domain, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} undefine #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
