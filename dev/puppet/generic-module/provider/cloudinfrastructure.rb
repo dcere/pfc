@@ -1,7 +1,7 @@
+# Manages the infrastructure of a cloud.
 class CloudInfrastructure
 
    # Constants
-
    VIRSH_CONNECT = "virsh -c qemu:///system"
    DOMAINS_FILE = "/tmp/defined-domains"
 

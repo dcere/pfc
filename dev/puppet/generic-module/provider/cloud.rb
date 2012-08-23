@@ -23,16 +23,13 @@ class Cloud
       puts "#{MY_IP} is the leader"
       
       # Check wether virtual machines are alive or not
-      alive = {}
-      vm_ips.each do |vm|
-         alive[vm] = false
-      end
-      
       puts "Checking whether virtual machines are alive..."
+      alive = {}
       vm_ips.each do |vm|
          if alive?(vm)
             alive[vm] = true
          else
+            alive[vm] = false
             puts "#{vm} is down"
          end
       end
@@ -217,6 +214,31 @@ class Cloud
    # Stop cloud functions
    #############################################################################
 
+   # Starting function for leader node.
+   def leader_stop(cloud_type)
+
+      # Shutdown and undefine all virtual machines explicitly created for
+      # this cloud
+      shutdown_vms()
+      
+      # Stop cron jobs on all machines
+      stop_cron_jobs(cloud_type)      # TODO Check order
+      
+      # Delete files
+      delete_files()
+      
+      # Note: As all the files deleted so far are located in the /tmp directory
+      # only the machines that are still alive need to delete these files.
+      # If the machine was shut down, these files will not be there the next
+      # time it is started, so there is no need to delete them.
+      
+      puts "==================="
+      puts "== Cloud stopped =="
+      puts "==================="
+
+   end
+
+
    # Shuts down virtual machines.
    def shutdown_vms()
 
@@ -311,7 +333,7 @@ class Cloud
       mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
       mcc.delete_file(CloudLeader::ID_FILE)                 # ID
       mcc.delete_file(CloudLeader::LAST_ID_FILE)            # Last ID
-      mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
+      mcc.delete_file(CloudVM::LAST_MAC_FILE)               # Last MAC address
       mcc.disconnect       # Now it can be disconnected
       
       # Delete rest of regular files on leader machine
@@ -360,7 +382,7 @@ class Cloud
 
    # Monitors a virtual machine.
    # Returns false if the machine is not alive.
-   def monitor_vm(vm, ip_roles, monitor_function)
+   def monitor_vm(vm, ip_roles, monitor_function)     # TODO Use CloudVM
 
       # Check if it is alive
       alive = CloudMonitor.ping(vm)
@@ -500,10 +522,7 @@ class Cloud
 
 
    # Defines and starts a virtual machine.
-   def start_vm(vm, ip_roles, img_roles, pm_up)
-
-      # This function is cloud-type independent: define a new virtual machine
-      # and start it
+   def start_vm(vm, ip_roles, img_roles, pm_up)    # TODO Use CloudVM
       
       # Get virtual machine's MAC address
       puts "Getting VM's MAC address"
@@ -593,7 +612,7 @@ class Cloud
 
 
    # Gets the virtual machine's mac address.
-   def get_vm_mac()
+   def get_vm_mac()     # TODO Use CloudVM
       
       if File.exists?(LAST_MAC_FILE)
          file = File.open(LAST_MAC_FILE, 'r')
@@ -611,9 +630,10 @@ class Cloud
 
 
    # Gets the virtual machine's disk image.
-   def get_vm_disk(vm, ip_roles, img_roles)
+   def get_vm_disk(vm, ip_roles, img_roles)     # TODO Use CloudVM
       
       # TODO What if a machine has different roles?
+      # Is it really a problem? Pick one of the images and that is it
       role = :undefined
       index = 0
       ip_roles.each do |r, ips|

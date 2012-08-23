@@ -108,6 +108,8 @@ Puppet::Type.type(:web).provide(:webp) do
          vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
          web_cloud_stop(cloud.resource, vm_ip_roles)
          
+         # TODO Use leader_stop function?
+
          # Shutdown and undefine all virtual machines explicitly created for this cloud
          cloud.shutdown_vms()
          

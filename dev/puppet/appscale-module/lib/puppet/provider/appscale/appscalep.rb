@@ -105,6 +105,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          # Stop cloud infrastructure
          appscale_cloud_stop(cloud.resource, MY_IP)    # TODO What if we run stop on a different machine than start?
          
+         # TODO Use leader_stop function?
+
          # Shutdown and undefine all virtual machines explicitly created for this cloud
          cloud.shutdown_vms()
          
