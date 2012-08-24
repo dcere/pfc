@@ -9,7 +9,7 @@
 Usaremos nginx como balanceador de carga, y no como servidor web, que es la manera más habitual de verlo en funcionamiento.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Instalación}
 
 Para instalar nginx, haz lo siguiente:
@@ -22,7 +22,7 @@ _: apt-get install nginx
 \\
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Configuración}
 
 Para configurar nginx debemos añadir la parte de balanceo de carga al fichero de configuración \texttt{/etc/nginx/nginx.conf}. Como este fichero no es excesivamente grande, se muestra en su totalidad con la parte modificada resaltada:
@@ -78,7 +78,7 @@ http {
 \\
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Ejecución}
 
 Para iniciar nginx haremos uso del \emph{script} localizado en \texttt{/etc/init.d}. Dicho \emph{script} puede ser usado tanto para iniciarlo:
@@ -96,14 +96,19 @@ _: /etc/init.d/nginx stop
 \\
 
 
-%%
-\subsection{Versiones}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Versiones instaladas}
 
-\begin{tabular}{|c|c|}
-   \hline
-   Software & Versión \\ \hline
-   nginx & 0.7.65 \\ \hline
-\end{tabular}
+\begin{table}[!htbp]
+\centering
+   \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Software} & \textbf{Versión} \\ \hline
+      nginx & 0.7.65 \\ \hline
+   \end{tabular}
+\caption{Versión instalada de nginx.}
+\label{table:web-mysql-versions}
+\end{table}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,7 +120,7 @@ _: /etc/init.d/nginx stop
 Como servidor web usaremos WEBrick, que es el servidor web que viene por defecto con la instalación de Ruby. Instalando Ruby instalaremos a la vez el servidor web.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Instalación}
 
 Lo primero que hay que hacer es instalar Ruby y RubyGems. Para ello, consulta el apéndice \ref{comun:ruby} de instalación de Ruby.
@@ -164,7 +169,7 @@ Installing RDoc documentation for sinatra-1.3.2...
 Nota: Puede llevar un tiempo hasta que el proceso de instalación muestre cosas por pantalla.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Ejecución}
 
 Una vez que la instalación ha finalizado, vamos a crear la primera aplicación web. Guarda el siguiente fichero como \texttt{web.rb}:
@@ -190,7 +195,7 @@ Nota: Para salir Ctrl + C.
 En tu navegador web preferido ve a la dirección \texttt{http://localhost:4567} y encontrarás la aplicación web que acabamos de crear.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Añadiendo soporte para la base de datos}
 
 Para interactuar con la base de datos usaremos ActiveRecord. Este componente es parte de Ruby On Rails, pero también existe como una \emph{gem} independiente. Vamos a instalarla:
@@ -225,17 +230,22 @@ _: ruby web2.rb
 En tu navegador web ve a la dirección \texttt{http://localhost:4567} y encontrarás la aplicación web. Muestra lo mismo que la primera aplicación web, pero hemos incluido (aunque no usado) el soporte para la base de datos.
 
 
-%%
-\subsection{Versiones}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Versiones instaladas}
 
-\begin{tabular}{|c|c|}
-   \hline
-   Software & Versión \\ \hline
-   Ruby & 1.8.7 \\ \hline
-   RubyGems & 1.8.21 \\ \hline
-   Sinatra & 1.3.2 \\ \hline
-   ActiveRecord & 3.2.3 \\ \hline
-\end{tabular}
+\begin{table}[!htbp]
+\centering
+   \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Software} & \textbf{Versión} \\ \hline
+      Ruby & 1.8.7 \\ \hline
+      RubyGems & 1.8.21 \\ \hline
+      Sinatra & 1.3.2 \\ \hline
+      ActiveRecord & 3.2.3 \\ \hline
+   \end{tabular}
+\caption{Versiones instaladas de Ruby, RubyGems, Sinatra y ActiveRecord.}
+\label{table:web-mysql-versions}
+\end{table}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -247,7 +257,7 @@ En tu navegador web ve a la dirección \texttt{http://localhost:4567} y encontra
 Como servidor de base de datos usaremos MySQL.
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Instalación}
 
 Para instalar MySQL, haz lo siguiente:
@@ -258,7 +268,7 @@ _: apt-get install mysql-server
 \\
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Configuración}
 
 Para configurar los ajustes básicos hay que editar el fichero \texttt{/etc/mysql/my.cnf}. Por ejemplo, si vamos a aceptar conexiones de otra máquina, hay que modificar el parámetro \texttt{bind\_address}. En nuestro caso, lo modificaremos para aceptar conexiones del servidor web:
@@ -297,7 +307,7 @@ mysql> CREATE DATABASE mydb;
 \\
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Ejecución}
 
 Para ejecutar el servidor de bases de datos usaremos el programa \texttt{service} localizado en \texttt{/usr/bin/service}. Sirve tanto para iniciarlo:
@@ -314,11 +324,16 @@ _: /usr/bin/service mysql stop
 \\
 
 
-%%
-\subsection{Versiones}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Versiones instaladas}
 
-\begin{tabular}{|c|c|}
-   \hline
-   Software & Versión \\ \hline
-   mysql & 5.1.61 \\ \hline
-\end{tabular}
+\begin{table}[!htbp]
+\centering
+   \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Software} & \textbf{Versión} \\ \hline
+      mysql & 5.1.61 \\ \hline
+   \end{tabular}
+\caption{Versión instalada de MySQL.}
+\label{table:web-mysql-versions}
+\end{table}
