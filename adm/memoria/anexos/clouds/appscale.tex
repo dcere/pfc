@@ -81,7 +81,7 @@ appscale-run-instances --ips ips.yaml --table hbase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Infraestructuras}
 
-AppScale es capaz de ser ejecutada sobre diversos tipos de infraestructuras. Estas infraestructuras pueden ser públicas, privadas o híbridas. Dentro de las infraestructuras públicas AppScale soporta tanto Amazon EC2 \cite{amazon-ec2} como otras infraestructuras públicas administradas mediante Eucalyptus \cite{eucalyptus}, o de manera más general, cualquier infraestructura que sea compatible con las euca2ools \cite{eucalyptus-euca2ools}. Dentro de las infraestructuras privadas soporta tanto un \emph{cluster} de máquinas con Xen o KVM como infraestructuras privadas gestionadas mediante Eucalyptus. Una infraestructura híbrida puede estar formada por una combinación de infraestructura privada e infraestructura pública. Los casos que se pueden dar son:
+AppScale puede ser ejecutada sobre diversos tipos de infraestructuras públicas, privadas o híbridas. Dentro de las infraestructuras públicas AppScale soporta tanto Amazon EC2 \cite{amazon-ec2} como otras infraestructuras públicas administradas mediante Eucalyptus \cite{eucalyptus}, o de manera más general, cualquier infraestructura que sea compatible con las euca2ools \cite{eucalyptus-euca2ools}. Dentro de las infraestructuras privadas soporta tanto un \emph{cluster} de máquinas con Xen o KVM como infraestructuras privadas gestionadas mediante Eucalyptus. Una infraestructura híbrida puede estar formada por una combinación de infraestructura privada e infraestructura pública. Los casos que se pueden dar son:
 
 \begin{itemize}
 \item Cloud privado - Cloud público
@@ -89,3 +89,13 @@ AppScale es capaz de ser ejecutada sobre diversos tipos de infraestructuras. Est
 \item Clod público (zona X) - Cloud público (zona Y)
 \item Clod público (empresa X) - Cloud público (empresa Y)
 \end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Desarrollo y organización}
+
+AppScale es una tecnología que actualmente se encuentra en un proceso activo de desarrollo. Cuando se empezó este proyecto la versión estable era la 1.5 y hasta ahora se ha seguido trabajando en esa versión; más concretamente en la versión 1.5.1. Otras partes de AppScale como Neptune, el lenguaje usado para la ejecución de trabajos MPI, han progresado desde la versión 0.1.1 hasta la versión 0.2.2 sufriendo severas modificaciones a lo largo del proceso. 
+
+Además de los cambios que está experimentando en el \emph{software} AppScale está realizando cambios en su organización interna. Al empezar este proyecto el código de AppScale se encontraba alojado en Launchpad (\url{https://launchpad.net/appscale/}) y la información en su página de Google (\url{http://code.google.com/p/appscale/}). Ahora se encuentran realizando la transición hacia Github (\url{https://github.com/AppScale/appscale}) y aunque todo el código puede encontrarse allí, la documentación sigue estando en su página de Google.
+
+La complejidad del problema que trata de resolver, el amplio abanico de tecnologías utilizadas y los frecuentes cambios que sufre hacen que sea una tecnología complicada para trabajar con ella. La falta de documentación en alguna de las áreas no ayuda en este aspecto.
