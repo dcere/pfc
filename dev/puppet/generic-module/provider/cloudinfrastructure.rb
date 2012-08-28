@@ -1,4 +1,4 @@
-# Manages the infrastructure of a cloud.
+# Manages the infrastructure of a cloud with KVM support.
 class CloudInfrastructure
 
    # Constants

@@ -4,10 +4,10 @@ class Cloud
 
    def initialize(infrastructure, leader, resource, error_function)
 
-      @infrastructure = infrastructure
-      @leader         = leader
-      @resource       = resource
-      @err            = error_function
+      @vm_manager = CloudVM.new(infrastructure, leader, resource, error_function)
+      @leader     = leader
+      @resource   = resource
+      @err        = error_function
 
    end
 
@@ -40,12 +40,12 @@ class Cloud
          if alive[vm]
             # If they are alive, monitor them
             puts "Monitoring #{vm}..."
-            monitor_vm(vm, vm_ip_roles, monitor_function)
+            @vm_manager.monitor_vm(vm, vm_ip_roles, monitor_function)
             puts "...Monitored"
          else
             # If they are not alive, start and configure them
             puts "Starting #{vm}..."
-            start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+            @vm_manager.start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
             puts "...Started"
             deads = true
          end
@@ -163,7 +163,7 @@ class Cloud
       vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
       puts "Starting #{vm} ..."
       
-      start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+      @vm_manager.start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
       
       # That virtual machine will be the "leader" (actually the chosen one)
       vm_leader = vm
@@ -187,7 +187,7 @@ class Cloud
       vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(@resource)
       vm_ips.each do |vm|
          puts "Monitoring #{vm}..."
-         unless monitor_vm(vm, vm_ip_roles, monitor_function)
+         unless @vm_manager.monitor_vm(vm, vm_ip_roles, monitor_function)
             deads << vm
          end
          puts "...Monitored"
@@ -203,7 +203,7 @@ class Cloud
       else
          # Raise again the dead machines
          deads.each do |vm|
-            start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+            @vm_manager.start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
          end
       end
                
@@ -214,15 +214,15 @@ class Cloud
    # Stop cloud functions
    #############################################################################
 
-   # Starting function for leader node.
+   # Stoping function for leader node.
    def leader_stop(cloud_type)
+
+      # Stop cron jobs on all machines
+      stop_cron_jobs(cloud_type)
 
       # Shutdown and undefine all virtual machines explicitly created for
       # this cloud
       shutdown_vms()
-      
-      # Stop cron jobs on all machines
-      stop_cron_jobs(cloud_type)      # TODO Check order
       
       # Delete files
       delete_files()
@@ -238,74 +238,9 @@ class Cloud
 
    end
 
-
-   # Shuts down virtual machines.
+   ## TODO Remove this once leader_stop is used in web, torque and appscale providers
    def shutdown_vms()
-
-      # Get pool of physical machines
-      pms = @resource[:pool]
-      
-      # Shut down virtual machines
-      pms.each do |pm|
-      
-         pm_user = @resource[:pm_user]
-         pm_password = @resource[:pm_password]
-         
-         # Copy ssh key to physical machine
-         puts "Copying ssh key to physical machine"
-         out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
-         
-         # Bring the defined domains file from the physical machine to this one
-         out, success = CloudSSH.get_remote(CloudInfrastructure::DOMAINS_FILE,
-                                            pm_user, pm,
-                                            CloudInfrastructure::DOMAINS_FILE)
-         if success
-         
-            puts "#{CloudInfrastructure::DOMAINS_FILE} exists in #{pm}"
-            
-            # Open file
-            defined_domains = File.open(CloudInfrastructure::DOMAINS_FILE, 'r')
-         
-            # Stop nodes
-            puts "Shutting down domains"
-            defined_domains.each_line do |domain|
-               domain.chomp!
-               unless @infrastructure.shutdown_domain(domain)
-                  @err.call "#{domain} impossible to shut down"
-               end
-            end
-            
-            # Undefine local domains
-            puts "Undefining domains"
-            defined_domains.rewind
-            defined_domains.each_line do |domain|
-               domain.chomp!
-               unless @infrastructure.undefine_domain(domain)
-                  @err.call "#{domain} impossible to undefine"
-               end
-            end
-            
-            # Delete the defined domains file on the physical machine
-            puts "Deleting defined domains file"
-            command = "rm -rf #{CloudInfrastructure::DOMAINS_FILE}"
-            out, success = CloudSSH.execute_remote(command, pm_user, pm)
-            
-            # Delete all the domain files on the physical machine. Check how the
-            # name is defined on 'start_vm' function.
-            puts "Deleting domain files"
-            domain_files = "cloud-%s-*.xml" % [@resource[:name]]
-            command = "rm /tmp/#{domain_files}"
-            out, success = CloudSSH.execute_remote(command, pm_user, pm)
-         
-         else
-            # Some physical machines might not have any virtual machine defined.
-            # For instance, no virtual machine will be defined if they were already
-            # defined and running when we started the cloud.
-            puts "No #{CloudInfrastructure::DOMAINS_FILE} file found in #{pm}"
-         end
-         
-      end   # pms.each
-
+      @vm_manager.shutdown_vms()
    end
 
 
@@ -377,93 +312,6 @@ class Cloud
     
       return @leader.leader?
 
-   end
-
-
-   # Monitors a virtual machine.
-   # Returns false if the machine is not alive.
-   def monitor_vm(vm, ip_roles, monitor_function)     # TODO Use CloudVM
-
-      # Check if it is alive
-      alive = CloudMonitor.ping(vm)
-      unless alive
-         @err.call "#{vm} is not alive. Impossible to monitor"
-         
-         # If it is not alive there is no point in continuing
-         return false
-      end
-      
-      # Get user and password
-      user = @resource[:vm_user]
-      password = @resource[:root_password]
-      
-      # Send it your ssh key
-      # Your key was created when you turned into leader
-      puts "Sending ssh key to #{vm}"
-      out, success = CloudSSH.copy_ssh_key(user, vm, password)
-      if success
-         puts "ssh key sent"
-      else
-         @err.call "ssh key impossible to send"
-      end
-      
-      # Check if MCollective is installed and configured
-      mcollective_installed = CloudMonitor.mcollective_installed(user, vm)
-      unless mcollective_installed
-         @err.call "MCollective is not installed on #{vm}"
-      end
-      
-      # Make sure MCollective is running.
-      # We need this to ensure the leader election, so ensuring MCollective
-      # is running can not be left to Puppet in their local manifest. It must be
-      # done explicitly here and now.
-      mcollective_running = CloudMonitor.mcollective_running(user, vm)
-      unless mcollective_running
-         @err.call "MCollective is not running on #{vm}"
-      end
-      
-      # A node may have different roles
-      vm_roles = get_vm_roles(ip_roles, vm)
-      
-      
-      # Check if they have their ID
-      # If they are running, but they do not have their ID:
-      #   - Set their ID before they can become another leader.
-      #   - Set also the leader's ID.
-      success = CloudLeader.vm_check_id(user, vm)
-      unless success
-      
-         # Set their ID (based on the last ID we defined)
-         id = @leader.last_id
-         id += 1
-         CloudLeader.vm_set_id(user, vm, id)
-         @leader.set_last_id(id)
-         
-         # Set the leader's ID
-         leader = @leader.leader
-         CloudLeader.vm_set_leader(user, vm, leader)
-         
-         # Send the last ID to all nodes
-         mcc = MCollectiveFilesClient.new("files")
-         mcc.create_file(CloudLeader::LAST_ID_FILE, id.to_s)
-         #mcc.disconnect
-      end
-      
-      # TODO Copy cloud files each time a machine is monitored?
-      # TODO Copy files no matter what or check first if they have them?
-      # Use copy_cloud_files if we copy no matter what. Modify it if we check
-      # We should copy no matter what in case they have changed
-      
-      # Depending on the type of cloud we will have to monitor different components.
-      # Also, take into account that one node can perform more than one role.
-      print "#{vm} will perform the roles: "
-      p vm_roles
-      vm_roles.each do |role|
-         monitor_function.call(@resource, vm, role)
-      end
-      
-      return true
-      
    end
 
 

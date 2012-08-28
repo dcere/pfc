@@ -186,6 +186,77 @@ class CloudVM
       
    end
 
+
+   # Shuts down virtual machines.
+   def shutdown_vms()
+
+      # Get pool of physical machines
+      pms = @resource[:pool]
+      
+      # Shut down virtual machines
+      pms.each do |pm|
+      
+         pm_user = @resource[:pm_user]
+         pm_password = @resource[:pm_password]
+         
+         # Copy ssh key to physical machine
+         puts "Copying ssh key to physical machine"
+         out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
+         
+         # Bring the defined domains file from the physical machine to this one
+         out, success = CloudSSH.get_remote(CloudInfrastructure::DOMAINS_FILE,
+                                            pm_user, pm,
+                                            CloudInfrastructure::DOMAINS_FILE)
+         if success
+         
+            puts "#{CloudInfrastructure::DOMAINS_FILE} exists in #{pm}"
+            
+            # Open file
+            defined_domains = File.open(CloudInfrastructure::DOMAINS_FILE, 'r')
+         
+            # Stop nodes
+            puts "Shutting down domains"
+            defined_domains.each_line do |domain|
+               domain.chomp!
+               unless @infrastructure.shutdown_domain(domain)
+                  @err.call "#{domain} impossible to shut down"
+               end
+            end
+            
+            # Undefine local domains
+            puts "Undefining domains"
+            defined_domains.rewind
+            defined_domains.each_line do |domain|
+               domain.chomp!
+               unless @infrastructure.undefine_domain(domain)
+                  @err.call "#{domain} impossible to undefine"
+               end
+            end
+            
+            # Delete the defined domains file on the physical machine
+            puts "Deleting defined domains file"
+            command = "rm -rf #{CloudInfrastructure::DOMAINS_FILE}"
+            out, success = CloudSSH.execute_remote(command, pm_user, pm)
+            
+            # Delete all the domain files on the physical machine. Check how the
+            # name is defined on 'start_vm' function.
+            puts "Deleting domain files"
+            domain_files = "cloud-%s-*.xml" % [@resource[:name]]
+            command = "rm /tmp/#{domain_files}"
+            out, success = CloudSSH.execute_remote(command, pm_user, pm)
+         
+         else
+            # Some physical machines might not have any virtual machine defined.
+            # For instance, no virtual machine will be defined if they were
+            # already defined and running when we started the cloud.
+            puts "No #{CloudInfrastructure::DOMAINS_FILE} file found in #{pm}"
+         end
+         
+      end   # pms.each
+
+   end
+
+
    #############################################################################
    # Auxiliar functions
    #############################################################################
