@@ -25,7 +25,6 @@ def appscale_cloud_start(resource, app_ips, app_roles,
 
    # Add key pairs
    puts "About to add key pairs"
-   #debug "[DBG] ips.yaml file: #{ips_yaml}"
    result = `#{script_path}/#{script_keys} #{ips_yaml} #{root_password}`
    if $?.exitstatus == 0
       puts "Key pairs added"

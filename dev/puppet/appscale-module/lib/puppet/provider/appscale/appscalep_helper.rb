@@ -29,8 +29,6 @@ end
 # Obtains vm data from manifest parameters.
 def obtain_vm_data(resource)
 
-# TODO Uncomment
-
    # Default deployment
    if resource[:controller] != nil && resource[:servers] != nil
 

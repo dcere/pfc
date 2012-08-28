@@ -34,8 +34,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          
          # Check pool of physical machines
          puts "Checking pool of physical machines..."
-         pm_all_up, pm_up, pm_down = cloud.check_pool()
-         if !pm_all_up
+         pm_up, pm_down = cloud.check_pool()
+         unless pm_down.empty?
             puts "Some physical machines are down"
             pm_down.each do |pm|
                puts " - #{pm}"
