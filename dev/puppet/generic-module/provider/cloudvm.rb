@@ -41,7 +41,7 @@ class CloudVM
       domain_file_path = File.dirname(@resource[:vm_domain]) + 
                          "/" + "#{domain_file_name}"
       template_path = @resource[:vm_domain]
-      CloudInfrastructure.write_domain(myvm, domain_file_path, template_path)
+      @infrastructure.write_domain(myvm, domain_file_path, template_path)
       puts "Domain file written"
       
       # Choose a physical machine to host the virtual machine
