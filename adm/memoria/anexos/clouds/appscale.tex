@@ -1,9 +1,13 @@
 \chapter{AppScale}
 \label{anx:appscale}
 
+
+En este anexo se realiza un análisis más detallado de algunos aspectos de AppScale tales como la instalación de AppScale, los distintos tipos de roles que puede tomar un nodo y los distintos tipos de despliegue que podemos especificar, las bases de datos e infraestructuras que permite usar y el desarrollo y organización del \emph{software}.
+
+
 \section{Instalación}
 
-Para instalar las Appscale tools se debe descargar el archivo \emph{tarball} de  \url{http://code.google.com/p/appscale/downloads/list}. Una vez descargado, se instala:
+Para gestionar una infraestructura AppScale es necesario instalar una serie de programas agrupados bajo el nombre de appscale-tools. Para ello, se debe descargar el archivo \emph{tarball} de \url{http://code.google.com/p/appscale/downloads/list}. Una vez descargado, se instala:
 
 \begin{bashcode}
 _: tar xzvf appscale-tools.tar.gz
@@ -27,7 +31,7 @@ Una vez instaladas las appscale-tools hay varias maneras de instalar AppScale. P
 \section{Roles y despliegue}
 \label{anx:appscale-roles}
 
-A continuación se explica de manera más detallada los distintos roles de la arquitectura AppScale. \\
+A continuación se explica de manera más detallada los distintos roles que puede desempeñar un nodo dentro de la arquitectura AppScale. \\
 
 En primer lugar tenemos los roles simples:
 
@@ -50,7 +54,7 @@ Además de los roles simples también se proporcionan unos roles agregados que a
 \item[\texttt{Master}]: Shadow, Load Balancer y Zookeeper.
 \end{description}
 
-Estos roles pueden usarse en dos tipos de despliegue: por defecto y personalizado. En un despliegue por defecto únicamente se pueden usar los roles \texttt{Controller} y \texttt{Servers}. En un despliegue personalizado se usan el resto de roles.
+Estos roles pueden usarse en dos tipos de despliegue: por defecto y personalizado. En un despliegue por defecto los nodos únicamente pueden ser de tipo \texttt{Controller} y \texttt{Servers}. En un despliegue personalizado los nodos pueden ser de cualquier tipo del resto de roles.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
