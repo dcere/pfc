@@ -40,7 +40,7 @@
 
 \usepackage{enumerate}
 
-\usepackage{minted}
+%\usepackage{minted}
 %\usemintedstyle{tango}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -100,73 +100,6 @@
 \bibliographystyle{plain}
 
 
-% So the code looks nice
-\definecolor{gray97}{gray}{.97}
-\definecolor{gray75}{gray}{.75}
-\definecolor{gray45}{gray}{.45}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SOURCE CODE
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Load languages
-\lstloadlanguages{Ruby,sh}
-
-\lstset{
-   frame=Ltb,
-   framerule=0pt,
-   aboveskip=0.5cm,
-   framextopmargin=3pt,
-   framexbottommargin=3pt,
-   framexleftmargin=0.4cm,
-   framesep=0pt,
-   rulesep=.4pt,
-   rulesepcolor=\color{black},
-   backgroundcolor=\color{gray97},
-   %
-   stringstyle=\ttfamily,
-   showstringspaces = false,
-   basicstyle=\small\ttfamily,
-   commentstyle=\color{gray45},
-   keywordstyle=\bfseries,
-   %
-   breaklines=true,
-   }
-
-\lstnewenvironment{bash}[1][]
-   {\lstset{language=sh,
-            backgroundcolor=\color{gray97},}}
-   {}
-   
-\lstnewenvironment{ruby}[1][]
-   {\lstset{language=Ruby,
-            backgroundcolor=\color{white},
-            numbers=left,
-            numbersep=15pt,
-            numberstyle=\tiny,
-            numberfirstline = false,}}
-   {}
-
-\definecolor{bg}{rgb}{0.95,0.95,0.95}
-\newminted{ruby}{linenos,frame=single}
-\newminted{yaml}{frame=leftline}
-\newminted{bash}{bgcolor=bg,frame=single}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TABLE OF CONTENTS & BIBLIOGRAPHY
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Numeramos hasta 3 niveles y los incluimos en la tabla de contenidos
-\setcounter{secnumdepth}{3}
-\setcounter{tocdepth}{3}
-
-% Para que ponga 'tabla' en vez de 'cuadro'
-% y la bibliografía se llame 'Bibliografía'
-\addto\captionsspanish{%
-\def\bibname{Bibliografía}
-\def\tablename{Tabla}%
-\def\listtablename{Índice de tablas}
-}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DOCUMENT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -201,67 +134,6 @@
 {\normalsize Septiembre 2012}\\ 
 \end{center} 
 \end{titlepage} 
-
-\cleardoublepageempty
-
-\selectlanguage{spanish}
-
-% Acknowledgements
-%\pagebreak
-%\thispagestyle{empty}
-%\begin{flushright}
-%\vspace*{8cm}
-%\large{\emph{This quote intentionally left blank.}}
-%\end{flushright}
-
-% Abstract
-\frontmatter % numeración romana, capítulos aparecen en la tabla de contenidos
-
-\include{capitulos/resumen}
-
-\tableofcontents
-\listoftables
-\listoffigures
-
-% Chapters
-\mainmatter % numeración arábiga
-
-\include{capitulos/introduccion}
-\include{capitulos/herramientas}
-\include{capitulos/modelado}
-\include{capitulos/metodologia}
-\include{capitulos/disenyo}
-\include{capitulos/validacion}
-\include{capitulos/conclusiones}
-
-\addcontentsline{toc}{chapter}{Bibliografía}
-\nocite{*}
-\bibliographystyle{abbrv}
-\bibliography{biblio/references}
-
-% Appendices
-\renewcommand{\appendixname}{Anexo}
-\appendix
-
-%\include{anexos/puppet-language}
-
-%\include{anexos/clouds/appscale}
-%\include{anexos/clouds/torque}
-%\include{anexos/clouds/web}
-
-%\include{anexos/codigo/codigo}
-
-%\include{anexos/gestion}
-%\include{anexos/ejemplo}
-
-%\include{anexos/instalacion/ruby}
-%\include{anexos/instalacion/libvirt}
-%\include{anexos/instalacion/rabbitmq}
-%\include{anexos/instalacion/mcollective}
-%\include{anexos/instalacion/puppet-installation}
-
-
-\cleardoublepageempty
 
 
 \end{document}

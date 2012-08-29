@@ -1,8 +1,7 @@
 \chapter{Validación de la solución planteada}
 \label{cap:validacion}
 
-x Máquinas físicas\\
-y Máquinas virtuales\\
+
 AppScale: 1 maestro, dos esclavos\\
 
 
@@ -34,30 +33,30 @@ Estas pruebas tienen como objetivo simular los fallos que se podrían encontrar 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Pruebas específicas de la infraestructura TORQUE}
 
-Para probar la infraestructura TORQUE se han usado cuatro (de momento) máquinas virtuales alojadas en X máquinas físicas. Una de las máquinas virtuales actúa como nodo maestro y las otras tres (de momento) actúan como nodos de computación. Además de las pruebas comunes, para comprobar el provedor de la infraestructura TORQUE se han realizado las siguientes pruebas:
+Para probar la infraestructura TORQUE se han usado cuatro máquinas virtuales alojadas en dos máquinas físicas. Una de las máquinas virtuales actúa como nodo maestro y las otras tres actúan como nodos de computación. Además de las pruebas comunes, para comprobar el provedor de la infraestructura TORQUE se han realizado las siguientes pruebas:
 
 \begin{itemize}
-\item Parada del proceso de autenticación (trqauthd) en el nodo maestro: se crea un nuevo proceso de autenticación.
-\item Parada del proceso servidor (pbs\_server) en el nodo maestro: se crea un nuevo proceso servidor.
-\item Parada del proceso planificador (pbs\_sched) en el nodo maestro: se crea un nuevo proceso planificador.
-\item Parada del proceso de ejecución de trabajos (pbs\_mom) en un nodo de computación: se crea un nuevo proceso de ejecución de trabajos.
-\item Parada del proceso que monitoriza al proceso de autenticación en el nodo maestro: se crea un nuevo proceso de monitorización.
-\item Parada del proceso que monitoriza al proceso servidor en el nodo maestro: se crea un nuevo proceso de monitorización.
-\item Parada del proceso que monitoriza al proceso planificador en el nodo maestro: se crea un nuevo proceso de monitorización.
-\item Parada del proceso que monitoriza al proceso de ejecución de trabajos en un nodo de computación: se crea un nuevo proceso de monitorización.
+\item Parada del proceso de autenticación (trqauthd) en el nodo maestro: el proceso que lo está monitorizando (god) se da cuenta y crea un nuevo proceso de autenticación.
+\item Parada del proceso servidor (pbs\_server) en el nodo maestro: el proceso que lo está monitorizando (god) se da cuenta y crea un nuevo proceso servidor.
+\item Parada del proceso planificador (pbs\_sched) en el nodo maestro: el proceso que lo está monitorizando (god) se da cuenta y crea un nuevo proceso planificador.
+\item Parada del proceso de ejecución de trabajos (pbs\_mom) en un nodo de computación: el proceso que lo está monitorizando (god) se da cuenta y crea un nuevo proceso de ejecución de trabajos.
+\item Parada del proceso que monitoriza al proceso de autenticación en el nodo maestro: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso servidor en el nodo maestro: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso planificador en el nodo maestro: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso de ejecución de trabajos en un nodo de computación: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
 \end{itemize}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Pruebas específicas de la infraestructura web de tres niveles}
 
-Para probar la infraestructura web se han usado cuatro máquinas virtuales repartidas entre X máquinas físicas. Una máquina virtual actúa como balanceador de carga, dos actúan como servidores web y la última actúa como base de datos. Las pruebas que se han realizado para comprobar el correcto funcinamiento del proveedor de la infraestructura web han sido:
+Para probar la infraestructura web se han usado cuatro máquinas virtuales repartidas entre dos máquinas físicas. Una máquina virtual actúa como balanceador de carga, dos actúan como servidores web y la última actúa como base de datos. Las pruebas que se han realizado para comprobar el correcto funcinamiento del proveedor de la infraestructura web han sido:
 
 \begin{itemize}
-\item Parada del proceso balanceador de carga: se crea un nuevo proceso balanceador de carga.
-\item Parada del proceso servidor web: se crea un nuevo proceso servidor web.
-\item Parada del proceso base de datos: se crea un nuevo proceso base de datos.
-\item Parada del proceso que monitoriza al proceso balanceador de carga: se crea un nuevo proceso de monitorización.
-\item Parada del proceso que monitoriza al proceso servidor web: se crea un nuevo proceso de monitorización.
-\item Parada del proceso que monitoriza al base de datos: se crea un nuevo proceso de monitorización.
+\item Parada del proceso balanceador de carga: el proceso que lo está monitorizando (puppet) se da cuenta y crea un nuevo proceso balanceador de carga.
+\item Parada del proceso servidor web: el proceso que lo está monitorizando (puppet) se da cuenta y crea un nuevo proceso servidor web.
+\item Parada del proceso base de datos: el proceso que lo está monitorizando (god) se da cuenta y crea un nuevo proceso base de datos.
+\item Parada del proceso que monitoriza al proceso balanceador de carga: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso servidor web: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al base de datos: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
 \end{itemize}
