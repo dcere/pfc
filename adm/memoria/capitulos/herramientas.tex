@@ -6,6 +6,7 @@
 En este capítulo se realiza un breve análisis de las distintas herramientas e infraestructuras usadas a lo largo del proyecto.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Herramienta de gestión de configuración}
 
 Las herramientas de gestión de configuración tienen como objetivo describir y llevar a un sistema informático a un cierto estado. Normalmente esto suele incluir llevar a una serie de recursos (ficheros, usuarios, paquetes instalados, etc.) al estado deseado. Para cumplir esta misión se apoyan en dos conceptos básicos: iteración y convergencia. Estas herramientas tratan iteración tras iteración de acercar el sistema informático lo máximo posible al estado deseado. Es posible, por tanto, que el estado final no se alcance en una única ejecución, sino que sean necesarias varias ejecuciones.
@@ -17,6 +18,7 @@ Puppet \cite{puppetlabs} es una herramienta de gestión de configuración que po
 A la especificación de forma declarativa de los recursos y del estado que estos deben alcanzar se le denomina manifiesto. En general, un manifiesto contiene la información necesaria para realizar la configuración de un nodo. Un administrador de un sistema informático que use Puppet creará manifiestos en los que especifique los recursos y su estado. Por ejemplo, para crear un fichero el administrador escribirá en un manifiesto algo similar a lo siguiente:
 
 %%% Revisar el salto de página
+\pagebreak
 
 \begin{lstlisting}
 file {'testfile':
@@ -39,7 +41,7 @@ Cuando se tiene listo el manifiesto a Puppet se le da la orden de aplicarlo. Los
 
 Normalmente Puppet se ejecuta de manera periódica mediante un planificador de trabajos (por ejemplo, cron). Cada cierto tiempo contactará con el nodo que debe ser administrado y volverá a repetir los pasos anteriores. Es decir, Puppet está continuamente intentando llevar al nodo al estado especificado en el manifiesto. Si entre una ejecución y otra algo cambiara en el nodo, Puppet se daría cuenta e intentaría llevar al nodo al estado que le corresponde. \\
 
-Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde el que se aplica el manifiesto, a lo largo de este proyecto las ejecuciones de Puppet siempre serán sobre el nodo que aplica el manifiesto, siempre serán locales.
+Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde el que se aplica el manifiesto, a lo largo de este proyecto las ejecuciones de Puppet siempre serán sobre el nodo que aplica el manifiesto, siempre serán locales. Al ser un sistema distribuido no se puede confiar en que un único nodo alberge los manifiestos de todos los nodos del sistema, sino que cada nodo debe tener el manifiesto que a él le corresponda.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
