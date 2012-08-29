@@ -25,7 +25,7 @@ class CloudInfrastructure
 
 
    # Defines a domain for a virtual machine on a physical machine.
-   def define_domain(domain_file_name, pm_user, pm, vm_name)
+   def define_domain(domain_file_name, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} define #{domain_file_name}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)

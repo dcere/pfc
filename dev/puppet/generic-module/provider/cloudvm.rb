@@ -217,7 +217,7 @@ class CloudVM
             puts "Shutting down domains"
             defined_domains.each_line do |domain|
                domain.chomp!
-               unless @infrastructure.shutdown_domain(domain)
+               unless @infrastructure.shutdown_domain(domain, pm_user, pm)
                   @err.call "#{domain} impossible to shut down"
                end
             end
@@ -227,7 +227,7 @@ class CloudVM
             defined_domains.rewind
             defined_domains.each_line do |domain|
                domain.chomp!
-               unless @infrastructure.undefine_domain(domain)
+               unless @infrastructure.undefine_domain(domain, pm_user, pm)
                   @err.call "#{domain} impossible to undefine"
                end
             end
