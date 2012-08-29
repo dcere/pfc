@@ -45,8 +45,9 @@ En Puppet, el proveedor es el encargado de llevar al recurso al estado que se le
 Puppet no contempla la herencia entre tipos o entre proveedores de distintos tipos. Por lo tanto, las funciones anteriormente especificadas no se encuentran dentro de ningún proveedor concreto (no existe, como tal, el proveedor de un recurso \emph{cloud} genérico), sino que se presentan como una clase Ruby con unas funcionalidades básicas que los distintos proveedores de recursos sistema distribuido pueden usar para facilitar el desarrollo de los mismos. Por ejemplo, esta clase tiene una función de inicio a la cual un proveedor le puede pasar como argumento la función de inicio del \emph{cloud} concreto. Cuando se hayan hecho las operaciones de inicio básicas, se procederá a invocar la función de inicio que se pasó como argumento. \\
 
 Las operaciones de puesta en marcha son las encargadas de poner en funcionamiento el \emph{cloud} especificado en el manifiesto. Las más importantes son:
+
 \begin{itemize}
-\item Inicio como líder: Función de puesta en marcha que realizará el nodo líder del \emph{cloud}. Ésta es la función más importante dentro de las funciones de inicio del proveedor ya que es la que se encarga de iniciar el \emph{cloud}. A grandes rasgos, los pasos que realiza son:
+\item Inicio como líder: Función de puesta en marcha que realizará el nodo líder. Ésta es la función más importante dentro de las funciones de inicio del proveedor ya que es la que se encarga de iniciar el \emph{cloud}. A grandes rasgos, los pasos que realiza son:
 
    \begin{enumerate}
    \item Comprobación de la existencia del \emph{cloud}: si no existe se creará.
@@ -61,22 +62,25 @@ Las operaciones de puesta en marcha son las encargadas de poner en funcionamient
 \item Inicio como nodo externo: Función de puesta en marcha que realizará un nodo no perteneciente al \emph{cloud}.
 \end{itemize}
 
-La monitorización del \emph{cloud} únicamente la llevará a cabo uno de los nodos, al que llamaremos líder, ya que sería redundate que más de un nodo se encargara de comprobar el estado global del \emph{cloud}. Por tanto, sólo hay una función importante:
+La monitorización únicamente la llevará a cabo uno de los nodos, al que llamaremos líder, ya que sería redundate que más de un nodo se encargara de comprobar el estado global del sistema. Por tanto, sólo hay una función importante:
+
 \begin{itemize}
 \item Monitorización como líder: Función de monitorización que realizará el nodo líder del \emph{cloud}.
 \end{itemize}
 
 Para elegir al nodo líder de entre todos los nodos del \emph{cloud} se utiliza el algoritmo peleón (en inglés \emph{Bully algorithm}). En este algoritmo todos los nodos tratan periódicamente de convertirse en el líder; si hay un líder, impedirá que otro nodo le quite el liderazgo, y si no lo hay, uno de los restantes nodos se convertirá en líder. Para ayudar a la implementación de este algoritmo se proporcionan las funciones de elección de líder, de las cuales las más importantes son:
+
 \begin{itemize}
 \item Lectura y escritura de identificador: Funciones de lectura y escritura del identificador del nodo actual.
 \item Lectura y escritura de identificador de líder: Funciones de lectura y escritura del identificador del nodo líder.
 \item Escritura de identificador e identificador de líder remoto: Funciones de escritura del identificador y del identificador del líder en un nodo distinto del actual.
 \end{itemize}
 
-Por último, es posible que en algún momento se desee parar por completo el funcionamiento del \emph{cloud}. Las operaciones de parada de \emph{cloud} más importantes son:
+Por último, es posible que en algún momento se desee parar por completo el funcionamiento del \emph{cloud}. Las operaciones de parada más importantes son:
+
 \begin{itemize}
 \item Apagado de máquinas virtuales: Función de apagado de las máquinas virtuales que forman el \emph{cloud}.
-\item Borrado de ficheros: Función de eliminación de todos los ficheros internos de gestión del \emph{cloud}.
+\item Borrado de ficheros: Función de eliminación de todos los ficheros internos de gestión.
 \end{itemize}
 
 Aunque no se proporcionan como funciones, hay que tener en cuenta que cada tipo de \emph{cloud} puede tener sus propias funciones de parada. Estas funciones de parada deben realizarse antes de apagar las máquinas virtuales. De forma general, los pasos que hay que hacer a la hora de parar un \emph{cloud} son:

@@ -1,0 +1,146 @@
+root@lucid-web:/etc/puppet/modules/web/manifests# puppet apply init-web2.pp 
+Starting cloud mycloud
+Checking pool of physical machines...
+Obtaining the virtual machines' IPs...
+Obtaining virtual machines' data
+Checking whether this machine is part of the cloud...
+155.210.155.73 is part of the cloud
+155.210.155.73 is not the leader
+155.210.155.73 will be the leader
+Creating /root/cloud/ssh directory...
+Deleting previous keys...
+Generating key...
+Evaluating agent and adding identity...
+Identity added: /root/cloud/ssh/id_rsa (/root/cloud/ssh/id_rsa)
+notice: /Stage[main]//Web[mycloud]/ensure: created
+notice: Finished catalog run in 0.39 seconds
+
+
+root@lucid-web:/etc/puppet/modules/web/manifests# puppet apply init-web2.pp 
+Starting cloud mycloud
+Checking pool of physical machines...
+Obtaining the virtual machines' IPs...
+Obtaining virtual machines' data
+Checking whether this machine is part of the cloud...
+155.210.155.73 is part of the cloud
+155.210.155.73 is the leader
+Checking whether virtual machines are alive...
+Monitoring 155.210.155.175...
+[CloudMonitor] 155.210.155.175 is up
+Sending ssh key to 155.210.155.175
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+[CloudMonitor] MCollective is running on 155.210.155.175
+155.210.155.175 will perform the roles: [:balancer]
+[Web monitor] Monitoring load balancer
+[Web monitor] Monitored load balancer
+...Monitored
+Monitoring 155.210.155.73...
+[CloudMonitor] 155.210.155.73 is up
+Sending ssh key to 155.210.155.73
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+MCollective is not running on 155.210.155.73
+[CloudMonitor] MCollective is running now on 155.210.155.73
+155.210.155.73 will perform the roles: [:server]
+[Web monitor] Monitoring web server
+[Web monitor] Monitored web server
+...Monitored
+Monitoring 155.210.155.178...
+[CloudMonitor] 155.210.155.178 is up
+Sending ssh key to 155.210.155.178
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+MCollective is not running on 155.210.155.178
+[CloudMonitor] MCollective is running now on 155.210.155.178
+Sending path and content via MCollective Files client
+
+ * [ ============================================================> ] 3 / 3
+
+
+Finished processing 3 / 3 hosts in 114.95 ms
+155.210.155.178 will perform the roles: [:server]
+[Web monitor] Monitoring web server
+[Web monitor] Monitored web server
+...Monitored
+Monitoring 155.210.155.177...
+[CloudMonitor] 155.210.155.177 is up
+Sending ssh key to 155.210.155.177
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+MCollective is not running on 155.210.155.177
+[CloudMonitor] MCollective is running now on 155.210.155.177
+Sending path and content via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 177.19 ms
+155.210.155.177 will perform the roles: [:database]
+[Web monitor] Monitoring database
+[Web monitor] God is not running in 155.210.155.177
+[Web monitor] Starting monitoring database on 155.210.155.177
+[Web monitor] Successfully started to monitor database on 155.210.155.177
+[Web monitor] Monitored database
+...Monitored
+Copying important files to all virtual machines
+Starting the cloud
+Starting a web cloud
+Starting nginx on load balancers
+Starting ruby web3 on web servers
+Starting mysql on database servers
+===================
+== Cloud started ==
+===================
+notice: /Stage[main]//Web[mycloud]/ensure: created
+notice: Finished catalog run in 76.41 seconds
+
+root@lucid-web:/etc/puppet/modules/web/manifests# puppet apply stop-web2.pp 
+Stopping cloud mycloud
+It is a web cloud
+Obtaining virtual machines' data
+Stopping nginx on load balancers
+Stopping ruby web3 on web servers
+Stopping mysql on database servers
+Copying ssh key to physical machine
+password is empty, using ssh-copy-id command
+scp: /tmp/defined-domains: No such file or directory
+No /tmp/defined-domains file found in 155.210.155.70
+Sending path and string via MCollective Cron client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 111.56 ms
+Deleting cloud files on all machines...
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 94.15 ms
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 105.65 ms
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 90.45 ms
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 86.66 ms
+Disconnecting MCollective client...
+File /tmp/defined-domains does not exist
+===================
+== Cloud stopped ==
+===================
+notice: /Stage[main]//Web[mycloud]/ensure: ensure changed 'present' to 'stopped'
+notice: Finished catalog run in 15.38 seconds

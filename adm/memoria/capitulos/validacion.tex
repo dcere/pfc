@@ -17,45 +17,47 @@ Antes de empezar con las pruebas hay que configurar el entorno en el que se real
 En todas y cada una de las infraestructuras se han realizado las siguientes pruebas para comprobar el correcto funcionamiento del proveedor distribuido:
 
 \begin{itemize}
-\item Apagado de una máquina virtual que había empezado encendida y no era líder.
-\item Apagado de una máquina virtual que no había empezado encendida y no era líder.
-\item Apagado de una máquina virtual que había empezado encendida y era líder.
-\item Puesta en marcha de la infraestructura desde una máquina que no pertenece al \emph{cloud}.
-\item Puesta en marcha de la infraestructura desde una máquina que pertenece al \emph{cloud}.
+\item Apagado de una máquina virtual que había empezado encendida y no era líder: el líder provee una nueva máquina virtual que sustituye a la que ha fallado.
+\item Apagado de una máquina virtual que no había empezado encendida y no era líder: el líder provee una nueva máquina virtual que sustituye a la que ha fallado.
+\item Apagado de una máquina virtual que había empezado encendida y era líder: se elige a un nuevo líder el cual provee una nueva máquina virtual que sustituye a la que ha fallado.
+\item Puesta en marcha de la infraestructura desde una máquina que no pertenece al \emph{cloud}: se informa de qué máquina perteneciente al \emph{cloud} se ha iniciado para continuar la puesta en marcha desde ella.
+\item Puesta en marcha de la infraestructura desde una máquina que pertenece al \emph{cloud}: se crea el \emph{cloud}.
 \end{itemize}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Prueba de infraestructura AppScale}
+Estas pruebas tienen como objetivo simular los fallos que se podrían encontrar en una ejecución en un entorno de producción para demostrar la tolerancia a fallos del sistema.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Prueba de infraestructura TORQUE}
+\section{Pruebas específicas de la infraestructura AppScale}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Pruebas específicas de la infraestructura TORQUE}
 
 Para probar la infraestructura TORQUE se han usado cuatro (de momento) máquinas virtuales alojadas en X máquinas físicas. Una de las máquinas virtuales actúa como nodo maestro y las otras tres (de momento) actúan como nodos de computación. Además de las pruebas comunes, para comprobar el provedor de la infraestructura TORQUE se han realizado las siguientes pruebas:
 
 \begin{itemize}
-\item Parada del proceso de autenticación (trqauthd) en el nodo maestro.
-\item Parada del proceso servidor (pbs\_server) en el nodo maestro.
-\item Parada del proceso planificador (pbs\_sched) en el nodo maestro.
-\item Parada del proceso de ejecución de trabajos (pbs\_mom) en un nodo de computación.
-\item Parada del proceso que monitoriza al proceso de autenticación en el nodo maestro.
-\item Parada del proceso que monitoriza al proceso servidor en el nodo maestro.
-\item Parada del proceso que monitoriza al proceso planificador en el nodo maestro.
-\item Parada del proceso que monitoriza al proceso de ejecución de trabajos en un nodo de computación.
+\item Parada del proceso de autenticación (trqauthd) en el nodo maestro: se crea un nuevo proceso de autenticación.
+\item Parada del proceso servidor (pbs\_server) en el nodo maestro: se crea un nuevo proceso servidor.
+\item Parada del proceso planificador (pbs\_sched) en el nodo maestro: se crea un nuevo proceso planificador.
+\item Parada del proceso de ejecución de trabajos (pbs\_mom) en un nodo de computación: se crea un nuevo proceso de ejecución de trabajos.
+\item Parada del proceso que monitoriza al proceso de autenticación en el nodo maestro: se crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso servidor en el nodo maestro: se crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso planificador en el nodo maestro: se crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso de ejecución de trabajos en un nodo de computación: se crea un nuevo proceso de monitorización.
 \end{itemize}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Prueba de infraestructura web de tres niveles}
+\section{Pruebas específicas de la infraestructura web de tres niveles}
 
 Para probar la infraestructura web se han usado cuatro máquinas virtuales repartidas entre X máquinas físicas. Una máquina virtual actúa como balanceador de carga, dos actúan como servidores web y la última actúa como base de datos. Las pruebas que se han realizado para comprobar el correcto funcinamiento del proveedor de la infraestructura web han sido:
 
 \begin{itemize}
-\item Parada del proceso balanceador de carga.
-\item Parada del proceso servidor web.
-\item Parada del proceso base de datos.
-\item Parada del proceso que monitoriza al proceso balanceador de carga.
-\item Parada del proceso que monitoriza al proceso servidor web.
-\item Parada del proceso que monitoriza al base de datos.
+\item Parada del proceso balanceador de carga: se crea un nuevo proceso balanceador de carga.
+\item Parada del proceso servidor web: se crea un nuevo proceso servidor web.
+\item Parada del proceso base de datos: se crea un nuevo proceso base de datos.
+\item Parada del proceso que monitoriza al proceso balanceador de carga: se crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al proceso servidor web: se crea un nuevo proceso de monitorización.
+\item Parada del proceso que monitoriza al base de datos: se crea un nuevo proceso de monitorización.
 \end{itemize}

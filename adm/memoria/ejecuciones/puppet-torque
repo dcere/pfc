@@ -1,0 +1,254 @@
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# puppet apply init-torque2.pp 
+Starting cloud mycloud
+Checking pool of physical machines...
+Obtaining the virtual machines' IPs...
+Obtaining virtual machines' data
+Checking whether this machine is part of the cloud...
+155.210.155.73 is part of the cloud
+155.210.155.73 is not the leader
+155.210.155.73 will be the leader
+Creating /root/cloud/ssh directory...
+Deleting previous keys...
+Generating key...
+Evaluating agent and adding identity...
+Identity added: /root/cloud/ssh/id_rsa (/root/cloud/ssh/id_rsa)
+notice: /Stage[main]//Torque[mycloud]/ensure: created
+notice: Finished catalog run in 0.43 seconds
+
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# puppet apply init-torque2.pp 
+Starting cloud mycloud
+Checking pool of physical machines...
+Obtaining the virtual machines' IPs...
+Obtaining virtual machines' data
+Checking whether this machine is part of the cloud...
+155.210.155.73 is part of the cloud
+155.210.155.73 is the leader
+Checking whether virtual machines are alive...
+Monitoring 155.210.155.73...
+[CloudMonitor] 155.210.155.73 is up
+Sending ssh key to 155.210.155.73
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+[CloudMonitor] MCollective is running on 155.210.155.73
+155.210.155.73 will perform the roles: [:head]
+[Torque monitor] Monitoring head
+[Torque monitor] God or trqauthd are not running in 155.210.155.73
+[Torque monitor] Starting monitoring head on 155.210.155.73
+[Torque monitor] Successfully started to monitor head on 155.210.155.73
+[Torque monitor] Monitored head
+...Monitored
+Monitoring 155.210.155.177...
+[CloudMonitor] 155.210.155.177 is up
+Sending ssh key to 155.210.155.177
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+[CloudMonitor] MCollective is running on 155.210.155.177
+Sending path and content via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 90.01 ms
+155.210.155.177 will perform the roles: [:compute]
+[Torque monitor] Monitoring compute
+qmgr obj= svr=localhost: Server has no node list MSG=node list is empty - check 'server_priv/nodes' file
+[Torque monitor] Adding lucid-tor2 to the list of compute nodes
+[Torque monitor] God is not running in 155.210.155.177
+[Torque monitor] Starting monitoring compute on 155.210.155.177
+[Torque monitor] Successfully started to monitor compute on 155.210.155.177
+[Torque monitor] Monitored compute
+...Monitored
+Monitoring 155.210.155.178...
+[CloudMonitor] 155.210.155.178 is up
+Sending ssh key to 155.210.155.178
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+[CloudMonitor] MCollective is running on 155.210.155.178
+Sending path and content via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 54.30 ms
+155.210.155.178 will perform the roles: [:compute]
+[Torque monitor] Monitoring compute
+[Torque monitor] Adding lucid-tor3 to the list of compute nodes
+[Torque monitor] God is not running in 155.210.155.178
+[Torque monitor] Starting monitoring compute on 155.210.155.178
+[Torque monitor] Successfully started to monitor compute on 155.210.155.178
+[Torque monitor] Monitored compute
+...Monitored
+Monitoring 155.210.155.175...
+[CloudMonitor] 155.210.155.175 is up
+Sending ssh key to 155.210.155.175
+password is not empty, using ssh_copy_id.sh shell script
+ssh key sent
+[CloudMonitor] MCollective is running on 155.210.155.175
+Sending path and content via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 64.78 ms
+155.210.155.175 will perform the roles: [:compute]
+[Torque monitor] Monitoring compute
+[Torque monitor] Adding lucid-tor4 to the list of compute nodes
+[Torque monitor] God is not running in 155.210.155.175
+[Torque monitor] Starting monitoring compute on 155.210.155.175
+[Torque monitor] Successfully started to monitor compute on 155.210.155.175
+[Torque monitor] Monitored compute
+...Monitored
+Copying important files to all virtual machines
+Starting the cloud
+Starting trqauthd on head node
+Starting pbs_server on head node
+Starting pbs_sched on head node
+Starting pbs_mom on compute nodes
+Starting pbs_mom on compute nodes
+Starting pbs_mom on compute nodes
+[Torque monitor] Monitoring head
+[Torque monitor] Monitored head
+[Torque monitor] Monitoring compute
+[Torque monitor] lucid-tor2 (155.210.155.177) already in head's list node
+[Torque monitor] Monitored compute
+[Torque monitor] Monitoring compute
+[Torque monitor] lucid-tor3 (155.210.155.178) already in head's list node
+[Torque monitor] Monitored compute
+[Torque monitor] Monitoring compute
+[Torque monitor] lucid-tor4 (155.210.155.175) already in head's list node
+[Torque monitor] Monitored compute
+===================
+== Cloud started ==
+===================
+notice: /Stage[main]//Torque[mycloud]/ensure: created
+notice: Finished catalog run in 74.44 seconds
+
+
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# 
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat -q
+
+server: lucid-tor1
+
+Queue            Memory CPU Time Walltime Node  Run Que Lm  State
+---------------- ------ -------- -------- ----  --- --- --  -----
+batch              --      --       --      --    0   0 --   E R
+                                               ----- -----
+                                                   0     0
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# su - david
+david@lucid-tor1:~$ echo "sleep 30" | qsub
+18.lucid-tor1.cps.cloud
+david@lucid-tor1:~$ exit
+logout
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat -q
+
+server: lucid-tor1
+
+Queue            Memory CPU Time Walltime Node  Run Que Lm  State
+---------------- ------ -------- -------- ----  --- --- --  -----
+batch              --      --       --      --    1   0 --   E R
+                                               ----- -----
+                                                   1     0
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david                  0 R batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david                  0 R batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david                  0 R batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david                  0 R batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david                  0 R batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david                  0 R batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david           00:00:00 E batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david           00:00:00 E batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david           00:00:00 E batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david           00:00:00 E batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david           00:00:00 C batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+Job id                    Name             User            Time Use S Queue
+------------------------- ---------------- --------------- -------- - -----
+18.lucid-tor1              STDIN            david           00:00:00 C batch          
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# qstat
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# 
+root@lucid-tor1:/etc/puppet/modules/torque/manifests# puppet apply stop-torque2.pp 
+Stopping cloud mycloud
+It is a torque cloud
+Obtaining virtual machines' data
+Stopping pbs_mom on compute nodes
+Stopping pbs_mom on compute nodes
+Stopping pbs_mom on compute nodes
+Stopping pbs_sched on head node
+Stopping pbs_server on head node
+Stopping trqauthd on head node
+Copying ssh key to physical machine
+password is empty, using ssh-copy-id command
+dceresuela@155.210.155.70's password: 
+scp: /tmp/defined-domains: No such file or directory
+No /tmp/defined-domains file found in 155.210.155.70
+Sending path and string via MCollective Cron client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 145.21 ms
+Deleting cloud files on all machines...
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 72.99 ms
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 101.76 ms
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 88.47 ms
+Sending path via MCollective Files client
+
+ * [ ============================================================> ] 4 / 4
+
+
+Finished processing 4 / 4 hosts in 59.51 ms
+Disconnecting MCollective client...
+File /tmp/defined-domains does not exist
+===================
+== Cloud stopped ==
+===================
+notice: /Stage[main]//Torque[mycloud]/ensure: ensure changed 'present' to 'stopped'
+notice: Finished catalog run in 28.50 seconds
+
