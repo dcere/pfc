@@ -89,45 +89,26 @@ Puppet::Type.type(:web).provide(:webp) do
       cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
                         method(:err))
       puts "Stopping cloud %s" % [resource[:name]]
-
-      if !exists?
-         err "Cloud does not exist"
-         return
-      end
-      if status != :running
-         err "Cloud is not running"
-         return
-      end
-      if exists? && status == :running
+      
+      if cloud.leader?()
+         if !exists?
+            err "Cloud does not exist"
+            return
+         end
          
-         puts "It is a web cloud"
+         if status != :running
+            err "Cloud is not running"
+            return
+         end
          
-         # Stop cloud infrastructure
-         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
-         #                                                   method(:web_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
-         web_cloud_stop(cloud.resource, vm_ip_roles)
+         if exists? && status == :running
+            puts "It is a web cloud"
          
-         # TODO Use leader_stop function?
-
-         # Shutdown and undefine all virtual machines explicitly created for this cloud
-         cloud.shutdown_vms()
-         
-         # Stop cron jobs on all machines
-         cloud.stop_cron_jobs("web")      # TODO Check order
-         
-         # Delete files
-         cloud.delete_files()
-         
-         # Note: As all the files deleted so far are located in the /tmp directory
-         # only the machines that are still alive need to delete these files.
-         # If the machine was shut down, these files will not be there the next
-         # time it is started, so there is no need to delete them.
-         
-         puts "==================="
-         puts "== Cloud stopped =="
-         puts "==================="
-         
+            # Stop cloud infrastructure
+            cloud.leader_stop("web", method(:web_cloud_stop))
+         end
+      else
+         puts "#{MY_IP} is not the leader"      # Nothing to do
       end
    
    end

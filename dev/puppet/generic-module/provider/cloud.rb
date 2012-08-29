@@ -215,16 +215,20 @@ class Cloud
    #############################################################################
 
    # Stoping function for leader node.
-   def leader_stop(cloud_type)
+   def leader_stop(cloud_type, stop_function)
 
       # Stop cron jobs on all machines
       stop_cron_jobs(cloud_type)
-
+      
+      # Stop the cloud with the provided method
+      vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(@resource)
+      stop_function.call(@resource, vm_ip_roles)
+      
       # Shutdown and undefine all virtual machines explicitly created for
       # this cloud
-      shutdown_vms()
+      @vm_manager.shutdown_vms()
       
-      # Delete files
+      # Delete cloud related files
       delete_files()
       
       # Note: As all the files deleted so far are located in the /tmp directory
@@ -244,6 +248,7 @@ class Cloud
    end
 
 
+   ## TODO Remove this once leader_stop is used in web, torque and appscale providers
    # Stops cron jobs on all machines.
    def stop_cron_jobs(cloud_type)
 
@@ -254,6 +259,7 @@ class Cloud
    end
 
 
+   ## TODO Remove this once leader_stop is used in web, torque and appscale providers
    # Deletes cloud files on all machines.
    def delete_files()
 
