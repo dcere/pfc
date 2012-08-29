@@ -9,6 +9,11 @@
 def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
+
+   # SSH keys have already been distributed when machines were monitorized,
+   # so we do not have to distribute them again
+   
+   # Start torque cloud
    return torque_cloud_start(resource, vm_ip_roles)
 
 end

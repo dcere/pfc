@@ -5,11 +5,10 @@
 # The functions in this file are defined the same in all providers, but each
 # one implements them in their own way. Thus, the headers cannot be modified.
 
-# Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
+# Starts a web cloud formed by <vm_ips> performing <vm_ip_roles>.
 def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-   puts  "Starting a web cloud"
    
    # SSH keys have already been distributed when machines were monitorized,
    # so we do not have to distribute them again
