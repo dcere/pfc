@@ -37,7 +37,7 @@ Hay multitud de despliegues posibles combinando estos roles, pero será de espec
 \label{figure:arquitectura-appscale}
 \end{figure}
 
-Además de los atributos necesarios para los roles de las máquinas, el tipo \texttt{appscale} también debe contar con la cuenta de correo y la contraseña para el administrador del \emph{cloud}. Los atributos más importantes del tipo \texttt{appscale} (ver Anexo \ref{anx:source-code} para implementación completa), en lo que a ejecución de trabajos concierne, son:
+Además de los atributos necesarios para los roles de las máquinas, el tipo \texttt{appscale} también debe contar con la cuenta de correo y la contraseña para el administrador del \emph{cloud}. Los atributos más importantes del tipo \texttt{appscale} (ver Anexo \ref{anx:codigo} para implementación completa), en lo que a ejecución de trabajos concierne, son:
 
 \begin{rubycode}
 Puppet::Type.newtype(:appscale) do
@@ -118,7 +118,6 @@ Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de no
 
 Los nuevos atributos que aparecen en el tipo \texttt{torque} reflejan esta nueva infraestructura:
 
-%\begin{figure}
 \begin{rubycode}
 Puppet::Type.newtype(:torque) do
    @doc = "Manages Torque clouds formed by KVM virtual machines."
@@ -136,32 +135,16 @@ Puppet::Type.newtype(:torque) do
    
 end
 \end{rubycode}
-%\end{figure}
 
 La sintaxis del manifiesto de puesta en marcha también se modifica para reflejar este cambio. Un ejemplo de un manifiesto para la puesta en marcha de una infraestructura TORQUE sería similar a éste:
 
-%\begin{figure}
 \begin{lstlisting}
 torque {'mycloud':
-   head => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
+   head    => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
    compute => ["/etc/puppet/modules/torque/files/compute-ips.txt",
                "/etc/puppet/modules/torque/files/compute-imgs.txt"],
    vm_domain => "/etc/puppet/modules/torque/files/mycloud-template.xml",
-   pool => ["155.210.155.70"],
-   ensure => running,
+   pool      => ["155.210.155.70"],
+   ensure    => running,
 }
 \end{lstlisting}
-%\end{figure}
-
-%Por otro lado, un posible manifiesto de parada sería similar a éste:
-
-%\begin{lstlisting}
-%torque {'mycloud':
-%   head => ["155.210.155.73", "/var/tmp/dceresuela/lucid-tor1.img"],
-%   compute => ["/etc/puppet/modules/torque/files/compute-ips.txt",
-%               "/etc/puppet/modules/torque/files/compute-imgs.txt"],
-%   pool => ["155.210.155.70"],
-%   ensure => stopped,
-%}
-%\end{lstlisting}
-

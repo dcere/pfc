@@ -1,8 +1,8 @@
 \chapter{MCollective}
-\label{comun:mcollective}
+\label{anx:mcollective}
 
 
-MCollective es un sistema de despliegue de servidores y de sistemas de ejecución de trabajos en paralelo. Su función principal dentro del ámbito de la administración de sistemas es la ejecución de una acción sobre un conjunto de servidores. Para lograr esto, MCollective se apoya en un \emph{middleware} que proporciona un servicio publicador-suscriptor. En este tipo de programas, las publicaciones y suscripciones suelen implementarse mediante el paso de mensajes asíncrono. Una de las posibilidades que se pueden usar con MCollective es RabbitMQ (Apéndice \ref{comun:rabbitmq}), que implementa el estándar de paso de mensajes AMQP (Advanced Message Queuing Protocol).
+MCollective es un sistema de despliegue de servidores y de sistemas de ejecución de trabajos en paralelo. Su función principal dentro del ámbito de la administración de sistemas es la ejecución de una acción sobre un conjunto de servidores. Para lograr esto, MCollective se apoya en un \emph{middleware} que proporciona un servicio publicador-suscriptor. En este tipo de programas, las publicaciones y suscripciones suelen implementarse mediante el paso de mensajes asíncrono. Una de las posibilidades que se pueden usar con MCollective es RabbitMQ (Apéndice \ref{anx:rabbitmq}), que implementa el estándar de paso de mensajes AMQP (Advanced Message Queuing Protocol).
 
 Dentro de la arquitectura MCollective, los componentes más importantes son:
 \begin{itemize}
@@ -20,10 +20,10 @@ El funcionamiento habitual de MCollective consiste en el lanzamiento de una orde
 \label{figure:arquitectura-mcollective}
 \end{figure}
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Instalación}
 
-El primer paso consiste en la instalación de RubyGems. Para ello, consulta el apéndice \ref{comun:ruby} de instalación de Ruby y RubyGems.
+El primer paso consiste en la instalación de RubyGems. Para ello, consulta el apéndice \ref{anx:ruby} de instalación de Ruby y RubyGems.
 
 Descargamos los paquetes \texttt{mcollective}, \texttt{mcollective-client} y \texttt{mcollective-common} de \url{http://downloads.puppetlabs.com/mcollective/}:
 
@@ -60,7 +60,7 @@ _: apt-get install libstomp-ruby
 \end{bashcode}
 
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Configuración}
 
 A continuación hay que editar el fichero de configuración de MCollective. En los nodos administradores (clientes) se encuentra en \texttt{/etc/mcollective/client.cfg} mientras que en los nodos administrados (servidores) se encuentra en \texttt{/etc/mcollective/server.cfg}. Nos aseguramos de que contengan los siguientes valores:

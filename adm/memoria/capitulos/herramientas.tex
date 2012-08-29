@@ -56,14 +56,14 @@ En esta sección se analizan en profundidad las dos infraestructuras de ejecuci�
 %%% Revisar
 AppScale es una implementación \emph{open source} del App Engine de Google. Al igual que App Engine, AppScale permite alojar aplicaciones web; a diferencia de App Engine, las aplicaciones no serán alojadas en la infraestructura que Google posee, sino que serán alojadas en una infraestructura que el usuario posea. Además de permitir alojar aplicaciones web, AppScale también ofrece las APIs de MapReduce y Neptune. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La API de Neptune añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI, aunque también se pueden ejecutar trabajos de otro tipo. \\
 
-AppScale trata de imitar de la manera más fiel posible los servicios que ofrece el App Engine de Google, tratatando de alcanzar el mayor grado de compatibilidad con éstos. Como la tecnología que Google usa internamente en App Engine permanece oculta al público, AppScale tiene que hacer uso de otras tecnologías existentes para ofrecer las mismas funciones. En la Figura \ref{figure:tecnologias-appscale} se puede ver toda la pila de tecnologías usadas en AppScale.
+AppScale trata de imitar de la manera más fiel posible los servicios que ofrece el App Engine de Google, tratatando de alcanzar el mayor grado de compatibilidad con éstos. Como la tecnología que Google usa internamente en App Engine permanece oculta al público, AppScale tiene que hacer uso de otras tecnologías existentes para ofrecer las mismas funciones. En la Figura \ref{figure:tecnologias-appscale} \footnote[1]{Imagen obtenida de \url{http://code.google.com/p/appscale/wiki/Supported_AppEngine_APIs}} se puede ver toda la pila de tecnologías usadas en AppScale.
 
 %\newpage % Si no se pone, la imagen aparece sola en una página entera.
 
 \begin{figure} [!htbp]
   \centering
   \includegraphics[width=13.5cm]{imagenes/AppScale_Stack.png}
-  \caption{Tecnologías usadas por AppScale. Imagen obtenida de \url{http://code.google.com/p/appscale/wiki/Supported_AppEngine_APIs}}
+  \caption{Tecnologías usadas por AppScale.}
 \label{figure:tecnologias-appscale}
 \end{figure}
 

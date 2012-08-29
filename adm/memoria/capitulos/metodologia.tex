@@ -23,7 +23,7 @@ La infraestructura usada como ejemplo consta de un balanceador de carga, dos ser
 
 \pagebreak
 
-La creación del tipo \texttt{web} se hace en el fichero \texttt{web.rb}, en el lugar apropiado dentro del correspondiente módulo. En el siguiente fragmento de código se indican los aspectos más importantes (la implementación completa puede encontrarse en el Anexo \ref{anx:source-code}) del mismo:
+La creación del tipo \texttt{web} se hace en el fichero \texttt{web.rb}, en el lugar apropiado dentro del correspondiente módulo. En el siguiente fragmento de código se indican los aspectos más importantes (la implementación completa puede encontrarse en el Anexo \ref{anx:codigo}) del mismo:
 
 \begin{rubycode}
 Puppet::Type.newtype(:web) do
@@ -92,20 +92,20 @@ Una vez que el tipo está definido, ya se puede ver cuál será el aspecto de un
 
 \begin{lstlisting}
 web {'mycloud':
-   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
-   server => ["/etc/puppet/modules/web/files/server-ips.txt",
-              "/etc/puppet/modules/web/files/server-imgs.txt"],
-   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
+   balancer  => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
+   server    => ["/etc/puppet/modules/web/files/server-ips.txt",
+                 "/etc/puppet/modules/web/files/server-imgs.txt"],
+   database  => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
    vm_domain => "/etc/puppet/modules/web/files/mycloud-template.xml",
-   pool => ["155.210.155.70"],
-   ensure => running,
+   pool      => ["155.210.155.70"],
+   ensure    => running,
 }
 \end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diseño e implementación del proveedor}
 
-Después de haber definido el tipo del recurso, queda definir el proveedor que implementa dicho tipo. En el caso de los recursos distribuidos, y teniendo en cuenta las funciones de arranque y parada especificadas en el tipo (en el bloque \texttt{ensurable}, líneas 5 a 19), el proveedor deberá contener obligatoriamente las funciones \texttt{start} y \texttt{stop}. A continuación se presenta un proveedor con los aspectos más importantes (la implementación completa se encuentra en el Anexo \ref{anx:source-code}):
+Después de haber definido el tipo del recurso, queda definir el proveedor que implementa dicho tipo. En el caso de los recursos distribuidos, y teniendo en cuenta las funciones de arranque y parada especificadas en el tipo (en el bloque \texttt{ensurable}, líneas 5 a 19), el proveedor deberá contener obligatoriamente las funciones \texttt{start} y \texttt{stop}. A continuación se presenta un proveedor con los aspectos más importantes (la implementación completa se encuentra en el Anexo \ref{anx:codigo}):
 
 \begin{rubycode}
 Puppet::Type.type(:web).provide(:webp) do
