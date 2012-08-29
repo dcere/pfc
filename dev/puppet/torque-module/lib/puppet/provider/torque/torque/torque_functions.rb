@@ -77,7 +77,7 @@ end
 def start_compute(resource, compute, head)
 
    user = resource[:vm_user]
-   puts "Starting pbs_mom on compute nodes"
+   puts "Starting pbs_mom on compute node"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
    command = "/bin/bash /root/cloud/torque/start-pbs-mom"
    out, success = CloudSSH.execute_remote(check_command, user, compute)
