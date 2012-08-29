@@ -9,7 +9,7 @@
 def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-
+   
    # SSH keys have already been distributed when machines were monitorized,
    # so we do not have to distribute them again
    
