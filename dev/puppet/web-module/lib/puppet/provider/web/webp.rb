@@ -23,7 +23,9 @@ Puppet::Type.type(:web).provide(:webp) do
 
    # Makes sure the cloud is running.
    def start
-
+   
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Starting cloud %s" % [resource[:name]]
       
       # Check existence
@@ -32,7 +34,7 @@ Puppet::Type.type(:web).provide(:webp) do
          
          # Check pool of physical machines
          puts "Checking pool of physical machines..."
-         pm_up, pm_down = check_pool()
+         pm_up, pm_down = cloud.check_pool()
          unless pm_down.empty?
             puts "Some physical machines are down"
             pm_down.each do |pm|
@@ -44,7 +46,7 @@ Puppet::Type.type(:web).provide(:webp) do
          puts "Obtaining the virtual machines' IPs..."
          #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
          #                                                   method(:web_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -53,15 +55,16 @@ Puppet::Type.type(:web).provide(:webp) do
             puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
-            if leader?()
-               leader_start("web", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
-                            method(:web_monitor))
+            if cloud.leader?()
+               cloud.leader_start("web", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up, method(:web_monitor))
             else
-               common_start()
+               cloud.common_start()
             end
          else
             puts "#{MY_IP} is not part of the cloud"
-            not_cloud_start("web", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+            cloud.not_cloud_start("web", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up)
          end
          
       else
@@ -70,8 +73,8 @@ Puppet::Type.type(:web).provide(:webp) do
          puts "Cloud already started"
          
          # Check if you are the leader
-         if leader?()
-            leader_monitoring(method(:web_monitor))
+         if cloud.leader?()
+            cloud.leader_monitoring(method(:web_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -83,44 +86,29 @@ Puppet::Type.type(:web).provide(:webp) do
    # Makes sure the cloud is not running.
    def stop
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Stopping cloud %s" % [resource[:name]]
-
-      if !exists?
-         err "Cloud does not exist"
-         return
-      end
-      if status != :running
-         err "Cloud is not running"
-         return
-      end
-      if exists? && status == :running
+      
+      if cloud.leader?()
+         if !exists?
+            err "Cloud does not exist"
+            return
+         end
          
-         puts "It is a web cloud"
+         if status != :running
+            err "Cloud is not running"
+            return
+         end
          
-         # Stop cloud infrastructure
-         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
-         #                                                   method(:web_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-         web_cloud_stop(vm_ip_roles)
+         if exists? && status == :running
+            puts "It is a web cloud"
          
-         # Shutdown and undefine all virtual machines explicitly created for this cloud
-         shutdown_vms()
-         
-         # Stop cron jobs on all machines
-         stop_cron_jobs("web")      # TODO Check order
-         
-         # Delete files
-         delete_files()
-         
-         # Note: As all the files deleted so far are located in the /tmp directory
-         # only the machines that are still alive need to delete these files.
-         # If the machine was shut down, these files will not be there the next
-         # time it is started, so there is no need to delete them.
-         
-         puts "==================="
-         puts "== Cloud stopped =="
-         puts "==================="
-         
+            # Stop cloud infrastructure
+            cloud.leader_stop("web", method(:web_cloud_stop))
+         end
+      else
+         puts "#{MY_IP} is not the leader"      # Nothing to do
       end
    
    end
@@ -136,14 +124,14 @@ Puppet::Type.type(:web).provide(:webp) do
 
 
    # Ensure methods
-   def create
-      return true
-   end
-   
+#   def create
+#      return true
+#   end
+#   
 
-   def destroy
-      return true
-   end
+#   def destroy
+#      return true
+#   end
 
 
    def exists?

@@ -1,7 +1,7 @@
-module CloudInfrastructure
+# Manages the infrastructure of a cloud with KVM support.
+class CloudInfrastructure
 
    # Constants
-
    VIRSH_CONNECT = "virsh -c qemu:///system"
    DOMAINS_FILE = "/tmp/defined-domains"
 
@@ -12,7 +12,7 @@ module CloudInfrastructure
 
 
    # Writes the virtual machine's domain file.
-   def self.write_domain(virtual_machine, domain_file_path, template_path)
+   def write_domain(virtual_machine, domain_file_path, template_path)
 
       require 'erb'
       template = File.open(template_path, 'r').read()
@@ -25,7 +25,7 @@ module CloudInfrastructure
 
 
    # Defines a domain for a virtual machine on a physical machine.
-   def self.define_domain(pm_user, pm, vm_name, domain_file_name)
+   def define_domain(domain_file_name, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} define #{domain_file_name}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -35,9 +35,9 @@ module CloudInfrastructure
 
 
    # Starts a domain on a physical machine.
-   def self.start_domain(pm_user, pm, vm_name)
+   def start_domain(domain, pm_user, pm)
 
-      command = "#{VIRSH_CONNECT} start #{vm_name}"
+      command = "#{VIRSH_CONNECT} start #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
       return success
       
@@ -45,9 +45,9 @@ module CloudInfrastructure
 
 
    # Saves the virtual machine's domain name in a file.
-   def self.save_domain_name(pm_user, pm, vm_name)
+   def save_domain_name(domain, pm_user, pm)
 
-      command = "echo #{vm_name} >> #{DOMAINS_FILE}"
+      command = "echo #{domain} >> #{DOMAINS_FILE}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
       return success
 
@@ -55,7 +55,7 @@ module CloudInfrastructure
 
 
    # Shuts down a domain.
-   def self.shutdown_domain(domain, pm_user, pm)
+   def shutdown_domain(domain, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} shutdown #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -65,7 +65,7 @@ module CloudInfrastructure
 
 
    # Undefines a domain.
-   def self.undefine_domains(domain, pm_user, pm)
+   def undefine_domain(domain, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} undefine #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)

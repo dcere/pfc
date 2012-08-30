@@ -1,1 +1,1 @@
-gedit genericp_*.rb &
+gedit cloud*.rb &

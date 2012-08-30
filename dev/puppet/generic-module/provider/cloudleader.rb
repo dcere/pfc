@@ -5,6 +5,7 @@ class CloudLeader
    LEADER_FILE  = "/tmp/cloud-leader"
    LAST_ID_FILE = "/tmp/cloud-last-id"
    
+   
    attr_reader :id, :leader, :last_id
    
    def initialize(id_file = ID_FILE, leader_file = LEADER_FILE,

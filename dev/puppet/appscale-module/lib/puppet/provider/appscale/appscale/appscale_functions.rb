@@ -1,5 +1,5 @@
 # Starts an AppScale cloud.
-def appscale_cloud_start(app_ips, app_roles,
+def appscale_cloud_start(resource, app_ips, app_roles,
                          app_email=nil, app_password=nil, root_password=nil)
 
    require 'expect'
@@ -25,7 +25,6 @@ def appscale_cloud_start(app_ips, app_roles,
 
    # Add key pairs
    puts "About to add key pairs"
-   debug "[DBG] ips.yaml file: #{ips_yaml}"
    result = `#{script_path}/#{script_keys} #{ips_yaml} #{root_password}`
    if $?.exitstatus == 0
       puts "Key pairs added"
@@ -50,15 +49,6 @@ def appscale_cloud_start(app_ips, app_roles,
    # Start monitoring
    puts "Start monitoring"
    app_ips.each do |vm|
-   
-      # Find the role
-      # TODO What if a machine has different roles?
-      # role = :undefined
-      # app_roles.each do |r, ips|
-      #    ips.each do |ip|
-      #       if vm == ip then role = r end
-      #    end
-      # end
 
       # Get all vm's roles
       roles = app_roles.select { |r, ips| ips.include?(vm) }      # Be careful,
@@ -70,7 +60,7 @@ def appscale_cloud_start(app_ips, app_roles,
       roles.each do |role_array|
          role = role_array[0]
          puts "Calling appscale_monitor on #{vm} as #{role}"
-         appscale_monitor(vm, role)
+         appscale_monitor(resource, vm, role)
       end
    end
 
@@ -80,9 +70,15 @@ end
 
 
 # Stops an AppScale cloud.
-def appscale_cloud_stop(vm)
+def appscale_cloud_stop(resource, vm)
    
    user = resource[:vm_user]
+   
+   # It is being monitored with puppet through a crontab file, so we have to
+   # stop monitoring first
+   cloud_cron = CloudCron.new()
+   word = "basic"
+   cloud_cron.delete_line_with_word(word, user, vm)
    
    # Terminate instances
    command = "/root/appscale-tools/bin/appscale-terminate-instances"
@@ -92,7 +88,7 @@ end
 
 
 # Monitors a virtual machine belonging to an AppScale cloud.
-def appscale_monitor(vm, role)
+def appscale_monitor(resource, vm, role)
 
    command = "ps aux"
    user = resource[:vm_user]
@@ -163,20 +159,52 @@ def appscale_monitor(vm, role)
       return
    end
    
-   # Apply the manifest
-   puts "Applying manifest"
-   command = "puppet apply /tmp/basic.pp"
+#   # Apply the manifest
+#   puts "Applying manifest"
+#   command = "puppet apply /tmp/basic.pp"
+#   out, success = CloudSSH.execute_remote(command, user, vm)
+#   unless success
+#      err "[AppScale monitor] Impossible to run puppet in #{vm}"
+#      return
+#   end
+#   
+#   # Analyze the output
+#   if out.include? "should be directory (noop)"
+#      err "[AppScale monitor] Missing directory in #{vm}"
+#      puts out
+#      return
+#   end
+
+   # Monitor AppScale with puppet: basic manifest
+   cloud_cron = CloudCron.new()
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/basic.pp"
+   cron_out = "/root/appscale.out"
+   cron_err = "/root/appscale.err"
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
+      err "[AppScale monitor] Impossible to put basic.pp in crontab in #{vm}"
+      return
+   end
+   
+   # Execute crontab
+   command = "crontab /var/spool/cron/crontabs/root"
    out, success = CloudSSH.execute_remote(command, user, vm)
-   unless success
-      err "[AppScale monitor] Impossible to run puppet in #{vm}"
+   if success
+      puts "[AppScale monitor] Executed crontab in #{vm}"
+   else
+      err "[AppScale monitor] Impossible to execute crontab in #{vm}"
       return
    end
-   
-   # Analyze the output
-   if out.include? "should be directory (noop)"
-      err "[AppScale monitor] Missing directory in #{vm}"
-      puts out
-      return
-   end
-   
+  
 end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+def err(text)
+   puts "\e[31m#{text}\e[0m"
+end
+
