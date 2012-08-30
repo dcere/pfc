@@ -458,7 +458,7 @@ Como servidor web usaremos WEBrick, que es el servidor web que viene por defecto
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Instalación}
 
-Lo primero que hay que hacer es instalar Ruby y RubyGems. Para ello, consulta el apéndice \ref{anx:inst-ruby} de instalación de Ruby.
+Lo primero que hay que hacer es instalar Ruby y RubyGems. Para ello, consulta el anexo \ref{anx:inst-ruby} de instalación de Ruby.
 
 Una vez instalado Ruby y RubyGems, instalaremos el paquete \texttt{ruby-dev}:
 
@@ -794,7 +794,7 @@ _: apt-get install libvirt-ruby
 \label{anx:inst-mcollective}
 
 
-MCollective es un sistema de despliegue de servidores y de sistemas de ejecución de trabajos en paralelo. Su función principal dentro del ámbito de la administración de sistemas es la ejecución de una acción sobre un conjunto de servidores. Para lograr esto, MCollective se apoya en un \emph{middleware} que proporciona un servicio publicador-suscriptor. En este tipo de programas, las publicaciones y suscripciones suelen implementarse mediante el paso de mensajes asíncrono. Una de las posibilidades que se pueden usar con MCollective es RabbitMQ (Apéndice \ref{anx:inst-rabbitmq}), que implementa el estándar de paso de mensajes AMQP (Advanced Message Queuing Protocol).
+MCollective es un sistema de despliegue de servidores y de sistemas de ejecución de trabajos en paralelo. Su función principal dentro del ámbito de la administración de sistemas es la ejecución de una acción sobre un conjunto de servidores. Para lograr esto, MCollective se apoya en un \emph{middleware} que proporciona un servicio publicador-suscriptor. En este tipo de programas, las publicaciones y suscripciones suelen implementarse mediante el paso de mensajes asíncrono. Una de las posibilidades que se pueden usar con MCollective es RabbitMQ (Anexo \ref{anx:inst-rabbitmq}), que implementa el estándar de paso de mensajes AMQP (Advanced Message Queuing Protocol).
 
 Dentro de la arquitectura MCollective, los componentes más importantes son:
 \begin{itemize}
@@ -815,7 +815,7 @@ El funcionamiento habitual de MCollective consiste en el lanzamiento de una orde
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Instalación}
 
-El primer paso consiste en la instalación de RubyGems. Para ello, consulta el apéndice \ref{anx:inst-ruby} de instalación de Ruby y RubyGems.
+El primer paso consiste en la instalación de RubyGems. Para ello, consulta el anexo \ref{anx:inst-ruby} de instalación de Ruby y RubyGems.
 
 Descargamos los paquetes \texttt{mcollective}, \texttt{mcollective-client} y \texttt{mcollective-common} de \url{http://downloads.puppetlabs.com/mcollective/}:
 
@@ -1383,7 +1383,7 @@ Neptune es un lenguaje específico de dominio que permite al usuario ejecutar c�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Instalación}
 
-El primer paso consiste en la instalación de RubyGems. Para ello, consulta el apéndice \ref{anx:inst-ruby} de instalación de Ruby y RubyGems. Cuando ese paso ya esté completado usaremos las RubyGems para instalar neptune:
+El primer paso consiste en la instalación de RubyGems. Para ello, consulta el anexo \ref{anx:inst-ruby} de instalación de Ruby y RubyGems. Cuando ese paso ya esté completado usaremos las RubyGems para instalar Neptune:
 
 \begin{bashcode}
 _: gem install neptune
@@ -1395,7 +1395,7 @@ Nota: Puede que en vez de \texttt{gem} tengas que usar \texttt{gem1.8} dependien
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Comprobación de la instalación}
 
-Puedes verificar que neptune se ha instalado satisfactoriamente mirando si existe el ejecutable en \texttt{/usr/bin/neptune} y \texttt{/usr/lib/ruby/gems/1.8/gems/neptune-0.1.4/bin/neptune}.
+Puedes verificar que Neptune se ha instalado satisfactoriamente mirando si existe el ejecutable en \texttt{/usr/bin/neptune} y \texttt{/usr/lib/ruby/gems/1.8/gems/neptune-0.1.4/bin/neptune}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1413,4 +1413,58 @@ Puedes verificar que neptune se ha instalado satisfactoriamente mirando si exist
    \end{tabular}
 \caption{Versión instalada de neptune.}
 \label{table:neptune-versions}
+\end{table}
+
+
+\section{God}
+\label{anx:inst-god}
+
+
+En ocasiones, debido a fallos de Puppet o porque es más sencillo para la monitorización de procesos simples, se ha usado la herramienta de monitorización God.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Instalación}
+
+El primer paso consiste en la instalación de RubyGems. Para ello, consulta el anexo \ref{anx:inst-ruby} de instalación de Ruby y RubyGems. Cuando ese paso ya esté completado instalaremos los paquetes \texttt{ruby1.8-dev} y \texttt{libopenssl-ruby}:
+
+\begin{bashcode}
+_: apt-get install ruby1.8-dev
+_: apt-get install libopenssl-ruby
+\end{bashcode}
+
+Cuando estos paquetes ya se hayan instalado, procedemos a instalar God:
+
+\begin{bashcode}
+_: gem install god
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Comprobación de la instalación}
+
+Puedes verificar que God se ha instalado satisfactoriamente comprobando la versión instalada:
+
+\begin{bashcode}
+_: god --version
+Version 0.12.1
+\end{bashcode}
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Versiones instaladas}
+
+\begin{table}[!htbp]
+\centering
+   \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Software} & \textbf{Versión} \\ \hline
+      Ubuntu & 10.04 \\ \hline
+      Ruby & 1.8.7 \\ \hline
+      RubyGems & 1.8.10 (o superior) \\ \hline
+      god & 0.12.1 \\ \hline
+   \end{tabular}
+\caption{Versión instalada de god.}
+\label{table:god-versions}
 \end{table}

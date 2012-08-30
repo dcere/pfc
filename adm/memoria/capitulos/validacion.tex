@@ -29,7 +29,7 @@ Estas pruebas tienen como objetivo simular los fallos que se podrían encontrar 
 Para probar la infraestructura AppScale se han usado tres máquinas virtuales alojadas en dos máquinas físicas. Una de las máquinas virtuales actúa como nodo maestro y las otras dos actúan como nodos abiertos. Además de las pruebas comunes a todas las infraestructuras se han realizado una serie de pruebas particulares para comprobar el provedor de la infraestructura AppScale:
 
 \begin{itemize}
-\item Parada del proceso controlador: el proceso que lo está monitorizando (god) se da cuenta y crea un nuevo proceso controlador.
+\item Parada del proceso controlador: el proceso que lo está monitorizando (god \ref{anx:inst-god}) se da cuenta y crea un nuevo proceso controlador.
 \item Parada del proceso que monitoriza al controlador: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
 \end{itemize}
 

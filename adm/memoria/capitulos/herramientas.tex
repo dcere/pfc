@@ -42,9 +42,7 @@ Normalmente Puppet se ejecuta de manera periódica mediante un planificador de t
 
 Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde el que se aplica el manifiesto, a lo largo de este proyecto las ejecuciones de Puppet siempre serán sobre el nodo que aplica el manifiesto, siempre serán locales. Uno de los motivos para que esto sea así es que al ser un sistema distribuido con potencialmente muchos nodos es más sencillo si cada nodo posee el manifiesto que a él le corresponde en vez de que un único nodo alberge uno o dos manifiestos enormes en los que se especifique el sistema entero. Otro de los motivos es que la tolerancia a fallos es mejor cuanto menos se dependa de un nodo. \\
 
-% [Revisar] Citas de MCollective y RabbitMQ
-
-Dentro del ecosistema de Puppet hay una herramienta llamada MCollective. Esta herramienta permite interactuar con grupos de máquinas y es especialmente útil cuando se quiere enviar una orden a varias máquinas en paralelo. La manera tradicional de implementar este tipo de comunicación es mediante un bucle de conexiones ssh, sin embargo, MCollective utiliza el patrón de mensajes editor/suscriptor. Hay varias tecnologías que implementan este patrón de mensajes, pero por simplicidad en este proyecto se usa RabbitMQ.
+Dentro del ecosistema de Puppet hay una herramienta llamada MCollective \ref{anx:inst-mcollective}. Esta herramienta permite interactuar con grupos de máquinas y es especialmente útil cuando se quiere enviar una orden a varias máquinas en paralelo. La manera tradicional de implementar este tipo de comunicación es mediante un bucle de conexiones ssh, sin embargo, MCollective utiliza el patrón de mensajes editor/suscriptor. Hay varias tecnologías que implementan este patrón de mensajes, pero por simplicidad en este proyecto se usa RabbitMQ \ref{anx:inst-rabbitmq}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

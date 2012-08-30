@@ -1,0 +1,51 @@
+\chapter{God}
+\label{anx:god}
+
+
+En ocasiones, debido a fallos de Puppet o porque es más sencillo para la monitorización de procesos simples, se ha usado la herramienta de monitorización God.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instalación}
+
+El primer paso consiste en la instalación de RubyGems. Para ello, consulta el anexo \ref{anx:inst-ruby} de instalación de Ruby y RubyGems. Cuando ese paso ya esté completado instalaremos los paquetes \texttt{ruby1.8-dev} y \texttt{libopenssl-ruby}:
+
+\begin{bashcode}
+_: apt-get install ruby1.8-dev
+_: apt-get install libopenssl-ruby
+\end{bashcode}
+
+Cuando estos paquetes ya se hayan instalado, procedemos a instalar God:
+
+\begin{bashcode}
+_: gem install god
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Comprobación de la instalación}
+
+Puedes verificar que God se ha instalado satisfactoriamente comprobando la versión instalada:
+
+\begin{bashcode}
+_: god --version
+Version 0.12.1
+\end{bashcode}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Versiones instaladas}
+
+\begin{table}[!htbp]
+\centering
+   \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Software} & \textbf{Versión} \\ \hline
+      Ubuntu & 10.04 \\ \hline
+      Ruby & 1.8.7 \\ \hline
+      RubyGems & 1.8.10 (o superior) \\ \hline
+      god & 0.12.1 \\ \hline
+   \end{tabular}
+\caption{Versión instalada de god.}
+\label{table:god-versions}
+\end{table}
