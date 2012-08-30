@@ -5,28 +5,6 @@
 En este anexo se realiza un análisis más detallado de algunos aspectos de AppScale tales como la instalación de AppScale, los distintos tipos de roles que puede tomar un nodo y los distintos tipos de despliegue que podemos especificar, las bases de datos e infraestructuras que permite usar y el desarrollo y organización del \emph{software}.
 
 
-\section{Instalación}
-
-Para gestionar una infraestructura AppScale es necesario instalar una serie de programas agrupados bajo el nombre de appscale-tools. Para ello, se debe descargar el archivo \emph{tarball} de \url{http://code.google.com/p/appscale/downloads/list}. Una vez descargado, se instala:
-
-\begin{bashcode}
-_: tar xzvf appscale-tools.tar.gz
-_: cd appscale-tools
-_: sudo bash debian/appscale_build.sh
-...
-AppScale tools installation completed successfully!
-\end{bashcode}
-
-Sin olvidarse de añadir el directorio de las appscale-tools a nuestro \emph{path}:
-
-\begin{bashcode}
-_: export PATH=${PATH}:/usr/local/appscale-tools/bin
-\end{bashcode}
-%% Put a $ to get back highlightning in gedit
-
-Una vez instaladas las appscale-tools hay varias maneras de instalar AppScale. Para ello se recomienda leer la información disponible en \url{http://code.google.com/p/appscale/wiki/Getting_Started}. En este proyecto se ha creado una imagen propia en la que se ha instalado AppScale a través del repositorio. Estos pasos aparecen especificados en \url{http://code.google.com/p/appscale/wiki/ImageSetupViaBzr}.
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Roles y despliegue}
 \label{anx:appscale-roles}
@@ -100,6 +78,6 @@ AppScale puede ser ejecutada sobre diversos tipos de infraestructuras públicas,
 
 AppScale es una tecnología que actualmente se encuentra en un proceso activo de desarrollo. Cuando se empezó este proyecto la versión estable era la 1.5 y hasta ahora se ha seguido trabajando en esa versión; más concretamente en la versión 1.5.1. Otras partes de AppScale como Neptune, el lenguaje usado para la ejecución de trabajos MPI, han progresado desde la versión 0.1.1 hasta la versión 0.2.2 sufriendo severas modificaciones a lo largo del proceso. 
 
-Además de los cambios que está experimentando en el \emph{software} AppScale está realizando cambios en su organización interna. Al empezar este proyecto el código de AppScale se encontraba alojado en Launchpad (\url{https://launchpad.net/appscale/}) y la información en su página de Google (\url{http://code.google.com/p/appscale/}). Ahora se encuentran realizando la transición hacia Github (\url{https://github.com/AppScale/appscale}) y aunque todo el código puede encontrarse allí, la documentación sigue estando en su página de Google.
+Además de los cambios que está experimentando en el \emph{software}, AppScale está realizando cambios en su organización interna. Al empezar este proyecto el código de AppScale se encontraba alojado en Launchpad (\url{https://launchpad.net/appscale/}) y la información en su página de Google (\url{http://code.google.com/p/appscale/}). Ahora se encuentran realizando la transición hacia Github (\url{https://github.com/AppScale/appscale}) y aunque todo el código puede encontrarse allí, la documentación sigue estando en su página de Google.
 
 La complejidad del problema que trata de resolver, el amplio abanico de tecnologías utilizadas y los frecuentes cambios que sufre hacen que sea una tecnología complicada para trabajar con ella. La falta de documentación en alguna de las áreas no ayuda en este aspecto.

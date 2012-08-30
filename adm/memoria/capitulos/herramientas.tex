@@ -83,7 +83,7 @@ Para permitir el alojamiento de aplicaciones web y la ejecución de trabajos una
 \item[\texttt{Open}]: No ejecuta nada por defecto, pero está disponible en caso de que sea necesario.
 \end{description}
 
-Como muchos de estos roles suele desempeñarlos una máquina, se han creado unos roles agregados para facilitar el despliegue de la infraestructura. El rol \texttt{Controller} está compuesto por los roles Shadow, Load Balancer, Database, Login y Zookeeper; el rol \texttt{Servers} agrupa a los roles AppEngine, Database y Load Balancer; el rol \texttt{Master} está formado por los roles Shadow, Load Balancer y Zookeeper. Una especificación más detallada de los roles puede encontrarse en el Anexo \ref{anx:appscale-roles}.
+Como muchos de estos roles suele desempeñarlos una máquina, se han creado unos roles agregados para facilitar el despliegue de la infraestructura. El rol \texttt{Controller} está compuesto por los roles Shadow, Load Balancer, Database, Login y Zookeeper; el rol \texttt{Servers} agrupa a los roles AppEngine, Database y Load Balancer; el rol \texttt{Master} está formado por los roles Shadow, Load Balancer y Zookeeper. Una especificación más detallada de los roles puede encontrarse en el Anexo \ref{anx:appscale}.
 
 AppScale contempla la posibilidad de dos tipos de despliegue: por defecto y personalizado. En el despliegue por defecto un nodo sólo puede ser o bien \texttt{Controller} o bien \texttt{Servers}. En el despliegue personalizado el usuario es libre de especificar los roles de manera más precisa. \\
 

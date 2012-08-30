@@ -1,5 +1,5 @@
-\chapter{Facter y Puppet}
-\label{anx:facter-puppet}
+\chapter{Puppet}
+\label{anx:puppet}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,9 +13,9 @@ _: apt-get install libopenssl-ruby
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Creación del entorno de instalación de Facter y Puppet}
+\section{Creación del entorno de instalación de Puppet}
 
-Antes de instalar Facter y Puppet, hay que dar valores a ciertas variables:
+Puppet necesita para su correcto funcionamiento una herramienta llamada Facter. Esta herramienta permite obtener datos como el sistema operativo, la distribución de Linux o la dirección MAC de un ordenador. Antes de instalar Facter y Puppet, hay que dar valores a ciertas variables:
 
 \begin{bashcode}
 _: FACTER_DIR="/root/facter-1.6.4"
@@ -335,6 +335,6 @@ Solución: Puppet ha salido de manera abrupta. Si estás ejecutando un proveedor
       Puppet & 2.7.9 \\ \hline
       libopenssl-ruby &	4.2 \\ \hline
    \end{tabular}
-\caption{Versiones instaladas de Facter y Puppet.}
+\caption{Versiones instaladas de Puppet y Facter.}
 \label{table:puppet-versions}
 \end{table}

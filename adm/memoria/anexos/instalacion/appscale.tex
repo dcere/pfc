@@ -1,0 +1,121 @@
+\chapter{AppScale}
+\label{anx:appscale}
+
+
+En este anexo se realiza un análisis más detallado de algunos aspectos de AppScale tales como la instalación de AppScale, los distintos tipos de roles que puede tomar un nodo y los distintos tipos de despliegue que podemos especificar, las bases de datos e infraestructuras que permite usar y el desarrollo y organización del \emph{software}.
+
+
+\section{Instalación}
+
+Antes de instalar AppScale es muy recomendable actualizar el sistema operativo. Para ello añadimos las siguientes líneas al archivo \texttt{/etc/apt/sources.list}:
+
+\begin{lstlisting}
+deb http://archive.ubuntu.com/ubuntu  lucid main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu  lucid-updates main restricted universe
+deb http://security.ubuntu.com/ubuntu lucid-security main restricted universe
+\end{lstlisting}
+
+Y actualizamos el sistema operativo:
+
+\begin{bashcode}
+_: apt-get update
+_: apt-get -y upgrade
+\end{bashcode}
+
+Para gestionar una infraestructura AppScale es necesario instalar una serie de programas agrupados bajo el nombre de appscale-tools. Para ello, se debe descargar el archivo \emph{tarball} de \url{http://code.google.com/p/appscale/downloads/list}. Una vez descargado, se instala:
+
+\begin{bashcode}
+_: tar xzvf appscale-tools.tar.gz
+_: cd appscale-tools
+_: sudo bash debian/appscale_build.sh
+...
+AppScale tools installation completed successfully!
+\end{bashcode}
+
+Sin olvidarse de añadir el directorio de las appscale-tools a nuestro \emph{path}:
+
+\begin{bashcode}
+_: export PATH=${PATH}:/usr/local/appscale-tools/bin
+\end{bashcode}
+%% Put a $ to get back highlightning in gedit
+
+Una vez instaladas las appscale-tools instalaremos AppScale. Como lo que vamos a hacer va a ser clonar un repositorio, tenemos que asegurarnos de tener las herramientas necesarias, en este caso \texttt{git}:
+
+\begin{bashcode}
+_: apt-get -y install git-core
+\end{bashcode}
+
+y cuando esté instalado clonamos el repositorio:
+
+\begin{bashcode}
+_: cd /root/
+_: git clone git://github.com/AppScale/appscale.git
+\end{bashcode}
+
+Accedemos a la carpeta recién creada y ejecutamos el \emph{script} de instalación. La instalación tarda aproximadamente una hora:
+
+\begin{bashcode}
+_: cd appscale
+_: bash debian/appscale_build.sh
+...
+AppScale installation completed successfully!
+\end{bashcode}
+
+Nota: Si no quieres instalar todo AppScale puedes comentar las partes que no quieras en el \emph{script} de \texttt{appscale\_install.sh}. Por ejemplo, si no quieres que se instale la base de datos Voldemort, puedes comentar las líneas que hacen referencia a ella:
+
+\begin{lstlisting}
+...
+all)
+# scratch install of appscale including post script.
+installappscaleprofile
+. /etc/profile.d/appscale.sh
+installgems
+postinstallgems
+installsetuptools
+installhaproxy
+postinstallhaproxy
+...
+installcassandra
+postinstallcassandra
+###installvoldemort        # No queremos Voldemort
+###postinstallvoldemort    # No queremos Voldemort
+installhbase
+postinstallhbase
+...
+\end{lstlisting}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Comprobación de la instalación}
+
+Para comprobar que AppScale se ha instalado correctamente lanzaremos una instancia. En primer lugar creamos un archivo llamado \texttt{ips.yaml} con el siguiente contenido (sustituye la dirección IP por la de tu máquina):
+
+\begin{lstlisting}
+--- 
+:controller: 155.210.155.73
+\end{lstlisting}
+
+A continuación lanza la instancia:
+
+\begin{bashcode}
+_: appscale-run-instances --ips ips.yaml
+\end{bashcode}
+
+Si en tu navegador web vas a la dirección http://155.210.155.73 (la que corresponda en tu caso) deberías ver la página de inicio de sesión de AppScale.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Versiones instaladas}
+
+\begin{table}[!htbp]
+\centering
+   \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Software} & \textbf{Versión} \\ \hline
+      Ubuntu & 10.04 \\ \hline
+      AppScale & 1.5.1 \\ \hline
+      appscale-tools & 1.5 \\ \hline
+   \end{tabular}
+\caption{Versiones instaladas de AppScale.}
+\label{table:puppet-versions}
+\end{table}
