@@ -90,41 +90,46 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
                         method(:err))
       puts "Stopping cloud %s" % [resource[:name]]
 
-      if !exists?
-         err "Cloud does not exist"
-         return
-      end
-      if status != :running
-         err "Cloud is not running"
-         return
-      end
-      if exists? && status == :running
-         
-         puts "It is an appscale cloud"
-         
-         # Stop cloud infrastructure
-         appscale_cloud_stop(cloud.resource, MY_IP)    # TODO What if we run stop on a different machine than start?
-         
-         # TODO Use leader_stop function?
+      if cloud.leader?()
+         if !exists?
+            err "Cloud does not exist"
+            return
+         end
+         if status != :running
+            err "Cloud is not running"
+            return
+         end
+         if exists? && status == :running
+            
+            puts "It is an appscale cloud"
+            
+            # Here we cannot use leader_stop function because appscale_cloud_stop
+            # has a different type of arguments. So instead we will use
+            # stop_cron_jobs, shutdown_vms and delete_files directly.
+            
+            # Stop cron jobs on all machiness
+            cloud.stop_cron_jobs("appscale")
+            
+            # Stop cloud infrastructure
+            appscale_cloud_stop(cloud.resource, MY_IP)    # TODO What if we run stop on a different machine than start?
 
-         # Shutdown and undefine all virtual machines explicitly created for this cloud
-         cloud.shutdown_vms()
-         
-         # Stop cron jobs on all machiness
-         cloud.stop_cron_jobs("appscale")    # TODO Be careful of the order: 1 stop cron and 2 stop appscale or the other way?
-         
-         # Delete files
-         cloud.delete_files()
-         
-         # Note: As all the files deleted so far are located in the /tmp directory
-         # only the machines that are still alive need to delete these files.
-         # If the machine was shut down, these files will not be there the next
-         # time it is started, so there is no need to delete them.
-         
-         puts "==================="
-         puts "== Cloud stopped =="
-         puts "==================="
-         
+            # Shutdown and undefine all virtual machines explicitly created for this cloud
+            cloud.shutdown_vms()
+            
+            # Delete files
+            cloud.delete_files()
+            
+            # Note: As all the files deleted so far are located in the /tmp directory
+            # only the machines that are still alive need to delete these files.
+            # If the machine was shut down, these files will not be there the next
+            # time it is started, so there is no need to delete them.
+            
+            puts "==================="
+            puts "== Cloud stopped =="
+            puts "==================="
+         end
+      else
+         puts "#{MY_IP} is not the leader"      # Nothing to do
       end
    
    end

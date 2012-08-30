@@ -37,6 +37,7 @@ class CloudVM
       myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac, vm_mem, vm_ncpu)
       
       # Write virtual machine's domain file
+      puts "Writing domain file" #TODO
       domain_file_name = "cloud-%s-%s.xml" % [@resource[:name], vm_name]
       domain_file_path = File.dirname(@resource[:vm_domain]) + 
                          "/" + "#{domain_file_name}"
@@ -302,6 +303,9 @@ class CloudVM
       
       puts "Finished iterating. role: #{role}, index: #{index}"
       disk = img_roles[role][index]
+      
+      # TODO
+      puts "Disk obtained: #{disk}"
       
       return disk
 

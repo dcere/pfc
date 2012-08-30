@@ -10,6 +10,6 @@ appscale {'mycloud':
    open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
                  "/etc/puppet/modules/appscale/files/open-imgs.txt"],
    vm_domain => "/etc/puppet/modules/appscale/files/mycloud-template.xml",
-   pool      => ["155.210.155.70"],
+   pool      => ["155.210.155.70", "155.210.155.77"],
    ensure    => running,
 }

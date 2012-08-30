@@ -83,6 +83,12 @@ def appscale_cloud_stop(resource, vm)
    
    user = resource[:vm_user]
    
+   # It is being monitored with puppet through a crontab file, so we have to
+   # stop monitoring first
+   cloud_cron = CloudCron.new()
+   word = "basic"
+   cloud_cron.delete_line_with_word(word, user, vm)
+   
    # Terminate instances
    command = "/root/appscale-tools/bin/appscale-terminate-instances"
    CloudSSH.execute_remote(command, user, vm)
@@ -162,22 +168,43 @@ def appscale_monitor(resource, vm, role)
       return
    end
    
-   # Apply the manifest
-   puts "Applying manifest"
-   command = "puppet apply /tmp/basic.pp"
+#   # Apply the manifest
+#   puts "Applying manifest"
+#   command = "puppet apply /tmp/basic.pp"
+#   out, success = CloudSSH.execute_remote(command, user, vm)
+#   unless success
+#      err "[AppScale monitor] Impossible to run puppet in #{vm}"
+#      return
+#   end
+#   
+#   # Analyze the output
+#   if out.include? "should be directory (noop)"
+#      err "[AppScale monitor] Missing directory in #{vm}"
+#      puts out
+#      return
+#   end
+
+   # Monitor AppScale with puppet: basic manifest
+   cloud_cron = CloudCron.new()
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/basic.pp"
+   cron_out = "/root/appscale.out"
+   cron_err = "/root/appscale.err"
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
+      err "[AppScale monitor] Impossible to put basic.pp in crontab in #{vm}"
+      return
+   end
+   
+   command = "crontab /var/spool/cron/crontabs/root"
    out, success = CloudSSH.execute_remote(command, user, vm)
-   unless success
-      err "[AppScale monitor] Impossible to run puppet in #{vm}"
+   if success
+      puts "[AppScale monitor] Executed crontab in #{vm}"
+   else
+      err "[AppScale monitor] Impossible to execute crontab in #{vm}"
       return
    end
-   
-   # Analyze the output
-   if out.include? "should be directory (noop)"
-      err "[AppScale monitor] Missing directory in #{vm}"
-      puts out
-      return
-   end
-   
+  
 end
 
 
