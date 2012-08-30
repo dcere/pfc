@@ -49,15 +49,6 @@ def appscale_cloud_start(resource, app_ips, app_roles,
    # Start monitoring
    puts "Start monitoring"
    app_ips.each do |vm|
-   
-      # Find the role
-      # TODO What if a machine has different roles?
-      # role = :undefined
-      # app_roles.each do |r, ips|
-      #    ips.each do |ip|
-      #       if vm == ip then role = r end
-      #    end
-      # end
 
       # Get all vm's roles
       roles = app_roles.select { |r, ips| ips.include?(vm) }      # Be careful,

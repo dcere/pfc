@@ -128,6 +128,7 @@ end
 # Obtains the IP addresses from the resource[:master], resource[:appengine],
 # resource[:database], etc. arguments.
 # appscale { 'myappscale'
+#    ...
 #    master    => ["155.210.155.73",
 #                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
 #    appengine => ["/etc/puppet/modules/appscale/files/appengine-ips.txt",
@@ -138,8 +139,7 @@ end
 #                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
 #    open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
 #                  "/etc/puppet/modules/appscale/files/open-imgs.txt"],
-#    pool      => ["155.210.155.70"],
-#    ensure    => running,
+#    ...
 # }
 def appscale_parse_ips_custom(master, appengine, database, login, open,
                               zookeeper, memcache)
@@ -176,9 +176,10 @@ def appscale_parse_ips_custom(master, appengine, database, login, open,
 end
 
 
-# Obtains the disk images from the resource[:controller], and resource[:servers]
-# arguments.
+# Obtains the disk images from the resource[:master], resource[:appengine],
+# resource[:database], etc. arguments.
 # appscale { 'myappscale'
+#    ...
 #    master    => ["155.210.155.73",
 #                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
 #    appengine => ["/etc/puppet/modules/appscale/files/appengine-ips.txt",
@@ -189,8 +190,7 @@ end
 #                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
 #    open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
 #                  "/etc/puppet/modules/appscale/files/open-imgs.txt"],
-#    pool      => ["155.210.155.70"],
-#    ensure    => running,
+#    ...
 # }
 def appscale_parse_images_custom(master, appengine, database, login, open,
                                  zookeeper, memcache)
