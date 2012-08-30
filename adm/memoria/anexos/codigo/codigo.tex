@@ -60,178 +60,392 @@ end
 \end{lstlisting}
 
 
-\subsection{genericp\_helper.rb}
+\subsection{cloud.rb}
 
 
 \begin{lstlisting}
-LAST_MAC_FILE = "/tmp/cloud-last-mac"
+class Cloud
 
+   attr_reader :resource
 
-# Defines and starts a virtual machine.
-def start_vm(vm, ip_roles, img_roles, pm_up)
+   def initialize(infrastructure, leader, resource, error_function)
 
-   # This function is cloud-type independent: define a new virtual machine and
-   # start it
-   
-   # Get virtual machine's MAC address
-   puts "Getting VM's MAC address"
-   mac_address = get_vm_mac()
-   
-   # Get virtual machine's image disk
-   puts "Getting VM's image disk"
-   disk = get_vm_disk(vm, ip_roles, img_roles)
-   
-   # Define a new virtual machine
-   id = rand(10000)      # Choose a number for domain name randomly
-   vm_name = "myvm-#{id}"
-   vm_uuid = `uuidgen`
-   vm_mac  = mac_address
-   vm_disk = disk
-   vm_mem  = resource[:vm_mem]
-   vm_ncpu = resource[:vm_ncpu]
-   myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac, vm_mem, vm_ncpu)
-   
-   # Write virtual machine's domain file
-   domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
-   domain_file_path = File.dirname(resource[:vm_domain]) + 
-                      "/" + "#{domain_file_name}"
-   template_path = resource[:vm_domain]
-   CloudInfrastructure.write_domain(myvm, domain_file_path, template_path)
-   puts "Domain file written"
-   
-   # Choose a physical machine to host the virtual machine
-   pm = pm_up[rand(pm_up.count)] # Choose randomly
-   
-   # Copy ssh key to physical machine
-   puts "Copying ssh key to physical machine"
-   pm_user = resource[:pm_user]
-   pm_password = resource[:pm_password]
-   out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
-   
-   # Copy the domain definition file to the physical machine
-   puts "Copying the domain definition file to the physical machine..."
-   domain_file_src = domain_file_path
-   domain_file_dst = "/tmp/" + domain_file_name
-   
-   out, success = CloudSSH.copy_remote(domain_file_src, pm, domain_file_dst, pm_user)
-   if success
-      puts "domain definition file copied"
+      @vm_manager = CloudVM.new(infrastructure, leader, resource, error_function)
+      @leader     = leader
+      @resource   = resource
+      @err        = error_function
+
+   end
+
+   #############################################################################
+   # Start cloud functions
+   #############################################################################
+
+   # Starting function for leader node.
+   def leader_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                    monitor_function)
       
-      # Delete the local copy
-      File.delete(domain_file_src)
-   else
-      err "#{vm_name} impossible to copy domain definition file"
-   end
-   
-   # Define the domain in the physical machine
-   puts "Defining the domain in the physical machine..."
-   unless CloudInfrastructure.define_domain(pm_user, pm, vm_name, domain_file_dst)
-      err "Impossible to define #{vm_name} domain"
-   end
-   
-   # Start the domain
-   puts "Starting the domain..."
-   unless CloudInfrastructure.start_domain(pm_user, pm, vm_name)
-      err "#{vm_name} impossible to start"
-   end
-   
-   # Save the domain's name
-   puts "Saving the domain's name..."
-   unless CloudInfrastructure.save_domain_name(pm_user, pm, vm_name)
-      err "#{vm_name} impossible to save in domains file"
-   end
-
-   # Save the new virtual machine's MAC address
-   file = File.open(LAST_MAC_FILE, 'w')
-   file.puts(mac_address)
-   file.close
-   
-   # Send the new virtual machine's MAC address to all nodes
-   mcc = MCollectiveFilesClient.new("files")
-   mcc.create_file(LAST_MAC_FILE, mac_address)
-   #mcc.disconnect
-
-end
-
-
-################################################################################
-# Auxiliar functions
-################################################################################
-
-
-# Gets the virtual machine's mac address.
-def get_vm_mac()
-   
-   if File.exists?(LAST_MAC_FILE)
-      file = File.open(LAST_MAC_FILE, 'r')
-      mac = MAC_Address.new(file.read().chomp())
-      mac_address = mac.next_mac()
-      file.close
-   else
-      mac = MAC_Address.new(resource[:starting_mac_address])
-      mac_address = mac.mac
-   end
-   
-   return mac_address
-
-end
-
-
-# Gets the virtual machine's disk image.
-def get_vm_disk(vm, ip_roles, img_roles)
-   
-   # TODO What if a machine has different roles?
-   role = :undefined
-   index = 0
-   ip_roles.each do |r, ips|
-      index_aux = 0      # Reset the index for each role
-      ips.each do |ip|
-         if vm == ip
-            puts "vm: #{vm} == ip: #{ip}"
-            role = r
-            index = index_aux
-            puts "role: #{role}"
+      # We are the leader
+      puts "#{MY_IP} is the leader"
+      
+      # Check wether virtual machines are alive or not
+      puts "Checking whether virtual machines are alive..."
+      alive = {}
+      vm_ips.each do |vm|
+         if alive?(vm)
+            alive[vm] = true
          else
-            index_aux += 1
+            alive[vm] = false
+            puts "#{vm} is down"
          end
       end
-   end
-   
-   puts "Finished iterating. role: #{role}, index: #{index}"
-   disk = img_roles[role][index]
-   
-   return disk
-
-end
-
-
-################################################################################
-
-
-# Checks if a machine is alive
-def alive?(ip)
-
-   ping = "ping -q -c 1 -w 4"
-   result = `#{ping} #{ip}`
-   return $?.exitstatus == 0
-
-end
-
-# Gets all the roles a node has.
-def get_vm_roles(roles, vm)
-
-   # The roles array is a map of roles - IP addresses. The 'IP addresses' value
-   # can be either a single value or an array of values.
-   
-   vm_roles = []
-   roles.each do |role, ips|
-      if ips == vm
-         vm_roles << role
-      elsif ips.is_a?(Array) && ips.include?(vm)
-         vm_roles << role
+      
+      # Monitor the alive machines. Start and configure the dead ones.
+      deads = false
+      vm_ips.each do |vm|
+         if alive[vm]
+            # If they are alive, monitor them
+            puts "Monitoring #{vm}..."
+            @vm_manager.monitor_vm(vm, vm_ip_roles, monitor_function)
+            puts "...Monitored"
+         else
+            # If they are not alive, start and configure them
+            puts "Starting #{vm}..."
+            @vm_manager.start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+            puts "...Started"
+            deads = true
+         end
       end
+      
+      # Wait for all machines to be started
+      unless deads
+      
+         # If not already started, start the cloud
+         unless File.exists?("/tmp/cloud-#{@resource[:name]}")
+            
+            # Copy important files to all machines
+            puts "Copying important files to all virtual machines"
+            copy_cloud_files(vm_ips, cloud_type)
+         
+            # Start the cloud
+            if start_cloud(@resource, vm_ips, vm_ip_roles)
+               
+               # Make cloud nodes manage themselves
+               auto_manage(cloud_type)     # Only if cloud was started properly
+               
+               # Create file
+               cloud_file = File.open("/tmp/cloud-#{@resource[:name]}", 'w')
+               cloud_file.puts(@resource[:name])
+               cloud_file.close
+               
+               puts "==================="
+               puts "== Cloud started =="
+               puts "==================="
+            else
+               puts "Impossible to start cloud"
+            end
+         end      # unless File
+         
+      end      # unless deads
+
    end
-   return vm_roles
+
+
+   # Starting function for common (non-leader) nodes.
+   def common_start()
+
+      # We are not the leader or we have not received our ID yet
+      puts "#{MY_IP} is not the leader"
+            
+      if @leader.id == -1
+         
+         # If we have not received our ID, let's assume we will be the leader
+         @leader.set_id(0)
+         @leader.set_leader(0)
+         
+         puts "#{MY_IP} will be the leader"
+         
+         # Create your ssh key
+         CloudSSH.generate_ssh_key()
+         
+      else
+         
+         # If we have received our ID, try to become leader
+         puts "Trying to become leader..."
+         
+         # Get all machines' IDs
+         mcc = MCollectiveLeaderClient.new("leader")
+         ids = mcc.ask_id()
+         
+         # See if some other machine is leader
+         exists_leader = false
+         ids.each do |id|
+            if id < @leader.id
+               exists_leader = true 
+               break
+            end
+         end
+         
+         # If there is no leader, we will be the new leader
+         if !exists_leader
+            mcc.new_leader(@leader.id.to_s())
+            puts "...#{MY_IP} will be leader"
+            
+            # Create your ssh key
+            CloudSSH.generate_ssh_key()
+         else
+            puts "...Some other machine is/should be leader"
+         end
+         mcc.disconnect
+         
+         return
+      end
+
+   end
+
+
+   # Starting function for nodes which do not belong to the cloud.
+   def not_cloud_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+      
+      # Try to find one virtual machine that is already running
+      vm_ips.each do |vm|
+         if alive?(vm)
+            # This machine is running
+            puts "#{vm} is up"
+            vm_leader = vm
+
+            # Inform the user of this machine
+            puts "#{vm_leader} is already running"
+            puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
+            return
+         end
+      end
+      
+      # No machines are running
+      puts "All virtual machines are stopped"
+      puts "Starting one of them..."
+   
+      # Start one of the virtual machines
+      vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
+      puts "Starting #{vm} ..."
+      
+      @vm_manager.start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+      
+      # That virtual machine will be the "leader" (actually the chosen one)
+      vm_leader = vm
+      
+      # Copy important files to it
+      #copy_cloud_files(vm_leader, cloud_type)
+      
+      puts "#{vm_leader} is being started"
+      puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}"
+
+   end
+
+
+   # Monitoring function for leader node.
+   def leader_monitoring(monitor_function)
+
+      puts "#{MY_IP} is the leader"
+      
+      # Do monitoring
+      deads = []
+      vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(@resource)
+      vm_ips.each do |vm|
+         puts "Monitoring #{vm}..."
+         unless @vm_manager.monitor_vm(vm, vm_ip_roles, monitor_function)
+            deads << vm
+         end
+         puts "...Monitored"
+      end
+      
+      # Check pool of physical machines
+      pm_up, pm_down = check_pool()
+      
+      if deads.count == 0
+         puts "=========================="
+         puts "== Cloud up and running =="
+         puts "=========================="
+      else
+         # Raise again the dead machines
+         deads.each do |vm|
+            @vm_manager.start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+         end
+      end
+               
+   end
+
+
+   #############################################################################
+   # Stop cloud functions
+   #############################################################################
+
+   # Stoping function for leader node.
+   def leader_stop(cloud_type, stop_function)
+
+      # Stop cron jobs on all machines
+      stop_cron_jobs(cloud_type)
+      
+      # Stop the cloud with the provided method
+      vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(@resource)
+      stop_function.call(@resource, vm_ip_roles)
+      
+      # Shutdown and undefine all virtual machines explicitly created for
+      # this cloud
+      @vm_manager.shutdown_vms()
+      
+      # Delete cloud related files
+      delete_files()
+      
+      # Note: As all the files deleted so far are located in the /tmp directory
+      # only the machines that are still alive need to delete these files.
+      # If the machine was shut down, these files will not be there the next
+      # time it is started, so there is no need to delete them.
+      
+      puts "==================="
+      puts "== Cloud stopped =="
+      puts "==================="
+
+   end
+
+   ## Shuts down virtual machines
+   def shutdown_vms()
+      @vm_manager.shutdown_vms()
+   end
+
+
+   # Stops cron jobs on all machines.
+   def stop_cron_jobs(cloud_type)
+
+      mcc = MCollectiveCronClient.new("cronos")
+      string = "init-#{cloud_type}"
+      mcc.delete_line(CloudCron::CRON_FILE, string)
+
+   end
+
+
+   # Deletes cloud files on all machines.
+   def delete_files()
+
+      puts "Deleting cloud files on all machines..."
+      
+      # Create an MCollective client so that we avoid errors that appear
+      # when you create more than one client in a short time
+      mcc = MCollectiveFilesClient.new("files")
+      
+      # Delete leader, id, last_id and last_mac files on all machines
+      # (leader included)
+      mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
+      mcc.delete_file(CloudLeader::ID_FILE)                 # ID
+      mcc.delete_file(CloudLeader::LAST_ID_FILE)            # Last ID
+      mcc.delete_file(CloudVM::LAST_MAC_FILE)               # Last MAC address
+      mcc.disconnect       # Now it can be disconnected
+      
+      # Delete rest of regular files on leader machine
+      files = [CloudInfrastructure::DOMAINS_FILE,           # Domains file
+               "/tmp/cloud-#{@resource[:name]}"]            # Cloud file
+      files.each do |file|
+         if File.exists?(file)
+            File.delete(file)
+         else
+            puts "File #{file} does not exist"
+         end
+      end
+
+   end
+
+
+   #############################################################################
+   # Auxiliar functions
+   #############################################################################
+
+   # Checks the pool of physical machines are OK.
+   def check_pool()
+
+      machines_up = []
+      machines_down = []
+      machines = @resource[:pool]
+      machines.each do |machine|
+         if alive?(machine)
+            machines_up << machine
+         else
+            machines_down << machine
+         end
+      end
+      return machines_up, machines_down
+      
+   end
+
+
+   # Checks if this node is the leader
+   def leader?()
+    
+      return @leader.leader?
+
+   end
+
+
+   # Copies important files to all machines inside <ips>.
+   def copy_cloud_files(ips, cloud_type)
+   # Use MCollective?
+   #  - Without MCollective we are able to send it to both one machine or multiple
+   #    machines without changing anything, so not really.
+
+      ips.each do |vm|
+      
+         if vm != MY_IP
+            
+            # Cloud manifest
+            file = "init-#{cloud_type}.pp"
+            path = "/etc/puppet/modules/#{cloud_type}/manifests/#{file}"
+            out, success = CloudSSH.copy_remote(path, vm, path)
+            unless success
+               @err.call "Impossible to copy #{file} to #{vm}"
+            end
+
+         end
+         
+      end
+      
+   end
+
+
+   # Makes the cloud auto-manageable through crontab files.
+   def auto_manage(cloud_type)
+
+      cron_file = "crontab-#{cloud_type}"
+      path = "/etc/puppet/modules/#{cloud_type}/files/cron/#{cron_file}"
+      
+      if File.exists?(path)
+         file = File.open(path, 'r')
+         line = file.read().chomp()
+         file.close
+         
+         # Add the 'puppet apply manifest.pp' line to the crontab file
+         mcc = MCollectiveCronClient.new("cronos")
+         mcc.add_line(CloudCron::CRON_FILE, line)
+         mcc.disconnect
+      else
+         @err.call "Impossible to find cron file at #{path}"
+      end
+      
+   end
+
+
+   #############################################################################
+   # Helper functions
+   #############################################################################
+
+
+   # Checks if a machine is alive.
+   def alive?(ip)
+
+      ping = "ping -q -c 1 -w 4"
+      result = `#{ping} #{ip}`
+      return $?.exitstatus == 0
+
+   end
+
 
 end
 \end{lstlisting}
@@ -251,10 +465,10 @@ module CloudMonitor
 
       result = `#{PING} #{vm}`
       if $?.exitstatus == 0
-         puts "[CloudMonitor]: #{vm} is up"
+         puts "[CloudMonitor] #{vm} is up"
          return true
       else
-         puts "[CloudMonitor]: #{vm} is down"
+         puts "[CloudMonitor] #{vm} is down"
          return false
       end
       
@@ -271,7 +485,7 @@ module CloudMonitor
       command = "cat #{client_file} > /dev/null 2> /dev/null"
       out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
-         puts "[CloudMonitor]: #{client_file} does not exist on #{user}@#{vm}"
+         puts "[CloudMonitor] #{client_file} does not exist on #{user}@#{vm}"
          installed = false
       end
 
@@ -280,7 +494,7 @@ module CloudMonitor
       command = "cat #{server_file} > /dev/null 2> /dev/null"
       out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
-         puts "[CloudMonitor]: #{server_file} does not exist on #{user}@#{vm}"
+         puts "[CloudMonitor] #{server_file} does not exist on #{user}@#{vm}"
          installed = false
       end
       
@@ -299,14 +513,14 @@ module CloudMonitor
          command = "/usr/bin/service mcollective start"
          out, success = CloudSSH.execute_remote(command, user, vm)
          unless success
-            puts "[CloudMonitor]: Impossible to start mcollective on #{user}@#{vm}"
+            puts "[CloudMonitor] Impossible to start mcollective on #{user}@#{vm}"
             return false
          else
-            puts "[CloudMonitor]: MCollective is running now on #{vm}"
+            puts "[CloudMonitor] MCollective is running now on #{vm}"
             return true
          end
       else
-         puts "[CloudMonitor]: MCollective is running on #{vm}"
+         puts "[CloudMonitor] MCollective is running on #{vm}"
          return true
       end
       
@@ -320,10 +534,10 @@ end
 
 
 \begin{lstlisting}
-module CloudInfrastructure
+# Manages the infrastructure of a cloud with KVM support.
+class CloudInfrastructure
 
    # Constants
-
    VIRSH_CONNECT = "virsh -c qemu:///system"
    DOMAINS_FILE = "/tmp/defined-domains"
 
@@ -334,7 +548,7 @@ module CloudInfrastructure
 
 
    # Writes the virtual machine's domain file.
-   def self.write_domain(virtual_machine, domain_file_path, template_path)
+   def write_domain(virtual_machine, domain_file_path, template_path)
 
       require 'erb'
       template = File.open(template_path, 'r').read()
@@ -347,7 +561,7 @@ module CloudInfrastructure
 
 
    # Defines a domain for a virtual machine on a physical machine.
-   def self.define_domain(pm_user, pm, vm_name, domain_file_name)
+   def define_domain(domain_file_name, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} define #{domain_file_name}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -357,9 +571,9 @@ module CloudInfrastructure
 
 
    # Starts a domain on a physical machine.
-   def self.start_domain(pm_user, pm, vm_name)
+   def start_domain(domain, pm_user, pm)
 
-      command = "#{VIRSH_CONNECT} start #{vm_name}"
+      command = "#{VIRSH_CONNECT} start #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
       return success
       
@@ -367,9 +581,9 @@ module CloudInfrastructure
 
 
    # Saves the virtual machine's domain name in a file.
-   def self.save_domain_name(pm_user, pm, vm_name)
+   def save_domain_name(domain, pm_user, pm)
 
-      command = "echo #{vm_name} >> #{DOMAINS_FILE}"
+      command = "echo #{domain} >> #{DOMAINS_FILE}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
       return success
 
@@ -377,7 +591,7 @@ module CloudInfrastructure
 
 
    # Shuts down a domain.
-   def self.shutdown_domain(domain, pm_user, pm)
+   def shutdown_domain(domain, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} shutdown #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -387,7 +601,7 @@ module CloudInfrastructure
 
 
    # Undefines a domain.
-   def self.undefine_domains(domain, pm_user, pm)
+   def undefine_domain(domain, pm_user, pm)
 
       command = "#{VIRSH_CONNECT} undefine #{domain}"
       out, success = CloudSSH.execute_remote(command, pm_user, pm)
@@ -395,526 +609,6 @@ module CloudInfrastructure
 
    end
 
-end
-\end{lstlisting}
-
-
-\subsection{genericp\_main.rb}
-
-
-\begin{lstlisting}
-################################################################################
-# Start cloud functions
-################################################################################
-
-# Test function
-def mifunciondetest(resource, error_function)
-
-   puts "El nombre del recurso es %s" % [resource[:name]]
-   error_function.call "Error en GENERIC MAIN"
-
-end
-
-# Starting function for leader node.
-def leader_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up,
-                 monitor_function)
-   
-   # We are the leader
-   puts "#{MY_IP} is the leader"
-   
-   # Check wether virtual machines are alive or not
-   alive = {}
-   vm_ips.each do |vm|
-      alive[vm] = false
-   end
-   
-   puts "Checking whether virtual machines are alive..."
-   vm_ips.each do |vm|
-      if alive?(vm)
-         debug "[DBG] #{vm} is up"
-         alive[vm] = true
-      else
-         debug "[DBG] #{vm} is down"
-         puts "#{vm} is down"
-      end
-   end
-   
-   # Monitor the alive machines. Start and configure the dead ones.
-   deads = false
-   vm_ips.each do |vm|
-      if alive[vm]
-         # If they are alive, monitor them
-         puts "Monitoring #{vm}..."
-         monitor_vm(vm, vm_ip_roles, monitor_function)
-         puts "...Monitored"
-      else
-         # If they are not alive, start and configure them
-         puts "Starting #{vm}..."
-         start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-         puts "...Started"
-         deads = true
-      end
-   end
-   
-   # Wait for all machines to be started
-   unless deads
-   
-      # If not already started, start the cloud
-      unless File.exists?("/tmp/cloud-#{resource[:name]}")
-         
-         # Copy important files to all machines
-         puts "Copying important files to all virtual machines"
-         copy_cloud_files(vm_ips, cloud_type)      # TODO Move it to monitor and call it each time for one vm?
-      
-         # Start the cloud
-         if start_cloud(vm_ips, vm_ip_roles)
-            
-            # Make cloud nodes manage themselves
-            #auto_manage(cloud_type)     # Only if cloud was started properly FIXME Uncomment after tests
-            
-            # Create file
-            cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
-            cloud_file.puts(resource[:name])
-            cloud_file.close
-            
-            puts "==================="
-            puts "== Cloud started =="
-            puts "==================="
-         else
-            puts "Impossible to start cloud"
-         end
-      end      # unless File
-      
-   end      # unless deads
-
-end
-
-
-# Starting function for common (non-leader) nodes.
-def common_start()
-
-   # We are not the leader or we have not received our ID yet
-   puts "#{MY_IP} is not the leader"
-   
-   cloud_leader = CloudLeader.new()
-   
-   if cloud_leader.id == -1
-      
-      # If we have not received our ID, let's assume we will be the leader
-      cloud_leader.set_id(0)
-      cloud_leader.set_leader(0)
-      
-      puts "#{MY_IP} will be the leader"
-      
-      # Create your ssh key
-      CloudSSH.generate_ssh_key()
-      
-   else
-      
-      # If we have received our ID, try to become leader
-      puts "Trying to become leader..."
-      
-      # Get all machines' IDs
-      mcc = MCollectiveLeaderClient.new("leader")
-      ids = mcc.ask_id()
-      
-      # See if some other machine is leader
-      exists_leader = false
-      ids.each do |id|
-         if id < cloud_leader.id
-            exists_leader = true 
-            break
-         end
-      end
-      
-      # If there is no leader, we will be the new leader
-      if !exists_leader
-         mcc.new_leader(cloud_leader.id.to_s())
-         puts "...#{MY_IP} will be leader"
-         
-         # Create your ssh key
-         CloudSSH.generate_ssh_key()
-      else
-         puts "...Some other machine is/should be leader"
-      end
-      mcc.disconnect
-      
-      return
-   end
-
-end
-
-
-# Starting function for nodes which do not belong to the cloud.
-def not_cloud_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up)
-   
-   # Try to find one virtual machine that is already running
-   alive = false
-   vm_leader = ""
-   vm_ips.each do |vm|
-      if alive?(vm)
-         puts "#{vm} is up"
-         alive = true
-         vm_leader = vm
-         break
-      end
-   end
-   
-   if !alive
-      puts "All virtual machines are stopped"
-      puts "Starting one of them..."
-   
-      # Start one of the virtual machines
-      vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
-      puts "Starting #{vm} ..."
-      
-      start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-      
-      # That virtual machine will be the "leader" (actually the chosen one)
-      vm_leader = vm
-      
-      # Copy important files to it
-      #copy_cloud_files(vm_leader, cloud_type)
-      
-      puts "#{vm_leader} is being started"
-      puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}" 
-   else
-      puts "#{vm_leader} is already running"
-      puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
-   end
-
-end
-
-
-# Monitoring function for leader node.
-def leader_monitoring(monitor_function)
-
-   puts "#{MY_IP} is the leader"
-   
-   # Do monitoring
-   deads = []
-   vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-   vm_ips.each do |vm|
-      puts "Monitoring #{vm}..."
-      unless monitor_vm(vm, vm_ip_roles, monitor_function)
-         deads << vm
-      end
-      puts "...Monitored"
-   end
-   
-   # Check pool of physical machines
-   pm_up, pm_down = check_pool()
-   
-   if deads.count == 0
-      puts "=========================="
-      puts "== Cloud up and running =="
-      puts "=========================="
-   else
-      # Raise again the dead machines
-      deads.each do |vm|
-         start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
-      end
-   end
-            
-end
-
-
-################################################################################
-# Stop cloud functions
-################################################################################
-
-# Shuts down virtual machines.
-def shutdown_vms()
-
-   # Get pool of physical machines
-   pms = resource[:pool]
-   
-   # Shut down virtual machines
-   pms.each do |pm|
-   
-      pm_user = resource[:pm_user]
-      pm_password = resource[:pm_password]
-      
-      # Copy ssh key to physical machine
-      puts "Copying ssh key to physical machine"
-      out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
-      
-      # Bring the defined domains file from the physical machine to this one
-      out, success = CloudSSH.get_remote(CloudInfrastructure::DOMAINS_FILE,
-                                         pm_user, pm,
-                                         CloudInfrastructure::DOMAINS_FILE)
-      if success
-      
-         puts "#{CloudInfrastructure::DOMAINS_FILE} exists in #{pm}"
-         
-         # Open file
-         defined_domains = File.open(CloudInfrastructure::DOMAINS_FILE, 'r')
-      
-         # Stop nodes
-         puts "Shutting down domains"
-         defined_domains.each_line do |domain|
-            domain.chomp!
-            unless CloudInfrastructure.shutdown_domain(domain)
-               err "#{domain} impossible to shut down"
-            end
-         end
-         
-         # Undefine local domains
-         puts "Undefining domains"
-         defined_domains.rewind
-         defined_domains.each_line do |domain|
-            domain.chomp!
-            unless CloudInfrastructure.undefine_domain(domain)
-               err "#{domain} impossible to undefine"
-            end
-         end
-         
-         # Delete the defined domains file on the physical machine
-         puts "Deleting defined domains file"
-         command = "rm -rf #{CloudInfrastructure::DOMAINS_FILE}"
-         out, success = CloudSSH.execute_remote(command, pm_user, pm)
-         
-         # Delete all the domain files on the physical machine. Check how the
-         # name is defined on 'start_vm' function.
-         puts "Deleting domain files"
-         domain_files = "cloud-%s-*.xml" % [resource[:name]]
-         command = "rm /tmp/#{domain_files}"
-         out, success = CloudSSH.execute_remote(command, pm_user, pm)
-      
-      else
-         # Some physical machines might not have any virtual machine defined.
-         # For instance, no virtual machine will be defined if they were already
-         # defined and running when we started the cloud.
-         puts "No #{CloudInfrastructure::DOMAINS_FILE} file found in #{pm}"
-      end
-      
-   end   # pms.each
-
-end
-
-
-# Stops cron jobs on all machines.
-def stop_cron_jobs(cloud_type)
-
-   mcc = MCollectiveCronClient.new("cronos")
-   string = "init-#{cloud_type}"
-   mcc.delete_line(CRON_FILE, string)
-
-end
-
-
-# Deletes cloud files on all machines.
-def delete_files()
-
-   puts "Deleting cloud files on all machines..."
-   
-   # Create an MCollective client so that we avoid errors that appear
-   # when you create more than one client in a short time
-   mcc = MCollectiveFilesClient.new("files")
-   
-   # Delete leader, id, last_id and last_mac files on all machines (leader included)
-   mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
-   mcc.delete_file(CloudLeader::ID_FILE)                 # ID
-   mcc.delete_file(CloudLeader::LAST_ID_FILE)            # Last ID
-   mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
-   mcc.disconnect       # Now it can be disconnected
-   
-   # Delete rest of regular files on leader machine
-   files = [CloudInfrastructure::DOMAINS_FILE,           # Domains file
-            "/tmp/cloud-#{resource[:name]}"]             # Cloud file
-   files.each do |file|
-      if File.exists?(file)
-         File.delete(file)
-      else
-         puts "File #{file} does not exist"
-      end
-   end
-
-end
-
-
-################################################################################
-# Auxiliar functions
-################################################################################
-
-# Checks the pool of physical machines are OK.
-def check_pool()
-
-   machines_up = []
-   machines_down = []
-   machines = resource[:pool]
-   machines.each do |machine|
-      if alive?(machine)
-         debug "[DBG] #{machine} (PM) is up"
-         machines_up << machine
-      else
-         debug "[DBG] #{machine} (PM) is down"
-         machines_down << machine
-      end
-   end
-   return machines_up, machines_down
-   
-end
-
-
-# Obtains the virtual machine's data
-#def obtain_vm_data(ip_function, img_function)
-#   
-#   vm_ips = []
-#   vm_ip_roles = []
-#   vm_img_roles = []
-#   puts "Obtaining virtual machines' data"
-#   vm_ips, vm_ip_roles = ip_function.call(resource[:ip_file])
-#   vm_img_roles = img_function.call(resource[:img_file])
-#   return vm_ips, vm_ip_roles, vm_img_roles
-#         
-#end
-
-
-# Checks if this node is the leader
-def leader?()
-
-   cloud_leader = CloudLeader.new()
- 
-   return cloud_leader.leader?
-
-end
-
-
-# Monitors a virtual machine.
-# Returns false if the machine is not alive.
-def monitor_vm(vm, ip_roles, monitor_function)
-
-   # Check if it is alive
-   alive = CloudMonitor.ping(vm)
-   unless alive
-      err "#{vm} is not alive. Impossible to monitor"
-      
-      # If it is not alive there is no point in continuing
-      return false
-   end
-   
-   # Get user and password
-   user = resource[:vm_user]
-   password = resource[:root_password]
-   
-   # Send it your ssh key
-   # Your key was created when you turned into leader
-   puts "Sending ssh key to #{vm}"
-   out, success = CloudSSH.copy_ssh_key(user, vm, password)
-   if success
-      puts "ssh key sent"
-   else
-      err "ssh key impossible to send"
-   end
-   
-   # Check if MCollective is installed and configured
-   mcollective_installed = CloudMonitor.mcollective_installed(user, vm)
-   unless mcollective_installed
-      err "MCollective is not installed on #{vm}"
-   end
-   
-   # Make sure MCollective is running.
-   # We need this to ensure the leader election, so ensuring MCollective
-   # is running can not be left to Puppet in their local manifest. It must be
-   # done explicitly here and now.
-   mcollective_running = CloudMonitor.mcollective_running(user, vm)
-   unless mcollective_running
-      err "MCollective is not running on #{vm}"
-   end
-   
-   # A node may have different roles
-   vm_roles = get_vm_roles(ip_roles, vm)
-   
-   
-   # Check if they have their ID
-   # If they are running, but they do not have their ID:
-   #   - Set their ID before they can become another leader.
-   #   - Set also the leader's ID.
-   success = CloudLeader.vm_check_id(user, vm)
-   unless success
-   
-      cloud_leader = CloudLeader.new()
-
-      # Set their ID (based on the last ID we defined)
-      id = cloud_leader.last_id
-      id += 1
-      CloudLeader.vm_set_id(user, vm, id)
-      cloud_leader.set_last_id(id)
-      
-      # Set the leader's ID
-      leader = cloud_leader.leader
-      CloudLeader.vm_set_leader(user, vm, leader)
-      
-      # Send the last ID to all nodes
-      mcc = MCollectiveFilesClient.new("files")
-      mcc.create_file(CloudLeader::LAST_ID_FILE, id.to_s)
-      #mcc.disconnect
-   end
-   
-   # TODO Copy cloud files each time a machine is monitored?
-   # TODO Copy files no matter what or check first if they have them?
-   # Use copy_cloud_files if we copy no matter what. Modify it if we check
-   # We should copy no matter what in case they have changed
-   
-   # Depending on the type of cloud we will have to monitor different components.
-   # Also, take into account that one node can perform more than one role.
-   print "#{vm} will perform the roles: "
-   p vm_roles
-   vm_roles.each do |role|
-      monitor_function.call(vm, role)
-   end
-   
-   return true
-   
-end
-
-
-# Copies important files to all machines inside <ips>.
-def copy_cloud_files(ips, cloud_type)
-# Use MCollective?
-#  - Without MCollective we are able to send it to both one machine or multiple
-#    machines without changing anything, so not really.
-
-   ips.each do |vm|
-   
-      if vm != MY_IP
-         
-         # Cloud manifest
-         file = "init-#{cloud_type}.pp"
-         path = "/etc/puppet/modules/#{cloud_type}/manifests/#{file}"
-         out, success = CloudSSH.copy_remote(path, vm, path)
-         unless success
-            err "Impossible to copy #{file} to #{vm}"
-         end
-         
-         #TODO Use a user-provided function to copy important files to all nodes?
-
-      end
-   end
-   
-end
-
-
-# Makes the cloud auto-manageable through crontab files.
-def auto_manage(cloud_type)
-
-   cron_file = "crontab-#{cloud_type}"
-   path = "/etc/puppet/modules/#{cloud_type}/files/cron/#{cron_file}"
-   
-   if File.exists?(path)
-      file = File.open(path, 'r')
-      line = file.read().chomp()
-      file.close
-      
-      # Add the 'puppet apply manifest.pp' line to the crontab file
-      mcc = MCollectiveCronClient.new("cronos")
-      mcc.add_line(CRON_FILE, line)
-      mcc.disconnect
-   else
-      err "Impossible to find cron file at #{path}"
-   end
-   
 end
 \end{lstlisting}
 
@@ -983,7 +677,7 @@ end
 
 
 \begin{lstlisting}
-gedit genericp_*.rb &
+gedit cloud*.rb &
 \end{lstlisting}
 
 
@@ -1038,6 +732,47 @@ end
 \end{lstlisting}
 
 
+\subsection{cloudinterface.rb}
+
+
+\begin{lstlisting}
+class CloudInterface
+
+   def initialize()
+   end
+
+   # The functions in this file are defined the same in all providers, but each
+   # one implements them in their own way. Thus, the headers cannot be modified.
+
+   # Starts a cloud formed by <vm_ips> performing <vm_ip_roles>.
+   def start_cloud(resource, vm_ips, vm_ip_roles)
+
+      puts "Starting the cloud"
+      
+      # ...
+
+   end
+
+
+   # Obtains vm data from manifest parameters.
+   def obtain_vm_data(resource)
+
+      puts "Obtaining virtual machines' data"
+      
+      # ...
+      
+      ips = ["IP_A", "IP_B"]
+      ip_roles  = {:rol_a => "IP_A", :rol_b => "IP_B"}
+      img_roles = {:rol_a => "/path/to/IMG_A", :rol_b => "/path/to/IMG_B"}
+      
+      return ips, ip_roles, img_roles
+      
+   end
+   
+end
+\end{lstlisting}
+
+
 \subsection{mcollective\_cron.rb}
 
 
@@ -1079,6 +814,412 @@ end
 \end{lstlisting}
 
 
+\subsection{cloudcron.rb}
+
+
+\begin{lstlisting}
+# Manages cron files in remote machines
+class CloudCron
+
+   CRON_FILE = "/var/spool/cron/crontabs/root"
+
+   def initialize(crontab = CRON_FILE)
+
+      @crontab = crontab
+
+   end
+
+
+   # Creates a new command line.
+   def create_line(time, command, out = "/dev/null", err = "/dev/null")
+
+      return "#{time} #{command} > #{out} 2> #{err}"
+
+   end
+
+
+   # Adds a line to the crontab file.
+   def add_line(line, user, vm)
+
+      #line = "#{@time} #{@command} > #{@out} 2> #{@err}"
+      command = "echo \"#{line}\" >> #{@crontab}"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         puts "Impossible to add line in cron file #{@crontab} at #{vm}"
+      end
+
+      return success
+
+   end
+
+
+   # Deletes a line from the crontab file.
+   def delete_line(line, user, vm)
+
+      #line = "#{@time} #{@command} > #{@out} 2> #{@err}"
+      command = "sed -i '/#{line}/d' #{@crontab}"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         puts "Impossible to delete line in cron file #{@crontab} at #{vm}"
+      end
+
+      return success
+
+   end
+
+
+   # Deletes a line containing the word <word> from the crontab file.
+   def delete_line_with_word(word, user, vm)
+
+      command = "sed -i '/#{word}/d' #{@crontab}"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         puts "Impossible to delete line with #{word} in " + 
+              "cron file #{@crontab} at #{vm}"
+      end
+
+      return success
+
+   end
+
+end
+\end{lstlisting}
+
+
+\subsection{cloudvm.rb}
+
+
+\begin{lstlisting}
+# Manages the virtual machines that form a cloud.
+class CloudVM
+
+   # Constants
+   LAST_MAC_FILE = "/tmp/cloud-last-mac"
+
+
+   def initialize(infrastructure, leader, resource, error_function)
+
+      @infrastructure = infrastructure
+      @leader         = leader
+      @resource       = resource
+      @err            = error_function
+
+   end
+
+
+   # Defines and starts a virtual machine.
+   def start_vm(vm, ip_roles, img_roles, pm_up)
+      
+      # Get virtual machine's MAC address
+      puts "Getting VM's MAC address"
+      mac_address = get_vm_mac()
+      
+      # Get virtual machine's image disk
+      puts "Getting VM's image disk"
+      disk = get_vm_disk(vm, ip_roles, img_roles)
+      
+      # Define a new virtual machine
+      id = rand(10000)      # Choose a number for domain name randomly
+      vm_name = "myvm-#{id}"
+      vm_uuid = `uuidgen`
+      vm_mac  = mac_address
+      vm_disk = disk
+      vm_mem  = @resource[:vm_mem]
+      vm_ncpu = @resource[:vm_ncpu]
+      myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac, vm_mem, vm_ncpu)
+      
+      # Write virtual machine's domain file
+      domain_file_name = "cloud-%s-%s.xml" % [@resource[:name], vm_name]
+      domain_file_path = File.dirname(@resource[:vm_domain]) + 
+                         "/" + "#{domain_file_name}"
+      template_path = @resource[:vm_domain]
+      @infrastructure.write_domain(myvm, domain_file_path, template_path)
+      puts "Domain file written"
+      
+      # Choose a physical machine to host the virtual machine
+      pm = pm_up[rand(pm_up.count)] # Choose randomly
+      
+      # Copy ssh key to physical machine
+      puts "Copying ssh key to physical machine"
+      pm_user = @resource[:pm_user]
+      pm_password = @resource[:pm_password]
+      out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
+      
+      # Copy the domain definition file to the physical machine
+      puts "Copying the domain definition file to the physical machine..."
+      domain_file_src = domain_file_path
+      domain_file_dst = "/tmp/" + domain_file_name
+      
+      out, success = CloudSSH.copy_remote(domain_file_src, pm, domain_file_dst,
+                                          pm_user)
+      if success
+         puts "domain definition file copied"
+         
+         # Delete the local copy
+         File.delete(domain_file_src)
+      else
+         @err.call "Impossible to copy #{vm_name}\'s domain definition file"
+      end
+      
+      # Define the domain in the physical machine
+      puts "Defining the domain in the physical machine..."
+      unless @infrastructure.define_domain(domain_file_dst, pm_user, pm)
+         @err.call "Impossible to define #{vm_name} domain"
+      end
+      
+      # Start the domain
+      puts "Starting the domain..."
+      unless @infrastructure.start_domain(vm_name, pm_user, pm)
+         @err.call "#{vm_name} impossible to start"
+      end
+      
+      # Save the domain's name
+      puts "Saving the domain's name..."
+      unless @infrastructure.save_domain_name(vm_name, pm_user, pm)
+         @err.call "#{vm_name} impossible to save in domains file"
+      end
+
+      # Save the new virtual machine's MAC address
+      file = File.open(LAST_MAC_FILE, 'w')
+      file.puts(mac_address)
+      file.close
+      
+      # Send the new virtual machine's MAC address to all nodes
+      mcc = MCollectiveFilesClient.new("files")
+      mcc.create_file(LAST_MAC_FILE, mac_address)
+      #mcc.disconnect
+
+   end
+
+
+   # Monitors a virtual machine.
+   # Returns false if the machine is not alive.
+   def monitor_vm(vm, ip_roles, monitor_function)
+
+      # Check if it is alive
+      alive = CloudMonitor.ping(vm)
+      unless alive
+         @err.call "#{vm} is not alive. Impossible to monitor"
+         
+         # If it is not alive there is no point in continuing
+         return false
+      end
+      
+      # Get user and password
+      user = @resource[:vm_user]
+      password = @resource[:root_password]
+      
+      # Send it your ssh key
+      # Your key was created when you turned into leader
+      puts "Sending ssh key to #{vm}"
+      out, success = CloudSSH.copy_ssh_key(user, vm, password)
+      if success
+         puts "ssh key sent"
+      else
+         @err.call "ssh key impossible to send"
+      end
+      
+      # Check if MCollective is installed and configured
+      mcollective_installed = CloudMonitor.mcollective_installed(user, vm)
+      unless mcollective_installed
+         @err.call "MCollective is not installed on #{vm}"
+      end
+      
+      # Make sure MCollective is running.
+      # We need this to ensure the leader election, so ensuring MCollective
+      # is running can not be left to Puppet in their local manifest. It must be
+      # done explicitly here and now.
+      mcollective_running = CloudMonitor.mcollective_running(user, vm)
+      unless mcollective_running
+         @err.call "MCollective is not running on #{vm}"
+      end
+      
+      # A node may have different roles
+      vm_roles = get_vm_roles(ip_roles, vm)
+      
+      # Check if they have their ID
+      # If they are running, but they do not have their ID:
+      #   - Set their ID before they can become another leader.
+      #   - Set also the leader's ID.
+      success = CloudLeader.vm_check_id(user, vm)
+      unless success
+      
+         # Set their ID (based on the last ID we defined)
+         id = @leader.last_id
+         id += 1
+         CloudLeader.vm_set_id(user, vm, id)
+         @leader.set_last_id(id)
+         
+         # Set the leader's ID
+         leader = @leader.leader
+         CloudLeader.vm_set_leader(user, vm, leader)
+         
+         # Send the last ID to all nodes
+         mcc = MCollectiveFilesClient.new("files")
+         mcc.create_file(CloudLeader::LAST_ID_FILE, id.to_s)
+         #mcc.disconnect
+      end
+      
+      # Copy files no matter what or check first if they have them?
+      # Use copy_cloud_files if we copy no matter what. Modify it if we check
+      # We should copy no matter what in case they have changed
+      
+      # Depending on the type of cloud we will have to monitor different components.
+      # Also, take into account that one node can perform more than one role.
+      print "#{vm} will perform the roles: "
+      p vm_roles
+      vm_roles.each do |role|
+         monitor_function.call(@resource, vm, role)
+      end
+      
+      return true
+      
+   end
+
+
+   # Shuts down virtual machines.
+   def shutdown_vms()
+
+      # Get pool of physical machines
+      pms = @resource[:pool]
+      
+      # Shut down virtual machines
+      pms.each do |pm|
+      
+         pm_user = @resource[:pm_user]
+         pm_password = @resource[:pm_password]
+         
+         # Copy ssh key to physical machine
+         puts "Copying ssh key to physical machine"
+         out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
+         
+         # Bring the defined domains file from the physical machine to this one
+         out, success = CloudSSH.get_remote(CloudInfrastructure::DOMAINS_FILE,
+                                            pm_user, pm,
+                                            CloudInfrastructure::DOMAINS_FILE)
+         if success
+         
+            puts "#{CloudInfrastructure::DOMAINS_FILE} exists in #{pm}"
+            
+            # Open file
+            defined_domains = File.open(CloudInfrastructure::DOMAINS_FILE, 'r')
+         
+            # Stop nodes
+            puts "Shutting down domains"
+            defined_domains.each_line do |domain|
+               domain.chomp!
+               unless @infrastructure.shutdown_domain(domain, pm_user, pm)
+                  @err.call "#{domain} impossible to shut down"
+               end
+            end
+            
+            # Undefine local domains
+            puts "Undefining domains"
+            defined_domains.rewind
+            defined_domains.each_line do |domain|
+               domain.chomp!
+               unless @infrastructure.undefine_domain(domain, pm_user, pm)
+                  @err.call "#{domain} impossible to undefine"
+               end
+            end
+            
+            # Delete the defined domains file on the physical machine
+            puts "Deleting defined domains file"
+            command = "rm -rf #{CloudInfrastructure::DOMAINS_FILE}"
+            out, success = CloudSSH.execute_remote(command, pm_user, pm)
+            
+            # Delete all the domain files on the physical machine. Check how the
+            # name is defined on 'start_vm' function.
+            puts "Deleting domain files"
+            domain_files = "cloud-%s-*.xml" % [@resource[:name]]
+            command = "rm /tmp/#{domain_files}"
+            out, success = CloudSSH.execute_remote(command, pm_user, pm)
+         
+         else
+            # Some physical machines might not have any virtual machine defined.
+            # For instance, no virtual machine will be defined if they were
+            # already defined and running when we started the cloud.
+            puts "No #{CloudInfrastructure::DOMAINS_FILE} file found in #{pm}"
+         end
+         
+      end   # pms.each
+
+   end
+
+
+   #############################################################################
+   # Auxiliar functions
+   #############################################################################
+   private
+
+   # Gets the virtual machine's mac address.
+   def get_vm_mac()
+      
+      if File.exists?(LAST_MAC_FILE)
+         file = File.open(LAST_MAC_FILE, 'r')
+         mac = MAC_Address.new(file.read().chomp())
+         mac_address = mac.next_mac()
+         file.close
+      else
+         mac = MAC_Address.new(@resource[:starting_mac_address])
+         mac_address = mac.mac
+      end
+      
+      return mac_address
+
+   end
+
+
+   # Gets the virtual machine's disk image.
+   def get_vm_disk(vm, ip_roles, img_roles)
+      
+      # What if a machine has different roles? Pick one and that is it
+      role = :undefined
+      index = 0
+      ip_roles.each do |r, ips|
+         index_aux = 0      # Reset the index for each role
+         ips.each do |ip|
+            if vm == ip
+               puts "vm: #{vm} == ip: #{ip}"
+               role = r
+               index = index_aux
+               puts "role: #{role}"
+            else
+               index_aux += 1
+            end
+         end
+      end
+      
+      puts "Finished iterating. role: #{role}, index: #{index}"
+      disk = img_roles[role][index]
+      
+      return disk
+
+   end
+
+
+   # Gets all the roles a node has.
+   def get_vm_roles(roles, vm)
+
+      # The roles array is a map of roles - IP addresses. The 'IP addresses'
+      # value can be either a single value or an array of values.
+      
+      vm_roles = []
+      roles.each do |role, ips|
+         if ips == vm
+            vm_roles << role
+         elsif ips.is_a?(Array) && ips.include?(vm)
+            vm_roles << role
+         end
+      end
+      return vm_roles
+
+   end
+
+end
+\end{lstlisting}
+
+
 \subsection{cloudconstants.rb}
 
 
@@ -1086,7 +1227,6 @@ end
 # Some constants
 
 MY_IP = Facter.value(:ipaddress)
-CRON_FILE = "/var/spool/cron/crontabs/root"
 \end{lstlisting}
 
 
@@ -1120,17 +1260,17 @@ class MAC_Address
    
    
    # Generates an array of <many> MAC addresses starting from this one.
-   def generate_array(many)
+   # def generate_array(many)
    
-      result = []
-      result << @mac
-      for i in 1..many
-         mac = MAC_Address.new(result[i - 1])
-         result << mac.next_mac
-      end
-      return result
+   #    result = []
+   #    result << @mac
+   #    for i in 1..many
+   #       mac = MAC_Address.new(result[i - 1])
+   #       result << mac.next_mac
+   #    end
+   #    return result
    
-   end
+   # end
    
    
 end
@@ -1147,6 +1287,7 @@ class CloudLeader
    ID_FILE      = "/tmp/cloud-id"
    LEADER_FILE  = "/tmp/cloud-leader"
    LAST_ID_FILE = "/tmp/cloud-last-id"
+   
    
    attr_reader :id, :leader, :last_id
    
@@ -1614,6 +1755,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
 
    # Require appscale auxiliar files
    require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
+   require File.dirname(__FILE__) + '/appscale/appscale_parsing.rb'
    require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
    
    # Require generic files
@@ -1634,10 +1776,9 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    # Makes sure the cloud is running.
    def start
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Starting cloud %s" % [resource[:name]]
-      
-      # Zona de test
-      mifunciondetest(resource, method(:err))
       
       # Check existence
       if !exists?
@@ -1645,11 +1786,11 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          
          # Check pool of physical machines
          puts "Checking pool of physical machines..."
-         pm_all_up, pm_up, pm_down = check_pool()
-         if !pm_all_up
+         pm_up, pm_down = cloud.check_pool()
+         unless pm_down.empty?
             puts "Some physical machines are down"
             pm_down.each do |pm|
-               debug "[DBG] - #{pm}"
+               puts " - #{pm}"
             end
          end
          
@@ -1657,7 +1798,7 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          puts "Obtaining the virtual machines' IPs..."
          #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:appscale_yaml_ips),
          #                                                   method(:appscale_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -1666,15 +1807,16 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
             puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
-            if leader?()
-               leader_start("appscale", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
-                            method(:appscale_monitor))
+            if cloud.leader?()
+               cloud.leader_start("appscale", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up, method(:appscale_monitor))
             else
-               common_start()
+               cloud.common_start()
             end
          else
             puts "#{MY_IP} is not part of the cloud"
-            not_cloud_start("appscale", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+            cloud.not_cloud_start("appscale", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up)
          end
          
       else
@@ -1683,8 +1825,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
          puts "Cloud already started"
          
          # Check if you are the leader
-         if leader?()
-            leader_monitoring(method(:appscale_monitor))
+         if cloud.leader?()
+            cloud.leader_monitoring(method(:appscale_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -1696,41 +1838,51 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    # Makes sure the cloud is not running.
    def stop
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Stopping cloud %s" % [resource[:name]]
 
-      if !exists?
-         err "Cloud does not exist"
-         return
-      end
-      if status != :running
-         err "Cloud is not running"
-         return
-      end
-      if exists? && status == :running
-         
-         puts "It is an appscale cloud"
-         
-         # Stop cloud infrastructure
-         appscale_cloud_stop(MY_IP)    # TODO What if we run stop on a different machine than start?
-         
-         # Shutdown and undefine all virtual machines explicitly created for this cloud
-         shutdown_vms()
-         
-         # Stop cron jobs on all machiness
-         stop_cron_jobs("appscale")    # TODO Be careful of the order: 1 stop cron and 2 stop appscale or the other way?
-         
-         # Delete files
-         delete_files()
-         
-         # Note: As all the files deleted so far are located in the /tmp directory
-         # only the machines that are still alive need to delete these files.
-         # If the machine was shut down, these files will not be there the next
-         # time it is started, so there is no need to delete them.
-         
-         puts "==================="
-         puts "== Cloud stopped =="
-         puts "==================="
-         
+      if cloud.leader?()
+         if !exists?
+            err "Cloud does not exist"
+            return
+         end
+         if status != :running
+            err "Cloud is not running"
+            return
+         end
+         if exists? && status == :running
+            
+            puts "It is an appscale cloud"
+            
+            # Here we cannot use leader_stop function because appscale_cloud_stop
+            # has a different type of arguments. So instead we will use
+            # stop_cron_jobs, shutdown_vms and delete_files directly.
+            
+            # Stop cron jobs on all machiness
+            cloud.stop_cron_jobs("appscale")
+            
+            # Stop cloud infrastructure
+            appscale_cloud_stop(cloud.resource, MY_IP)      # What if we run
+            # stop on a different machine than start?
+
+            # Shutdown and undefine all virtual machines explicitly created for this cloud
+            cloud.shutdown_vms()
+            
+            # Delete files
+            cloud.delete_files()
+            
+            # Note: As all the files deleted so far are located in the /tmp directory
+            # only the machines that are still alive need to delete these files.
+            # If the machine was shut down, these files will not be there the next
+            # time it is started, so there is no need to delete them.
+            
+            puts "==================="
+            puts "== Cloud stopped =="
+            puts "==================="
+         end
+      else
+         puts "#{MY_IP} is not the leader"      # Nothing to do
       end
    
    end
@@ -1746,14 +1898,14 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
 
 
    # Ensure methods
-   def create
-      return true
-   end
+   #def create
+   #   return true
+   #end
    
 
-   def destroy
-      return true
-   end
+   #def destroy
+   #   return true
+   #end
 
 
    def exists?
@@ -1775,6 +1927,37 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
    
    def root_password
    end
+   
+   # AppScale
+   
+   def controller
+   end
+
+   def servers
+   end
+
+
+   def master
+   end
+
+   def appengine
+   end
+
+   def database
+   end
+
+   def login
+   end
+
+   def open
+   end
+
+   def zookeeper
+   end
+
+   def memcache
+   end
+   
    
    def app_email
    end
@@ -1799,7 +1982,7 @@ end
 # one implements them in their own way. Thus, the headers cannot be modified.
 
 # Starts an AppScale cloud formed by <vm_ips> performing <vm_ip_roles>
-def start_cloud(vm_ips, vm_ip_roles)
+def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
    if (resource[:app_email] == nil) || (resource[:app_password] == nil)
@@ -1812,7 +1995,7 @@ def start_cloud(vm_ips, vm_ip_roles)
    puts  "Starting an appscale cloud"
    
    # Start appscale cloud
-   return appscale_cloud_start(vm_ips, vm_ip_roles,
+   return appscale_cloud_start(resource, vm_ips, vm_ip_roles,
                                resource[:app_email], resource[:app_password],
                                resource[:root_password])
 
@@ -1820,30 +2003,34 @@ end
 
 
 # Obtains vm data from manifest parameters.
-def obtain_vm_data()
+def obtain_vm_data(resource)
 
-#   if resource[:controller] != nil && resource[:servers] != nil
-#
-#      return obtain_appscale_data_default(resource[:controller],
-#                                          resource[:servers])
-#
-#   elsif resource[:master] != nil && resource[:appengine] != nil &&
-#         resource[:database] != nil && resource[:login] != nil &&
-#         resource[:open] != nil
-#
-#      return obtain_appscale_data_custom(resource[:master],
-#                                         resource[:appengine],
-#                                         resource[:database],
-#                                         resource[:login],
-#                                         resource[:open],
-#                                         resource[:zookeeper],
-#                                         resource[:memcache])
-#
-#   end
+   # Default deployment
+   if resource[:controller] != nil && resource[:servers] != nil
 
-   ips, ip_roles = appscale_yaml_ips(resource[:ip_file])
-   img_roles     = appscale_yaml_ips(resource[:img_file])
-   return ips, ip_roles, img_roles
+      puts "Default deployment"
+      return obtain_appscale_data_default(resource[:controller],
+                                          resource[:servers])
+
+   # Custom deployment
+   elsif resource[:master] != nil && resource[:appengine] != nil &&
+         resource[:database] != nil && resource[:login] != nil &&
+         resource[:open] != nil
+
+      puts "Custom deployment"
+      return obtain_appscale_data_custom(resource[:master],
+                                         resource[:appengine],
+                                         resource[:database],
+                                         resource[:login],
+                                         resource[:open],
+                                         resource[:zookeeper],
+                                         resource[:memcache])
+
+   end
+
+#   ips, ip_roles = appscale_yaml_ips(resource[:ip_file])
+#   img_roles     = appscale_yaml_ips(resource[:img_file])
+#   return ips, ip_roles, img_roles
    
 end
 \end{lstlisting}
@@ -2101,7 +2288,7 @@ end
 
 \begin{lstlisting}
 # Starts an AppScale cloud.
-def appscale_cloud_start(app_ips, app_roles,
+def appscale_cloud_start(resource, app_ips, app_roles,
                          app_email=nil, app_password=nil, root_password=nil)
 
    require 'expect'
@@ -2127,7 +2314,6 @@ def appscale_cloud_start(app_ips, app_roles,
 
    # Add key pairs
    puts "About to add key pairs"
-   debug "[DBG] ips.yaml file: #{ips_yaml}"
    result = `#{script_path}/#{script_keys} #{ips_yaml} #{root_password}`
    if $?.exitstatus == 0
       puts "Key pairs added"
@@ -2152,15 +2338,6 @@ def appscale_cloud_start(app_ips, app_roles,
    # Start monitoring
    puts "Start monitoring"
    app_ips.each do |vm|
-   
-      # Find the role
-      # TODO What if a machine has different roles?
-      # role = :undefined
-      # app_roles.each do |r, ips|
-      #    ips.each do |ip|
-      #       if vm == ip then role = r end
-      #    end
-      # end
 
       # Get all vm's roles
       roles = app_roles.select { |r, ips| ips.include?(vm) }      # Be careful,
@@ -2172,7 +2349,7 @@ def appscale_cloud_start(app_ips, app_roles,
       roles.each do |role_array|
          role = role_array[0]
          puts "Calling appscale_monitor on #{vm} as #{role}"
-         appscale_monitor(vm, role)
+         appscale_monitor(resource, vm, role)
       end
    end
 
@@ -2182,9 +2359,15 @@ end
 
 
 # Stops an AppScale cloud.
-def appscale_cloud_stop(vm)
+def appscale_cloud_stop(resource, vm)
    
    user = resource[:vm_user]
+   
+   # It is being monitored with puppet through a crontab file, so we have to
+   # stop monitoring first
+   cloud_cron = CloudCron.new()
+   word = "basic"
+   cloud_cron.delete_line_with_word(word, user, vm)
    
    # Terminate instances
    command = "/root/appscale-tools/bin/appscale-terminate-instances"
@@ -2194,7 +2377,7 @@ end
 
 
 # Monitors a virtual machine belonging to an AppScale cloud.
-def appscale_monitor(vm, role)
+def appscale_monitor(resource, vm, role)
 
    command = "ps aux"
    user = resource[:vm_user]
@@ -2265,23 +2448,55 @@ def appscale_monitor(vm, role)
       return
    end
    
-   # Apply the manifest
-   puts "Applying manifest"
-   command = "puppet apply /tmp/basic.pp"
+#   # Apply the manifest
+#   puts "Applying manifest"
+#   command = "puppet apply /tmp/basic.pp"
+#   out, success = CloudSSH.execute_remote(command, user, vm)
+#   unless success
+#      err "[AppScale monitor] Impossible to run puppet in #{vm}"
+#      return
+#   end
+#   
+#   # Analyze the output
+#   if out.include? "should be directory (noop)"
+#      err "[AppScale monitor] Missing directory in #{vm}"
+#      puts out
+#      return
+#   end
+
+   # Monitor AppScale with puppet: basic manifest
+   cloud_cron = CloudCron.new()
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/basic.pp"
+   cron_out = "/root/appscale.out"
+   cron_err = "/root/appscale.err"
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
+      err "[AppScale monitor] Impossible to put basic.pp in crontab in #{vm}"
+      return
+   end
+   
+   # Execute crontab
+   command = "crontab /var/spool/cron/crontabs/root"
    out, success = CloudSSH.execute_remote(command, user, vm)
-   unless success
-      err "[AppScale monitor] Impossible to run puppet in #{vm}"
+   if success
+      puts "[AppScale monitor] Executed crontab in #{vm}"
+   else
+      err "[AppScale monitor] Impossible to execute crontab in #{vm}"
       return
    end
-   
-   # Analyze the output
-   if out.include? "should be directory (noop)"
-      err "[AppScale monitor] Missing directory in #{vm}"
-      puts out
-      return
-   end
-   
+  
 end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+def err(text)
+   puts "\e[31m#{text}\e[0m"
+end
+
 \end{lstlisting}
 
 
@@ -2293,6 +2508,9 @@ end
 # arguments.
 # All different roles have been obtained from the node_layout file located at
 # appscale-tools/lib/node_layout.rb
+# There will be at most 1 controller, 1 master, and 1 login node.
+# There will be at most N servers, appengine, database, open, zookeeper and
+# memcache nodes.
 
 ################################################################################
 # Default deployment
@@ -2301,12 +2519,14 @@ end
 # Obtains the IP addresses and disk images from the resource[:controller],
 # and resource[:servers] arguments.
 # appscale { 'myappscale'
-#   ...
+#    controller => ["155.210.155.73",
+#                   "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    servers    => ["/etc/puppet/modules/appscale/files/servers-ips.txt",
+#                   "/etc/puppet/modules/appscale/files/servers-imgs.txt"],
+#    pool       => ["155.210.155.70"],
+#    ensure     => running,
 # }
 def obtain_appscale_data_default(controller, servers)
-
-#                         master, appengine, database, login, open,
-#                         zookeeper, memcache)
 
    ips, ip_roles = appscale_parse_ips_default(controller, servers)
    img_roles     = appscale_parse_images_default(controller, servers)
@@ -2319,7 +2539,12 @@ end
 # Obtains the IP addresses from the resource[:controller], resource[:server] and
 # resource[:database] arguments.
 # appscale { 'myappscale'
-#   ...
+#    controller => ["155.210.155.73",
+#                   "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    servers    => ["/etc/puppet/modules/appscale/files/servers-ips.txt",
+#                   "/etc/puppet/modules/appscale/files/servers-imgs.txt"],
+#    pool       => ["155.210.155.70"],
+#    ensure     => running,
 # }
 def appscale_parse_ips_default(controller, servers)
 
@@ -2330,11 +2555,8 @@ def appscale_parse_ips_default(controller, servers)
 
    
    # Get the IPs that are under the "controller" and "servers" attributes
-   ip_roles[:controller] = []
-   ip_roles[:controller] << controller[ips_index].chomp
-   
-   path = servers[ips_index]
-   ip_roles[:servers] = get_from_file(path)
+   ip_roles[:controller] = Array[controller[ips_index].chomp]
+   ip_roles[:servers]    = get_from_file(servers[ips_index])
    
    # Add the IPs to the array
    ips = ips + ip_roles[:controller]
@@ -2350,7 +2572,12 @@ end
 # Obtains the disk images from the resource[:controller], and resource[:servers]
 # arguments.
 # appscale { 'myappscale'
-#   ...
+#    controller => ["155.210.155.73",
+#                   "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    servers    => ["/etc/puppet/modules/appscale/files/servers-ips.txt",
+#                   "/etc/puppet/modules/appscale/files/servers-imgs.txt"],
+#    pool       => ["155.210.155.70"],
+#    ensure     => running,
 # }
 def appscale_parse_images_default(controller, servers)
 
@@ -2361,11 +2588,8 @@ def appscale_parse_images_default(controller, servers)
    
    # Get the disk images that are under the "controller" and "servers"
    # attributes
-   img_roles[:controller] = []
-   img_roles[:controller] << controller[img_index].chomp
-   
-   path = servers[img_index]
-   img_roles[:servers] = get_from_file(path)
+   img_roles[:controller] = Array[controller[img_index].chomp]
+   img_roles[:servers]    = get_from_file(servers[img_index])
    
    return img_roles
    
@@ -2376,11 +2600,29 @@ end
 # Custom deployment
 ################################################################################
 
+# Obtains the IP addresses and disk images from the resource[:master],
+# resource[:appengine], resource[:database], etc. arguments.
+# appscale { 'myappscale'
+#    master    => ["155.210.155.73",
+#                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    appengine => ["/etc/puppet/modules/appscale/files/appengine-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/appengine-imgs.txt"],
+#    database  => ["/etc/puppet/modules/appscale/files/database-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/database-imgs.txt"],
+#    login     => ["155.210.155.73",
+#                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/open-imgs.txt"],
+#    pool      => ["155.210.155.70"],
+#    ensure    => running,
+# }
 def obtain_appscale_data_custom(master, appengine, database, login, open,
                                 zookeeper, memcache)
 
+   puts "Parsing custom AppScale IPs"
    ips, ip_roles = appscale_parse_ips_custom(master, appengine, database, login,
                       open, zookeeper, memcache)
+   puts "Parsing custom AppScale imgs"
    img_roles     = appscale_parse_images_custom(master, appengine, database,
                       login, open, zookeeper, memcache)
    
@@ -2389,10 +2631,21 @@ def obtain_appscale_data_custom(master, appengine, database, login, open,
 end
 
 
-# Obtains the IP addresses from the resource[:controller], resource[:server] and
-# resource[:database] arguments.
+# Obtains the IP addresses from the resource[:master], resource[:appengine],
+# resource[:database], etc. arguments.
 # appscale { 'myappscale'
-#   ...
+#    ...
+#    master    => ["155.210.155.73",
+#                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    appengine => ["/etc/puppet/modules/appscale/files/appengine-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/appengine-imgs.txt"],
+#    database  => ["/etc/puppet/modules/appscale/files/database-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/database-imgs.txt"],
+#    login     => ["155.210.155.73",
+#                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/open-imgs.txt"],
+#    ...
 # }
 def appscale_parse_ips_custom(master, appengine, database, login, open,
                               zookeeper, memcache)
@@ -2405,35 +2658,22 @@ def appscale_parse_ips_custom(master, appengine, database, login, open,
    
    # Get the IPs that are under the "master", "appengine", "database", "login",
    # "open", "zookeeper" and "memcache" attributes
-   ip_roles[:master] = []
-   ip_roles[:master] << master[ips_index].chomp
-   
-   path = appengine[ips_index]
-   ip_roles[:appengine] = get_from_file(path)
-   
-   path = database[ips_index]
-   ip_roles[:database] = get_from_file(path)
-   
-   ip_roles[:login] = []
-   ip_roles[:login] << login[ips_index].chomp
-   
-   path = open[ips_index]
-   ip_roles[:open] = get_from_file(path)
-      
-   path = zookeeper[ips_index]
-   ip_roles[:zookeeper] = get_from_file(path)
+   ip_roles[:master]    = Array[master[ips_index].chomp]      unless master.nil?
+   ip_roles[:appengine] = get_from_file(appengine[ips_index]) unless appengine.nil?
+   ip_roles[:database]  = get_from_file(database[ips_index])  unless database.nil?
+   ip_roles[:login]     = Array[login[ips_index].chomp]       unless login.nil?
+   ip_roles[:open]      = get_from_file(open[ips_index])      unless open.nil?
+   ip_roles[:zookeeper] = get_from_file(zookeeper[ips_index]) unless zookeeper.nil?
+   ip_roles[:memcache]  = get_from_file(memcache[ips_index])  unless memcache.nil?
 
-   path = memcache[ips_index]
-   ip_roles[:memcache] = get_from_file(path)
-
-   # Add the IPs to the array   
-   ips = ips + ip_roles[:master]
-   ips = ips + ip_roles[:appengine]
-   ips = ips + ip_roles[:database]
-   ips = ips + ip_roles[:login]
-   ips = ips + ip_roles[:open]
-   ips = ips + ip_roles[:zookeeper]
-   ips = ips + ip_roles[:memcache]
+   # Add the IPs to the array
+   ips = ips + (ip_roles[:master]    || []) # If it was nil, add the empty array
+   ips = ips + (ip_roles[:appengine] || []) # (add nothing). If it was not nil,
+   ips = ips + (ip_roles[:database]  || []) # add the IP addresses.
+   ips = ips + (ip_roles[:login]     || [])
+   ips = ips + (ip_roles[:open]      || [])
+   ips = ips + (ip_roles[:zookeeper] || [])
+   ips = ips + (ip_roles[:memcache]  || [])
    
    ips = ips.uniq
    
@@ -2442,10 +2682,21 @@ def appscale_parse_ips_custom(master, appengine, database, login, open,
 end
 
 
-# Obtains the disk images from the resource[:controller], and resource[:servers]
-# arguments.
+# Obtains the disk images from the resource[:master], resource[:appengine],
+# resource[:database], etc. arguments.
 # appscale { 'myappscale'
-#   ...
+#    ...
+#    master    => ["155.210.155.73",
+#                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    appengine => ["/etc/puppet/modules/appscale/files/appengine-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/appengine-imgs.txt"],
+#    database  => ["/etc/puppet/modules/appscale/files/database-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/database-imgs.txt"],
+#    login     => ["155.210.155.73",
+#                  "/var/tmp/dceresuela/lucid-appscale-tr1.img"],
+#    open      => ["/etc/puppet/modules/appscale/files/open-ips.txt",
+#                  "/etc/puppet/modules/appscale/files/open-imgs.txt"],
+#    ...
 # }
 def appscale_parse_images_custom(master, appengine, database, login, open,
                                  zookeeper, memcache)
@@ -2457,26 +2708,13 @@ def appscale_parse_images_custom(master, appengine, database, login, open,
    
    # Get the disk images that are under the "master", "appengine", "database",
    # "login", "open", "zookeeper" and "memcache" attributes
-   img_roles[:master] = []
-   img_roles[:master] << master[img_index].chomp
-   
-   path = appengine[img_index]
-   img_roles[:appengine] = get_from_file(path)
-   
-   path = database[img_index]
-   img_roles[:database] = get_from_file(path)
-   
-   img_roles[:login] = []
-   img_roles[:login] << login[img_index].chomp
-   
-   path = open[img_index]
-   img_roles[:open] = get_from_file(path)
-   
-   path = zookeeper[img_index]
-   img_roles[:zookeeper] = get_from_file(path)
-
-   path = memcache[img_index]
-   img_roles[:memcache] = get_from_file(path)
+   img_roles[:master]    = Array[master[img_index].chomp]      unless master.nil?
+   img_roles[:appengine] = get_from_file(appengine[img_index]) unless appengine.nil?
+   img_roles[:database]  = get_from_file(database[img_index])  unless database.nil?
+   img_roles[:login]     = Array[login[img_index].chomp]       unless login.nil?
+   img_roles[:open]      = get_from_file(open[img_index])      unless open.nil?
+   img_roles[:zookeeper] = get_from_file(zookeeper[img_index]) unless zookeeper.nil?
+   img_roles[:memcache]  = get_from_file(memcache[img_index])  unless memcache.nil?
 
    return img_roles
    
@@ -2689,16 +2927,21 @@ end
 # one implements them in their own way. Thus, the headers cannot be modified.
 
 # Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
-def start_cloud(vm_ips, vm_ip_roles)
+def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-   return torque_cloud_start(vm_ip_roles)
+   
+   # SSH keys have already been distributed when machines were monitorized,
+   # so we do not have to distribute them again
+   
+   # Start torque cloud
+   return torque_cloud_start(resource, vm_ip_roles)
 
 end
 
 
 # Obtains vm data from manifest parameters.
-def obtain_vm_data()
+def obtain_vm_data(resource)
 
    puts "Obtaining virtual machines' data"
    return obtain_torque_data(resource[:head], resource[:compute])
@@ -2737,6 +2980,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
    # Makes sure the cloud is running.
    def start
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Starting cloud %s" % [resource[:name]]
       
       # Check existence
@@ -2745,7 +2990,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          
          # Check pool of physical machines
          puts "Checking pool of physical machines..."
-         pm_up, pm_down = check_pool()
+         pm_up, pm_down = cloud.check_pool()
          unless pm_down.empty?
             puts "Some physical machines are down"
             pm_down.each do |pm|
@@ -2757,7 +3002,7 @@ Puppet::Type.type(:torque).provide(:torquep) do
          puts "Obtaining the virtual machines' IPs..."
          #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
          #                                                   method(:torque_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
          
          
          # Check whether you are one of the virtual machines
@@ -2767,15 +3012,16 @@ Puppet::Type.type(:torque).provide(:torquep) do
             puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
-            if leader?()
-               leader_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
-                            method(:torque_monitor))
+            if cloud.leader?()
+               cloud.leader_start("torque", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up, method(:torque_monitor))
             else
-               common_start()
+               cloud.common_start()
             end
          else
             puts "#{MY_IP} is not part of the cloud"
-            not_cloud_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+            cloud.not_cloud_start("torque", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up)
          end
          
       else
@@ -2784,8 +3030,8 @@ Puppet::Type.type(:torque).provide(:torquep) do
          puts "Cloud already started"
 
          # Check if you are the leader
-         if leader?()
-            leader_monitoring(method(:torque_monitor))
+         if cloud.leader?()
+            cloud.leader_monitoring(method(:torque_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -2797,44 +3043,29 @@ Puppet::Type.type(:torque).provide(:torquep) do
    # Makes sure the cloud is not running.
    def stop
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Stopping cloud %s" % [resource[:name]]
-
-      if !exists?
-         err "Cloud does not exist"
-         return
-      end
-      if status != :running
-         err "Cloud is not running"
-         return
-      end
-      if exists? && status == :running
+      
+      if cloud.leader?()
+         if !exists?
+            err "Cloud does not exist"
+            return
+         end
          
-         puts "It is a torque cloud"
+         if status != :running
+            err "Cloud is not running"
+            return
+         end
          
-         # Stop cloud infrastructure
-         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
-         #                                                   method(:torque_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-         torque_cloud_stop(vm_ip_roles)
+         if exists? && status == :running
+            puts "It is a torque cloud"
          
-         # Shutdown and undefine all virtual machines explicitly created for this cloud
-         shutdown_vms()
-         
-         # Stop cron jobs on all machines
-         stop_cron_jobs("torque")      # TODO Check order
-         
-         # Delete files
-         delete_files()
-         
-         # Note: As all the files deleted so far are located in the /tmp directory
-         # only the machines that are still alive need to delete these files.
-         # If the machine was shut down, these files will not be there the next
-         # time it is started, so there is no need to delete them.
-         
-         puts "==================="
-         puts "== Cloud stopped =="
-         puts "==================="
-         
+            # Stop cloud infrastructure
+            cloud.leader_stop("torque", method(:torque_cloud_stop))
+         end
+      else
+         puts "#{MY_IP} is not the leader"      # Nothing to do
       end
    
    end
@@ -2999,7 +3230,7 @@ end
 
 \begin{lstlisting}
 # Starts a torque cloud.
-def torque_cloud_start(torque_roles)
+def torque_cloud_start(resource, torque_roles)
 
    head    = torque_roles[:head]
    compute = torque_roles[:compute]
@@ -3007,18 +3238,18 @@ def torque_cloud_start(torque_roles)
    # Start services
    
    # Start head node
-   start_head(head)
+   start_head(resource, head)
    
    # Start compute nodes
    compute.each do |vm|
-      start_compute(vm, head)
+      start_compute(resource, vm, head)
    end
    
    
    # Start monitoring
-   torque_monitor(head, :head)
+   torque_monitor(resource, head, :head)
    compute.each do |vm|
-      torque_monitor(vm, :compute)
+      torque_monitor(resource, vm, :compute)
    end
    
    return true
@@ -3031,7 +3262,7 @@ end
 ################################################################################
 
 # Starts a head node.
-def start_head(head)
+def start_head(resource, head)
    
    user = resource[:vm_user]
    puts "Starting trqauthd on head node"
@@ -3074,10 +3305,10 @@ end
 
 
 # Starts a compute node.
-def start_compute(compute, head)
+def start_compute(resource, compute, head)
 
    user = resource[:vm_user]
-   puts "Starting pbs_mom on compute nodes"
+   puts "Starting pbs_mom on compute node"
    check_command = "ps aux | grep -v grep | grep pbs_mom"
    command = "/bin/bash /root/cloud/torque/start-pbs-mom"
    out, success = CloudSSH.execute_remote(check_command, user, compute)
@@ -3089,7 +3320,7 @@ def start_compute(compute, head)
       end
       
       # Add the node to the compute node list on head
-      add_compute_node(compute, head)
+      add_compute_node(resource, compute, head)
    end
 
 end
@@ -3100,16 +3331,16 @@ end
 ################################################################################
 
 # Monitors a virtual machine belonging to a torque cloud.
-def torque_monitor(vm, role)
+def torque_monitor(resource, vm, role)
 
    if role == :head
       puts "[Torque monitor] Monitoring head"
-      monitor_head(vm)
+      monitor_head(resource, vm)
       puts "[Torque monitor] Monitored head"
 
    elsif role == :compute
       puts "[Torque monitor] Monitoring compute"
-      monitor_compute(vm)
+      monitor_compute(resource, vm)
       puts "[Torque monitor] Monitored compute"
 
    else
@@ -3120,7 +3351,7 @@ end
 
 
 # Monitors a head node.
-def monitor_head(vm)
+def monitor_head(resource, vm)
 
    user = resource[:vm_user]
 
@@ -3136,7 +3367,7 @@ def monitor_head(vm)
       
       # Try to start monitoring again
       puts "[Torque monitor] Starting monitoring head on #{vm}"
-      if start_monitor_head(vm)
+      if start_monitor_head(resource, vm)
          puts "[Torque monitor] Successfully started to monitor head on #{vm}"
       else
          err "[Torque monitor] Impossible to monitor head on #{vm}"
@@ -3147,7 +3378,7 @@ end
 
 
 # Monitors a compute node.
-def monitor_compute(vm)
+def monitor_compute(resource, vm)
 
    user = resource[:vm_user]
 
@@ -3175,7 +3406,7 @@ def monitor_compute(vm)
       puts "[Torque monitor] #{hostname} (#{vm}) already in head's list node"
    else
       puts "[Torque monitor] Adding #{hostname} to the list of compute nodes"
-      add_compute_node(vm, head)
+      add_compute_node(resource, vm, head)
    end
 
    # Start monitoring
@@ -3186,7 +3417,7 @@ def monitor_compute(vm)
       
       # Try to start monitoring again
       puts "[Torque monitor] Starting monitoring compute on #{vm}"
-      if start_monitor_compute(vm)
+      if start_monitor_compute(resource, vm)
          puts "[Torque monitor] Successfully started to monitor compute on #{vm}"
       else
          err "[Torque monitor] Impossible to monitor compute on #{vm}"
@@ -3201,24 +3432,24 @@ end
 ################################################################################
 
 # Stops a torque cloud.
-def torque_cloud_stop(torque_roles)
+def torque_cloud_stop(resource, torque_roles)
 
    head    = torque_roles[:head]
    compute = torque_roles[:compute]
    
    # Stop compute nodes
    compute.each do |vm|
-      stop_compute(vm, head)
+      stop_compute(resource, vm, head)
    end
    
    # Stop head node
-   stop_head(head)
+   stop_head(resource, head)
    
 end
 
 
 # Stops a head node.
-def stop_head(head)
+def stop_head(resource, head)
    
    user = resource[:vm_user]
    
@@ -3262,7 +3493,7 @@ end
 
 
 # Stops a compute node.
-def stop_compute(compute, head)
+def stop_compute(resource, compute, head)
 
    user = resource[:vm_user]
 
@@ -3278,7 +3509,7 @@ def stop_compute(compute, head)
       end
       
       # Add the node to the compute node list on head
-      del_compute_node(compute, head)
+      del_compute_node(resource, compute, head)
    end
 
 end
@@ -3289,7 +3520,7 @@ end
 ################################################################################
 
 # Adds a compute node to the list in the head node.
-def add_compute_node(vm, head)
+def add_compute_node(resource, vm, head)
 
    user = resource[:vm_user]
 
@@ -3317,7 +3548,7 @@ end
 
 
 # Deletes a compute node from the list in the head node.
-def del_compute_node(vm, head)
+def del_compute_node(resource, vm, head)
 
    user = resource[:vm_user]
    
@@ -3343,7 +3574,7 @@ end
 ################################################################################
 
 # Starts monitoring on head node.
-def start_monitor_head(vm)
+def start_monitor_head(resource, vm)
    
    user = resource[:vm_user]
    god_port = 17165
@@ -3408,7 +3639,7 @@ end
 
 
 # Starts monitoring on compute node.
-def start_monitor_compute(vm)
+def start_monitor_compute(resource, vm)
    
    user = resource[:vm_user]
    god_port = 17165
@@ -3436,6 +3667,16 @@ def start_monitor_compute(vm)
    return true
 
 end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+def err(text)
+   puts "\e[31m#{text}\e[0m"
+end
+
 \end{lstlisting}
 
 
@@ -3652,23 +3893,22 @@ end
 # The functions in this file are defined the same in all providers, but each
 # one implements them in their own way. Thus, the headers cannot be modified.
 
-# Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
-def start_cloud(vm_ips, vm_ip_roles)
+# Starts a web cloud formed by <vm_ips> performing <vm_ip_roles>.
+def start_cloud(resource, vm_ips, vm_ip_roles)
 
    puts "Starting the cloud"
-   puts  "Starting a web cloud"
    
    # SSH keys have already been distributed when machines were monitorized,
    # so we do not have to distribute them again
    
    # Start web cloud
-   return web_cloud_start(vm_ip_roles)
+   return web_cloud_start(resource, vm_ip_roles)
 
 end
 
 
 # Obtains vm data from manifest parameters.
-def obtain_vm_data()
+def obtain_vm_data(resource)
 
    puts "Obtaining virtual machines' data"
    return obtain_web_data(resource[:balancer], resource[:server],
@@ -3707,7 +3947,9 @@ Puppet::Type.type(:web).provide(:webp) do
 
    # Makes sure the cloud is running.
    def start
-
+   
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Starting cloud %s" % [resource[:name]]
       
       # Check existence
@@ -3716,7 +3958,7 @@ Puppet::Type.type(:web).provide(:webp) do
          
          # Check pool of physical machines
          puts "Checking pool of physical machines..."
-         pm_up, pm_down = check_pool()
+         pm_up, pm_down = cloud.check_pool()
          unless pm_down.empty?
             puts "Some physical machines are down"
             pm_down.each do |pm|
@@ -3728,7 +3970,7 @@ Puppet::Type.type(:web).provide(:webp) do
          puts "Obtaining the virtual machines' IPs..."
          #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
          #                                                   method(:web_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(cloud.resource)
          
          # Check whether you are one of the virtual machines
          puts "Checking whether this machine is part of the cloud..."
@@ -3737,15 +3979,16 @@ Puppet::Type.type(:web).provide(:webp) do
             puts "#{MY_IP} is part of the cloud"
             
             # Check if you are the leader
-            if leader?()
-               leader_start("web", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
-                            method(:web_monitor))
+            if cloud.leader?()
+               cloud.leader_start("web", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up, method(:web_monitor))
             else
-               common_start()
+               cloud.common_start()
             end
          else
             puts "#{MY_IP} is not part of the cloud"
-            not_cloud_start("web", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+            cloud.not_cloud_start("web", vm_ips, vm_ip_roles, vm_img_roles,
+                                  pm_up)
          end
          
       else
@@ -3754,8 +3997,8 @@ Puppet::Type.type(:web).provide(:webp) do
          puts "Cloud already started"
          
          # Check if you are the leader
-         if leader?()
-            leader_monitoring(method(:web_monitor))
+         if cloud.leader?()
+            cloud.leader_monitoring(method(:web_monitor))
          else
             puts "#{MY_IP} is not the leader"      # Nothing to do
          end
@@ -3767,44 +4010,29 @@ Puppet::Type.type(:web).provide(:webp) do
    # Makes sure the cloud is not running.
    def stop
 
+      cloud = Cloud.new(CloudInfrastructure.new(), CloudLeader.new(), resource,
+                        method(:err))
       puts "Stopping cloud %s" % [resource[:name]]
-
-      if !exists?
-         err "Cloud does not exist"
-         return
-      end
-      if status != :running
-         err "Cloud is not running"
-         return
-      end
-      if exists? && status == :running
+      
+      if cloud.leader?()
+         if !exists?
+            err "Cloud does not exist"
+            return
+         end
          
-         puts "It is a web cloud"
+         if status != :running
+            err "Cloud is not running"
+            return
+         end
          
-         # Stop cloud infrastructure
-         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
-         #                                                   method(:web_yaml_images))
-         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
-         web_cloud_stop(vm_ip_roles)
+         if exists? && status == :running
+            puts "It is a web cloud"
          
-         # Shutdown and undefine all virtual machines explicitly created for this cloud
-         shutdown_vms()
-         
-         # Stop cron jobs on all machines
-         stop_cron_jobs("web")      # TODO Check order
-         
-         # Delete files
-         delete_files()
-         
-         # Note: As all the files deleted so far are located in the /tmp directory
-         # only the machines that are still alive need to delete these files.
-         # If the machine was shut down, these files will not be there the next
-         # time it is started, so there is no need to delete them.
-         
-         puts "==================="
-         puts "== Cloud stopped =="
-         puts "==================="
-         
+            # Stop cloud infrastructure
+            cloud.leader_stop("web", method(:web_cloud_stop))
+         end
+      else
+         puts "#{MY_IP} is not the leader"      # Nothing to do
       end
    
    end
@@ -3820,14 +4048,14 @@ Puppet::Type.type(:web).provide(:webp) do
 
 
    # Ensure methods
-   def create
-      return true
-   end
-   
+#   def create
+#      return true
+#   end
+#   
 
-   def destroy
-      return true
-   end
+#   def destroy
+#      return true
+#   end
 
 
    def exists?
@@ -3990,7 +4218,7 @@ end
 
 \begin{lstlisting}
 # Starts a web cloud.
-def web_cloud_start(web_roles)
+def web_cloud_start(resource, web_roles)
 
    balancers = web_roles[:balancer]
    servers   = web_roles[:server]
@@ -4001,20 +4229,20 @@ def web_cloud_start(web_roles)
    # Start load balancers => Start nginx
    puts "Starting nginx on load balancers"
    balancers.each do |vm|
-      start_balancer(vm)
+      start_balancer(resource, vm)
    end
    
    # Start web servers => Start sinatra application
    puts "Starting ruby web3 on web servers"
    servers.each do |vm|
-      start_server(vm)
+      start_server(resource, vm)
    end
    
    # Database servers start at boot time, but check whether they have started
    # and if they have not, start them
    puts "Starting mysql on database servers"
    databases.each do |vm|
-      start_database(vm)
+      start_database(resource, vm)
    end
    
    
@@ -4022,17 +4250,17 @@ def web_cloud_start(web_roles)
    
    # Load balancers
    balancers.each do |vm|
-      start_monitor_balancer(vm)
+      start_monitor_balancer(resource, vm)
    end
    
    # Web servers
    servers.each do |vm|
-      start_monitor_server(vm)
+      start_monitor_server(resource, vm)
    end
    
    # Database servers
    databases.each do |vm|
-      start_monitor_database(vm)
+      start_monitor_database(resource, vm)
    end
    
    return true
@@ -4045,7 +4273,7 @@ end
 ################################################################################
 
 # Starts a load balancer.
-def start_balancer(vm)
+def start_balancer(resource, vm)
    
    command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
    user = resource[:vm_user]
@@ -4067,7 +4295,7 @@ end
 
 
 # Starts a web server.
-def start_server(vm)
+def start_server(resource, vm)
    
    # The ruby-web3 file should have been already copied at this point. It should
    # have been copied when installing the web server.
@@ -4091,7 +4319,7 @@ end
 
 
 # Starts a database server.
-def start_database(vm)
+def start_database(resource, vm)
    
    check_command = "ps aux | grep -v grep | grep mysql"
    command = "/usr/bin/service mysql start"
@@ -4124,13 +4352,13 @@ end
 ################################################################################
 
 # Monitors a virtual machine belonging to a web cloud.
-def web_monitor(vm, role)
+def web_monitor(resource, vm, role)
 
    if role == :balancer
       puts "[Web monitor] Monitoring load balancer"
       
       # Run puppet
-      unless start_monitor_balancer(vm)
+      unless start_monitor_balancer(resource, vm)
          puts "[Web monitor] Impossible to monitor load balancer on #{vm}"
       end
       puts "[Web monitor] Monitored load balancer"
@@ -4139,7 +4367,7 @@ def web_monitor(vm, role)
       puts "[Web monitor] Monitoring web server"
       
       # Run puppet
-      unless start_monitor_server(vm)
+      unless start_monitor_server(resource, vm)
          puts "[Web monitor] Impossible to monitor web server on #{vm}"
       end
       
@@ -4157,7 +4385,7 @@ def web_monitor(vm, role)
          
          # Try to start monitoring again
          puts "[Web monitor] Starting monitoring database on #{vm}"
-         if start_monitor_database(vm)
+         if start_monitor_database(resource, vm)
             puts "[Web monitor] Successfully started to monitor database on #{vm}"
          else
             err "[Web monitor] Impossible to monitor database on #{vm}"
@@ -4173,7 +4401,7 @@ end
 
 
 # Starts monitoring on load balancer.
-def start_monitor_balancer(vm)
+def start_monitor_balancer(resource, vm)
 
    # Copy the puppet manifest
    path = "/etc/puppet/modules/web/files/web-manifests/balancer.pp"
@@ -4186,12 +4414,35 @@ def start_monitor_balancer(vm)
    # Monitor load balancer with puppet
    # While god monitoring will be done in a loop this will only be done if
    # explicitly invoked, so we must call 'puppet apply' every time.
-   command = "puppet apply /tmp/balancer.pp"
+#   command = "puppet apply /tmp/balancer.pp"
+#   user = resource[:vm_user]
+#   out, success = CloudSSH.execute_remote(command, user, vm)
+#   unless success
+#      err "[Web monitor] Impossible to run puppet in #{vm}"
+#      return false
+#   end
+   
+   # We have to ensure that the node will be auto-monitoring itself
    user = resource[:vm_user]
-   out, success = CloudSSH.execute_remote(command, user, vm)
-   unless success
-      err "[Web monitor] Impossible to run puppet in #{vm}"
+   cloud_cron = CloudCron.new()
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/balancer.pp"
+   cron_out = "/root/balancer.out"
+   cron_err = "/root/balancer.err"
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
+      err "[Web monitor] Impossible to put balancer.pp in crontab in #{vm}"
       return false
+   end
+   
+   # Execute crontab
+   command = "crontab /var/spool/cron/crontabs/root"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   if success
+      puts "[Web monitor] Executed crontab in #{vm}"
+   else
+      err "[Web monitor] Impossible to execute crontab in #{vm}"
+      return
    end
    
    return true
@@ -4200,7 +4451,7 @@ end
 
 
 # Starts monitoring on web server.
-def start_monitor_server(vm)
+def start_monitor_server(resource, vm)
 
    # Copy the puppet manifests: general, start and stop
    path = "/etc/puppet/modules/web/files/web-manifests/server.pp"
@@ -4224,22 +4475,38 @@ def start_monitor_server(vm)
       return false
    end
    
-   # Monitor web servers with puppet: installation files and required gems
-   command = "puppet apply /tmp/server.pp"
+   # Monitor web server with puppet: installation files and required gems
    user = resource[:vm_user]
-   out, success = CloudSSH.execute_remote(command, user, vm)
-   unless success
-      err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
+   cloud_cron = CloudCron.new()
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/server.pp"
+   cron_out = "/root/server.out"
+   cron_err = "/root/server.err"
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
+      err "[Web monitor] Impossible to put server.pp in crontab in #{vm}"
+      return false
+   end
+
+   # Monitor web server with puppet: web server is up and running
+   cron_time = "*/1 * * * *"
+   cron_command = "puppet apply /tmp/server-start.pp"
+   cron_out = "/root/server-start.out"
+   cron_err = "/root/server-start.err"
+   line = cloud_cron.create_line(cron_time, cron_command, cron_out, cron_err)
+   unless cloud_cron.add_line(line, user, vm)
+      err "[Web monitor] Impossible to put server-start.pp in crontab in #{vm}"
       return false
    end
    
-   # Monitor web servers with puppet: web server is up and running
-   command = "puppet apply /tmp/server-start.pp"
-   user = resource[:vm_user]
+   # Execute crontab
+   command = "crontab /var/spool/cron/crontabs/root"
    out, success = CloudSSH.execute_remote(command, user, vm)
-   unless success
-      err "[Web monitor] Impossible to run puppet (server-start.pp) in #{vm}"
-      return false
+   if success
+      puts "[Web monitor] Executed crontab in #{vm}"
+   else
+      err "[Web monitor] Impossible to execute crontab in #{vm}"
+      return
    end
    
    return true
@@ -4248,7 +4515,7 @@ end
 
 
 # Starts monitoring on database.
-def start_monitor_database(vm)
+def start_monitor_database(resource, vm)
 
    user = resource[:vm_user]
 
@@ -4284,7 +4551,7 @@ end
 ################################################################################
 
 # Stops a web cloud.
-def web_cloud_stop(web_roles)
+def web_cloud_stop(resource, web_roles)
 
    balancers = web_roles[:balancer]
    servers   = web_roles[:server]
@@ -4295,32 +4562,37 @@ def web_cloud_stop(web_roles)
    # Stop load balancers => Stop nginx
    puts "Stopping nginx on load balancers"
    balancers.each do |vm|
-      stop_balancer(vm)
+      stop_balancer(resource, vm)
    end
    
    # Stop web servers => Stop sinatra application
    puts "Stopping ruby web3 on web servers"
    servers.each do |vm|
-      stop_server(vm)
+      stop_server(resource, vm)
    end
    
    # Stop database servers => Stop mysql
    puts "Stopping mysql on database servers"
    databases.each do |vm|
-      stop_database(vm)
+      stop_database(resource, vm)
    end
 
 end
 
 
 # Stops a load balancer.
-def stop_balancer(vm)
+def stop_balancer(resource, vm)
 
-   # It is being monitored explicitly with puppet, so we do not have to stop
-   # monitoring explicitly, we just have to stop it
-   
-   command = "/etc/init.d/nginx stop > /dev/null 2> /dev/null"
    user = resource[:vm_user]
+
+   # It is being monitored with puppet through a crontab file, so we have to
+   # stop monitoring first
+   cloud_cron = CloudCron.new()
+   word = "balancer"
+   cloud_cron.delete_line_with_word(word, user, vm)
+   
+   # Once we have stopped monitoring we stop the load balancer
+   command = "/etc/init.d/nginx stop > /dev/null 2> /dev/null"
    out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to stop balancer in #{vm}"
@@ -4331,14 +4603,21 @@ end
 
 
 # Stops a web server.
-def stop_server(vm)
+def stop_server(resource, vm)
 
-   # It is being monitored explicitly with puppet, so we do not have to stop
-   # monitoring explicitly, we just have to stop it
-   
-   command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
    user = resource[:vm_user]
-   out, success = CloudSSH.execute_remote(command, user,vm)
+
+   # It is being monitored with puppet through a crontab file, so we have to
+   # stop monitoring first
+   cloud_cron = CloudCron.new()
+   word1 = "server"
+   word2 = "server-start"
+   cloud_cron.delete_line_with_word(word1, user, vm)
+   cloud_cron.delete_line_with_word(word2, user, vm)
+   
+   # Once we have stopped monitoring we stop the web server
+   command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
+   out, success = CloudSSH.execute_remote(command, user, vm)
    unless success
       err "Impossible to stop web server in #{vm}"
       return false
@@ -4348,7 +4627,7 @@ end
 
 
 # Stops a database server.
-def stop_database(vm)
+def stop_database(resource, vm)
 
    user = resource[:vm_user]
 
@@ -4365,6 +4644,15 @@ def stop_database(vm)
       err "Impossible to stop database monitoring in #{vm}"
    end
 
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+def err(text)
+   puts "\e[31m#{text}\e[0m"
 end
 
 \end{lstlisting}
