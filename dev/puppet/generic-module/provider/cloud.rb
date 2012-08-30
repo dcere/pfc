@@ -59,13 +59,13 @@ class Cloud
             
             # Copy important files to all machines
             puts "Copying important files to all virtual machines"
-            copy_cloud_files(vm_ips, cloud_type)      # TODO Move it to monitor and call it each time for one vm?
+            copy_cloud_files(vm_ips, cloud_type)
          
             # Start the cloud
             if start_cloud(@resource, vm_ips, vm_ip_roles)
                
                # Make cloud nodes manage themselves
-               #auto_manage(cloud_type)     # Only if cloud was started properly FIXME Uncomment after tests
+               auto_manage(cloud_type)     # Only if cloud was started properly
                
                # Create file
                cloud_file = File.open("/tmp/cloud-#{@resource[:name]}", 'w')
@@ -242,13 +242,12 @@ class Cloud
 
    end
 
-   ## TODO Remove this once leader_stop is used in web, torque and appscale providers
+   ## Shuts down virtual machines
    def shutdown_vms()
       @vm_manager.shutdown_vms()
    end
 
 
-   ## TODO Remove this once leader_stop is used in web, torque and appscale providers
    # Stops cron jobs on all machines.
    def stop_cron_jobs(cloud_type)
 
@@ -259,7 +258,6 @@ class Cloud
    end
 
 
-   ## TODO Remove this once leader_stop is used in web, torque and appscale providers
    # Deletes cloud files on all machines.
    def delete_files()
 
@@ -338,10 +336,9 @@ class Cloud
             unless success
                @err.call "Impossible to copy #{file} to #{vm}"
             end
-            
-            #TODO Use a user-provided function to copy important files to all nodes?
 
          end
+         
       end
       
    end

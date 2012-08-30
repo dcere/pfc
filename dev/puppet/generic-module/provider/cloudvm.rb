@@ -37,7 +37,6 @@ class CloudVM
       myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac, vm_mem, vm_ncpu)
       
       # Write virtual machine's domain file
-      puts "Writing domain file" #TODO
       domain_file_name = "cloud-%s-%s.xml" % [@resource[:name], vm_name]
       domain_file_path = File.dirname(@resource[:vm_domain]) + 
                          "/" + "#{domain_file_name}"
@@ -169,8 +168,7 @@ class CloudVM
          #mcc.disconnect
       end
       
-      # TODO Copy cloud files each time a machine is monitored?
-      # TODO Copy files no matter what or check first if they have them?
+      # Copy files no matter what or check first if they have them?
       # Use copy_cloud_files if we copy no matter what. Modify it if we check
       # We should copy no matter what in case they have changed
       
@@ -283,8 +281,7 @@ class CloudVM
    # Gets the virtual machine's disk image.
    def get_vm_disk(vm, ip_roles, img_roles)
       
-      # TODO What if a machine has different roles?
-      # Is it really a problem? Pick one of the images and that is it
+      # What if a machine has different roles? Pick one and that is it
       role = :undefined
       index = 0
       ip_roles.each do |r, ips|
@@ -303,9 +300,6 @@ class CloudVM
       
       puts "Finished iterating. role: #{role}, index: #{index}"
       disk = img_roles[role][index]
-      
-      # TODO
-      puts "Disk obtained: #{disk}"
       
       return disk
 

@@ -216,6 +216,16 @@ def start_monitor_balancer(resource, vm)
       return false
    end
    
+   # Execute crontab
+   command = "crontab /var/spool/cron/crontabs/root"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   if success
+      puts "[Web monitor] Executed crontab in #{vm}"
+   else
+      err "[Web monitor] Impossible to execute crontab in #{vm}"
+      return
+   end
+   
    return true
    
 end
@@ -268,6 +278,16 @@ def start_monitor_server(resource, vm)
    unless cloud_cron.add_line(line, user, vm)
       err "[Web monitor] Impossible to put server-start.pp in crontab in #{vm}"
       return false
+   end
+   
+   # Execute crontab
+   command = "crontab /var/spool/cron/crontabs/root"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   if success
+      puts "[Web monitor] Executed crontab in #{vm}"
+   else
+      err "[Web monitor] Impossible to execute crontab in #{vm}"
+      return
    end
    
    return true

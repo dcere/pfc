@@ -187,6 +187,7 @@ def appscale_monitor(resource, vm, role)
       return
    end
    
+   # Execute crontab
    command = "crontab /var/spool/cron/crontabs/root"
    out, success = CloudSSH.execute_remote(command, user, vm)
    if success

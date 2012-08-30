@@ -111,7 +111,8 @@ Puppet::Type.type(:appscale).provide(:appscalep) do
             cloud.stop_cron_jobs("appscale")
             
             # Stop cloud infrastructure
-            appscale_cloud_stop(cloud.resource, MY_IP)    # TODO What if we run stop on a different machine than start?
+            appscale_cloud_stop(cloud.resource, MY_IP)      # What if we run
+            # stop on a different machine than start?
 
             # Shutdown and undefine all virtual machines explicitly created for this cloud
             cloud.shutdown_vms()
