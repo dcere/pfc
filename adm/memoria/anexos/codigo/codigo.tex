@@ -1,4 +1,4467 @@
 \chapter{Código fuente}
 \label{anx:codigo}
 
-Código fuente de la aplicación
+
+\section{generic-module}
+\subsection{mcollective\_leader.rb}
+
+
+\begin{lstlisting}
+require 'mcollective'
+include MCollective::RPC
+
+# MCollective leader client used to help with leader election algorithm
+class MCollectiveLeaderClient < MCollectiveClient
+   
+   
+   # Creates a new MCollective leader client.
+   def initialize(client)
+      super(client)
+   end
+   
+   
+   # Asks all nodes for their ID.
+   def ask_id
+   
+      ids = []
+      regex = /^.*ID: (\d+).*$/
+   
+      puts "Retrieving nodes' ids via MCollective Leader client"
+      output = Helpers.rpcresults @mc.ask_id()
+      
+      puts "Complete output:"
+      puts "---------------------------"
+      puts "#{output}"
+      puts "---------------------------"
+      
+      output.each_line do |line|
+         m = line.match(regex)
+         if m
+            ids << m[1].to_i()      # Send them as integers
+         end
+      end
+      
+      return ids
+   
+   end
+   
+   
+   # Sends all nodes the leader's ID.
+   def new_leader(id)
+   
+      puts "Sending new leader information via MCollective Leader client"
+      output = @mc.new_leader(:leader_id => id)
+      return output
+   
+   end
+   
+   
+end
+\end{lstlisting}
+
+
+\subsection{genericp\_helper.rb}
+
+
+\begin{lstlisting}
+LAST_MAC_FILE = "/tmp/cloud-last-mac"
+
+
+# Defines and starts a virtual machine.
+def start_vm(vm, ip_roles, img_roles, pm_up)
+
+   # This function is cloud-type independent: define a new virtual machine and
+   # start it
+   
+   # Get virtual machine's MAC address
+   puts "Getting VM's MAC address"
+   mac_address = get_vm_mac()
+   
+   # Get virtual machine's image disk
+   puts "Getting VM's image disk"
+   disk = get_vm_disk(vm, ip_roles, img_roles)
+   
+   # Define a new virtual machine
+   id = rand(10000)      # Choose a number for domain name randomly
+   vm_name = "myvm-#{id}"
+   vm_uuid = `uuidgen`
+   vm_mac  = mac_address
+   vm_disk = disk
+   vm_mem  = resource[:vm_mem]
+   vm_ncpu = resource[:vm_ncpu]
+   myvm = VM.new(vm_name, vm_uuid, vm_disk, vm_mac, vm_mem, vm_ncpu)
+   
+   # Write virtual machine's domain file
+   domain_file_name = "cloud-%s-%s.xml" % [resource[:name], vm_name]
+   domain_file_path = File.dirname(resource[:vm_domain]) + 
+                      "/" + "#{domain_file_name}"
+   template_path = resource[:vm_domain]
+   CloudInfrastructure.write_domain(myvm, domain_file_path, template_path)
+   puts "Domain file written"
+   
+   # Choose a physical machine to host the virtual machine
+   pm = pm_up[rand(pm_up.count)] # Choose randomly
+   
+   # Copy ssh key to physical machine
+   puts "Copying ssh key to physical machine"
+   pm_user = resource[:pm_user]
+   pm_password = resource[:pm_password]
+   out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
+   
+   # Copy the domain definition file to the physical machine
+   puts "Copying the domain definition file to the physical machine..."
+   domain_file_src = domain_file_path
+   domain_file_dst = "/tmp/" + domain_file_name
+   
+   out, success = CloudSSH.copy_remote(domain_file_src, pm, domain_file_dst, pm_user)
+   if success
+      puts "domain definition file copied"
+      
+      # Delete the local copy
+      File.delete(domain_file_src)
+   else
+      err "#{vm_name} impossible to copy domain definition file"
+   end
+   
+   # Define the domain in the physical machine
+   puts "Defining the domain in the physical machine..."
+   unless CloudInfrastructure.define_domain(pm_user, pm, vm_name, domain_file_dst)
+      err "Impossible to define #{vm_name} domain"
+   end
+   
+   # Start the domain
+   puts "Starting the domain..."
+   unless CloudInfrastructure.start_domain(pm_user, pm, vm_name)
+      err "#{vm_name} impossible to start"
+   end
+   
+   # Save the domain's name
+   puts "Saving the domain's name..."
+   unless CloudInfrastructure.save_domain_name(pm_user, pm, vm_name)
+      err "#{vm_name} impossible to save in domains file"
+   end
+
+   # Save the new virtual machine's MAC address
+   file = File.open(LAST_MAC_FILE, 'w')
+   file.puts(mac_address)
+   file.close
+   
+   # Send the new virtual machine's MAC address to all nodes
+   mcc = MCollectiveFilesClient.new("files")
+   mcc.create_file(LAST_MAC_FILE, mac_address)
+   #mcc.disconnect
+
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+
+# Gets the virtual machine's mac address.
+def get_vm_mac()
+   
+   if File.exists?(LAST_MAC_FILE)
+      file = File.open(LAST_MAC_FILE, 'r')
+      mac = MAC_Address.new(file.read().chomp())
+      mac_address = mac.next_mac()
+      file.close
+   else
+      mac = MAC_Address.new(resource[:starting_mac_address])
+      mac_address = mac.mac
+   end
+   
+   return mac_address
+
+end
+
+
+# Gets the virtual machine's disk image.
+def get_vm_disk(vm, ip_roles, img_roles)
+   
+   # TODO What if a machine has different roles?
+   role = :undefined
+   index = 0
+   ip_roles.each do |r, ips|
+      index_aux = 0      # Reset the index for each role
+      ips.each do |ip|
+         if vm == ip
+            puts "vm: #{vm} == ip: #{ip}"
+            role = r
+            index = index_aux
+            puts "role: #{role}"
+         else
+            index_aux += 1
+         end
+      end
+   end
+   
+   puts "Finished iterating. role: #{role}, index: #{index}"
+   disk = img_roles[role][index]
+   
+   return disk
+
+end
+
+
+################################################################################
+
+
+# Checks if a machine is alive
+def alive?(ip)
+
+   ping = "ping -q -c 1 -w 4"
+   result = `#{ping} #{ip}`
+   return $?.exitstatus == 0
+
+end
+
+# Gets all the roles a node has.
+def get_vm_roles(roles, vm)
+
+   # The roles array is a map of roles - IP addresses. The 'IP addresses' value
+   # can be either a single value or an array of values.
+   
+   vm_roles = []
+   roles.each do |role, ips|
+      if ips == vm
+         vm_roles << role
+      elsif ips.is_a?(Array) && ips.include?(vm)
+         vm_roles << role
+      end
+   end
+   return vm_roles
+
+end
+\end{lstlisting}
+
+
+\subsection{cloudmonitor.rb}
+
+
+\begin{lstlisting}
+# Generic monitor functions for a distributed infrastructure
+module CloudMonitor
+
+   PING = "ping -q -c 1 -w 4"
+
+   # Checks if the <vm> machine is alive.
+   def self.ping(vm)
+
+      result = `#{PING} #{vm}`
+      if $?.exitstatus == 0
+         puts "[CloudMonitor]: #{vm} is up"
+         return true
+      else
+         puts "[CloudMonitor]: #{vm} is down"
+         return false
+      end
+      
+   end
+
+
+   # Checks if MCollective is installed in <vm>.
+   def self.mcollective_installed(user, vm)
+      
+      installed = true
+      
+      # Client configuration file
+      client_file = "/etc/mcollective/client.cfg"
+      command = "cat #{client_file} > /dev/null 2> /dev/null"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         puts "[CloudMonitor]: #{client_file} does not exist on #{user}@#{vm}"
+         installed = false
+      end
+
+      # Server configuration file
+      server_file = "/etc/mcollective/server.cfg"
+      command = "cat #{server_file} > /dev/null 2> /dev/null"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         puts "[CloudMonitor]: #{server_file} does not exist on #{user}@#{vm}"
+         installed = false
+      end
+      
+      return installed
+      
+   end
+
+
+   # Checks if MCollective is running in <vm>.
+   def self.mcollective_running(user, vm)
+      
+      command = "ps aux | grep -v grep | grep mcollective"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         puts "MCollective is not running on #{vm}"
+         command = "/usr/bin/service mcollective start"
+         out, success = CloudSSH.execute_remote(command, user, vm)
+         unless success
+            puts "[CloudMonitor]: Impossible to start mcollective on #{user}@#{vm}"
+            return false
+         else
+            puts "[CloudMonitor]: MCollective is running now on #{vm}"
+            return true
+         end
+      else
+         puts "[CloudMonitor]: MCollective is running on #{vm}"
+         return true
+      end
+      
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{cloudinfrastructure.rb}
+
+
+\begin{lstlisting}
+module CloudInfrastructure
+
+   # Constants
+
+   VIRSH_CONNECT = "virsh -c qemu:///system"
+   DOMAINS_FILE = "/tmp/defined-domains"
+
+
+   #############################################################################
+   # Domain functions
+   #############################################################################
+
+
+   # Writes the virtual machine's domain file.
+   def self.write_domain(virtual_machine, domain_file_path, template_path)
+
+      require 'erb'
+      template = File.open(template_path, 'r').read()
+      erb = ERB.new(template)
+      domain_file = File.open(domain_file_path, 'w')
+      domain_file.write(erb.result(virtual_machine.get_binding))
+      domain_file.close
+
+   end
+
+
+   # Defines a domain for a virtual machine on a physical machine.
+   def self.define_domain(pm_user, pm, vm_name, domain_file_name)
+
+      command = "#{VIRSH_CONNECT} define #{domain_file_name}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      return success
+      
+   end
+
+
+   # Starts a domain on a physical machine.
+   def self.start_domain(pm_user, pm, vm_name)
+
+      command = "#{VIRSH_CONNECT} start #{vm_name}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      return success
+      
+   end
+
+
+   # Saves the virtual machine's domain name in a file.
+   def self.save_domain_name(pm_user, pm, vm_name)
+
+      command = "echo #{vm_name} >> #{DOMAINS_FILE}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      return success
+
+   end
+
+
+   # Shuts down a domain.
+   def self.shutdown_domain(domain, pm_user, pm)
+
+      command = "#{VIRSH_CONNECT} shutdown #{domain}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      return success
+
+   end
+
+
+   # Undefines a domain.
+   def self.undefine_domains(domain, pm_user, pm)
+
+      command = "#{VIRSH_CONNECT} undefine #{domain}"
+      out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      return success
+
+   end
+
+end
+\end{lstlisting}
+
+
+\subsection{genericp\_main.rb}
+
+
+\begin{lstlisting}
+################################################################################
+# Start cloud functions
+################################################################################
+
+# Test function
+def mifunciondetest(resource, error_function)
+
+   puts "El nombre del recurso es %s" % [resource[:name]]
+   error_function.call "Error en GENERIC MAIN"
+
+end
+
+# Starting function for leader node.
+def leader_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                 monitor_function)
+   
+   # We are the leader
+   puts "#{MY_IP} is the leader"
+   
+   # Check wether virtual machines are alive or not
+   alive = {}
+   vm_ips.each do |vm|
+      alive[vm] = false
+   end
+   
+   puts "Checking whether virtual machines are alive..."
+   vm_ips.each do |vm|
+      if alive?(vm)
+         debug "[DBG] #{vm} is up"
+         alive[vm] = true
+      else
+         debug "[DBG] #{vm} is down"
+         puts "#{vm} is down"
+      end
+   end
+   
+   # Monitor the alive machines. Start and configure the dead ones.
+   deads = false
+   vm_ips.each do |vm|
+      if alive[vm]
+         # If they are alive, monitor them
+         puts "Monitoring #{vm}..."
+         monitor_vm(vm, vm_ip_roles, monitor_function)
+         puts "...Monitored"
+      else
+         # If they are not alive, start and configure them
+         puts "Starting #{vm}..."
+         start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+         puts "...Started"
+         deads = true
+      end
+   end
+   
+   # Wait for all machines to be started
+   unless deads
+   
+      # If not already started, start the cloud
+      unless File.exists?("/tmp/cloud-#{resource[:name]}")
+         
+         # Copy important files to all machines
+         puts "Copying important files to all virtual machines"
+         copy_cloud_files(vm_ips, cloud_type)      # TODO Move it to monitor and call it each time for one vm?
+      
+         # Start the cloud
+         if start_cloud(vm_ips, vm_ip_roles)
+            
+            # Make cloud nodes manage themselves
+            #auto_manage(cloud_type)     # Only if cloud was started properly FIXME Uncomment after tests
+            
+            # Create file
+            cloud_file = File.open("/tmp/cloud-#{resource[:name]}", 'w')
+            cloud_file.puts(resource[:name])
+            cloud_file.close
+            
+            puts "==================="
+            puts "== Cloud started =="
+            puts "==================="
+         else
+            puts "Impossible to start cloud"
+         end
+      end      # unless File
+      
+   end      # unless deads
+
+end
+
+
+# Starting function for common (non-leader) nodes.
+def common_start()
+
+   # We are not the leader or we have not received our ID yet
+   puts "#{MY_IP} is not the leader"
+   
+   cloud_leader = CloudLeader.new()
+   
+   if cloud_leader.id == -1
+      
+      # If we have not received our ID, let's assume we will be the leader
+      cloud_leader.set_id(0)
+      cloud_leader.set_leader(0)
+      
+      puts "#{MY_IP} will be the leader"
+      
+      # Create your ssh key
+      CloudSSH.generate_ssh_key()
+      
+   else
+      
+      # If we have received our ID, try to become leader
+      puts "Trying to become leader..."
+      
+      # Get all machines' IDs
+      mcc = MCollectiveLeaderClient.new("leader")
+      ids = mcc.ask_id()
+      
+      # See if some other machine is leader
+      exists_leader = false
+      ids.each do |id|
+         if id < cloud_leader.id
+            exists_leader = true 
+            break
+         end
+      end
+      
+      # If there is no leader, we will be the new leader
+      if !exists_leader
+         mcc.new_leader(cloud_leader.id.to_s())
+         puts "...#{MY_IP} will be leader"
+         
+         # Create your ssh key
+         CloudSSH.generate_ssh_key()
+      else
+         puts "...Some other machine is/should be leader"
+      end
+      mcc.disconnect
+      
+      return
+   end
+
+end
+
+
+# Starting function for nodes which do not belong to the cloud.
+def not_cloud_start(cloud_type, vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+   
+   # Try to find one virtual machine that is already running
+   alive = false
+   vm_leader = ""
+   vm_ips.each do |vm|
+      if alive?(vm)
+         puts "#{vm} is up"
+         alive = true
+         vm_leader = vm
+         break
+      end
+   end
+   
+   if !alive
+      puts "All virtual machines are stopped"
+      puts "Starting one of them..."
+   
+      # Start one of the virtual machines
+      vm = vm_ips[rand(vm_ips.count)]     # Choose one randomly
+      puts "Starting #{vm} ..."
+      
+      start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+      
+      # That virtual machine will be the "leader" (actually the chosen one)
+      vm_leader = vm
+      
+      # Copy important files to it
+      #copy_cloud_files(vm_leader, cloud_type)
+      
+      puts "#{vm_leader} is being started"
+      puts "Once started, do 'puppet apply manifest.pp' on #{vm_leader}" 
+   else
+      puts "#{vm_leader} is already running"
+      puts "Do 'puppet apply manifest.pp' on #{vm_leader}"
+   end
+
+end
+
+
+# Monitoring function for leader node.
+def leader_monitoring(monitor_function)
+
+   puts "#{MY_IP} is the leader"
+   
+   # Do monitoring
+   deads = []
+   vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+   vm_ips.each do |vm|
+      puts "Monitoring #{vm}..."
+      unless monitor_vm(vm, vm_ip_roles, monitor_function)
+         deads << vm
+      end
+      puts "...Monitored"
+   end
+   
+   # Check pool of physical machines
+   pm_up, pm_down = check_pool()
+   
+   if deads.count == 0
+      puts "=========================="
+      puts "== Cloud up and running =="
+      puts "=========================="
+   else
+      # Raise again the dead machines
+      deads.each do |vm|
+         start_vm(vm, vm_ip_roles, vm_img_roles, pm_up)
+      end
+   end
+            
+end
+
+
+################################################################################
+# Stop cloud functions
+################################################################################
+
+# Shuts down virtual machines.
+def shutdown_vms()
+
+   # Get pool of physical machines
+   pms = resource[:pool]
+   
+   # Shut down virtual machines
+   pms.each do |pm|
+   
+      pm_user = resource[:pm_user]
+      pm_password = resource[:pm_password]
+      
+      # Copy ssh key to physical machine
+      puts "Copying ssh key to physical machine"
+      out, success = CloudSSH.copy_ssh_key(pm_user, pm, pm_password)
+      
+      # Bring the defined domains file from the physical machine to this one
+      out, success = CloudSSH.get_remote(CloudInfrastructure::DOMAINS_FILE,
+                                         pm_user, pm,
+                                         CloudInfrastructure::DOMAINS_FILE)
+      if success
+      
+         puts "#{CloudInfrastructure::DOMAINS_FILE} exists in #{pm}"
+         
+         # Open file
+         defined_domains = File.open(CloudInfrastructure::DOMAINS_FILE, 'r')
+      
+         # Stop nodes
+         puts "Shutting down domains"
+         defined_domains.each_line do |domain|
+            domain.chomp!
+            unless CloudInfrastructure.shutdown_domain(domain)
+               err "#{domain} impossible to shut down"
+            end
+         end
+         
+         # Undefine local domains
+         puts "Undefining domains"
+         defined_domains.rewind
+         defined_domains.each_line do |domain|
+            domain.chomp!
+            unless CloudInfrastructure.undefine_domain(domain)
+               err "#{domain} impossible to undefine"
+            end
+         end
+         
+         # Delete the defined domains file on the physical machine
+         puts "Deleting defined domains file"
+         command = "rm -rf #{CloudInfrastructure::DOMAINS_FILE}"
+         out, success = CloudSSH.execute_remote(command, pm_user, pm)
+         
+         # Delete all the domain files on the physical machine. Check how the
+         # name is defined on 'start_vm' function.
+         puts "Deleting domain files"
+         domain_files = "cloud-%s-*.xml" % [resource[:name]]
+         command = "rm /tmp/#{domain_files}"
+         out, success = CloudSSH.execute_remote(command, pm_user, pm)
+      
+      else
+         # Some physical machines might not have any virtual machine defined.
+         # For instance, no virtual machine will be defined if they were already
+         # defined and running when we started the cloud.
+         puts "No #{CloudInfrastructure::DOMAINS_FILE} file found in #{pm}"
+      end
+      
+   end   # pms.each
+
+end
+
+
+# Stops cron jobs on all machines.
+def stop_cron_jobs(cloud_type)
+
+   mcc = MCollectiveCronClient.new("cronos")
+   string = "init-#{cloud_type}"
+   mcc.delete_line(CRON_FILE, string)
+
+end
+
+
+# Deletes cloud files on all machines.
+def delete_files()
+
+   puts "Deleting cloud files on all machines..."
+   
+   # Create an MCollective client so that we avoid errors that appear
+   # when you create more than one client in a short time
+   mcc = MCollectiveFilesClient.new("files")
+   
+   # Delete leader, id, last_id and last_mac files on all machines (leader included)
+   mcc.delete_file(CloudLeader::LEADER_FILE)             # Leader ID
+   mcc.delete_file(CloudLeader::ID_FILE)                 # ID
+   mcc.delete_file(CloudLeader::LAST_ID_FILE)            # Last ID
+   mcc.delete_file(LAST_MAC_FILE)                        # Last MAC address
+   mcc.disconnect       # Now it can be disconnected
+   
+   # Delete rest of regular files on leader machine
+   files = [CloudInfrastructure::DOMAINS_FILE,           # Domains file
+            "/tmp/cloud-#{resource[:name]}"]             # Cloud file
+   files.each do |file|
+      if File.exists?(file)
+         File.delete(file)
+      else
+         puts "File #{file} does not exist"
+      end
+   end
+
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Checks the pool of physical machines are OK.
+def check_pool()
+
+   machines_up = []
+   machines_down = []
+   machines = resource[:pool]
+   machines.each do |machine|
+      if alive?(machine)
+         debug "[DBG] #{machine} (PM) is up"
+         machines_up << machine
+      else
+         debug "[DBG] #{machine} (PM) is down"
+         machines_down << machine
+      end
+   end
+   return machines_up, machines_down
+   
+end
+
+
+# Obtains the virtual machine's data
+#def obtain_vm_data(ip_function, img_function)
+#   
+#   vm_ips = []
+#   vm_ip_roles = []
+#   vm_img_roles = []
+#   puts "Obtaining virtual machines' data"
+#   vm_ips, vm_ip_roles = ip_function.call(resource[:ip_file])
+#   vm_img_roles = img_function.call(resource[:img_file])
+#   return vm_ips, vm_ip_roles, vm_img_roles
+#         
+#end
+
+
+# Checks if this node is the leader
+def leader?()
+
+   cloud_leader = CloudLeader.new()
+ 
+   return cloud_leader.leader?
+
+end
+
+
+# Monitors a virtual machine.
+# Returns false if the machine is not alive.
+def monitor_vm(vm, ip_roles, monitor_function)
+
+   # Check if it is alive
+   alive = CloudMonitor.ping(vm)
+   unless alive
+      err "#{vm} is not alive. Impossible to monitor"
+      
+      # If it is not alive there is no point in continuing
+      return false
+   end
+   
+   # Get user and password
+   user = resource[:vm_user]
+   password = resource[:root_password]
+   
+   # Send it your ssh key
+   # Your key was created when you turned into leader
+   puts "Sending ssh key to #{vm}"
+   out, success = CloudSSH.copy_ssh_key(user, vm, password)
+   if success
+      puts "ssh key sent"
+   else
+      err "ssh key impossible to send"
+   end
+   
+   # Check if MCollective is installed and configured
+   mcollective_installed = CloudMonitor.mcollective_installed(user, vm)
+   unless mcollective_installed
+      err "MCollective is not installed on #{vm}"
+   end
+   
+   # Make sure MCollective is running.
+   # We need this to ensure the leader election, so ensuring MCollective
+   # is running can not be left to Puppet in their local manifest. It must be
+   # done explicitly here and now.
+   mcollective_running = CloudMonitor.mcollective_running(user, vm)
+   unless mcollective_running
+      err "MCollective is not running on #{vm}"
+   end
+   
+   # A node may have different roles
+   vm_roles = get_vm_roles(ip_roles, vm)
+   
+   
+   # Check if they have their ID
+   # If they are running, but they do not have their ID:
+   #   - Set their ID before they can become another leader.
+   #   - Set also the leader's ID.
+   success = CloudLeader.vm_check_id(user, vm)
+   unless success
+   
+      cloud_leader = CloudLeader.new()
+
+      # Set their ID (based on the last ID we defined)
+      id = cloud_leader.last_id
+      id += 1
+      CloudLeader.vm_set_id(user, vm, id)
+      cloud_leader.set_last_id(id)
+      
+      # Set the leader's ID
+      leader = cloud_leader.leader
+      CloudLeader.vm_set_leader(user, vm, leader)
+      
+      # Send the last ID to all nodes
+      mcc = MCollectiveFilesClient.new("files")
+      mcc.create_file(CloudLeader::LAST_ID_FILE, id.to_s)
+      #mcc.disconnect
+   end
+   
+   # TODO Copy cloud files each time a machine is monitored?
+   # TODO Copy files no matter what or check first if they have them?
+   # Use copy_cloud_files if we copy no matter what. Modify it if we check
+   # We should copy no matter what in case they have changed
+   
+   # Depending on the type of cloud we will have to monitor different components.
+   # Also, take into account that one node can perform more than one role.
+   print "#{vm} will perform the roles: "
+   p vm_roles
+   vm_roles.each do |role|
+      monitor_function.call(vm, role)
+   end
+   
+   return true
+   
+end
+
+
+# Copies important files to all machines inside <ips>.
+def copy_cloud_files(ips, cloud_type)
+# Use MCollective?
+#  - Without MCollective we are able to send it to both one machine or multiple
+#    machines without changing anything, so not really.
+
+   ips.each do |vm|
+   
+      if vm != MY_IP
+         
+         # Cloud manifest
+         file = "init-#{cloud_type}.pp"
+         path = "/etc/puppet/modules/#{cloud_type}/manifests/#{file}"
+         out, success = CloudSSH.copy_remote(path, vm, path)
+         unless success
+            err "Impossible to copy #{file} to #{vm}"
+         end
+         
+         #TODO Use a user-provided function to copy important files to all nodes?
+
+      end
+   end
+   
+end
+
+
+# Makes the cloud auto-manageable through crontab files.
+def auto_manage(cloud_type)
+
+   cron_file = "crontab-#{cloud_type}"
+   path = "/etc/puppet/modules/#{cloud_type}/files/cron/#{cron_file}"
+   
+   if File.exists?(path)
+      file = File.open(path, 'r')
+      line = file.read().chomp()
+      file.close
+      
+      # Add the 'puppet apply manifest.pp' line to the crontab file
+      mcc = MCollectiveCronClient.new("cronos")
+      mcc.add_line(CRON_FILE, line)
+      mcc.disconnect
+   else
+      err "Impossible to find cron file at #{path}"
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{vm.rb}
+
+
+\begin{lstlisting}
+# Virtual machine class
+class VM
+
+   attr_accessor :vm
+   
+   
+   # Creates a description of a virtual machine.
+   def initialize(name, uuid, disk, mac, mem, ncpu)
+      @vm = {
+         :name => "#{name}",
+         :uuid => "#{uuid}",
+         :disk => "#{disk}",
+         :mac  => "#{mac}",
+         :mem  => "#{mem}",
+         :ncpu => "#{ncpu}"}
+   end
+   
+   
+   # Provides binding for ERB templates.
+   def get_binding
+      binding()
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{mcollective\_client.rb}
+
+
+\begin{lstlisting}
+require 'mcollective'
+include MCollective::RPC
+
+# MCollective base client
+class MCollectiveClient
+   
+   
+   # Creates a new MCollective base client.
+   def initialize(client)
+      @client = client
+      @mc = rpcclient(@client)
+   end
+   
+   
+   # Disconnects an MCollective client.
+   def disconnect
+      puts "Disconnecting MCollective client..."
+      @mc.disconnect
+   end
+   
+   
+end
+\end{lstlisting}
+
+
+\subsection{gedit.sh}
+
+
+\begin{lstlisting}
+gedit genericp_*.rb &
+\end{lstlisting}
+
+
+\subsection{mcollective\_files.rb}
+
+
+\begin{lstlisting}
+require 'mcollective'
+include MCollective::RPC
+
+# MCollective files client used to manage files
+class MCollectiveFilesClient < MCollectiveClient
+   
+   
+   # Creates a new MCollective files client.
+   def initialize(client)
+      super(client)
+   end
+   
+   
+   # Cretes a new file in <path> containing <content>.
+   def create_file(path, content)
+   
+      puts "Sending path and content via MCollective Files client"
+      @mc.create(:path => path, :content => content)
+      printrpcstats
+   
+   end
+   
+   
+   # Appends <content> to the file located at <path>.
+   def append_content(path, content)
+   
+      puts "Sending path and content via MCollective Files client"
+      @mc.append(:path => path, :content => content)
+      printrpcstats
+   
+   end
+   
+   
+   # Deletes a file located at <path>.
+   def delete_file(path)
+   
+      puts "Sending path via MCollective Files client"
+      @mc.delete(:path => path)
+      printrpcstats
+   
+   end
+   
+   
+end
+\end{lstlisting}
+
+
+\subsection{mcollective\_cron.rb}
+
+
+\begin{lstlisting}
+require 'mcollective'
+include MCollective::RPC
+
+# MCollective cron client used to manage crontab files
+class MCollectiveCronClient < MCollectiveClient
+   
+   
+   # Creates a new MCollective cron client.
+   def initialize(client)
+      super(client)
+   end
+   
+   
+   # Adds the line <line> to the crontab file located at <path>.
+   def add_line(path, line)
+   
+      puts "Sending path and line via MCollective Cron client"
+      @mc.add_line(:path => path, :line => line)
+      printrpcstats
+   
+   end
+   
+   
+   # Deletes lines that contain the <string> string in the crontab located at <path>.
+   def delete_line(path, string)
+   
+      puts "Sending path and string via MCollective Cron client"
+      @mc.delete_line(:path => path, :string => string)
+      printrpcstats
+   
+   end
+   
+   
+end
+\end{lstlisting}
+
+
+\subsection{cloudconstants.rb}
+
+
+\begin{lstlisting}
+# Some constants
+
+MY_IP = Facter.value(:ipaddress)
+CRON_FILE = "/var/spool/cron/crontabs/root"
+\end{lstlisting}
+
+
+\subsection{mac.rb}
+
+
+\begin{lstlisting}
+# MAC address
+class MAC_Address
+   
+   attr_reader :mac
+   
+   # Creates a new MAC_Address object.
+   def initialize(value=nil)
+      @mac = value ? value: "52:54:00:00:00:00"
+   end
+   
+   
+   # Obtains the next MAC address.
+   def next_mac
+   
+      mac_string = @mac.delete(":")
+      mac_int = mac_string.to_i(16)
+      mac_int += 1
+      mac_hex = mac_int.to_s(16)
+      result = mac_hex[0..1] + ":" + mac_hex[2..3] + ":" + mac_hex[4..5] + ":" + 
+               mac_hex[6..7] + ":" + mac_hex[8..9] + ":" + mac_hex[10..11]
+      return result
+      
+   end
+   
+   
+   # Generates an array of <many> MAC addresses starting from this one.
+   def generate_array(many)
+   
+      result = []
+      result << @mac
+      for i in 1..many
+         mac = MAC_Address.new(result[i - 1])
+         result << mac.next_mac
+      end
+      return result
+   
+   end
+   
+   
+end
+\end{lstlisting}
+
+
+\subsection{cloudleader.rb}
+
+
+\begin{lstlisting}
+# Generic leader election methods for a distributed infrastructure
+class CloudLeader
+   
+   ID_FILE      = "/tmp/cloud-id"
+   LEADER_FILE  = "/tmp/cloud-leader"
+   LAST_ID_FILE = "/tmp/cloud-last-id"
+   
+   attr_reader :id, :leader, :last_id
+   
+   def initialize(id_file = ID_FILE, leader_file = LEADER_FILE,
+                  last_id_file = LAST_ID_FILE)
+   
+      @id_file      = id_file
+      @leader_file  = leader_file
+      @last_id_file = last_id_file 
+      
+      @id      = init_id()
+      @leader  = init_leader()
+      @last_id = init_last_id()
+      
+   end
+   
+   
+   #############################################################################
+   private
+   
+   # Gets the node's ID by reading the node's id_file.
+   def init_id()
+      
+      if File.exists?(@id_file)
+         id_file = File.open(@id_file, 'r')
+         id = id_file.read().chomp().to_i()
+         id_file.close
+      else
+         id = -1
+      end
+      return id
+   
+   end
+   
+   
+   # Gets the leader's ID by reading the node's leader_file.
+   def init_leader()
+   
+      if File.exists?(@leader_file)
+         leader_file = File.open(@leader_file, 'r')
+         leader = leader_file.read().chomp().to_i()
+         leader_file.close
+      else
+         leader = -1
+      end
+      return leader
+   
+   end
+   
+   
+   # Gets the last defined ID in the ID file.
+   def init_last_id()
+
+      if File.exists?(@last_id_file)
+         file = File.open(@last_id_file, 'r')
+         id = file.read().chomp().to_i
+         file.close
+      else
+         id = @id
+      end
+      return id
+
+   end
+   
+   
+   #############################################################################
+   public
+   
+   # Sets the node's ID.
+   def set_id(id)
+   
+      file = File.open(@id_file, 'w')
+      file.puts(id)
+      file.close
+      @id = id
+      
+   end
+   
+   
+   # Sets the leader's ID in the node.
+   def set_leader(leader)
+   
+      file = File.open(@leader_file, 'w')
+      file.puts(leader)
+      file.close
+      @leader = leader
+      
+   end
+   
+   
+   # Sets last defined ID in the ID file.
+   def set_last_id(id)
+
+      file = File.open(@last_id_file, 'w')
+      file.puts(id)
+      file.close
+      @last_id = id
+      
+   end
+   
+   
+   # Checks if this node is leader.
+   def leader?
+      
+      return @id == @leader && @id != -1
+      
+   end
+   
+   
+   #############################################################################
+   # Remote ID functions
+   #############################################################################
+   
+   # Checks if the remote node has their ID file.
+   def self.vm_check_id(user, vm, id_file = ID_FILE)
+   
+      command = "cat #{id_file} > /dev/null 2> /dev/null"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      return success
+      
+   end
+   
+   
+   # Sets the node's ID on a remote node.
+   def self.vm_set_id(user, vm, id, id_file = ID_FILE)
+   
+      command = "echo #{id} > #{id_file}"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      return success
+      
+   end
+
+
+   # Sets the leader's ID on a remote node.
+   def self.vm_set_leader(user, vm, leader, leader_file = LEADER_FILE)
+   
+      command = "echo #{leader} > #{leader_file}"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      return success
+      
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{cloudssh.rb}
+
+
+\begin{lstlisting}
+# Generic ssh functions for a distributed infrastructure
+module CloudSSH
+   
+   SSH_PATH = "/root/cloud/ssh"
+   SSH_KEY = "id_rsa"
+
+   # Generates a new ssh key to be used in all machines.
+   def self.generate_ssh_key(path = SSH_PATH, file = SSH_KEY)
+      
+      puts "Creating #{path} directory..."
+      result = `mkdir -p #{path}`
+      unless $?.exitstatus == 0
+         puts "Could not create #{path} directory"
+      end
+      
+      puts "Deleting previous keys..."
+      result = `rm -rf #{path}/*`
+      unless $?.exitstatus == 0
+         puts "Could not create #{path}/#{file} key"
+      end
+      
+      puts "Generating key..."
+      result = `ssh-keygen -t rsa -N '' -f #{path}/#{file}`
+      unless $?.exitstatus == 0
+         puts "Could not create #{path}/#{file} key"
+      end
+      
+      puts "Evaluating agent and adding identity..."
+      
+      # Must be done in one command
+      result = `eval \`ssh-agent\` ; ssh-add #{path}/id_rsa`
+      unless $?.exitstatus == 0
+         puts "Could not add #{path}/#{file} key"
+      end
+
+   end
+   
+   
+   # Copies an ssh key to a machine.
+   def self.copy_ssh_key(user, ip, password, path = SSH_PATH, file = SSH_KEY)
+   
+      command_path = "/etc/puppet/modules/generic-module/provider/"
+      identity_file = "#{path}/#{file}.pub"     # Be careful, copy PUBLIC KEY
+      if password != ""
+         puts "password is not empty, using ssh_copy_id.sh shell script"
+         result = `#{command_path}/ssh_copy_id.sh #{user}@#{ip} #{identity_file} #{password}`
+         success = $?.exitstatus == 0
+      else
+         puts "password is empty, using ssh-copy-id command"
+         result = `ssh-copy-id -i #{identity_file} #{user}@#{ip}`
+         success = $?.exitstatus == 0
+      end
+      return result, success
+   end
+   
+   
+   # Executes a command on a remote machine.
+   def self.execute_remote(command, user, ip, path = SSH_PATH, file = SSH_KEY)
+   
+      result = `ssh #{user}@#{ip} -i #{path}/#{file} '#{command}'`
+      exit_code = $?.exitstatus
+      success = (exit_code == 0)
+      return result, success, exit_code
+   end
+   
+   
+   # Copies a file to a remote machine.
+   def self.copy_remote(src_file, dst_ip, dst_file, dst_user = "root",
+                        path = SSH_PATH, file = SSH_KEY)
+   
+      result = `scp -i #{path}/#{file} #{src_file} #{dst_user}@#{dst_ip}:#{dst_file}`
+      success = $?.exitstatus == 0
+      return result, success
+   end
+   
+   
+   # Gets a file from a remote machine.
+   def self.get_remote(src_file, src_user, src_ip, dst_file,
+                       path = SSH_PATH, file = SSH_KEY)
+   
+      result = `scp -i #{path}/#{file} #{src_user}@#{src_ip}:#{src_file} #{dst_file}`
+      success = $?.exitstatus == 0
+      return result, success
+   
+   end
+end
+\end{lstlisting}
+
+
+\subsection{ssh\_copy\_id.sh}
+
+
+\begin{lstlisting}
+#!/usr/bin/env expect
+
+#############################
+#
+# Author : Kowshik Prakasam
+#
+# An expect script to automatically login to each host as a particular user and 
+# install the user's public key using ssh-copy-id
+#
+# If successful, exits with zero (0) status 
+# If unsuccessful, exits with non-zero status
+#
+# Usage : sshcopy.exp <user@host> <key_file> <password>
+# Example : sshcopy.exp root@128.111.55.234 /home/appscale/.appscale/appscale joe
+#
+#############################
+
+# Procedure to interact with ssh-copy-id command
+# Parameter : password 
+proc sshcopyid { password } {
+  expect {
+    # Send password at 'Password' prompt and tell expect to continue(i.e. exp_continue)
+    -re "\[P|p]assword:" { exp_send "$password\r"
+                           exp_continue }
+
+    #Returning 1 as ssh-copy-id has failed
+    -re "^\[P|p]ermission denied*" { return 1}
+                           
+    #Answering yes to ssh host 
+    -nocase  "are you sure you want to continue connecting (yes/no)?" { exp_send "yes\r"
+    	    	      	       	   	   	    	       		    exp_continue }
+            
+    # Tell expect stay in this 'expect' block and for each character that ssh-copy-id prints while doing the copy
+    # Reset the timeout counter back to 0
+    -re .                { exp_continue  }
+    timeout              { return 1      }
+    
+    #Returning 0 as ssh-copy-id was successful
+    eof                  { return 0      }
+  }
+}
+
+#Parsing command-line arguments
+set host [lrange $argv 0 0]
+set key_file [lrange $argv 1 1]
+set password [lrange $argv 2 2]
+
+#Setting timeout to an arbitrary value of 3 that works well for ssh-copy-id
+set timeout 3
+
+# Execute ssh-copy-id command
+eval spawn ssh-copy-id -i $key_file $host
+
+#Get the result of ssh-copy-id
+set sshcopyid_result [sshcopyid $password]
+
+# If ssh-copy-id was successful
+if { $sshcopyid_result == 0 } {
+  #Exit with zero status
+  exit 0
+}
+
+# Error attempting ssh-copy-id, so exit with non-zero status
+exit 1
+\end{lstlisting}
+
+
+\section{appscale}
+\subsection{appscale.rb}
+
+
+\begin{lstlisting}
+Puppet::Type.newtype(:appscale) do
+   @doc = "Manages AppScale clouds formed by KVM virtual machines."
+
+   
+   ensurable do
+
+      desc "The cloud's ensure field can assume one of the following values:
+   `running`: The cloud is running.
+   `stopped`: The cloud is stopped.\n"
+   
+      newvalue(:stopped) do
+         provider.stop
+      end
+
+      newvalue(:running) do
+         provider.start
+      end
+
+   end
+
+
+   # General parameters
+   
+   newparam(:name) do
+      desc "The cloud name"
+      isnamevar
+   end
+
+   newparam(:ip_file) do
+      desc "The file with the cloud description in YAML format"
+   end
+
+   newparam(:img_file) do
+      desc "The file containing the qemu image(s). You must either provide " +
+           "one image from which all copies shall be made or provide " +
+           "an image for every instance"
+   end
+
+   newparam(:vm_domain) do
+      desc "The XML file with the virtual machine domain definition. " +
+           "Libvirt XML format must be used"
+   end
+
+   newproperty(:pool, :array_matching => :all) do
+      desc "The pool of physical machines"
+   end
+
+   
+   # Virtual machine parameters
+   newparam(:vm_mem) do
+      desc "The virtual machine's maximum amopunt of memory. " + 
+           "In KiB: 2**10 (or blocks of 1024 bytes)."
+      defaultto "1048576"
+   end
+   
+   newparam(:vm_ncpu) do
+      desc "The virtual machine's number of CPUs"
+      defaultto "1"
+   end
+   
+   
+   # Infrastructure parameters
+
+   newparam(:pm_user) do
+      desc "The physical machines' user. It must have proper permissions"
+      defaultto "dceresuela"
+   end
+
+   newparam(:pm_password) do
+      desc "The physical machines' password"
+      defaultto ""
+   end
+
+   newparam(:starting_mac_address) do
+      desc "Starting MAC address for new virtual machines"
+      defaultto "52:54:00:01:00:00"
+   end
+
+   newparam(:vm_user) do
+      desc "Virtual machines' user"
+      defaultto "root"
+   end
+
+   newparam(:root_password) do
+      desc "Virtual machines' root password"
+      defaultto "root"
+   end
+   
+   
+   # AppScale parameters
+   
+   newproperty(:controller, :array_matching => :all) do
+      desc "The controller node"
+   end
+
+   newproperty(:servers, :array_matching => :all) do
+      desc "The server nodes"
+   end
+
+
+   newproperty(:master, :array_matching => :all) do
+      desc "The master node"
+   end
+
+   newproperty(:appengine, :array_matching => :all) do
+      desc "The appengine nodes"
+   end
+
+   newproperty(:database, :array_matching => :all) do
+      desc "The database nodes"
+   end
+
+   newproperty(:login, :array_matching => :all) do
+      desc "The login node"
+   end
+
+   newproperty(:open, :array_matching => :all) do
+      desc "The open nodes"
+   end
+
+   newproperty(:zookeeper, :array_matching => :all) do
+      desc "The zookeeper nodes"
+   end
+
+   newproperty(:memcache, :array_matching => :all) do
+      desc "The memcache nodes"
+   end
+
+
+   newparam(:app_email) do
+      desc "AppScale administrator e-mail"
+      defaultto "david@gmail.com"
+   end
+   
+   newparam(:app_password) do
+      desc "AppScale administrator password"
+      defaultto "appscale"
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{appscalep.rb}
+
+
+\begin{lstlisting}
+Puppet::Type.type(:appscale).provide(:appscalep) do
+   desc "Manages AppScale clouds formed by KVM virtual machines"
+
+   # Require appscale auxiliar files
+   require File.dirname(__FILE__) + '/appscale/appscale_yaml.rb'
+   require File.dirname(__FILE__) + '/appscale/appscale_functions.rb'
+   
+   # Require generic files
+   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
+   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
+   
+   # Commands needed to make the provider suitable
+   commands :ping => "/bin/ping"
+   commands :grep => "/bin/grep"
+   commands :ps   => "/bin/ps"
+   
+   # Operating system restrictions
+   confine :osfamily => "Debian"
+
+   # Some constants
+   #   They are in the generic cloud files
+
+   # Makes sure the cloud is running.
+   def start
+
+      puts "Starting cloud %s" % [resource[:name]]
+      
+      # Zona de test
+      mifunciondetest(resource, method(:err))
+      
+      # Check existence
+      if !exists?
+         # Cloud does not exist => Startup operations
+         
+         # Check pool of physical machines
+         puts "Checking pool of physical machines..."
+         pm_all_up, pm_up, pm_down = check_pool()
+         if !pm_all_up
+            puts "Some physical machines are down"
+            pm_down.each do |pm|
+               debug "[DBG] - #{pm}"
+            end
+         end
+         
+         # Obtain the virtual machines' IPs
+         puts "Obtaining the virtual machines' IPs..."
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:appscale_yaml_ips),
+         #                                                   method(:appscale_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         
+         # Check whether you are one of the virtual machines
+         puts "Checking whether this machine is part of the cloud..."
+         part_of_cloud = vm_ips.include?(MY_IP)
+         if part_of_cloud
+            puts "#{MY_IP} is part of the cloud"
+            
+            # Check if you are the leader
+            if leader?()
+               leader_start("appscale", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                            method(:appscale_monitor))
+            else
+               common_start()
+            end
+         else
+            puts "#{MY_IP} is not part of the cloud"
+            not_cloud_start("appscale", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+         end
+         
+      else
+         
+         # Cloud exists => Monitoring operations
+         puts "Cloud already started"
+         
+         # Check if you are the leader
+         if leader?()
+            leader_monitoring(method(:appscale_monitor))
+         else
+            puts "#{MY_IP} is not the leader"      # Nothing to do
+         end
+      end
+      
+   end
+
+
+   # Makes sure the cloud is not running.
+   def stop
+
+      puts "Stopping cloud %s" % [resource[:name]]
+
+      if !exists?
+         err "Cloud does not exist"
+         return
+      end
+      if status != :running
+         err "Cloud is not running"
+         return
+      end
+      if exists? && status == :running
+         
+         puts "It is an appscale cloud"
+         
+         # Stop cloud infrastructure
+         appscale_cloud_stop(MY_IP)    # TODO What if we run stop on a different machine than start?
+         
+         # Shutdown and undefine all virtual machines explicitly created for this cloud
+         shutdown_vms()
+         
+         # Stop cron jobs on all machiness
+         stop_cron_jobs("appscale")    # TODO Be careful of the order: 1 stop cron and 2 stop appscale or the other way?
+         
+         # Delete files
+         delete_files()
+         
+         # Note: As all the files deleted so far are located in the /tmp directory
+         # only the machines that are still alive need to delete these files.
+         # If the machine was shut down, these files will not be there the next
+         # time it is started, so there is no need to delete them.
+         
+         puts "==================="
+         puts "== Cloud stopped =="
+         puts "==================="
+         
+      end
+   
+   end
+
+
+   def status
+      if File.exists?("/tmp/cloud-#{resource[:name]}")
+         return :running
+      else
+         return :stopped
+      end
+   end
+
+
+   # Ensure methods
+   def create
+      return true
+   end
+   
+
+   def destroy
+      return true
+   end
+
+
+   def exists?
+      return File.exists?("/tmp/cloud-#{resource[:name]}")
+   end
+   
+   
+   #############################################################################
+   # Properties need methods
+   #############################################################################
+   def pool
+   end
+   
+   def pm_user
+   end
+   
+   def starting_mac_address
+   end
+   
+   def root_password
+   end
+   
+   def app_email
+   end
+   
+   def app_password
+   end
+   
+   
+end
+\end{lstlisting}
+
+
+\subsection{appscalep\_helper.rb}
+
+
+\begin{lstlisting}
+################################################################################
+# Auxiliar functions for appscale provider
+################################################################################
+
+# The functions in this file are defined the same in all providers, but each
+# one implements them in their own way. Thus, the headers cannot be modified.
+
+# Starts an AppScale cloud formed by <vm_ips> performing <vm_ip_roles>
+def start_cloud(vm_ips, vm_ip_roles)
+
+   puts "Starting the cloud"
+   if (resource[:app_email] == nil) || (resource[:app_password] == nil)
+      err "Need an AppScale user and password"
+      exit
+   else
+      puts "app_email = #{resource[:app_email]}"
+      puts "app_password = #{resource[:app_password]}"
+   end
+   puts  "Starting an appscale cloud"
+   
+   # Start appscale cloud
+   return appscale_cloud_start(vm_ips, vm_ip_roles,
+                               resource[:app_email], resource[:app_password],
+                               resource[:root_password])
+
+end
+
+
+# Obtains vm data from manifest parameters.
+def obtain_vm_data()
+
+#   if resource[:controller] != nil && resource[:servers] != nil
+#
+#      return obtain_appscale_data_default(resource[:controller],
+#                                          resource[:servers])
+#
+#   elsif resource[:master] != nil && resource[:appengine] != nil &&
+#         resource[:database] != nil && resource[:login] != nil &&
+#         resource[:open] != nil
+#
+#      return obtain_appscale_data_custom(resource[:master],
+#                                         resource[:appengine],
+#                                         resource[:database],
+#                                         resource[:login],
+#                                         resource[:open],
+#                                         resource[:zookeeper],
+#                                         resource[:memcache])
+#
+#   end
+
+   ips, ip_roles = appscale_yaml_ips(resource[:ip_file])
+   img_roles     = appscale_yaml_ips(resource[:img_file])
+   return ips, ip_roles, img_roles
+   
+end
+\end{lstlisting}
+
+
+\subsection{appscale-run-instances.tcl}
+
+
+\begin{lstlisting}
+#!/usr/bin/env expect
+
+# Description:
+#   Interacts with the appscale-run-instances tool
+#
+# Synopsis:
+#   appscale-run-instances.tcl <file> <e-mail> <password>
+#
+# Arguments:
+#   - File: AppScale YAML configuration file.
+#   - e-mail: AppScale administration e-mail.
+#   - Password: AppScale administration password.
+#
+# Examples:
+#   _$: appscale-run-instances.tcl ips.yaml user@mail.com appscale
+#
+#
+# Author:
+#   David Ceresuela
+
+
+# Procedure to interact with appscale-run-instances command
+# Parameter : user
+# Parameter : password 
+proc runinstances { user password } {
+  expect {
+    # Send e-mail address
+    -re "e-mail address:" { exp_send "$user\r"
+                            exp_continue }
+
+    # Send password
+    -re "new password:" { exp_send "$password\r"
+                          exp_continue }
+    
+    # Send password again to verify
+    -re "again to verify:" { exp_send "$password\r"
+                             exp_continue }
+    
+            
+    # Tell expect stay in this 'expect' block and for each character that
+    # appscale-run-instances prints while doing the copy
+    # Reset the timeout counter back to 0
+    -re .                { exp_continue  }
+    timeout              { return 1      }
+    
+    # Returning 0 as appscale-run-instances was successful
+    eof                  { return 0      }
+  }
+}
+
+#Parsing command-line arguments
+set yaml     [lrange $argv 0 0]
+set user     [lrange $argv 1 1]
+set password [lrange $argv 2 2]
+
+#Setting timeout to an arbitrary value of 120 that works well for appscale-run-instances
+set timeout 120
+
+# Execute appscale-run-instances command
+eval spawn /usr/local/appscale-tools/bin/appscale-run-instances --ips $yaml
+
+#Get the result of appscale-run-instances
+set runinstances_result [runinstances $user $password]
+
+# If appscale-run-instances was successful
+if { $runinstances_result == 0 } {
+  #Exit with zero status
+  exit 0
+}
+
+# Error attempting appscale-run-instances, so exit with non-zero status
+exit 1
+\end{lstlisting}
+
+
+\subsection{appscale\_yaml.rb}
+
+
+\begin{lstlisting}
+require 'yaml'
+
+##
+# Obtains the IP addresses from the ip_file file. It does NOT check whether
+# the file has the proper format.
+# Different roles obtained from AppScale wiki:
+#    http://code.google.com/p/appscale/wiki/Placement_Support
+
+def appscale_yaml_ips(path)
+
+   ips = []
+   ip_roles = {}
+   
+   file = File.open(path)
+   tree = YAML::parse(file)
+   
+   if tree != nil
+   
+      tree = tree.transform
+      
+      # Default deployment (from appscale-tools/lib/node_layout.rb)
+      controller = tree[:controller]
+      servers =    tree[:servers]
+      
+      ip_roles[:controller] = get_elements(controller)
+      ip_roles[:servers]    = get_elements(servers)
+      
+      ips = ips + ip_roles[:controller]
+      ips = ips + ip_roles[:servers]
+      
+      # Custom deployment (from appscale-tools/lib/node_layout.rb)
+      master =    tree[:master]
+      appengine = tree[:appengine]
+      database =  tree[:database]
+      login =     tree[:login]
+      open =      tree[:open]
+      zookeeper = tree[:zookeeper]
+      memcache =  tree[:memcache]
+      
+      ip_roles[:master]    = get_elements(master)
+      ip_roles[:appengine] = get_elements(appengine)
+      ip_roles[:database]  = get_elements(database)
+      ip_roles[:login]     = get_elements(login)
+      ip_roles[:open]      = get_elements(open)
+      ip_roles[:zookeeper] = get_elements(zookeeper)
+      ip_roles[:memcache]  = get_elements(memcache)
+      
+      ips = ips + ip_roles[:master]
+      ips = ips + ip_roles[:appengine]
+      ips = ips + ip_roles[:database]
+      ips = ips + ip_roles[:login]
+      ips = ips + ip_roles[:open]
+      ips = ips + ip_roles[:zookeeper]
+      ips = ips + ip_roles[:memcache]
+      
+      ips = ips.uniq
+      
+      # Delete all the roles that have no IP address associated
+      ip_roles.delete_if{ |role, ips| ips == [] }
+      
+      file.close
+      
+      return ips, ip_roles
+   end
+   
+end
+
+
+# Obtains the disk images from the img_file file.
+def appscale_yaml_images(path)
+
+   img_roles = {}
+
+   file = File.open(path)
+   tree = YAML::parse(file)
+   
+   if tree != nil
+
+      tree = tree.transform
+
+      # Default deployment (from appscale-tools/lib/node_layout.rb)
+      controller = tree[:controller]
+      servers    = tree[:servers]
+      
+      # Custom deployment (from appscale-tools/lib/node_layout.rb)
+      master    = tree[:master]
+      appengine = tree[:appengine]
+      database  = tree[:database]
+      login     = tree[:login]
+      open      = tree[:open]
+      zookeeper = tree[:zookeeper]
+      memcache  = tree[:memcache]
+      
+      # Maybe we have been given only an image for all virtual machines
+      all = tree[:all]
+      
+      if all == nil
+
+         # Default deployment
+         img_roles[:controller] = get_elements(controller)
+         img_roles[:servers]    = get_elements(servers)
+         
+         # Custom deployment
+         img_roles[:master]    = get_elements(master)
+         img_roles[:appengine] = get_elements(appengine)
+         img_roles[:database]  = get_elements(database)
+         img_roles[:login]     = get_elements(login)
+         img_roles[:open]      = get_elements(open)
+         img_roles[:zookeeper] = get_elements(zookeeper)
+         img_roles[:memcache]  = get_elements(memcache)
+         
+         # Delete all the roles that have no disk image associated
+         img_roles.delete_if{ |role, img| img == [] }
+         
+      else
+         img_roles[:all] = get_elements(all)
+      end
+      
+      file.close
+      
+      return img_roles
+   end
+   
+end
+
+
+# Writes a hash in a file using the YAML format.
+# The hash should resemble something like
+# {:controller => ["192.168.1.1"], :servers => ["192.168.1.2", "192.168.1.3"]}
+# if you are writing the default deployment IP addresses.
+# The custom deployment is done in a similar fashion.
+# Either case, the key-value pairs must follow the {symbol => array} pattern.
+def appscale_write_yaml_file(hash, path)
+
+   # Get and clean the hash
+   hash_yaml = hash.to_yaml(:Indent => 0).to_s
+   hash_yaml = hash_yaml.gsub("!ruby/symbol ", ":")
+   hash_yaml = hash_yaml.gsub("!ruby/sym ", ":")
+   
+   # Write to file
+   file = File.open(path, 'w')
+   file.write(hash_yaml)
+   file.close
+
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Transforms the given elements to an array.
+def get_elements(array)
+
+   elements = []
+   if array != nil
+      elements = array.to_a
+   end
+   return elements
+
+end
+\end{lstlisting}
+
+
+\subsection{appscale\_functions.rb}
+
+
+\begin{lstlisting}
+# Starts an AppScale cloud.
+def appscale_cloud_start(app_ips, app_roles,
+                         app_email=nil, app_password=nil, root_password=nil)
+
+   require 'expect'
+   
+   # Check arguments
+   puts "appscale_cloud_start called with:"
+   puts "  - app_email == #{app_email}"
+   puts "  - app_password == #{app_password}"
+   puts "  - root_password == #{root_password}"
+   
+   script_keys = "appscale-add-keypair.tcl"
+   script_run  = "appscale-run-instances.tcl"
+   #ips_yaml = resource[:ip_file]
+   script_path = "/etc/puppet/modules/appscale/lib/puppet/provider/appscale/appscale"
+
+   # Write ips.yaml file
+   puts "Writing AppScale ips_yaml file"
+   puts "Hash received: "
+   p app_roles
+   ips_yaml = "/etc/puppet/modules/appscale/files/auto-ips.yaml"
+   appscale_write_yaml_file(app_roles, ips_yaml)
+   puts "AppScale ips_yaml file written"
+
+   # Add key pairs
+   puts "About to add key pairs"
+   debug "[DBG] ips.yaml file: #{ips_yaml}"
+   result = `#{script_path}/#{script_keys} #{ips_yaml} #{root_password}`
+   if $?.exitstatus == 0
+      puts "Key pairs added"
+      puts "result = |||#{result}|||"
+   else
+      err "Impossible to add key pairs"
+      return false
+   end
+   
+   # Run instances
+   puts "About to run instances"
+   puts "This may take a while (~ 5 min), so please be patient"
+   result = `#{script_path}/#{script_run} #{ips_yaml} #{app_email} #{app_password}`
+   if $?.exitstatus == 0
+      puts "Instances running"
+      puts "result = |||#{result}|||"
+   else
+      err "Impossible to run appscale instances"
+      return false
+   end
+   
+   # Start monitoring
+   puts "Start monitoring"
+   app_ips.each do |vm|
+   
+      # Find the role
+      # TODO What if a machine has different roles?
+      # role = :undefined
+      # app_roles.each do |r, ips|
+      #    ips.each do |ip|
+      #       if vm == ip then role = r end
+      #    end
+      # end
+
+      # Get all vm's roles
+      roles = app_roles.select { |r, ips| ips.include?(vm) }      # Be careful,
+      # Ruby 1.8.7 returns an array instead of a hash, so we get something like
+      # [[:appengine, [2, 3, 4]], [:database, [3, 4]]] which is an array of
+      # arrays with the role in the first place of the innermost arrays.
+      
+      # Monitor every one of them
+      roles.each do |role_array|
+         role = role_array[0]
+         puts "Calling appscale_monitor on #{vm} as #{role}"
+         appscale_monitor(vm, role)
+      end
+   end
+
+   return true
+   
+end
+
+
+# Stops an AppScale cloud.
+def appscale_cloud_stop(vm)
+   
+   user = resource[:vm_user]
+   
+   # Terminate instances
+   command = "/root/appscale-tools/bin/appscale-terminate-instances"
+   CloudSSH.execute_remote(command, user, vm)
+   
+end
+
+
+# Monitors a virtual machine belonging to an AppScale cloud.
+def appscale_monitor(vm, role)
+
+   command = "ps aux"
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[AppScale monitor] Impossible to execute #{command} in #{vm}"
+      return
+   end
+   
+   # AppMonitoring calls god, so look for god processes who look like this:
+   # /usr/bin/ruby1.8 /usr/bin/god -c /root/appscale/AppMonitoring/config/global.god
+   if out.include? "/usr/bin/god -c /root/appscale/AppMonitoring"
+   
+      # AppMonitoring is running
+      puts "[AppScale monitor] AppMonitoring is running"
+
+      # Check the appscale controller is running
+      if out.include? "AppController/djinnServer.rb"
+         
+         # Everything looks right so let AppScale handle it
+         puts "[AppScale monitor] AppController is running"
+      
+      else
+         
+         # If AppMonitoring is running but the AppController is not,
+         # AppMonitoring will take care
+         puts "[AppScale monitor] AppMonitoring will take care of AppController"
+         
+      end
+
+   else
+   
+      # AppMonitoring is not running
+      puts "[AppScale monitor] AppMonitoring is not running"
+   
+      if out.include? "AppController/djinnServer.rb"
+
+         # AppController is running
+         puts "[AppScale monitor] AppController is running"
+         
+      end
+      
+      # Try to start the AppMonitoring
+      puts "[AppScale monitor] Starting AppMonitoring on #{vm}"
+      command = "/etc/init.d/appscale-monitoring start"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      if success
+         puts "[AppScale monitor] Successfully started AppMonitoring"
+      else
+         err "[AppScale monitor] Impossible to start AppMonitoring in #{vm}"
+         return
+      end
+      
+      # Since the AppMonitoring will take care of the AppController, we do
+      # not have to start the AppController
+      
+      
+   end
+   
+   # If we have made it so far, let's try to apply the manifest
+   
+   # Copy the manifest
+   puts "Copying manifest"
+   path = "/etc/puppet/modules/appscale/files/appscale-manifests/basic.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "[AppScale monitor] Impossible to copy basic manifest to #{vm}"
+      return
+   end
+   
+   # Apply the manifest
+   puts "Applying manifest"
+   command = "puppet apply /tmp/basic.pp"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[AppScale monitor] Impossible to run puppet in #{vm}"
+      return
+   end
+   
+   # Analyze the output
+   if out.include? "should be directory (noop)"
+      err "[AppScale monitor] Missing directory in #{vm}"
+      puts out
+      return
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{appscale\_parsing.rb}
+
+
+\begin{lstlisting}
+# Appscale parsing functions to obtain virtual machine's data from manifest's
+# arguments.
+# All different roles have been obtained from the node_layout file located at
+# appscale-tools/lib/node_layout.rb
+
+################################################################################
+# Default deployment
+################################################################################
+
+# Obtains the IP addresses and disk images from the resource[:controller],
+# and resource[:servers] arguments.
+# appscale { 'myappscale'
+#   ...
+# }
+def obtain_appscale_data_default(controller, servers)
+
+#                         master, appengine, database, login, open,
+#                         zookeeper, memcache)
+
+   ips, ip_roles = appscale_parse_ips_default(controller, servers)
+   img_roles     = appscale_parse_images_default(controller, servers)
+   
+   return ips, ip_roles, img_roles
+
+end
+
+
+# Obtains the IP addresses from the resource[:controller], resource[:server] and
+# resource[:database] arguments.
+# appscale { 'myappscale'
+#   ...
+# }
+def appscale_parse_ips_default(controller, servers)
+
+   ips_index = 0     # Because the IPs are in the first component of the
+                     # controller and server arrays, and that is array[0]
+   ips = []
+   ip_roles = {}
+
+   
+   # Get the IPs that are under the "controller" and "servers" attributes
+   ip_roles[:controller] = []
+   ip_roles[:controller] << controller[ips_index].chomp
+   
+   path = servers[ips_index]
+   ip_roles[:servers] = get_from_file(path)
+   
+   # Add the IPs to the array
+   ips = ips + ip_roles[:controller]
+   ips = ips + ip_roles[:servers]
+   
+   ips = ips.uniq
+   
+   return ips, ip_roles
+   
+end
+
+
+# Obtains the disk images from the resource[:controller], and resource[:servers]
+# arguments.
+# appscale { 'myappscale'
+#   ...
+# }
+def appscale_parse_images_default(controller, servers)
+
+   img_index = 1     # Because the images are in the second component of the
+                     # controller and server arrays, and that is array[1]
+   img_roles = {}
+
+   
+   # Get the disk images that are under the "controller" and "servers"
+   # attributes
+   img_roles[:controller] = []
+   img_roles[:controller] << controller[img_index].chomp
+   
+   path = servers[img_index]
+   img_roles[:servers] = get_from_file(path)
+   
+   return img_roles
+   
+end
+
+
+################################################################################
+# Custom deployment
+################################################################################
+
+def obtain_appscale_data_custom(master, appengine, database, login, open,
+                                zookeeper, memcache)
+
+   ips, ip_roles = appscale_parse_ips_custom(master, appengine, database, login,
+                      open, zookeeper, memcache)
+   img_roles     = appscale_parse_images_custom(master, appengine, database,
+                      login, open, zookeeper, memcache)
+   
+   return ips, ip_roles, img_roles
+
+end
+
+
+# Obtains the IP addresses from the resource[:controller], resource[:server] and
+# resource[:database] arguments.
+# appscale { 'myappscale'
+#   ...
+# }
+def appscale_parse_ips_custom(master, appengine, database, login, open,
+                              zookeeper, memcache)
+
+   ips_index = 0     # Because the IPs are in the first component of the
+                     # controller and server arrays, and that is array[0]
+   ips = []
+   ip_roles = {}
+
+   
+   # Get the IPs that are under the "master", "appengine", "database", "login",
+   # "open", "zookeeper" and "memcache" attributes
+   ip_roles[:master] = []
+   ip_roles[:master] << master[ips_index].chomp
+   
+   path = appengine[ips_index]
+   ip_roles[:appengine] = get_from_file(path)
+   
+   path = database[ips_index]
+   ip_roles[:database] = get_from_file(path)
+   
+   ip_roles[:login] = []
+   ip_roles[:login] << login[ips_index].chomp
+   
+   path = open[ips_index]
+   ip_roles[:open] = get_from_file(path)
+      
+   path = zookeeper[ips_index]
+   ip_roles[:zookeeper] = get_from_file(path)
+
+   path = memcache[ips_index]
+   ip_roles[:memcache] = get_from_file(path)
+
+   # Add the IPs to the array   
+   ips = ips + ip_roles[:master]
+   ips = ips + ip_roles[:appengine]
+   ips = ips + ip_roles[:database]
+   ips = ips + ip_roles[:login]
+   ips = ips + ip_roles[:open]
+   ips = ips + ip_roles[:zookeeper]
+   ips = ips + ip_roles[:memcache]
+   
+   ips = ips.uniq
+   
+   return ips, ip_roles
+   
+end
+
+
+# Obtains the disk images from the resource[:controller], and resource[:servers]
+# arguments.
+# appscale { 'myappscale'
+#   ...
+# }
+def appscale_parse_images_custom(master, appengine, database, login, open,
+                                 zookeeper, memcache)
+
+   img_index = 1     # Because the images are in the second component of the
+                     # controller and server arrays, and that is array[1]
+   img_roles = {}
+
+   
+   # Get the disk images that are under the "master", "appengine", "database",
+   # "login", "open", "zookeeper" and "memcache" attributes
+   img_roles[:master] = []
+   img_roles[:master] << master[img_index].chomp
+   
+   path = appengine[img_index]
+   img_roles[:appengine] = get_from_file(path)
+   
+   path = database[img_index]
+   img_roles[:database] = get_from_file(path)
+   
+   img_roles[:login] = []
+   img_roles[:login] << login[img_index].chomp
+   
+   path = open[img_index]
+   img_roles[:open] = get_from_file(path)
+   
+   path = zookeeper[img_index]
+   img_roles[:zookeeper] = get_from_file(path)
+
+   path = memcache[img_index]
+   img_roles[:memcache] = get_from_file(path)
+
+   return img_roles
+   
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Gets all the file lines in an array.
+def get_from_file(path)
+
+   array = []
+   file = File.open(path)
+   if file != nil
+      array = file.readlines.map(&:chomp)    # Discard the final '\n'
+      file.close
+   end
+
+   return array
+
+end
+\end{lstlisting}
+
+
+\subsection{appscale-add-keypair.tcl}
+
+
+\begin{lstlisting}
+#!/usr/bin/env expect
+
+# Description:
+#   Interacts with the appscale-add-keypair tool
+#
+# Synopsis:
+#   appscale-add-keypair.tcl <password>
+#
+# Arguments:
+#   - File: AppScale YAML configuration file.
+#   - Password: Root password for all machines.
+#
+# Examples:
+#   _$: appscale-add-keypair.tcl ips.yaml my_password_is_abcd
+#
+#
+# Author:
+#   David Ceresuela
+
+
+# Procedure to interact with appscale-add-keypair command
+# Parameter : password 
+proc addkeypair { password } {
+  expect {
+    # Send password
+    -re "SSH password of root:" { exp_send "$password\r"
+                                  exp_continue }
+    
+    # Tell expect stay in this 'expect' block and for each character that
+    # appscale-add-keypair prints while doing the copy
+    # Reset the timeout counter back to 0
+    -re .                { exp_continue  }
+    timeout              { return 1      }
+    
+    # Returning 0 as appscale-add-keypair was successful
+    eof                  { return 0      }
+  }
+}
+
+#Parsing command-line arguments
+set yaml     [lrange $argv 0 0]
+set password [lrange $argv 1 1]
+
+#Setting timeout to an arbitrary value of 120 that works well for appscale-add-keypair
+set timeout 120
+
+# Execute appscale-add-keypair command
+eval spawn /usr/local/appscale-tools/bin/appscale-add-keypair --ips $yaml --auto
+
+#Get the result of appscale-add-keypair
+set addkeypair_result [addkeypair $password]
+
+# If appscale-add-keypair was successful
+if { $addkeypair_result == 0 } {
+  #Exit with zero status
+  exit 0
+}
+
+# Error attempting appscale-add-keypair, so exit with non-zero status
+exit 1
+\end{lstlisting}
+
+
+\section{torque}
+\subsection{torque.rb}
+
+
+\begin{lstlisting}
+Puppet::Type.newtype(:torque) do
+   @doc = "Manages Torque clouds formed by KVM virtual machines."
+
+   
+   ensurable do
+
+      desc "The cloud's ensure field can assume one of the following values:
+   `running`: The cloud is running.
+   `stopped`: The cloud is stopped.\n"
+   
+      newvalue(:stopped) do
+         provider.stop
+      end
+
+      newvalue(:running) do
+         provider.start
+      end
+
+   end
+
+
+   # General parameters
+
+   newparam(:name) do
+      desc "The cloud name"
+      isnamevar
+   end
+
+#   newparam(:ip_file) do
+#      desc "The file with the cloud description in YAML format"
+#   end
+#   
+#   newparam(:img_file) do
+#      desc "The file containing the qemu image(s). You must either provide " +
+#           "one image from which all copies shall be made or provide " +
+#           "an image for every instance"
+#   end
+
+   newparam(:vm_domain) do
+      desc "The XML file with the virtual machine domain definition. " +
+           "Libvirt XML format must be used"
+   end
+
+   newproperty(:pool, :array_matching => :all) do
+      desc "The pool of physical machines"
+   end
+   
+   
+   # Virtual machine parameters
+   newparam(:vm_mem) do
+      desc "The virtual machine's maximum amopunt of memory. " + 
+           "In KiB: 2**10 (or blocks of 1024 bytes)."
+      defaultto "1048576"
+   end
+   
+   newparam(:vm_ncpu) do
+      desc "The virtual machine's number of CPUs"
+      defaultto "1"
+   end
+   
+   
+   # Infrastructure parameters
+
+   newparam(:pm_user) do
+      desc "The physical machines' user. It must have proper permissions"
+      defaultto "dceresuela"
+   end
+
+   newparam(:pm_password) do
+      desc "The physical machines' password"
+      defaultto ""
+   end
+
+   newparam(:starting_mac_address) do
+      desc "Starting MAC address for new virtual machines"
+      defaultto "52:54:00:01:00:00"
+   end
+
+   newparam(:vm_user) do
+      desc "Virtual machines' user"
+      defaultto "root"
+   end
+
+   newparam(:root_password) do
+      desc "Virtual machines' root password"
+      defaultto "root"
+   end
+
+
+   # Torque parameters
+   newproperty(:head, :array_matching => :all) do
+      desc "The head node's information"
+   end
+   
+   newproperty(:compute, :array_matching => :all) do
+      desc "The compute nodes' information"
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{torquep\_helper.rb}
+
+
+\begin{lstlisting}
+################################################################################
+# Auxiliar functions for torque provider
+################################################################################
+
+# The functions in this file are defined the same in all providers, but each
+# one implements them in their own way. Thus, the headers cannot be modified.
+
+# Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
+def start_cloud(vm_ips, vm_ip_roles)
+
+   puts "Starting the cloud"
+   return torque_cloud_start(vm_ip_roles)
+
+end
+
+
+# Obtains vm data from manifest parameters.
+def obtain_vm_data()
+
+   puts "Obtaining virtual machines' data"
+   return obtain_torque_data(resource[:head], resource[:compute])
+   
+end
+\end{lstlisting}
+
+
+\subsection{torquep.rb}
+
+
+\begin{lstlisting}
+Puppet::Type.type(:torque).provide(:torquep) do
+   desc "Manages Torque clouds formed by KVM virtual machines"
+
+   # Require torque auxiliar files
+   require File.dirname(__FILE__) + '/torque/torque_yaml.rb'
+   require File.dirname(__FILE__) + '/torque/torque_functions.rb'
+   require File.dirname(__FILE__) + '/torque/torque_parsing.rb'
+   
+   # Require generic files
+   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
+   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
+
+   # Commands needed to make the provider suitable
+   commands :ping => "/bin/ping"
+   commands :grep => "/bin/grep"
+   commands :ps   => "/bin/ps"
+   
+   # Operating system restrictions
+   confine :osfamily => "Debian"
+
+   # Some constants
+   #   They are in the generic cloud files
+
+   # Makes sure the cloud is running.
+   def start
+
+      puts "Starting cloud %s" % [resource[:name]]
+      
+      # Check existence
+      if !exists?
+         # Cloud does not exist => Startup operations
+         
+         # Check pool of physical machines
+         puts "Checking pool of physical machines..."
+         pm_up, pm_down = check_pool()
+         unless pm_down.empty?
+            puts "Some physical machines are down"
+            pm_down.each do |pm|
+               puts " - #{pm}"
+            end
+         end
+         
+         # Obtain the virtual machines' IPs
+         puts "Obtaining the virtual machines' IPs..."
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
+         #                                                   method(:torque_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         
+         
+         # Check whether you are one of the virtual machines
+         puts "Checking whether this machine is part of the cloud..."
+         part_of_cloud = vm_ips.include?(MY_IP)
+         if part_of_cloud
+            puts "#{MY_IP} is part of the cloud"
+            
+            # Check if you are the leader
+            if leader?()
+               leader_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                            method(:torque_monitor))
+            else
+               common_start()
+            end
+         else
+            puts "#{MY_IP} is not part of the cloud"
+            not_cloud_start("torque", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+         end
+         
+      else
+         
+         # Cloud exists => Monitoring operations
+         puts "Cloud already started"
+
+         # Check if you are the leader
+         if leader?()
+            leader_monitoring(method(:torque_monitor))
+         else
+            puts "#{MY_IP} is not the leader"      # Nothing to do
+         end
+      end
+      
+   end
+
+
+   # Makes sure the cloud is not running.
+   def stop
+
+      puts "Stopping cloud %s" % [resource[:name]]
+
+      if !exists?
+         err "Cloud does not exist"
+         return
+      end
+      if status != :running
+         err "Cloud is not running"
+         return
+      end
+      if exists? && status == :running
+         
+         puts "It is a torque cloud"
+         
+         # Stop cloud infrastructure
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:torque_yaml_ips),
+         #                                                   method(:torque_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         torque_cloud_stop(vm_ip_roles)
+         
+         # Shutdown and undefine all virtual machines explicitly created for this cloud
+         shutdown_vms()
+         
+         # Stop cron jobs on all machines
+         stop_cron_jobs("torque")      # TODO Check order
+         
+         # Delete files
+         delete_files()
+         
+         # Note: As all the files deleted so far are located in the /tmp directory
+         # only the machines that are still alive need to delete these files.
+         # If the machine was shut down, these files will not be there the next
+         # time it is started, so there is no need to delete them.
+         
+         puts "==================="
+         puts "== Cloud stopped =="
+         puts "==================="
+         
+      end
+   
+   end
+
+
+   def status
+      if File.exists?("/tmp/cloud-#{resource[:name]}")
+         return :running
+      else
+         return :stopped
+      end
+   end
+
+
+   # Ensure methods
+   #def create
+   #   return true
+   #end
+   
+
+   #def destroy
+   #   return true
+   #end
+
+
+   def exists?
+      return File.exists?("/tmp/cloud-#{resource[:name]}")
+   end
+   
+   
+   #############################################################################
+   # Properties need methods
+   #############################################################################
+   def pool
+   end
+   
+   def pm_user
+   end
+   
+   def starting_mac_address
+   end
+   
+   def root_password
+   end
+   
+   def head
+   end
+   
+   def compute
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{torque\_parsing.rb}
+
+
+\begin{lstlisting}
+# Torque parsing functions to obtain virual machine's data from manifest's
+# arguments.
+
+# Obtains the IP addresses and disk images from the resource[:head] and
+# resource[:compute] arguments.
+# torque { 'mytorque'
+#   ...
+#   head => ["155.210.155.73", "/var/tmp/master.img"],
+#   compute => ["/files/compute-ip.txt", "/files/compute-img.txt"],
+#   ...
+# }
+def obtain_torque_data(head, compute)
+
+   ips, ip_roles = torque_parse_ips(head, compute)
+   img_roles     = torque_parse_images(head, compute)
+   return ips, ip_roles, img_roles
+
+end
+
+
+# Obtains the IP addresses from the resource[:head] and resource[:compute]
+# arguments.
+# torque { 'mytorque'
+#   ...
+#   head => ["155.210.155.73", "/var/tmp/master.img"],
+#   compute => ["/files/compute-ip.txt", "/files/compute-img.txt"],
+#   ...
+# }
+def torque_parse_ips(head, compute)
+
+   ips_index = 0     # Because the IPs are in the first component of the head
+                     # and compute arrays, and that is array[0]
+   ips = []
+   ip_roles = {}
+   
+   # Get the IPs that are under the "head" and "compute" attributes
+   ip_roles[:head] = []
+   ip_roles[:head] << head[ips_index].chomp
+   
+   path = compute[ips_index]
+   ip_roles[:compute] = get_from_file(path)
+   
+   # Add the IPs to the array
+   ips = ips + ip_roles[:head]
+   ips = ips + ip_roles[:compute]
+   
+   ips = ips.uniq
+   
+   return ips, ip_roles
+   
+end
+
+
+# Obtains the disk images from the resource[:head] and resource[:compute]
+# arguments.
+# torque { 'mytorque'
+#   ...
+#   head => ["155.210.155.73", "/var/tmp/master.img"],
+#   compute => ["/files/compute-ip.txt", "/files/compute-img.txt"],
+#   ...
+# }
+def torque_parse_images(head, compute)
+
+   img_index = 1     # Because the images are in the first component of the head
+                     # and compute arrays, and that is array[1]
+   img_roles = {}
+
+   
+   # Get the disk images that are under the "head" and "compute" attributes
+   img_roles[:head] = []
+   img_roles[:head] << head[img_index].chomp
+   
+   path = compute[img_index]
+   img_roles[:compute] = get_from_file(path)
+   
+   return img_roles
+   
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Gets all the file lines in an array.
+def get_from_file(path)
+
+   array = []
+   file = File.open(path)
+   if file != nil
+      array = file.readlines.map(&:chomp)    # Discard the final '\n'
+      file.close
+   end
+
+   return array
+
+end
+\end{lstlisting}
+
+
+\subsection{torque\_functions.rb}
+
+
+\begin{lstlisting}
+# Starts a torque cloud.
+def torque_cloud_start(torque_roles)
+
+   head    = torque_roles[:head]
+   compute = torque_roles[:compute]
+
+   # Start services
+   
+   # Start head node
+   start_head(head)
+   
+   # Start compute nodes
+   compute.each do |vm|
+      start_compute(vm, head)
+   end
+   
+   
+   # Start monitoring
+   torque_monitor(head, :head)
+   compute.each do |vm|
+      torque_monitor(vm, :compute)
+   end
+   
+   return true
+   
+end
+
+
+################################################################################
+# Start node functions
+################################################################################
+
+# Starts a head node.
+def start_head(head)
+   
+   user = resource[:vm_user]
+   puts "Starting trqauthd on head node"
+   check_command = "ps aux | grep -v grep | grep trqauthd"
+   out, success = CloudSSH.execute_remote(check_command, user, head)
+   unless success
+      command = "/etc/init.d/trqauthd start > /dev/null 2> /dev/null"
+      out, success = CloudSSH.execute_remote(command, user, head)
+      unless success
+         err "Impossible to start trqauthd in #{head}"
+         return false
+      end
+   end
+   
+   puts "Starting pbs_server on head node"
+   check_command = "ps aux | grep -v grep | grep pbs_server"
+   out, success = CloudSSH.execute_remote(check_command, user, head)
+   unless success
+      command = "/bin/bash /root/cloud/torque/start-pbs-server"
+      out, success = CloudSSH.execute_remote(command, user, head)
+      unless success
+         err "Impossible to start pbs_server in #{head}"
+         return false
+      end
+   end
+   
+   puts "Starting pbs_sched on head node"
+   check_command = "ps aux | grep -v grep | grep pbs_sched"
+   out, success = CloudSSH.execute_remote(check_command, user, head)
+   unless success
+      command = "/bin/bash /root/cloud/torque/start-pbs-sched"
+      out, success = CloudSSH.execute_remote(command, user, head)
+      unless success
+         err "Impossible to start pbs_sched in #{head}"
+         return false
+      end
+   end
+
+end
+
+
+# Starts a compute node.
+def start_compute(compute, head)
+
+   user = resource[:vm_user]
+   puts "Starting pbs_mom on compute nodes"
+   check_command = "ps aux | grep -v grep | grep pbs_mom"
+   command = "/bin/bash /root/cloud/torque/start-pbs-mom"
+   out, success = CloudSSH.execute_remote(check_command, user, compute)
+   unless success
+      out, success = CloudSSH.execute_remote(command, user, compute)
+      unless success
+         err "Impossible to start pbs_mom in #{compute}"
+         return false
+      end
+      
+      # Add the node to the compute node list on head
+      add_compute_node(compute, head)
+   end
+
+end
+
+
+################################################################################
+# Monitor node functions
+################################################################################
+
+# Monitors a virtual machine belonging to a torque cloud.
+def torque_monitor(vm, role)
+
+   if role == :head
+      puts "[Torque monitor] Monitoring head"
+      monitor_head(vm)
+      puts "[Torque monitor] Monitored head"
+
+   elsif role == :compute
+      puts "[Torque monitor] Monitoring compute"
+      monitor_compute(vm)
+      puts "[Torque monitor] Monitored compute"
+
+   else
+      puts "[Torque monitor] Unknown role: #{role}"
+   end
+   
+end
+
+
+# Monitors a head node.
+def monitor_head(vm)
+
+   user = resource[:vm_user]
+
+   check_command1 = "ps aux | grep -v grep | grep trqauthd"
+   check_command2 = "ps aux | grep -v grep | grep god | grep pbs-server.god"
+   check_command3 = "ps aux | grep -v grep | grep god | grep pbs-sched.god"
+   
+   out1, success1 = CloudSSH.execute_remote(check_command1, user, vm)
+   out2, success2 = CloudSSH.execute_remote(check_command2, user, vm)
+   out3, success3 = CloudSSH.execute_remote(check_command3, user, vm)
+   unless success1 && success2 && success3
+      puts "[Torque monitor] God or trqauthd are not running in #{vm}"
+      
+      # Try to start monitoring again
+      puts "[Torque monitor] Starting monitoring head on #{vm}"
+      if start_monitor_head(vm)
+         puts "[Torque monitor] Successfully started to monitor head on #{vm}"
+      else
+         err "[Torque monitor] Impossible to monitor head on #{vm}"
+      end
+   end
+   
+end
+
+
+# Monitors a compute node.
+def monitor_compute(vm)
+
+   user = resource[:vm_user]
+
+   # Obtain head node's IP
+   #vm_ips, vm_ip_roles = torque_yaml_ips(resource[:ip_file])
+   vm_ips, vm_ip_roles = torque_parse_ips(resource[:head], resource[:compute])
+   head = vm_ip_roles[:head]
+
+   # Check if the node is in the list of compute nodes
+   command = "qmgr -c \"list node @localhost\""      # Get a list of all nodes
+   out, success = CloudSSH.execute_remote(command, user, head)
+   unless success
+      err "[Torque monitor] Impossible to obtain node list from #{head}"
+   end
+
+   command = "hostname"
+   out2, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to obtain hostname for #{vm}"
+   end
+
+   # Add the node to the list of compute nodes
+   hostname = out2.chomp()
+   if out.include? "Node #{hostname}"
+      puts "[Torque monitor] #{hostname} (#{vm}) already in head's list node"
+   else
+      puts "[Torque monitor] Adding #{hostname} to the list of compute nodes"
+      add_compute_node(vm, head)
+   end
+
+   # Start monitoring
+   check_command = "ps aux | grep -v grep | grep god | grep pbs-mom.god"
+   out, success = CloudSSH.execute_remote(check_command, user, vm)
+   unless success
+      puts "[Torque monitor] God is not running in #{vm}"
+      
+      # Try to start monitoring again
+      puts "[Torque monitor] Starting monitoring compute on #{vm}"
+      if start_monitor_compute(vm)
+         puts "[Torque monitor] Successfully started to monitor compute on #{vm}"
+      else
+         err "[Torque monitor] Impossible to monitor compute on #{vm}"
+      end
+   end
+   
+end
+
+
+################################################################################
+# Stop functions
+################################################################################
+
+# Stops a torque cloud.
+def torque_cloud_stop(torque_roles)
+
+   head    = torque_roles[:head]
+   compute = torque_roles[:compute]
+   
+   # Stop compute nodes
+   compute.each do |vm|
+      stop_compute(vm, head)
+   end
+   
+   # Stop head node
+   stop_head(head)
+   
+end
+
+
+# Stops a head node.
+def stop_head(head)
+   
+   user = resource[:vm_user]
+   
+   puts "Stopping pbs_sched on head node"
+   command = 'pkill -f pbs-sched\(.\)god'    # We are looking for pbs-sched.god
+   out, success = CloudSSH.execute_remote(command, user, head)
+   if success
+      command = "pkill pbs_sched"
+      out, success = CloudSSH.execute_remote(command, user, head)
+      unless success
+         err "Impossible to stop pbs_sched in #{head}"
+         return false
+      end
+   else
+      err "Impossible to stop pbs_sched monitoring in #{head}"
+   end
+   
+   puts "Stopping pbs_server on head node"
+   command = 'pkill -f pbs-server\(.\)god'   # We are looking for pbs-server.god
+   out, success = CloudSSH.execute_remote(command, user, head)
+   if success
+      command = "pkill pbs_server"
+      out, success = CloudSSH.execute_remote(command, user, head)
+      unless success
+         err "Impossible to stop pbs_server in #{head}"
+         return false
+      end
+   else
+      err "Impossible to stop pbs_server monitoring in #{head}"
+   end
+   
+   puts "Stopping trqauthd on head node"
+   command = "/etc/init.d/trqauthd stop"     # Do not kill it, stop it
+   out, success = CloudSSH.execute_remote(command, user, head)
+   unless success
+      err "Impossible to stop trqauthd in #{head}"
+      return false
+   end
+
+end
+
+
+# Stops a compute node.
+def stop_compute(compute, head)
+
+   user = resource[:vm_user]
+
+   puts "Stopping pbs_mom on compute nodes"
+   command = 'pkill -f pbs-mom\(.\)god'
+   out, success = CloudSSH.execute_remote(command, user, compute)
+   if success
+      command = "pkill pbs_mom"
+      out, success = CloudSSH.execute_remote(command, user, compute)
+      unless success
+         err "Impossible to stop pbs_mom in #{compute}"
+         return false
+      end
+      
+      # Add the node to the compute node list on head
+      del_compute_node(compute, head)
+   end
+
+end
+
+
+################################################################################
+# Auxiliar start and stop node functions
+################################################################################
+
+# Adds a compute node to the list in the head node.
+def add_compute_node(vm, head)
+
+   user = resource[:vm_user]
+
+   command = "hostname"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "Impossible to obtain hostname for #{vm}"
+      return false
+   end
+   hostname = out.chomp()
+   command = "qmgr -c \"create node #{hostname}\""
+   out, success = CloudSSH.execute_remote(command, user, head)
+   unless success
+      err "Impossible to add #{hostname} as a compute node in #{head}"
+      return false
+   end
+   command = "pbsnodes -c #{hostname}"
+   out, success = CloudSSH.execute_remote(command, user, head)
+   unless success
+      err "Impossible to clear offline from #{hostname} in #{head}"
+      return false
+   end
+   
+end
+
+
+# Deletes a compute node from the list in the head node.
+def del_compute_node(vm, head)
+
+   user = resource[:vm_user]
+   
+   command = "hostname"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "Impossible to obtain hostname for #{vm}"
+      return false
+   end
+   hostname = out
+   command = "qmgr -c \"delete node #{hostname}\""
+   out, success = CloudSSH.execute_remote(command, user, head)
+   unless success
+      err "Impossible to delete #{hostname} as a compute node in #{head}"
+      return false
+   end
+   
+end
+
+
+################################################################################
+# Auxiliar monitor node functions
+################################################################################
+
+# Starts monitoring on head node.
+def start_monitor_head(vm)
+   
+   user = resource[:vm_user]
+   god_port = 17165
+   
+   # The trqauthd script is intelligent enough to be initiated as many times
+   # as you want without problem: if it is already started it will not be
+   # started again
+   command = "/etc/init.d/trqauthd start > /dev/null 2> /dev/null"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to run /etc/init.d/trqauthd start at #{vm}"
+      return false
+   end
+   
+   # Monitor head node pbs_server and pbs_sched processes with god
+   
+   # pbs_server is up and running
+   path = "/etc/puppet/modules/torque/files/torque-god/pbs-server.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "[Torque monitor] Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   port = god_port
+   command = "god -c /etc/god/pbs-server.god -p #{port}"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to run god in #{vm}"
+      return false
+   end
+   
+   # pbs_sched is up and running
+   path = "/etc/puppet/modules/torque/files/torque-god/pbs-sched.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "[Torque monitor] Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   port += 1
+   command = "god -c /etc/god/pbs-sched.god -p #{port}"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to run god in #{vm}"
+      return false
+   end
+   
+   return true
+
+end
+
+
+# Starts monitoring on compute node.
+def start_monitor_compute(vm)
+   
+   user = resource[:vm_user]
+   god_port = 17165
+   
+   # Monitor compute node with god: pbs_mom is up and running
+   path = "/etc/puppet/modules/torque/files/torque-god/pbs-mom.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "[Torque monitor] Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   command = "god -c /etc/god/pbs-mom.god -p #{god_port}"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Torque monitor] Impossible to run god in #{vm}"
+      return false
+   end
+   
+   return true
+
+end
+\end{lstlisting}
+
+
+\subsection{torque\_yaml.rb}
+
+
+\begin{lstlisting}
+require 'yaml'
+
+
+# Obtains the IP addresses from the ip_file file. It does NOT check whether
+# the file has the proper format.
+def torque_yaml_ips(path)
+
+   ips = []
+   ip_roles = {}
+
+   file = File.open(path)
+   tree = YAML::parse(file)
+   
+   if tree != nil
+
+      tree = tree.transform
+
+      # Deployment: head node + compute nodes
+      head      = tree[:head]
+      compute   = tree[:compute]
+      
+      # Get the IPs that are under the "head" and "compute" labels
+      ip_roles[:head]      = get_elements(head)
+      ip_roles[:compute]   = get_elements(compute)
+      
+      # Add the IPs to the array
+      ips = ips + ip_roles[:head]
+      ips = ips + ip_roles[:compute]
+      
+      ips = ips.uniq
+      
+      file.close
+      
+      return ips, ip_roles
+   end
+   
+end
+
+
+# Obtains the disk images from the img_file file.
+def torque_yaml_images(path)
+
+   img_roles = {}
+
+   file = File.open(path)
+   tree = YAML::parse(file)
+   
+   if tree != nil
+
+      tree = tree.transform
+
+      # Deployment: head node + compute nodes
+      head      = tree[:head]
+      compute   = tree[:compute]
+      
+      # Maybe we have been given only an image for all virtual machines
+      all       = tree[:all]
+      
+      if all == nil
+         img_roles[:head]      = get_elements(head)
+         img_roles[:compute]   = get_elements(compute)
+      else
+         img_roles[:all]       = get_elements(all)
+      end
+      
+      file.close
+      
+      return img_roles
+   end
+   
+end
+
+
+# Transforms the given elements to an array.
+def get_elements(array)
+
+   elements = []
+   if array != nil
+      elements = array.to_a
+   end
+   return elements
+
+end
+\end{lstlisting}
+
+
+\section{web}
+\subsection{web.rb}
+
+
+\begin{lstlisting}
+Puppet::Type.newtype(:web) do
+   @doc = "Manages web clouds formed by KVM virtual machines."
+   
+   
+   ensurable do
+
+      desc "The cloud's ensure field can assume one of the following values:
+   `running`: The cloud is running.
+   `stopped`: The cloud is stopped.\n"
+   
+      newvalue(:stopped) do
+         provider.stop
+      end
+
+      newvalue(:running) do
+         provider.start
+      end
+
+   end
+
+
+   # General parameters
+   
+   newparam(:name) do
+      desc "The cloud name"
+      isnamevar
+   end
+   
+#   newparam(:ip_file) do
+#      desc "The file with the cloud description in YAML format"
+#   end
+#   
+#   newparam(:img_file) do
+#      desc "The file containing the qemu image(s). You must either provide " +
+#           "one image from which all copies shall be made or provide " +
+#           "an image for every instance"
+#   end
+   
+   newparam(:vm_domain) do
+      desc "The XML file with the virtual machine domain definition. " +
+           "Libvirt XML format must be used"
+   end
+   
+   newproperty(:pool, :array_matching => :all) do
+      desc "The pool of physical machines"
+   end
+
+   
+   # Virtual machine parameters
+   newparam(:vm_mem) do
+      desc "The virtual machine's maximum amopunt of memory. " + 
+           "In KiB: 2**10 (or blocks of 1024 bytes)."
+      defaultto "1048576"
+   end
+   
+   newparam(:vm_ncpu) do
+      desc "The virtual machine's number of CPUs"
+      defaultto "1"
+   end
+   
+   
+   # Infrastructure parameters
+
+   newparam(:pm_user) do
+      desc "The physical machines' user. It must have proper permissions"
+      defaultto "dceresuela"
+   end
+
+   newparam(:pm_password) do
+      desc "The physical machines' password"
+      defaultto ""
+   end
+
+   newparam(:starting_mac_address) do
+      desc "Starting MAC address for new virtual machines"
+      defaultto "52:54:00:01:00:00"
+   end
+
+   newparam(:vm_user) do
+      desc "Virtual machines' user"
+      defaultto "root"
+   end
+
+   newparam(:root_password) do
+      desc "Virtual machines' root password"
+      defaultto "root"
+   end
+
+
+   # Web parameters
+   
+   newproperty(:balancer, :array_matching => :all) do
+      desc "The balancer node's information"
+   end
+   
+   newproperty(:server, :array_matching => :all) do
+      desc "The server nodes' information"
+   end
+   
+   newproperty(:database, :array_matching => :all) do
+      desc "The database node's information"
+   end
+
+end
+\end{lstlisting}
+
+
+\subsection{webp\_helper.rb}
+
+
+\begin{lstlisting}
+################################################################################
+# Auxiliar functions for web provider
+################################################################################
+
+# The functions in this file are defined the same in all providers, but each
+# one implements them in their own way. Thus, the headers cannot be modified.
+
+# Starts a torque cloud formed by <vm_ips> performing <vm_ip_roles>.
+def start_cloud(vm_ips, vm_ip_roles)
+
+   puts "Starting the cloud"
+   puts  "Starting a web cloud"
+   
+   # SSH keys have already been distributed when machines were monitorized,
+   # so we do not have to distribute them again
+   
+   # Start web cloud
+   return web_cloud_start(vm_ip_roles)
+
+end
+
+
+# Obtains vm data from manifest parameters.
+def obtain_vm_data()
+
+   puts "Obtaining virtual machines' data"
+   return obtain_web_data(resource[:balancer], resource[:server],
+                          resource[:database])
+   
+end
+\end{lstlisting}
+
+
+\subsection{webp.rb}
+
+
+\begin{lstlisting}
+Puppet::Type.type(:web).provide(:webp) do
+   desc "Manages web clouds formed by KVM virtual machines"
+
+   # Require web auxiliar files
+   require File.dirname(__FILE__) + '/web/web_yaml.rb'
+   require File.dirname(__FILE__) + '/web/web_functions.rb'
+   require File.dirname(__FILE__) + '/web/web_parsing.rb'
+   
+   # Require generic files
+   require '/etc/puppet/modules/generic-module/provider/mcollective_client.rb'
+   Dir["/etc/puppet/modules/generic-module/provider/*.rb"].each { |file| require file }
+   
+   # Commands needed to make the provider suitable
+   commands :ping => "/bin/ping"
+   commands :grep => "/bin/grep"
+   commands :ps   => "/bin/ps"
+   
+   # Operating system restrictions
+   confine :osfamily => "Debian"
+
+   # Some constants
+   #   They are in the generic cloud files
+
+   # Makes sure the cloud is running.
+   def start
+
+      puts "Starting cloud %s" % [resource[:name]]
+      
+      # Check existence
+      if !exists?
+         # Cloud does not exist => Startup operations
+         
+         # Check pool of physical machines
+         puts "Checking pool of physical machines..."
+         pm_up, pm_down = check_pool()
+         unless pm_down.empty?
+            puts "Some physical machines are down"
+            pm_down.each do |pm|
+               puts " - #{pm}"
+            end
+         end
+         
+         # Obtain the virtual machines' IPs
+         puts "Obtaining the virtual machines' IPs..."
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
+         #                                                   method(:web_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         
+         # Check whether you are one of the virtual machines
+         puts "Checking whether this machine is part of the cloud..."
+         part_of_cloud = vm_ips.include?(MY_IP)
+         if part_of_cloud
+            puts "#{MY_IP} is part of the cloud"
+            
+            # Check if you are the leader
+            if leader?()
+               leader_start("web", vm_ips, vm_ip_roles, vm_img_roles, pm_up,
+                            method(:web_monitor))
+            else
+               common_start()
+            end
+         else
+            puts "#{MY_IP} is not part of the cloud"
+            not_cloud_start("web", vm_ips, vm_ip_roles, vm_img_roles, pm_up)
+         end
+         
+      else
+         
+         # Cloud exists => Monitoring operations
+         puts "Cloud already started"
+         
+         # Check if you are the leader
+         if leader?()
+            leader_monitoring(method(:web_monitor))
+         else
+            puts "#{MY_IP} is not the leader"      # Nothing to do
+         end
+      end
+      
+   end
+
+
+   # Makes sure the cloud is not running.
+   def stop
+
+      puts "Stopping cloud %s" % [resource[:name]]
+
+      if !exists?
+         err "Cloud does not exist"
+         return
+      end
+      if status != :running
+         err "Cloud is not running"
+         return
+      end
+      if exists? && status == :running
+         
+         puts "It is a web cloud"
+         
+         # Stop cloud infrastructure
+         #vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data(method(:web_yaml_ips),
+         #                                                   method(:web_yaml_images))
+         vm_ips, vm_ip_roles, vm_img_roles = obtain_vm_data()
+         web_cloud_stop(vm_ip_roles)
+         
+         # Shutdown and undefine all virtual machines explicitly created for this cloud
+         shutdown_vms()
+         
+         # Stop cron jobs on all machines
+         stop_cron_jobs("web")      # TODO Check order
+         
+         # Delete files
+         delete_files()
+         
+         # Note: As all the files deleted so far are located in the /tmp directory
+         # only the machines that are still alive need to delete these files.
+         # If the machine was shut down, these files will not be there the next
+         # time it is started, so there is no need to delete them.
+         
+         puts "==================="
+         puts "== Cloud stopped =="
+         puts "==================="
+         
+      end
+   
+   end
+
+
+   def status
+      if File.exists?("/tmp/cloud-#{resource[:name]}")
+         return :running
+      else
+         return :stopped
+      end
+   end
+
+
+   # Ensure methods
+   def create
+      return true
+   end
+   
+
+   def destroy
+      return true
+   end
+
+
+   def exists?
+      return File.exists?("/tmp/cloud-#{resource[:name]}")
+   end
+   
+   
+   #############################################################################
+   # Properties need methods
+   #############################################################################
+   def pool
+   end
+   
+   def pm_user
+   end
+   
+   def root_password
+   end
+   
+   def starting_mac_address
+   end
+   
+   def balancer
+   end
+   
+   def server
+   end
+   
+   def database
+   end
+   
+end
+\end{lstlisting}
+
+
+\subsection{web\_parsing.rb}
+
+
+\begin{lstlisting}
+# Web parsing functions to obtain virual machine's data from manifest's
+# arguments.
+
+# Obtains the IP addresses and disk images from the resource[:balancer]
+# resource[:server] and resource[:database] arguments.
+# web { 'myweb'
+#   ...
+#   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
+#   server   => ["/etc/puppet/modules/web/files/server-ips.txt",
+#                "/etc/puppet/modules/web/files/server-imgs.txt"],
+#   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
+#   ...
+# }
+def obtain_web_data(balancer, server, database)
+
+   ips, ip_roles = web_parse_ips(balancer, server, database)
+   img_roles     = web_parse_images(balancer, server, database)
+   
+   return ips, ip_roles, img_roles
+
+end
+
+
+# Obtains the IP addresses from the resource[:balancer], resource[:server] and
+# resource[:database] arguments.
+# web { 'myweb'
+#   ...
+#   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
+#   server   => ["/etc/puppet/modules/web/files/server-ips.txt",
+#                "/etc/puppet/modules/web/files/server-imgs.txt"],
+#   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
+#   ...
+# }
+def web_parse_ips(balancer, server, database)
+
+   ips_index = 0     # Because the IPs are in the first component of the
+                     # balancer, server and database arrays, and that is
+                     # array[0]
+   ips = []
+   ip_roles = {}
+   
+   # Get the IPs that are under the "balancer", "server" and "database"
+   # attributes
+   ip_roles[:balancer] = []
+   ip_roles[:balancer] << balancer[ips_index].chomp
+   
+   path = server[ips_index]
+   ip_roles[:server] = get_from_file(path)
+   
+   ip_roles[:database] = []
+   ip_roles[:database] << database[ips_index].chomp
+   
+   # Add the IPs to the array
+   ips = ips + ip_roles[:balancer]
+   ips = ips + ip_roles[:server]
+   ips = ips + ip_roles[:database]
+   
+   ips = ips.uniq
+   
+   return ips, ip_roles
+   
+end
+
+
+# Obtains the disk images from the resource[:balancer], resource[:server] and
+# resource[:database] arguments.
+# web { 'myweb'
+#   ...
+#   balancer => ["155.210.155.175", "/var/tmp/dceresuela/lucid-lb.img"],
+#   server   => ["/etc/puppet/modules/web/files/server-ips.txt",
+#                "/etc/puppet/modules/web/files/server-imgs.txt"],
+#   database => ["155.210.155.177", "/var/tmp/dceresuela/lucid-db.img"],
+#   ...
+# }
+def web_parse_images(balancer, server, database)
+
+   img_index = 1     # Because the images are in the second component of the
+                     # balancer, server and database arrays, and that is
+                     # array[1]
+   img_roles = {}
+
+   
+   # Get the disk images that are under the "balancer", "server" and "database"
+   # attributes
+   img_roles[:balancer] = []
+   img_roles[:balancer] << balancer[img_index].chomp
+   
+   path = server[img_index]
+   img_roles[:server] = get_from_file(path)
+   
+   img_roles[:database] = []
+   img_roles[:database] << database[img_index].chomp
+   
+   return img_roles
+   
+end
+
+
+################################################################################
+# Auxiliar functions
+################################################################################
+
+# Gets all the file lines in an array.
+def get_from_file(path)
+
+   array = []
+   file = File.open(path)
+   if file != nil
+      array = file.readlines.map(&:chomp)    # Discard the final '\n'
+      file.close
+   end
+
+   return array
+
+end
+\end{lstlisting}
+
+
+\subsection{web\_functions.rb}
+
+
+\begin{lstlisting}
+# Starts a web cloud.
+def web_cloud_start(web_roles)
+
+   balancers = web_roles[:balancer]
+   servers   = web_roles[:server]
+   databases = web_roles[:database]
+
+   # Start services
+   
+   # Start load balancers => Start nginx
+   puts "Starting nginx on load balancers"
+   balancers.each do |vm|
+      start_balancer(vm)
+   end
+   
+   # Start web servers => Start sinatra application
+   puts "Starting ruby web3 on web servers"
+   servers.each do |vm|
+      start_server(vm)
+   end
+   
+   # Database servers start at boot time, but check whether they have started
+   # and if they have not, start them
+   puts "Starting mysql on database servers"
+   databases.each do |vm|
+      start_database(vm)
+   end
+   
+   
+   # Start monitoring
+   
+   # Load balancers
+   balancers.each do |vm|
+      start_monitor_balancer(vm)
+   end
+   
+   # Web servers
+   servers.each do |vm|
+      start_monitor_server(vm)
+   end
+   
+   # Database servers
+   databases.each do |vm|
+      start_monitor_database(vm)
+   end
+   
+   return true
+   
+end
+
+
+################################################################################
+# Start node functions
+################################################################################
+
+# Starts a load balancer.
+def start_balancer(vm)
+   
+   command = "/etc/init.d/nginx start > /dev/null 2> /dev/null"
+   user = resource[:vm_user]
+   if vm == MY_IP
+      result = `#{command}`
+      unless $?.exitstatus == 0
+         err "Impossible to start balancer in #{vm}"
+         return false
+      end
+   else
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         err "Impossible to start balancer in #{vm}"
+         return false
+      end
+   end
+
+end
+
+
+# Starts a web server.
+def start_server(vm)
+   
+   # The ruby-web3 file should have been already copied at this point. It should
+   # have been copied when installing the web server.
+   command = "/etc/init.d/ruby-web3 start"
+   user = resource[:vm_user]
+   if vm == MY_IP
+      result = `#{command}`
+      unless $?.exitstatus == 0
+         err "Impossible to start server in #{vm}"
+         return false
+      end
+   else
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         err "Impossible to start server in #{vm}"
+         return false
+      end
+   end
+
+end
+
+
+# Starts a database server.
+def start_database(vm)
+   
+   check_command = "ps aux | grep -v grep | grep mysql"
+   command = "/usr/bin/service mysql start"
+   user = resource[:vm_user]
+   if vm == MY_IP
+      result = `#{check_command}`
+      unless $?.exitstatus == 0
+         result = `#{command}`
+         unless $?.exitstatus == 0
+            err "Impossible to start database in #{vm}"
+            return false
+         end
+      end
+   else
+      out, success = CloudSSH.execute_remote(check_command, user, vm)
+      unless success
+         out, success = CloudSSH.execute_remote(command, user, vm)
+         unless success
+            err "Impossible to start database in #{vm}"
+            return false
+         end
+      end
+   end
+   
+end
+
+
+################################################################################
+# Monitor node functions
+################################################################################
+
+# Monitors a virtual machine belonging to a web cloud.
+def web_monitor(vm, role)
+
+   if role == :balancer
+      puts "[Web monitor] Monitoring load balancer"
+      
+      # Run puppet
+      unless start_monitor_balancer(vm)
+         puts "[Web monitor] Impossible to monitor load balancer on #{vm}"
+      end
+      puts "[Web monitor] Monitored load balancer"
+
+   elsif role == :server
+      puts "[Web monitor] Monitoring web server"
+      
+      # Run puppet
+      unless start_monitor_server(vm)
+         puts "[Web monitor] Impossible to monitor web server on #{vm}"
+      end
+      
+      puts "[Web monitor] Monitored web server"
+      
+   elsif role == :database
+      puts "[Web monitor] Monitoring database"
+      
+      # Check god is running
+      check_command = "ps aux | grep -v grep | grep god | grep database.god"
+      user = resource[:vm_user]
+      out, success = CloudSSH.execute_remote(check_command, user, vm)
+      unless success
+         puts "[Web monitor] God is not running in #{vm}"
+         
+         # Try to start monitoring again
+         puts "[Web monitor] Starting monitoring database on #{vm}"
+         if start_monitor_database(vm)
+            puts "[Web monitor] Successfully started to monitor database on #{vm}"
+         else
+            err "[Web monitor] Impossible to monitor database on #{vm}"
+         end
+      end
+      puts "[Web monitor] Monitored database"
+
+   else
+      puts "[Web monitor] Unknown role: #{role}"
+   end
+   
+end
+
+
+# Starts monitoring on load balancer.
+def start_monitor_balancer(vm)
+
+   # Copy the puppet manifest
+   path = "/etc/puppet/modules/web/files/web-manifests/balancer.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "[Web monitor] Impossible to copy balancer manifest to #{vm}"
+      return false
+   end
+
+   # Monitor load balancer with puppet
+   # While god monitoring will be done in a loop this will only be done if
+   # explicitly invoked, so we must call 'puppet apply' every time.
+   command = "puppet apply /tmp/balancer.pp"
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Web monitor] Impossible to run puppet in #{vm}"
+      return false
+   end
+   
+   return true
+   
+end
+
+
+# Starts monitoring on web server.
+def start_monitor_server(vm)
+
+   # Copy the puppet manifests: general, start and stop
+   path = "/etc/puppet/modules/web/files/web-manifests/server.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "[Web monitor] Impossible to copy server manifest to #{vm}"
+      return false
+   end
+   
+   path = "/etc/puppet/modules/web/files/web-manifests/server-start.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "[Web monitor] Impossible to copy server start manifest to #{vm}"
+      return false
+   end
+   
+   path = "/etc/puppet/modules/web/files/web-manifests/server-stop.pp"
+   out, success = CloudSSH.copy_remote(path, vm, "/tmp")
+   unless success
+      err "[Web monitor] Impossible to copy server stop manifest to #{vm}"
+      return false
+   end
+   
+   # Monitor web servers with puppet: installation files and required gems
+   command = "puppet apply /tmp/server.pp"
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Web monitor] Impossible to run puppet (server.pp) in #{vm}"
+      return false
+   end
+   
+   # Monitor web servers with puppet: web server is up and running
+   command = "puppet apply /tmp/server-start.pp"
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Web monitor] Impossible to run puppet (server-start.pp) in #{vm}"
+      return false
+   end
+   
+   return true
+
+end
+
+
+# Starts monitoring on database.
+def start_monitor_database(vm)
+
+   user = resource[:vm_user]
+
+   # Monitor database with god due to puppet vs ubuntu mysql bug
+   # http://projects.puppetlabs.com/issues/12773
+   # Therefore there is no puppet monitoring, only god
+   path = "/etc/puppet/modules/web/files/web-god/database.god"
+   command = "mkdir -p /etc/god"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Web monitor] Impossible to create /etc/god at #{vm}"
+      return false
+   end
+   out, success = CloudSSH.copy_remote(path, vm, "/etc/god")
+   unless success
+      err "[Web monitor] Impossible to copy #{path} to #{vm}"
+      return false
+   end
+   command = "god -c /etc/god/database.god"
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "[Web monitor] Impossible to run god in #{vm}"
+      return false
+   end
+   
+   return true
+
+end
+
+
+################################################################################
+# Stop functions
+################################################################################
+
+# Stops a web cloud.
+def web_cloud_stop(web_roles)
+
+   balancers = web_roles[:balancer]
+   servers   = web_roles[:server]
+   databases = web_roles[:database]
+
+   # Stop services
+   
+   # Stop load balancers => Stop nginx
+   puts "Stopping nginx on load balancers"
+   balancers.each do |vm|
+      stop_balancer(vm)
+   end
+   
+   # Stop web servers => Stop sinatra application
+   puts "Stopping ruby web3 on web servers"
+   servers.each do |vm|
+      stop_server(vm)
+   end
+   
+   # Stop database servers => Stop mysql
+   puts "Stopping mysql on database servers"
+   databases.each do |vm|
+      stop_database(vm)
+   end
+
+end
+
+
+# Stops a load balancer.
+def stop_balancer(vm)
+
+   # It is being monitored explicitly with puppet, so we do not have to stop
+   # monitoring explicitly, we just have to stop it
+   
+   command = "/etc/init.d/nginx stop > /dev/null 2> /dev/null"
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   unless success
+      err "Impossible to stop balancer in #{vm}"
+      return false
+   end
+
+end
+
+
+# Stops a web server.
+def stop_server(vm)
+
+   # It is being monitored explicitly with puppet, so we do not have to stop
+   # monitoring explicitly, we just have to stop it
+   
+   command = "/etc/init.d/ruby-web3 stop > /dev/null 2> /dev/null"
+   user = resource[:vm_user]
+   out, success = CloudSSH.execute_remote(command, user,vm)
+   unless success
+      err "Impossible to stop web server in #{vm}"
+      return false
+   end
+   
+end
+
+
+# Stops a database server.
+def stop_database(vm)
+
+   user = resource[:vm_user]
+
+   command = 'pkill -f database\(.\)god'    # We are looking for database.god
+   out, success = CloudSSH.execute_remote(command, user, vm)
+   if success
+      command = "/usr/bin/service mysql stop"      # Do not kill it, stop it
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      unless success
+         err "Impossible to stop database in #{vm}"
+         return false
+      end
+   else
+      err "Impossible to stop database monitoring in #{vm}"
+   end
+
+end
+
+\end{lstlisting}
+
+
+\subsection{web\_yaml.rb}
+
+
+\begin{lstlisting}
+require 'yaml'
+
+
+# Obtains the IP addresses from the ip_file file. It does NOT check whether
+# the file has the proper format.
+def web_yaml_ips(path)
+
+   ips = []
+   ip_roles = {}
+
+   file = File.open(path)
+   tree = YAML::parse(file)
+   
+   if tree != nil
+
+      tree = tree.transform
+
+      # Classic deployment: load balancer + web servers + database
+      balancer = tree[:balancer]
+      server   = tree[:server]
+      database = tree[:database]
+      
+      # Get the IPs that are under the "balancer", "server" and "database" labels
+      ip_roles[:balancer] = get_elements(balancer)
+      ip_roles[:server]   = get_elements(server)
+      ip_roles[:database] = get_elements(database)
+      
+      # Add the IPs to the array
+      ips = ips + ip_roles[:balancer]
+      ips = ips + ip_roles[:server]
+      ips = ips + ip_roles[:database]
+      
+      ips = ips.uniq
+      
+      file.close
+      
+      return ips, ip_roles
+   end
+   
+end
+
+
+# Obtains the disk images from the img_file file.
+def web_yaml_images(path)
+
+   img_roles = {}
+
+   file = File.open(path)
+   tree = YAML::parse(file)
+   
+   if tree != nil
+
+      tree = tree.transform
+
+      # Classic deployment: load balancer + web servers + database
+      balancer = tree[:balancer]
+      server   = tree[:server]
+      database = tree[:database]
+      
+      # Maybe we have been given only an image for all virtual machines
+      all      = tree[:all]
+      
+      if all == nil
+         img_roles[:balancer] = get_elements(balancer)
+         img_roles[:server]   = get_elements(server)
+         img_roles[:database] = get_elements(database)
+      else
+         img_roles[:all]      = get_elements(all)
+      end
+      
+      file.close
+      
+      return img_roles
+   end
+   
+end
+
+
+# Transforms the given elements to an array.
+def get_elements(array)
+
+   elements = []
+   if array != nil
+      elements = array.to_a
+   end
+   return elements
+
+end
+\end{lstlisting}
+
+
