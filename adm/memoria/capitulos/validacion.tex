@@ -2,12 +2,9 @@
 \label{cap:validacion}
 
 
-AppScale: 1 maestro, dos esclavos\\
-
-
 Para validar la solución desarrollada, se ha hecho uso del laboratorio 1.03b que el Departamento de Informática e Ingeniería de Sistemas posee en la Escuela de Ingeniería y Arquitectura de la Universidad de Zaragoza. Los ordenadores de este laboratorio poseen procesadores con soporte para virtualización, lo que hace posible la creación de máquinas virtuales para simular los nodos que forman cada una de las infraestructuras distribuidas.
 
-Antes de empezar con las pruebas hay que configurar el entorno en el que se realizarán. En particular, y dado que las máquinas virtuales necesitan conectarse a internet para la descarga e instalación de paquetes, el uso de un servidor de DNS es bastante recomendable. De este modo, podemos usar direcciones IP públicas (que no se estén usando en ese momento) para nuestras máquinas virtuales. El servidor DNS se usa también para hacer la resolución de nombres, tanto normal como inversa, que requieren AppScale y TORQUE para su correcto funcionamiento.
+Antes de empezar con las pruebas hay que configurar el entorno en el que se realizarán. En particular, y dado que las máquinas virtuales necesitan conectarse a internet para la descarga e instalación de paquetes, el uso de un servidor de DNS es bastante recomendable. De este modo, podemos usar direcciones IP públicas (por ejmplo, las de las máquinas del laboratorio que no se estén usando en ese momento) para nuestras máquinas virtuales. El servidor DNS se usa también para hacer la resolución de nombres, tanto normal como inversa, que requieren AppScale y TORQUE para su correcto funcionamiento.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -28,6 +25,13 @@ Estas pruebas tienen como objetivo simular los fallos que se podrían encontrar 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Pruebas específicas de la infraestructura AppScale}
+
+Para probar la infraestructura AppScale se han usado tres máquinas virtuales alojadas en dos máquinas físicas. Una de las máquinas virtuales actúa como nodo maestro y las otras dos actúan como nodos abiertos. Además de las pruebas comunes a todas las infraestructuras se han realizado una serie de pruebas particulares para comprobar el provedor de la infraestructura AppScale:
+
+\begin{itemize}
+\item Parada del proceso controlador: el proceso que lo está monitorizando (god) se da cuenta y crea un nuevo proceso controlador.
+\item Parada del proceso que monitoriza al controlador: el proveedor (puppet) se da cuenta y crea un nuevo proceso de monitorización.
+\end{itemize}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

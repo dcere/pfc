@@ -1,6 +1,7 @@
 \chapter{Metodología de diseño e implementación de recursos distribuidos}
 \label{cap:metodologia}
 
+
 Una vez que el modelado se ha completado es tiempo de abarcar la metodología que se sigue a la hora de diseñar e implementar nuevos recursos distribuidos. Para ello se usan las facilidades que proporciona la herramienta de gestión de configuración para ampliar su funcionalidad.
 
 
@@ -88,7 +89,6 @@ Dentro del tipo \texttt{web}, los atributos \texttt{name}, \texttt{vm\_domain} y
 
 Una vez que el tipo está definido, ya se puede ver cuál será el aspecto de un manifiesto para un recurso de tipo web:
 
-%%% Revisar que no cambie
 
 \begin{lstlisting}
 web {'mycloud':
@@ -196,7 +196,3 @@ end
 Son especialmente importantes dentro de este proveedor las líneas 10, 30 y 40. En la línea 10 creamos un nuevo objeto de la clase \texttt{Cloud} (\ref{sec:modelado-framework}). En la línea 30 se llama a la función \texttt{obtain\_vm\_data} para obtener los datos de las máquinas virtuales (\ref{sec:modelado-framework}). En la línea 40 puede verse como el objeto de la clase \texttt{Cloud} se usa para llamar al método \texttt{leader\_start} que realizará las funciones de puesta en marcha como nodo líder del \emph{cloud} (\ref{sec:modelado-proveedor}). Uno de los argumentos del método en esa llamada es la función \texttt{web\_monitor} que se usará para monitorizar los aspectos particulares del \emph{cloud} web (\ref{sec:modelado-framework}). \\
 
 Merece la pena comentar que tanto para la implementación del tipo como para la del proveedor Puppet hace uso de la capacidad de metaprogramación que ofrece Ruby. La implementación de cada uno de ellos se pasa como un bloque de código Ruby a una función de Puppet (\texttt{newtype} para el tipo y \texttt{provide} para el proveedor) que se encarga internamente de realizar las operaciones necesarias. Es por este motivo que en el código del tipo y del proveedor aparecen variables (como \texttt{resource} y \texttt{provider}) y funciones (como \texttt{newparam} y \texttt{desc}) que no pertenecen a la sintaxis del lenguaje Ruby y no se encuentran \emph{a priori} definidas en ninguna parte. Gracias a la ejecución dinámica de Ruby sabemos que estas variables y funciones estarán definidas en el entorno de Puppet en tiempo de ejecución.
-
-%Merece la pena comentar que tanto el tipo como el proveedor están implementados haciendo uso de la capacidad de metaprogramación que ofrece Ruby. Ambos se pasan como un bloque de código Ruby a una función de Puppet (\texttt{newtype} y \texttt{provide} respectivamente) que se encargará internamente de realizar las operaciones necesarias. Es por este motivo que en el código del tipo y del proveedor aparecen variables (como \texttt{resource} y \texttt{provider}) y funciones (como \texttt{newparam} y \texttt{desc}) que no pertenecen al lenguaje Ruby y no se encuentran \emph{a priori} definidas en ninguna parte. Gracias a la ejecución dinámica de Ruby sabemos que estas variables y funciones estarán definidas en el entorno de Puppet en tiempo de ejecución.
-
-% [Revisar] ¿Poner anexo con las 'palabras reservadas' de Puppet? ¿Hay alguna lista oficial?

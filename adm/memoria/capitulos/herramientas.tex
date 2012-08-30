@@ -1,7 +1,6 @@
 \chapter{Herramientas e infraestructuras utilizadas}
 \label{cap:herramientas}
 
-[Revisar]\\
 
 En este capítulo se realiza un breve análisis de las distintas herramientas e infraestructuras usadas a lo largo del proyecto.
 
@@ -41,20 +40,24 @@ Cuando se tiene listo el manifiesto a Puppet se le da la orden de aplicarlo. Los
 
 Normalmente Puppet se ejecuta de manera periódica mediante un planificador de trabajos (por ejemplo, cron). Cada cierto tiempo contactará con el nodo que debe ser administrado y volverá a repetir los pasos anteriores. Es decir, Puppet está continuamente intentando llevar al nodo al estado especificado en el manifiesto. Si entre una ejecución y otra algo cambiara en el nodo, Puppet se daría cuenta e intentaría llevar al nodo al estado que le corresponde. \\
 
-Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde el que se aplica el manifiesto, a lo largo de este proyecto las ejecuciones de Puppet siempre serán sobre el nodo que aplica el manifiesto, siempre serán locales. Uno de los motivos para que esto sea así es que al ser un sistema distribuido con potencialmente muchos nodos es más sencillo si cada nodo posee el manifiesto que a él le corresponde en vez de que un único nodo alberge uno o dos manifiestos enormes en los que se especifique el sistema entero. Otro de los motivos es que la tolerancia a fallos es mejor cuanto menos se dependa de un nodo.
+Aunque Puppet tiene la capacidad de actuar sobre un nodo distinto al nodo desde el que se aplica el manifiesto, a lo largo de este proyecto las ejecuciones de Puppet siempre serán sobre el nodo que aplica el manifiesto, siempre serán locales. Uno de los motivos para que esto sea así es que al ser un sistema distribuido con potencialmente muchos nodos es más sencillo si cada nodo posee el manifiesto que a él le corresponde en vez de que un único nodo alberge uno o dos manifiestos enormes en los que se especifique el sistema entero. Otro de los motivos es que la tolerancia a fallos es mejor cuanto menos se dependa de un nodo. \\
+
+% [Revisar] Citas de MCollective y RabbitMQ
+
+Dentro del ecosistema de Puppet hay una herramienta llamada MCollective. Esta herramienta permite interactuar con grupos de máquinas y es especialmente útil cuando se quiere enviar una orden a varias máquinas en paralelo. La manera tradicional de implementar este tipo de comunicación es mediante un bucle de conexiones ssh, sin embargo, MCollective utiliza el patrón de mensajes editor/suscriptor. Hay varias tecnologías que implementan este patrón de mensajes, pero por simplicidad en este proyecto se usa RabbitMQ.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Infraestructuras de ejecución de trabajos distribuidos}
 
-En esta sección se analizan en profundidad las dos infraestructuras de ejecución de trabajos distribuidos usadas en este proyecto: AppScale y TORQUE
+En esta sección se analizan en profundidad las dos infraestructuras de ejecución de trabajos distribuidos usadas en este proyecto: AppScale y TORQUE.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Infraestructura AppScale}
 
-%%% Revisar
-AppScale es una implementación \emph{open source} del App Engine de Google. Al igual que App Engine, AppScale permite alojar aplicaciones web; a diferencia de App Engine, las aplicaciones no serán alojadas en la infraestructura que Google posee, sino que serán alojadas en una infraestructura que el usuario posea. Además de permitir alojar aplicaciones web, AppScale también ofrece las APIs de MapReduce y Neptune. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La API de Neptune añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI, aunque también se pueden ejecutar trabajos de otro tipo. \\
+
+AppScale es una implementación de código abierto del App Engine de Google. Al igual que App Engine, AppScale permite alojar aplicaciones web; a diferencia de App Engine, las aplicaciones no serán alojadas en la infraestructura que Google posee, sino que serán alojadas en una infraestructura que el usuario posea. Además de permitir alojar aplicaciones web, AppScale también ofrece las APIs de MapReduce y Neptune. La API de MapReduce permite escribir aplicaciones que hagan uso del \emph{framework} MapReduce. La API de Neptune añade a App Engine la capacidad de usar los nodos de la infraestructura para ejecutar trabajos. Los trabajos más representativos que puede ejecutar son: de entrada, de salida y MPI, aunque también se pueden ejecutar trabajos de otro tipo. \\
 
 AppScale trata de imitar de la manera más fiel posible los servicios que ofrece el App Engine de Google, tratatando de alcanzar el mayor grado de compatibilidad con éstos. Como la tecnología que Google usa internamente en App Engine permanece oculta al público, AppScale tiene que hacer uso de otras tecnologías existentes para ofrecer las mismas funciones. En la Figura \ref{figure:tecnologias-appscale} \footnote[1]{Imagen obtenida de \url{http://code.google.com/p/appscale/wiki/Supported_AppEngine_APIs}} se puede ver toda la pila de tecnologías usadas en AppScale.
 
@@ -94,9 +97,6 @@ La otra infraestructura de ejecución de trabajos distribuidos que se ha elegido
 
 Una vez que la infraestructura está en funcionamiento los usuarios pueden mandar sus trabajos al nodo maestro. Éste, valiéndose de un planificador (en su versión más simple es una cola FIFO), decidirá a cuál de los nodos de computación le enviará el trabajo. El nodo de computación que reciba el trabajo será el encargado de ejecutarlo y de enviar los resultados de vuelta al nodo maestro una vez terminada la ejecución. \\
 
-Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores tanto comerciales (Maui Cluster Scheduler) como \emph{open source} (Moab Workload Manager) para mejorar la planificación de trabajos y la administración de los nodos del \emph{cluster}. A lo largo de este proyecto se usará, por simplicidad, el planificador más básico. \\
+Además de contar con un planificador básico, TORQUE permite la integración con otros planificadores tanto comerciales (Maui Cluster Scheduler) como de código abierto (Moab Workload Manager) para mejorar la planificación de trabajos y la administración de los nodos del \emph{cluster}. A lo largo de este proyecto se usará, por simplicidad, el planificador más básico. \\
 
 Para determinar qué usuarios son los que pueden enviar trabajos y qué usuarios son los que pueden realizar tareas administrativas, como por ejemplo cancelar un trabajo, TORQUE permite especificar dos grupos de usuarios: \texttt{managers} y \texttt{operators}. Para administrar el nodo maestro un usuario deberá pertenecer al primer grupo; para mandar trabajos deberá pertenecer al segundo. Por defecto únicamente el usuario \texttt{root} del nodo maestro puede administrarlo.
-
-%%% Revisar
-% Hablar de las colas?

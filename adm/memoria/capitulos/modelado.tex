@@ -1,9 +1,8 @@
 \chapter{Modelado de recursos distribuidos con Puppet}
 \label{cap:modelado}
 
-[Revisar]\\
 
-Las herramientas de gestión de la configuración se han centrado en la gestión de recursos de manera local a un nodo. Por otra parte la automatización existente en la administración de infraestructuras distribuidas es de bajo nivel, no yendo mucho más allá de la gestión de máquinas virtuales. En este capítulo veremos cómo se pueden crear recursos distribuidos en la herramienta de gestión de la configuración Puppet y cómo ésta puede ser usada para automatizar una administración de más alto nivel en infraestructuras distribuidas que tenga en cuenta conceptos como el de disponibilidad o el de prestaciones.
+Las herramientas de gestión de la configuración se han centrado en la gestión de recursos de manera local a un nodo. Por otra parte la automatización existente en la administración de infraestructuras distribuidas es de bajo nivel, no yendo mucho más allá de la gestión de máquinas virtuales. En este capítulo veremos cómo se pueden crear recursos distribuidos en la herramienta de gestión de la configuración Puppet y cómo ésta puede ser usada para automatizar una administración de más alto nivel en infraestructuras distribuidas que tenga en cuenta conceptos como el de disponibilidad o el de dependencia.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -11,9 +10,13 @@ Las herramientas de gestión de la configuración se han centrado en la gestión
 
 En Puppet, la definición clásica de recursos se presupone dentro del ámbito local del nodo. Es decir, para cada nodo especificamos qué recursos debe contener y cuál debe ser el estado de dichos recursos. Dentro de este tipo de recursos se encuentran, entre otros, el recurso usuario y el recurso fichero. Sin embargo, el modelado de un recurso sistema distribuido plantea ciertos desafíos a la definición clásica de recursos de Puppet, ya que ésta no está pensada teniendo en cuenta la problemática asociada a los sistemas distribuidos. \\
 
-%Ahora bien, este proveedor no es un proveedor al uso: debe lidiar con la problemática asociada a los sistemas distribuidos. Entre otras cosas debe tener en cuenta que puede haber dependencias entre los nodos, que cada nodo puede cumplir un papel distinto dentro del sistema y que los nodos pueden fallar. Además, debe resolver los fallos con la mayor transparencia posible, es decir, con la menor intervención humana posible.\\
+%Al modelar un recurso sistema distribuido, deben tenerse en cuenta las características propias de este tipo de recursos, como la disponibilidad, las prestaciones y las dependencias. La disponibilidad contempla los fallos que se pueden dar en una infraestructura distribuida y en ella estarían incluidos los fallos de procesos y los fallos de máquinas. Las prestaciones contemplan los servicios ofrecidos y dentro de ellas tendríamos la creación de máquinas para repartir la carga. Las dependencias contemplan la necesidad de que un servicio esté funcionando para que otro pueda hacerlo. Asimismo, un recurso sistema distribuido puede presentar elementos comunes con otros recursos sistema distribuido, tales como una monitorización básica. La presencia de elementos comunes entre los recursos clásicos de Puppet, por ejemplo un fichero y un usuario, no es tan corriente. \\
 
-Al modelar un recurso sistema distribuido, deben tenerse en cuenta las características propias de este tipo de recursos, como la disponibilidad, las prestaciones y las dependencias. La disponibilidad contempla los fallos que se pueden dar en una infraestructura distribuida y en ella estarían incluidos los fallos de procesos y los fallos de máquinas. Las prestaciones contemplan los servicios ofrecidos y dentro de ellas tendríamos la creación de máquinas para repartir la carga. Las dependencias contemplan la necesidad de que un servicio esté funcionando para que otro pueda hacerlo. Asimismo, un recurso sistema distribuido puede presentar elementos comunes con otros recursos sistema distribuido, tales como una monitorización básica. La presencia de elementos comunes entre los recursos clásicos de Puppet, por ejemplo un fichero y un usuario, no es tan corriente. \\
+Al modelar un recurso sistema distribuido, deben tenerse en cuenta las características propias de este tipo de recursos, como las dependencias y la disponibilidad. Las dependencias contemplan la necesidad de que un servicio esté funcionando para que otro pueda hacerlo. La gestión de las dependencias es inherente a Puppet, ya que como herramienta de gestión de la configuración trabaja conforme a los conceptos de iteración y convergencia intentando llevar al sistema informático al estado deseado.
+
+La disponibilidad contempla los fallos que se pueden dar en una infraestructura distribuida y en ella están incluidos los fallos de procesos y los fallos de máquinas. Como lo deseable en un sistema distribuido es que el fallo en un nodo no cause el fallo de todo el sistema, a lo largo de los años se han desarrollado distintas soluciones para este problema. La que se usa en este proyecto consiste en la elección de un nodo líder que será el encargado de tratar con los fallos que se den en el sistema. Para determinar quién es el nodo líder se usa un algoritmo de elección de líder, en concreto el algoritmo peleón (en inglés \emph{Bully algorithm}). En este algoritmo todos los nodos tratan periódicamente de convertirse en el líder; si hay un líder, impedirá que otro nodo le quite el liderazgo, y si no lo hay, uno de los restantes nodos se convertirá en líder.
+
+Además de la gestión de las dependencias y la disponibilidad, un recurso sistema distribuido puede presentar elementos comunes con otros recursos sistema distribuido, tales como una monitorización básica. La presencia de elementos comunes entre los recursos clásicos de Puppet, por ejemplo un fichero y un usuario, no es tan corriente. \\
 
 A la hora de definir un recurso sistema distribuido tenemos que presentarlo como un único sistema coherente, es decir, como una única abstracción, y por lo tanto no vale con describir un recurso sistema distribuido como una colección de recursos clásicos de Puppet. Afortunadamente, Puppet proporciona varios mecanismos de extensión. El primer mecanismo de extensión de Puppet consiste en la creación de nuevos tipos de recurso. El segundo es la creación de subcomandos y acciones dentro de Puppet mediante la API \emph{Faces} \cite{puppet-faces}. Después de analizar esta API a fondo se vio que las opciones que ofrecía no permitían la integración del recurso sistema distribuido dentro del modelo de Puppet. Como lo que interesaba era crear una abstracción del recurso distribuido esta opción se acabó descartando en favor de la creación de un nuevo tipo de recurso y un proveedor asociado, que soluciona el problema de una manera más elegante: la creación de un nuevo tipo de recurso con sus atributos correspondientes para definir los recursos sistema distribuido y la creación de un proveedor que implemente los pasos necesarios para llevar dicho recurso al estado deseado.
 
@@ -62,13 +65,13 @@ Las operaciones de puesta en marcha son las encargadas de poner en funcionamient
 \item Inicio como nodo externo: Función de puesta en marcha que realizará un nodo no perteneciente al \emph{cloud}.
 \end{itemize}
 
-La monitorización únicamente la llevará a cabo uno de los nodos, al que llamaremos líder, ya que sería redundate que más de un nodo se encargara de comprobar el estado global del sistema. Por tanto, sólo hay una función importante:
+La monitorización únicamente la llevará a cabo uno de los nodos, al que llamaremos líder, ya que sería redundate que más de un nodo se encargara de comprobar el estado global del sistema. La elección de este nodo líder es necesaria para solucionar los problemas de disponibilidad que puedan aparecer. Como solamente el líder realizará la monitorización, sólo hay una función importante:
 
 \begin{itemize}
 \item Monitorización como líder: Función de monitorización que realizará el nodo líder del \emph{cloud}.
 \end{itemize}
 
-Para elegir al nodo líder de entre todos los nodos del \emph{cloud} se utiliza el algoritmo peleón (en inglés \emph{Bully algorithm}). En este algoritmo todos los nodos tratan periódicamente de convertirse en el líder; si hay un líder, impedirá que otro nodo le quite el liderazgo, y si no lo hay, uno de los restantes nodos se convertirá en líder. Para ayudar a la implementación de este algoritmo se proporcionan las funciones de elección de líder, de las cuales las más importantes son:
+Para elegir al nodo líder de entre todos los nodos del \emph{cloud} se utiliza el algoritmo peleón. Para ayudar a la implementación de este algoritmo se proporcionan las funciones de elección de líder, de las cuales las más importantes son:
 
 \begin{itemize}
 \item Lectura y escritura de identificador: Funciones de lectura y escritura del identificador del nodo actual.
@@ -84,12 +87,12 @@ Por último, es posible que en algún momento se desee parar por completo el fun
 \end{itemize}
 
 Aunque no se proporcionan como funciones, hay que tener en cuenta que cada tipo de \emph{cloud} puede tener sus propias funciones de parada. Estas funciones de parada deben realizarse antes de apagar las máquinas virtuales. De forma general, los pasos que hay que hacer a la hora de parar un \emph{cloud} son:
-[Revisar este orden]
+
 \begin{enumerate}
 \item Comprobación de la existencia del \emph{cloud}: si existe se procederá a su parada.
+\item Parada de las funciones de automantenimiento de los nodos.
 \item Operaciones de parada particulares a cada tipo de \emph{cloud}.
 \item Apagado de las máquinas virtuales creadas explícitamente para este \emph{cloud}.
-\item Parada de las funciones de automantenimiento de los nodos.
 \item Eliminación de los ficheros internos de gestión del \emph{cloud}.
 \end{enumerate}
 
@@ -98,30 +101,6 @@ Aunque no se proporcionan como funciones, hay que tener en cuenta que cada tipo 
 \subsection{\emph{Framework} de implementación}
 \label{sec:modelado-framework}
 
-%Las operaciones de puesta en marcha que se proporcionan son:
-%\begin{itemize}
-%\item Inicio como líder: \texttt{leader\_start}.
-%\item Inicio como nodo común: \texttt{common\_start}.
-%\item Inicio como nodo externo: \texttt{not\_cloud\_start}.
-%\end{itemize}
-
-%La función de monitorización que se proporciona es:
-%\begin{itemize}
-%\item Monitorización como líder: \texttt{leader\_monitoring}.
-%\end{itemize}
-
-%Las funciones de elección de líder que se proporcionan son:
-%\begin{itemize}
-%\item Lectura y escritura de identificador: \texttt{get\_id} y \texttt{set\_id}.
-%\item Lectura y escritura de identificador de líder: \texttt{get\_leader} y \texttt{set\_leader}.
-%\item Escritura de identificador e identificador de líder remoto: \texttt{vm\_set\_id} y \texttt{vm\_set\_leader}.
-%\end{itemize}
-
-%Las funciones de parada de \emph{cloud} que se proporcionan son:
-%\begin{itemize}
-%\item Apagado de máquinas virtuales: \texttt{shutdown\_vms}.
-%\item Borrado de ficheros: \texttt{delete\_files}.
-%\end{itemize}
 
 La mejor manera de crear un tipo y un proveedor en Puppet es hacerlo usando el concepto de módulo que ya dispone Puppet. Los módulos deben organizarse siguiendo una estructura predefinida. En esta estructura hay que colocar el código del tipo y del proveedor en la parte correspondiente. Si se crea el tipo \texttt{tipo} y el proveedor \texttt{proveedor} dentro del módulo \texttt{modulo} la estructura sería similar a la siguiente:
 
