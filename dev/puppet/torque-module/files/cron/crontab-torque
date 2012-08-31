@@ -1,1 +1,1 @@
-*/1 * * * * puppet apply /etc/puppet/modules/torque/manifests/init-torque.pp > /root/puppet.out 2> /root/puppet.err
+*/30 * * * * puppet apply /etc/puppet/modules/torque/manifests/init-torque.pp > /root/puppet.out 2> /root/puppet.err
