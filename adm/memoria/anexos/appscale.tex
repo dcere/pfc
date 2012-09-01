@@ -16,7 +16,7 @@ En primer lugar tenemos los roles simples:
 \begin{description}
 \item[\texttt{Shadow}]: Comprueba el estado en el que se encuentran el resto de nodos y se asegura de que están ejecutando los servicios que deben.
 \item[\texttt{Load balancer}]: Servicio web que lleva a los usuarios a las aplicaciones. Posee también una página en la que informa del estado de todas las máquinas desplegadas.
-\item[\texttt{AppEngine}]: Versión modificada de los SDKs de Google App Engine. Además de alojar las aplicaciones web añaden la capacidad de almacenar y recuperar datos de bases de datos que soporten la API de Google Datastore.
+\item[\texttt{AppEngine}]: Versión modificada de los SDKs de Google App Engine. Además de alojar las aplicaciones web añaden la capacidad de almacenar y recuperar datos de bases de datos que soporten el API de Google Datastore.
 \item[\texttt{Database}]: Ejecuta los servicios necesarios para alojar a la base de datos elegida.
 \item[\texttt{Login}]: La máquina principal que lleva a los usuarios a las aplicaciones App Engine. Difiere del Load Balancer en que esta es la única máquina desde la que se pueden hacer funciones administrativas. Puede haber muchas máquinas que hagan la función de Load Balancer pero sólo habrá una que haga función de Login.
 \item[\texttt{Memcache}]: Proporciona soporte para almacenamiento en caché para las aplicaciones App Engine.

@@ -1,4 +1,4 @@
-\chapter{Diseño e implementación de recursos distribuidos}
+\chapter{Ejemplos de diseño e implementación de infraestructuras de trabajos distribuidos}
 \label{cap:disenyo}
 
 
@@ -6,7 +6,7 @@ En este capítulo se muestra cómo aplicar la metodología anteriormente expuest
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Diseño e implementación de un recurso distribuido para una infraestructura AppScale}
+\section{AppScale}
 
 Una infraestructura AppScale puede ser definida de dos maneras: mediante un despliegue por defecto o uno personalizado. En un despliegue por defecto un nodo es el encargado de controlar la infraestructura y el resto de nodos se encargan de hacer el resto del trabajo. En un despliegue personalizado podemos especificar con mayor grado de precisión qué tipo de trabajo debe hacer cada nodo. Por ejemplo, podemos indicar qué nodos se encargarán de alojar las aplicaciones de los usuarios, qué nodos alojarán la base de datos o qué nodos serán los encargados de ejecutar los trabajos de computación. Para administrar una infraestructura AppScale, sin importar el tipo de despliegue, necesitaremos una cuenta de correo y una contraseña. Este usuario y contraseña son necesarios para poder administrar las aplicaciones alojadas y observar el estado de la infraestructura. \\
 
@@ -102,20 +102,20 @@ appscale {'mycloud':
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Diseño e implementación de un recurso distribuido para una infraestructura TORQUE}
+\section{TORQUE}
 
 Una infraestructura TORQUE está formada por un nodo maestro y un conjunto de nodos de computación (Figura \ref{figure:arquitectura-torque}). El nodo maestro es el encargado de recibir los trabajos a ejecutar y de asegurar una correcta planificación para esos trabajos; en su versión más simple, el planificador es una cola FIFO. Los nodos de computación son los encargados de ejecutar los trabajos enviados por el nodo maestro y, una vez terminados, enviarle los resultados de vuelta. \\
 
 \begin{figure} [!htbp]
   \centering
   \includegraphics[width=13.5cm]{figuras/Arquitectura_Torque.eps}
-  \caption{Infraestructura Torque.}
+  \caption{Infraestructura TORQUE.}
 \label{figure:arquitectura-torque}
 \end{figure}
 
 \pagebreak
 
-Los nuevos atributos que aparecen en el tipo \texttt{torque} reflejan esta nueva infraestructura:
+Los nuevos atributos que aparecen en el tipo \texttt{torque} reflejan esta nueva infraestructura (para ver la implementación completa ir al Anexo \ref{anx:codigo}):
 
 \begin{rubycode}
 Puppet::Type.newtype(:torque) do
