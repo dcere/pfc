@@ -52,20 +52,9 @@ La infraestructura de ejecución de trabajos TORQUE también se eligió desde el
 \section{Tecnologías utilizadas}
 
 
-Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnologías: KVM, QEMU, libvirt y virsh para el soporte y la gestión de las máquinas virtuales; Puppet como herramienta de configuración automática; Ruby como lenguaje de programación para la extensión de Puppet; AppScale y TORQUE como infraestructuras de ejecución de trabajos distribuidos en las que validar la extensión; Nginx, WEBrick y MySQL como balanceador de carga, servidor web y base de datos para la infraestructura web de tres niveles en la que se valida la extensión; Shell como lenguaje de programación de los \emph{scripts} de configuración de las máquinas virtuales; Sistema operativo Debian para las máquinas del laboratorio y Ubuntu para las máquinas virtuales; \LaTeX{} \cite{manual:latex} para la redacción de esta memoria y Dia para la confección de los diagramas que aparecen en esta memoria.
+Para la elaboración de este proyecto se ha hecho uso de las siguientes tecnologías: KVM, QEMU, libvirt y virsh para el soporte y la gestión de las máquinas virtuales; Puppet como herramienta de configuración automática; Ruby como lenguaje de programación para la extensión de Puppet; AppScale y TORQUE como infraestructuras de ejecución de trabajos distribuidos en las que validar la extensión; Nginx, WEBrick y MySQL como balanceador de carga, servidor web y base de datos para la infraestructura web de tres niveles en la que se valida la extensión; Shell como lenguaje de programación de los \emph{scripts} de configuración de las máquinas virtuales; Sistema operativo Debian para las máquinas del laboratorio y Ubuntu para las máquinas virtuales; \LaTeX{} \cite{manual:latex} para la redacción de esta memoria y Dia para la confección de los diagramas que aparecen en esta memoria. \\
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Herramientas utilizadas}
-
-
-Una de las herramientas sobre las que se ha basado este proyecto ha sido la virtualización \emph{hardware} o virtualización de plataforma, que permite la simulación de un ordenador completo (llamado huésped) dentro de otro ordenador (llamado anfitrión). A la hora de hacer una virtualización \emph{hardware} hay varias opciones entre las que elegir, siendo las más ampliamente usadas Xen y KVM. La principal diferencia entre ellas es que Xen ofrece paravirtualización mientras que KVM ofrece virtualización nativa.
-
-La virtualización nativa permite hacer una virtualización \emph{hardware} completa de manera eficiente. Para ello, y a diferencia de la paravirtualización, no requiere de ninguna modificación en el sistema operativo de la máquina virtual; pero a cambio necesita un procesador con soporte para virtualización. KVM, que proporciona virtualización \emph{hardware}, está incluido como un módulo del núcleo de Linux desde su versión 2.6.20, así que viene incluido por defecto en cualquier sistema operativo con núcleo Linux.
-
-Como los ordenadores del laboratorio poseen procesadores con extensiones de soporte para virtualización y sistema operativo Debian, se eligió KVM para dar soporte a las máquinas virtuales. Esto significa que se puede usar cualquier sistema operativo para las máquinas virtuales, sin necesidad de hacer ninguna modificación en el mismo.
-
-El resto de herramientas utilizadas se explican con más detalle en sus respectivas secciones.
+De todas las tecnologías aquí expuestas, Puppet, la herramienta de gestión de la configuración, es la tecnología más importante. El resto de herramientas utilizadas en este proyecto se explican con más detalle en sus respectivas secciones.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
