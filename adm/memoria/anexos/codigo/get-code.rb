@@ -44,6 +44,7 @@ file.puts "\\section{appscale}"
 get_section(file, APPSCALE_TYPE_PATH)
 get_section(file, APPSCALE_PROV1_PATH)
 get_section(file, APPSCALE_PROV2_PATH)
+file.puts File.open("appscale-manifests.tex", 'r').read
 puts
 
 # Sección torque
@@ -51,6 +52,7 @@ file.puts "\\section{torque}"
 get_section(file, TORQUE_TYPE_PATH)
 get_section(file, TORQUE_PROV1_PATH)
 get_section(file, TORQUE_PROV2_PATH)
+file.puts File.open("torque-manifests.tex", 'r').read
 puts
 
 # Sección web
@@ -58,6 +60,7 @@ file.puts "\\section{web}"
 get_section(file, WEB_TYPE_PATH)
 get_section(file, WEB_PROV1_PATH)
 get_section(file, WEB_PROV2_PATH)
+file.puts File.open("web-manifests.tex", 'r').read
 puts
 
 file.close()

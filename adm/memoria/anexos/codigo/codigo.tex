@@ -2808,6 +2808,79 @@ exit 1
 \end{lstlisting}
 
 
+\subsection{manifiestos locales}
+\subsubsection{basic.pp}
+
+\begin{lstlisting}
+################################################################################
+# AppScale root directory
+
+file { '/root/appscale':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+file { '/root/appscale/.appscale':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+################################################################################
+# AppScale basic roles
+
+file { '/root/appscale/AppController':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+file { '/root/appscale/AppDB':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+file { '/root/appscale/AppLoadBalancer':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+file { '/root/appscale/AppMonitoring':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+file { '/root/appscale/AppServer':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+file { '/root/appscale/AppServer_Java':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+file { '/root/appscale/Neptune':
+   ensure => 'directory',
+   noop   => 'true',
+}
+
+################################################################################
+# AppScale programs
+
+file { '/usr/bin/god':
+   ensure => 'present',
+   noop   => 'true',
+}
+
+file { '/usr/bin/mongrel_rails':
+   ensure => 'present',
+   noop   => 'true',
+}
+
+file { '/usr/sbin/nginx':
+   ensure => 'present',
+   noop   => 'true',
+}
+\end{lstlisting}
 \section{torque}
 \subsection{torque.rb}
 
@@ -3770,6 +3843,169 @@ end
 \end{lstlisting}
 
 
+\subsection{manifiestos locales}
+
+
+\subsubsection{pbs-mom.god}
+
+
+\begin{lstlisting}
+God.watch do |w|
+  w.name = "torque-pbs-mom"
+  w.interval = 30.seconds # default      
+  w.start = "/bin/bash /root/cloud/torque/start-pbs-mom"
+  w.pid_file = "/var/spool/torque/mom_priv/mom.lock"
+    
+  #w.behavior(:clean_pid_file)
+  
+  # determine the state on startup    
+  w.transition(:init, { true => :up, false => :start }) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true     
+    end    
+  end     
+
+  # determine when process has finished starting    
+  w.transition([:start, :restart], :up) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true      
+    end       
+    # failsafe      
+    on.condition(:tries) do |c|        
+      c.times = 8        
+      c.within = 2.minutes        
+      c.transition = :start      
+    end    
+  end     
+
+  # start if process is not running    
+  w.transition(:up, :start) do |on|      
+    on.condition(:process_exits)    
+  end     
+
+  # lifecycle    
+  w.lifecycle do |on|      
+    on.condition(:flapping) do |c|        
+      c.to_state = [:start, :restart]        
+      c.times = 5        
+      c.within = 1.minute        
+      c.transition = :unmonitored        
+      c.retry_in = 10.minutes        
+      c.retry_times = 5        
+      c.retry_within = 2.hours      
+    end    
+  end
+  
+end
+\end{lstlisting}
+
+
+\subsubsection{pbs-sched.god}
+
+
+\begin{lstlisting}
+God.watch do |w|
+  w.name = "torque-pbs-sched"
+  w.interval = 30.seconds # default      
+  w.start = "/bin/bash /root/cloud/torque/start-pbs-sched"
+  w.pid_file = "/var/spool/torque/sched_priv/sched.lock"
+    
+  #w.behavior(:clean_pid_file)
+  
+  # determine the state on startup    
+  w.transition(:init, { true => :up, false => :start }) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true     
+    end    
+  end     
+
+  # determine when process has finished starting    
+  w.transition([:start, :restart], :up) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true      
+    end       
+    # failsafe      
+    on.condition(:tries) do |c|        
+      c.times = 8        
+      c.within = 2.minutes        
+      c.transition = :start      
+    end    
+  end     
+
+  # start if process is not running    
+  w.transition(:up, :start) do |on|      
+    on.condition(:process_exits)    
+  end     
+
+  # lifecycle    
+  w.lifecycle do |on|      
+    on.condition(:flapping) do |c|        
+      c.to_state = [:start, :restart]        
+      c.times = 5        
+      c.within = 1.minute        
+      c.transition = :unmonitored        
+      c.retry_in = 10.minutes        
+      c.retry_times = 5        
+      c.retry_within = 2.hours      
+    end    
+  end
+  
+end
+\end{lstlisting}
+
+
+\subsubsection{pbs-server.god}
+
+
+\begin{lstlisting}
+God.watch do |w|
+  w.name = "torque-pbs-server"
+  w.interval = 30.seconds # default      
+  w.start = "/bin/bash /root/cloud/torque/start-pbs-server"
+  w.pid_file = "/var/spool/torque/server_priv/server.lock"
+    
+  #w.behavior(:clean_pid_file)
+  
+  # determine the state on startup    
+  w.transition(:init, { true => :up, false => :start }) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true     
+    end    
+  end     
+
+  # determine when process has finished starting    
+  w.transition([:start, :restart], :up) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true      
+    end       
+    # failsafe      
+    on.condition(:tries) do |c|        
+      c.times = 8        
+      c.within = 2.minutes        
+      c.transition = :start      
+    end    
+  end     
+
+  # start if process is not running    
+  w.transition(:up, :start) do |on|      
+    on.condition(:process_exits)    
+  end     
+
+  # lifecycle    
+  w.lifecycle do |on|      
+    on.condition(:flapping) do |c|        
+      c.to_state = [:start, :restart]        
+      c.times = 5        
+      c.within = 1.minute        
+      c.transition = :unmonitored        
+      c.retry_in = 10.minutes        
+      c.retry_times = 5        
+      c.retry_within = 2.hours      
+    end    
+  end
+  
+end
+\end{lstlisting}
 \section{web}
 \subsection{web.rb}
 
@@ -4751,5 +4987,229 @@ def get_elements(array)
 
 end
 \end{lstlisting}
+
+
+\subsection{manifiestos locales}
+
+
+\subsubsection{balancer.pp}
+
+
+\begin{lstlisting}
+package { 'nginx':
+   ensure => present,
+}
+
+file { '/etc/nginx/nginx.cnf':
+   require => Package['nginx'],
+}
+
+service { 'nginx':
+   ensure => running,
+   enable => true,
+   hasstatus => true,
+   require => Package['nginx'],
+}
+\end{lstlisting}
+
+
+\subsubsection{server.pp}
+
+\begin{lstlisting}
+package {
+   'ruby1.8-dev':        ensure => present;
+   'libmysqlclient-dev': ensure => present;
+   'rubygems':           ensure => present;
+   #'rubygems':           ensure => latest; # It SHOULD work, but let's not force it
+   
+   # Gems: rubygems, mysql, sinatra, activerecord.
+   'mysql':        provider => "gem", ensure => present;
+   'sinatra':      provider => "gem", ensure => present;
+   'activerecord': provider => "gem", ensure => present;
+}
+\end{lstlisting}
+
+
+\subsubsection{server-start.pp}
+
+
+\begin{lstlisting}
+service { 'ruby-web3':
+   provider => "debian",
+   ensure => running,
+}
+\end{lstlisting}
+
+
+\subsubsection{server-stop.pp}
+
+
+\begin{lstlisting}
+service { 'ruby-web3':
+   provider => "debian",
+   ensure => stopped,
+}
+
+\end{lstlisting}
+
+
+\subsubsection{server.god}
+
+
+\begin{lstlisting}
+God.watch do |w|
+  w.name = "ruby-web3"
+  w.interval = 30.seconds # default      
+  w.start = "/bin/bash /root/cloud/web/server/start-ruby-web3"
+  w.pid_file = "/var/run/ruby-web3.pid"
+    
+  w.behavior(:clean_pid_file)
+  
+  # determine the state on startup    
+  w.transition(:init, { true => :up, false => :start }) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true     
+    end    
+  end     
+
+  # determine when process has finished starting    
+  w.transition([:start, :restart], :up) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true      
+    end       
+    # failsafe      
+    on.condition(:tries) do |c|        
+      c.times = 8        
+      c.within = 2.minutes        
+      c.transition = :start      
+    end    
+  end     
+
+  # start if process is not running    
+  w.transition(:up, :start) do |on|      
+    on.condition(:process_exits)    
+  end     
+
+  # lifecycle    
+  w.lifecycle do |on|      
+    on.condition(:flapping) do |c|        
+      c.to_state = [:start, :restart]        
+      c.times = 5        
+      c.within = 1.minute        
+      c.transition = :unmonitored        
+      c.retry_in = 10.minutes        
+      c.retry_times = 5        
+      c.retry_within = 2.hours      
+    end    
+  end
+  
+end
+\end{lstlisting}
+
+
+\subsubsection{database.pp}
+
+
+\begin{lstlisting}
+# Package, file and service
+package { 'mysql-server':
+   ensure => present,
+}
+
+file { '/etc/mysql/my.cnf':
+   require => Package['mysql-server'],
+}
+
+service { 'mysql':
+   ensure => running,
+   enable => true,
+   hasstatus => true,
+   require => Package["mysql-server"],
+   hasrestart => true,
+   restart => "/usr/bin/service mysql restart"
+}
+
+# User and group
+user { "mysql":
+   ensure => present,
+   gid => "mysql",
+   shell => "/bin/false",
+   require => Group["mysql"],
+}
+
+group { "mysql":
+   ensure => present,
+}
+\end{lstlisting}
+
+
+\subsubsection{database.god}
+
+\begin{lstlisting}
+#
+# Borrowed from http://thewebfellas.com/blog/2008/2/12/a-simple-faith-monitoring-by-god
+#
+
+God.watch do |w|
+  w.name = "mysql"
+  w.interval = 30.seconds # default      
+  w.start = "service mysql start"
+  w.stop = "service mysql stop"
+  w.restart = "service mysql restart"
+  w.start_grace = 20.seconds
+  w.restart_grace = 20.seconds
+  w.pid_file = "/var/lib/mysql/lucid-db.pid"
+    
+  w.behavior(:clean_pid_file)
+
+  # determine the state on startup    
+  w.transition(:init, { true => :up, false => :start }) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true     
+    end    
+  end     
+
+  # determine when process has finished starting    
+  w.transition([:start, :restart], :up) do |on|      
+    on.condition(:process_running) do |c|        
+      c.running = true      
+    end       
+    # failsafe      
+    on.condition(:tries) do |c|        
+      c.times = 8        
+      c.within = 2.minutes        
+      c.transition = :start      
+    end    
+  end     
+
+  # start if process is not running    
+  w.transition(:up, :start) do |on|      
+    on.condition(:process_exits)    
+  end     
+
+  # lifecycle    
+  w.lifecycle do |on|      
+    on.condition(:flapping) do |c|        
+      c.to_state = [:start, :restart]        
+      c.times = 5        
+      c.within = 1.minute        
+      c.transition = :unmonitored        
+      c.retry_in = 10.minutes        
+      c.retry_times = 5        
+      c.retry_within = 2.hours      
+    end    
+  end
+  
+end
+\end{lstlisting}
+
+
+%\subsubsection{}
+
+%\begin{lstlisting}
+
+%\end{lstlisting}
+
+
 
 

@@ -104,7 +104,7 @@ Para determinar qué usuarios son los que pueden enviar trabajos y qué usuarios
 \section{Herramienta de virtualización: KVM}
 
 
-Una de las herramientas sobre las que se ha basado este proyecto ha sido la virtualización \emph{hardware} o virtualización de plataforma, que permite la simulación de un ordenador completo (llamado huésped) dentro de otro ordenador (llamado anfitrión). A la hora de hacer una virtualización \emph{hardware} hay varias opciones entre las que elegir, siendo las más ampliamente usadas Xen y KVM. La principal diferencia entre ellas es que Xen ofrece paravirtualización mientras que KVM ofrece virtualización nativa. \\
+Una de las herramientas sobre las que se ha basado este proyecto ha sido la virtualización \emph{hardware} o virtualización de plataforma, que permite la simulación de un ordenador completo (llamado huésped) dentro de otro ordenador (llamado anfitrión). A la hora de hacer una virtualización \emph{hardware} hay varias opciones entre las que elegir, siendo las más ampliamente usadas Xen \cite{xen} y KVM \cite{kvm}. La principal diferencia entre ellas es que Xen ofrece paravirtualización mientras que KVM ofrece virtualización nativa. \\
 
 La virtualización nativa permite hacer una virtualización \emph{hardware} completa de manera eficiente. Para ello, y a diferencia de la paravirtualización, no requiere de ninguna modificación en el sistema operativo de la máquina virtual; pero a cambio necesita un procesador con soporte para virtualización. KVM, que proporciona virtualización \emph{hardware}, está incluido como un módulo del núcleo de Linux desde su versión 2.6.20, así que viene incluido por defecto en cualquier sistema operativo con núcleo Linux. \\
 
