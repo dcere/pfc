@@ -1,0 +1,525 @@
+InfoKey: Title
+InfoValue: Diseño e implementación de un sistema dinámico de gestión de trabajos distribuidos en un entorno de máquinas virtuales
+InfoKey: Author
+InfoValue: David Ceresuela
+InfoKey: Subject
+InfoValue: Proyecto fin de carrera - Universidad de Zaragoza
+InfoKey: Keywords
+InfoValue: Sistemas distribuidos, Administración de sistemas, Herramientas de gestión de la configuración, Distributed systems, System administration, Configuration management tool
+InfoKey: Producer
+InfoValue: pdfTeX-1.40.10
+InfoKey: Creator
+InfoValue: LaTeX with hyperref package
+InfoKey: ModDate
+InfoValue: D:20120903012238+02'00'
+InfoKey: PTEX.Fullbanner
+InfoValue: This is pdfTeX, Version 3.1415926-1.40.10-2.2 (TeX Live 2009/Debian) kpathsea version 5.0.0
+InfoKey: CreationDate
+InfoValue: D:20120903012238+02'00'
+PdfID0: b9189399044daeee6dae9912e864eae
+PdfID1: b9189399044daeee6dae9912e864eae
+NumberOfPages: 180
+BookmarkTitle: Resumen
+BookmarkLevel: 1
+BookmarkPageNumber: 3
+BookmarkTitle: Introducci&#243;n
+BookmarkLevel: 1
+BookmarkPageNumber: 13
+BookmarkTitle: Contexto del proyecto
+BookmarkLevel: 2
+BookmarkPageNumber: 14
+BookmarkTitle: Objetivos
+BookmarkLevel: 2
+BookmarkPageNumber: 15
+BookmarkTitle: Trabajos previos
+BookmarkLevel: 2
+BookmarkPageNumber: 15
+BookmarkTitle: Tecnolog&#237;as utilizadas
+BookmarkLevel: 2
+BookmarkPageNumber: 15
+BookmarkTitle: Organizaci&#243;n de la memoria
+BookmarkLevel: 2
+BookmarkPageNumber: 16
+BookmarkTitle: Agradecimientos
+BookmarkLevel: 2
+BookmarkPageNumber: 16
+BookmarkTitle: Herramientas e infraestructuras utilizadas
+BookmarkLevel: 1
+BookmarkPageNumber: 17
+BookmarkTitle: Herramienta de gesti&#243;n de configuraci&#243;n: Puppet
+BookmarkLevel: 2
+BookmarkPageNumber: 17
+BookmarkTitle: Infraestructuras de ejecuci&#243;n de trabajos distribuidos
+BookmarkLevel: 2
+BookmarkPageNumber: 18
+BookmarkTitle: Infraestructura AppScale
+BookmarkLevel: 3
+BookmarkPageNumber: 18
+BookmarkTitle: Infraestructura TORQUE
+BookmarkLevel: 3
+BookmarkPageNumber: 20
+BookmarkTitle: Herramienta de virtualizaci&#243;n: KVM
+BookmarkLevel: 2
+BookmarkPageNumber: 21
+BookmarkTitle: Modelado de recursos distribuidos con Puppet
+BookmarkLevel: 1
+BookmarkPageNumber: 23
+BookmarkTitle: Configuraci&#243;n de recursos distribuidos
+BookmarkLevel: 2
+BookmarkPageNumber: 23
+BookmarkTitle: Modelizaci&#243;n en Puppet
+BookmarkLevel: 2
+BookmarkPageNumber: 24
+BookmarkTitle: Patr&#243;n de dise&#241;o del tipo de recurso distribuido
+BookmarkLevel: 3
+BookmarkPageNumber: 24
+BookmarkTitle: Patr&#243;n de dise&#241;o del proveedor de recurso distribuido
+BookmarkLevel: 3
+BookmarkPageNumber: 25
+BookmarkTitle: Framework de implementaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 26
+BookmarkTitle: Metodolog&#237;a de dise&#241;o e implementaci&#243;n de recursos distribuidos
+BookmarkLevel: 1
+BookmarkPageNumber: 29
+BookmarkTitle: Especificaci&#243;n del tipo
+BookmarkLevel: 2
+BookmarkPageNumber: 29
+BookmarkTitle: Dise&#241;o e implementaci&#243;n del proveedor
+BookmarkLevel: 2
+BookmarkPageNumber: 32
+BookmarkTitle: Ejemplos de dise&#241;o e implementaci&#243;n de infraestructuras de trabajos distribuidos
+BookmarkLevel: 1
+BookmarkPageNumber: 35
+BookmarkTitle: AppScale
+BookmarkLevel: 2
+BookmarkPageNumber: 35
+BookmarkTitle: TORQUE
+BookmarkLevel: 2
+BookmarkPageNumber: 37
+BookmarkTitle: Validaci&#243;n de la soluci&#243;n planteada
+BookmarkLevel: 1
+BookmarkPageNumber: 39
+BookmarkTitle: Pruebas comunes a todas las infraestructuras
+BookmarkLevel: 2
+BookmarkPageNumber: 39
+BookmarkTitle: Pruebas espec&#237;ficas de la infraestructura AppScale
+BookmarkLevel: 2
+BookmarkPageNumber: 40
+BookmarkTitle: Pruebas espec&#237;ficas de la infraestructura TORQUE
+BookmarkLevel: 2
+BookmarkPageNumber: 40
+BookmarkTitle: Pruebas espec&#237;ficas de la infraestructura web de tres niveles
+BookmarkLevel: 2
+BookmarkPageNumber: 41
+BookmarkTitle: Conclusiones
+BookmarkLevel: 1
+BookmarkPageNumber: 43
+BookmarkTitle: Bibliograf&#237;a
+BookmarkLevel: 1
+BookmarkPageNumber: 43
+BookmarkTitle: Gesti&#243;n del proyecto
+BookmarkLevel: 1
+BookmarkPageNumber: 47
+BookmarkTitle: Ejemplo de uso
+BookmarkLevel: 1
+BookmarkPageNumber: 49
+BookmarkTitle: Lenguaje de Puppet
+BookmarkLevel: 1
+BookmarkPageNumber: 53
+BookmarkTitle: AppScale
+BookmarkLevel: 1
+BookmarkPageNumber: 55
+BookmarkTitle: Roles y despliegue
+BookmarkLevel: 2
+BookmarkPageNumber: 55
+BookmarkTitle: Bases de datos
+BookmarkLevel: 2
+BookmarkPageNumber: 56
+BookmarkTitle: Infraestructuras
+BookmarkLevel: 2
+BookmarkPageNumber: 56
+BookmarkTitle: Desarrollo y organizaci&#243;n
+BookmarkLevel: 2
+BookmarkPageNumber: 57
+BookmarkTitle: Instalaci&#243;n de tecnolog&#237;as
+BookmarkLevel: 1
+BookmarkPageNumber: 59
+BookmarkTitle: AppScale
+BookmarkLevel: 2
+BookmarkPageNumber: 59
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 59
+BookmarkTitle: Comprobaci&#243;n de la instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 60
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 61
+BookmarkTitle: TORQUE
+BookmarkLevel: 2
+BookmarkPageNumber: 61
+BookmarkTitle: Instalaci&#243;n de TORQUE
+BookmarkLevel: 3
+BookmarkPageNumber: 61
+BookmarkTitle: Nodo maestro
+BookmarkLevel: 4
+BookmarkPageNumber: 61
+BookmarkTitle: Nodos de computaci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 61
+BookmarkTitle: Configuraci&#243;n de TORQUE
+BookmarkLevel: 3
+BookmarkPageNumber: 62
+BookmarkTitle: Nodo maestro
+BookmarkLevel: 4
+BookmarkPageNumber: 62
+BookmarkTitle: Comprobaci&#243;n de la configuraci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 62
+BookmarkTitle: Env&#237;o de un trabajo
+BookmarkLevel: 4
+BookmarkPageNumber: 63
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 64
+BookmarkTitle: Arquitectura Web
+BookmarkLevel: 2
+BookmarkPageNumber: 64
+BookmarkTitle: Balanceador de carga
+BookmarkLevel: 3
+BookmarkPageNumber: 64
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 64
+BookmarkTitle: Configuraci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 64
+BookmarkTitle: Ejecuci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 66
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 4
+BookmarkPageNumber: 66
+BookmarkTitle: Servidor web
+BookmarkLevel: 3
+BookmarkPageNumber: 66
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 66
+BookmarkTitle: Ejecuci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 67
+BookmarkTitle: A&#241;adiendo soporte para la base de datos
+BookmarkLevel: 4
+BookmarkPageNumber: 67
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 4
+BookmarkPageNumber: 68
+BookmarkTitle: Base de datos
+BookmarkLevel: 3
+BookmarkPageNumber: 68
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 68
+BookmarkTitle: Configuraci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 68
+BookmarkTitle: Ejecuci&#243;n
+BookmarkLevel: 4
+BookmarkPageNumber: 69
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 4
+BookmarkPageNumber: 69
+BookmarkTitle: Ruby
+BookmarkLevel: 2
+BookmarkPageNumber: 69
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 70
+BookmarkTitle: Problemas
+BookmarkLevel: 3
+BookmarkPageNumber: 70
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 71
+BookmarkTitle: Libvirt
+BookmarkLevel: 2
+BookmarkPageNumber: 71
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 71
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 71
+BookmarkTitle: MCollective
+BookmarkLevel: 2
+BookmarkPageNumber: 71
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 72
+BookmarkTitle: Configuraci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 73
+BookmarkTitle: Comprobaci&#243;n de la instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 73
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 73
+BookmarkTitle: RabbitMQ
+BookmarkLevel: 2
+BookmarkPageNumber: 73
+BookmarkTitle: Instalaci&#243;n de RabbitMQ
+BookmarkLevel: 3
+BookmarkPageNumber: 73
+BookmarkTitle: Instalaci&#243;n de los plugins para el soporte de AMQP y STOMP
+BookmarkLevel: 3
+BookmarkPageNumber: 74
+BookmarkTitle: Configuraci&#243;n de la cuenta de MCollective
+BookmarkLevel: 3
+BookmarkPageNumber: 74
+BookmarkTitle: Comprobaci&#243;n de la instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 75
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 75
+BookmarkTitle: Puppet
+BookmarkLevel: 2
+BookmarkPageNumber: 75
+BookmarkTitle: Instalaci&#243;n de libopenssl-ruby
+BookmarkLevel: 3
+BookmarkPageNumber: 75
+BookmarkTitle: Creaci&#243;n del entorno de instalaci&#243;n de Puppet
+BookmarkLevel: 3
+BookmarkPageNumber: 75
+BookmarkTitle: Instalaci&#243;n de Facter
+BookmarkLevel: 3
+BookmarkPageNumber: 75
+BookmarkTitle: Instalaci&#243;n de Puppet
+BookmarkLevel: 3
+BookmarkPageNumber: 76
+BookmarkTitle: Configuraci&#243;n de Puppet
+BookmarkLevel: 3
+BookmarkPageNumber: 76
+BookmarkTitle: Comprobaci&#243;n de la instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 76
+BookmarkTitle: Comprobaci&#243;n del maestro de Puppet
+BookmarkLevel: 4
+BookmarkPageNumber: 77
+BookmarkTitle: Comprobaci&#243;n del agente de Puppet
+BookmarkLevel: 4
+BookmarkPageNumber: 77
+BookmarkTitle: Comprobaci&#243;n del sistema Puppet
+BookmarkLevel: 4
+BookmarkPageNumber: 79
+BookmarkTitle: Problemas
+BookmarkLevel: 3
+BookmarkPageNumber: 79
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 80
+BookmarkTitle: Neptune
+BookmarkLevel: 2
+BookmarkPageNumber: 80
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 80
+BookmarkTitle: Comprobaci&#243;n de la instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 81
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 81
+BookmarkTitle: God
+BookmarkLevel: 2
+BookmarkPageNumber: 81
+BookmarkTitle: Instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 81
+BookmarkTitle: Comprobaci&#243;n de la instalaci&#243;n
+BookmarkLevel: 3
+BookmarkPageNumber: 81
+BookmarkTitle: Versiones instaladas
+BookmarkLevel: 3
+BookmarkPageNumber: 82
+BookmarkTitle: C&#243;digo fuente
+BookmarkLevel: 1
+BookmarkPageNumber: 83
+BookmarkTitle: generic-module
+BookmarkLevel: 2
+BookmarkPageNumber: 83
+BookmarkTitle: mcollective_leader.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 83
+BookmarkTitle: cloud.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 84
+BookmarkTitle: cloudmonitor.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 91
+BookmarkTitle: cloudinfrastructure.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 93
+BookmarkTitle: vm.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 94
+BookmarkTitle: mcollective_client.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 95
+BookmarkTitle: gedit.sh
+BookmarkLevel: 3
+BookmarkPageNumber: 95
+BookmarkTitle: mcollective_files.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 95
+BookmarkTitle: cloudinterface.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 96
+BookmarkTitle: mcollective_cron.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 97
+BookmarkTitle: cloudcron.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 98
+BookmarkTitle: cloudvm.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 99
+BookmarkTitle: cloudconstants.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 105
+BookmarkTitle: mac.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 105
+BookmarkTitle: cloudleader.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 106
+BookmarkTitle: cloudssh.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 109
+BookmarkTitle: ssh_copy_id.sh
+BookmarkLevel: 3
+BookmarkPageNumber: 111
+BookmarkTitle: appscale
+BookmarkLevel: 2
+BookmarkPageNumber: 112
+BookmarkTitle: appscale.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 112
+BookmarkTitle: appscalep.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 115
+BookmarkTitle: appscalep_helper.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 119
+BookmarkTitle: appscale-run-instances.tcl
+BookmarkLevel: 3
+BookmarkPageNumber: 120
+BookmarkTitle: appscale_yaml.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 122
+BookmarkTitle: appscale_functions.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 125
+BookmarkTitle: appscale_parsing.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 129
+BookmarkTitle: appscale-add-keypair.tcl
+BookmarkLevel: 3
+BookmarkPageNumber: 134
+BookmarkTitle: manifiestos locales
+BookmarkLevel: 3
+BookmarkPageNumber: 136
+BookmarkTitle: basic.pp
+BookmarkLevel: 4
+BookmarkPageNumber: 136
+BookmarkTitle: torque
+BookmarkLevel: 2
+BookmarkPageNumber: 137
+BookmarkTitle: torque.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 137
+BookmarkTitle: torquep_helper.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 139
+BookmarkTitle: torquep.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 140
+BookmarkTitle: torque_parsing.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 143
+BookmarkTitle: torque_functions.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 145
+BookmarkTitle: torque_yaml.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 153
+BookmarkTitle: manifiestos locales
+BookmarkLevel: 3
+BookmarkPageNumber: 155
+BookmarkTitle: pbs-mom.god
+BookmarkLevel: 4
+BookmarkPageNumber: 155
+BookmarkTitle: pbs-sched.god
+BookmarkLevel: 4
+BookmarkPageNumber: 156
+BookmarkTitle: pbs-server.god
+BookmarkLevel: 4
+BookmarkPageNumber: 157
+BookmarkTitle: web
+BookmarkLevel: 2
+BookmarkPageNumber: 158
+BookmarkTitle: web.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 158
+BookmarkTitle: webp_helper.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 160
+BookmarkTitle: webp.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 161
+BookmarkTitle: web_parsing.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 164
+BookmarkTitle: web_functions.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 166
+BookmarkTitle: web_yaml.rb
+BookmarkLevel: 3
+BookmarkPageNumber: 175
+BookmarkTitle: manifiestos locales
+BookmarkLevel: 3
+BookmarkPageNumber: 176
+BookmarkTitle: balancer.pp
+BookmarkLevel: 4
+BookmarkPageNumber: 176
+BookmarkTitle: server.pp
+BookmarkLevel: 4
+BookmarkPageNumber: 177
+BookmarkTitle: server-start.pp
+BookmarkLevel: 4
+BookmarkPageNumber: 177
+BookmarkTitle: server-stop.pp
+BookmarkLevel: 4
+BookmarkPageNumber: 177
+BookmarkTitle: server.god
+BookmarkLevel: 4
+BookmarkPageNumber: 177
+BookmarkTitle: database.pp
+BookmarkLevel: 4
+BookmarkPageNumber: 178
+BookmarkTitle: database.god
+BookmarkLevel: 4
+BookmarkPageNumber: 179
+PageLabelNewIndex: 1
+PageLabelStart: 1
+PageLabelNumStyle: DecimalArabicNumerals
+PageLabelNewIndex: 3
+PageLabelStart: 1
+PageLabelNumStyle: LowercaseRomanNumerals
+PageLabelNewIndex: 13
+PageLabelStart: 1
+PageLabelNumStyle: DecimalArabicNumerals

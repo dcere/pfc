@@ -1,0 +1,8 @@
+InfoKey: Title
+InfoValue: Diseño e implementación de un sistema dinámico de gestión de trabajos distribuidos en un entorno de máquinas virtuales
+InfoKey: Author
+InfoValue: David Ceresuela
+InfoKey: Subject
+InfoValue: Proyecto fin de carrera - Universidad de Zaragoza
+InfoKey: Keywords
+InfoValue: Sistemas distribuidos, Administración de sistemas, Herramientas de gestión de la configuración, Distributed systems, System administration, Configuration management tool
