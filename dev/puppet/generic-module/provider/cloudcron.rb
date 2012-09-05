@@ -20,8 +20,6 @@ class CloudCron
 
    # Adds a line to the crontab file.
    def add_line(line, user, vm)
-
-      #line = "#{@time} #{@command} > #{@out} 2> #{@err}"
       
       # Check if it is already in the file
       command = "cat #{@crontab}"
@@ -45,7 +43,6 @@ class CloudCron
    # Deletes a line from the crontab file.
    def delete_line(line, user, vm)
 
-      #line = "#{@time} #{@command} > #{@out} 2> #{@err}"
       command = "sed -i '/#{line}/d' #{@crontab}"
       out, success = CloudSSH.execute_remote(command, user, vm)
       unless success
