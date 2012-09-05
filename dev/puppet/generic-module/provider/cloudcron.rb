@@ -22,6 +22,15 @@ class CloudCron
    def add_line(line, user, vm)
 
       #line = "#{@time} #{@command} > #{@out} 2> #{@err}"
+      
+      # Check if it is already in the file
+      command = "cat #{@crontab}"
+      out, success = CloudSSH.execute_remote(command, user, vm)
+      if out.include? line
+         return true
+      end
+      
+      # Add it if it is not
       command = "echo \"#{line}\" >> #{@crontab}"
       out, success = CloudSSH.execute_remote(command, user, vm)
       unless success

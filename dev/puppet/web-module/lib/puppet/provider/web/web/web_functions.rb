@@ -206,7 +206,7 @@ def start_monitor_balancer(resource, vm)
    # We have to ensure that the node will be auto-monitoring itself
    user = resource[:vm_user]
    cloud_cron = CloudCron.new()
-   cron_time = "*/1 * * * *"
+   cron_time = "*/30 * * * *"
    cron_command = "puppet apply /tmp/balancer.pp"
    cron_out = "/root/balancer.out"
    cron_err = "/root/balancer.err"
@@ -217,7 +217,8 @@ def start_monitor_balancer(resource, vm)
    end
    
    # Execute crontab
-   command = "crontab /var/spool/cron/crontabs/root"
+   crontab_file  = "/var/spool/cron/crontabs/root"
+   command = "crontab #{crontab_file}"
    out, success = CloudSSH.execute_remote(command, user, vm)
    if success
       puts "[Web monitor] Executed crontab in #{vm}"
@@ -259,7 +260,7 @@ def start_monitor_server(resource, vm)
    # Monitor web server with puppet: installation files and required gems
    user = resource[:vm_user]
    cloud_cron = CloudCron.new()
-   cron_time = "*/1 * * * *"
+   cron_time = "*/30 * * * *"
    cron_command = "puppet apply /tmp/server.pp"
    cron_out = "/root/server.out"
    cron_err = "/root/server.err"
@@ -270,7 +271,7 @@ def start_monitor_server(resource, vm)
    end
 
    # Monitor web server with puppet: web server is up and running
-   cron_time = "*/1 * * * *"
+   cron_time = "*/30 * * * *"
    cron_command = "puppet apply /tmp/server-start.pp"
    cron_out = "/root/server-start.out"
    cron_err = "/root/server-start.err"
@@ -281,7 +282,8 @@ def start_monitor_server(resource, vm)
    end
    
    # Execute crontab
-   command = "crontab /var/spool/cron/crontabs/root"
+   crontab_file  = "/var/spool/cron/crontabs/root"
+   command = "crontab #{crontab_file}"
    out, success = CloudSSH.execute_remote(command, user, vm)
    if success
       puts "[Web monitor] Executed crontab in #{vm}"
