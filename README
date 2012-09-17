@@ -35,8 +35,13 @@ David Ceresuela
 
 License
 -------
-Unless stated otherwise[1], all of the work under the '/dev/puppet' directory is
-released under the MIT license:
+Unless stated otherwise[1], all of the code in the
+- '/dev/puppet'
+- '/dev/puppet-installation'
+- '/dev/mcollective'
+- '/dev/mcollective-installation'
+- '/dev/vm'
+directories is released under the MIT license:
 
 The MIT License (MIT)
 
@@ -61,6 +66,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 [1]
-File /dev/puppet/generic-module/provider/ssh_copy_id.sh
-Directory /dev/puppet/grammar/
+- File /dev/puppet/generic-module/provider/ssh_copy_id.sh
+- Directory /dev/puppet/grammar/
 belong to their authors
