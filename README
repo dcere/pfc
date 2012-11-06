@@ -3,8 +3,11 @@ Master thesis - Proyecto fin de carrera (PFC)
 
 Description
 -----------
-A Puppet extension to manage cloud resources. The core of the project is in the
-'/dev/puppet' directory.
+A Puppet extension to manage cloud resources. The main goal is to manage clouds
+as another Puppet resource. This is achieved creating new types and providers.
+To avoid code duplicity among providers a general Cloud (Ruby) class is offered.
+
+The core of the project is in the '/dev/puppet' directory.
 The 'adm' directory contains administration files.
 the 'doc' directory contains documentation files.
 
